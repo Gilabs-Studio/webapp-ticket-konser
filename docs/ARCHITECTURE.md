@@ -1,14 +1,14 @@
 # Architecture Documentation
-## CRM Healthcare Platform
+## Ticketing Konser Internasional Platform
 
 **Versi**: 1.0  
-**Last Updated**: 2025-01-15
+**Last Updated**: 2025-01-XX
 
 ---
 
 ## Overview
 
-Dokumen ini menjelaskan arsitektur sistem CRM Healthcare Platform, termasuk struktur codebase, design patterns, dan best practices.
+Dokumen ini menjelaskan arsitektur sistem Ticketing Konser Internasional Platform, termasuk struktur codebase, design patterns, dan best practices.
 
 ---
 
@@ -56,20 +56,20 @@ Sistem menggunakan **Layered Architecture** dengan pemisahan yang jelas:
 
 **Example:**
 ```go
-func (h *AuthHandler) Login(c *gin.Context) {
-    var req auth.LoginRequest
+func (h *TicketHandler) CreateOrder(c *gin.Context) {
+    var req order.CreateOrderRequest
     if err := c.ShouldBindJSON(&req); err != nil {
         errors.HandleValidationError(c, err)
         return
     }
     
-    loginResponse, err := h.authService.Login(&req)
+    orderResponse, err := h.orderService.CreateOrder(&req)
     if err != nil {
-        errors.ErrorResponse(c, "INVALID_CREDENTIALS", nil, nil)
+        errors.ErrorResponse(c, "INSUFFICIENT_QUOTA", nil, nil)
         return
     }
     
-    response.SuccessResponse(c, loginResponse, nil)
+    response.SuccessResponse(c, orderResponse, nil)
 }
 ```
 
@@ -81,23 +81,41 @@ func (h *AuthHandler) Login(c *gin.Context) {
 - Orchestrate repository calls
 - Transaction management
 - Error handling
+- QR code generation
+- Email service integration
 
 **Example:**
 ```go
-func (s *Service) Login(req *auth.LoginRequest) (*auth.LoginResponse, error) {
-    user, err := s.repo.FindByEmail(req.Email)
+func (s *OrderService) CreateOrder(req *order.CreateOrderRequest) (*order.OrderResponse, error) {
+    // Business logic: check quota
+    tier, err := s.tierRepo.FindByID(req.TierID)
     if err != nil {
-        return nil, ErrInvalidCredentials
+        return nil, ErrTierNotFound
     }
     
-    // Business logic: verify password
-    if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(req.Password)); err != nil {
-        return nil, ErrInvalidCredentials
+    if tier.AvailableQuota < req.Quantity {
+        return nil, ErrInsufficientQuota
     }
     
-    // Generate tokens
-    accessToken, err := s.jwtManager.GenerateAccessToken(user.ID, user.Email, user.Role)
-    // ...
+    // Create order
+    newOrder := &order.Order{
+        BuyerName:  req.BuyerName,
+        BuyerEmail: req.BuyerEmail,
+        BuyerPhone: req.BuyerPhone,
+        Status:     "pending",
+    }
+    
+    if err := s.orderRepo.Create(newOrder); err != nil {
+        return nil, err
+    }
+    
+    // Decrement quota
+    tier.AvailableQuota -= req.Quantity
+    if err := s.tierRepo.Update(tier); err != nil {
+        return nil, err
+    }
+    
+    return &order.OrderResponse{Order: newOrder}, nil
 }
 ```
 
@@ -111,13 +129,22 @@ func (s *Service) Login(req *auth.LoginRequest) (*auth.LoginResponse, error) {
 
 **Example:**
 ```go
-func (r *repository) FindByEmail(email string) (*auth.User, error) {
-    var user auth.User
-    err := r.db.Where("email = ?", email).First(&user).Error
+func (r *repository) FindByID(id string) (*ticket.Ticket, error) {
+    var ticket ticket.Ticket
+    err := r.db.Where("id = ?", id).First(&ticket).Error
     if err != nil {
         return nil, err
     }
-    return &user, nil
+    return &ticket, nil
+}
+
+func (r *repository) FindByQRCode(qrCode string) (*ticket.Ticket, error) {
+    var ticket ticket.Ticket
+    err := r.db.Where("qr_code = ?", qrCode).First(&ticket).Error
+    if err != nil {
+        return nil, err
+    }
+    return &ticket, nil
 }
 ```
 
@@ -127,13 +154,13 @@ Semua dependencies di-inject melalui constructor:
 
 ```go
 // Repository
-authRepo := auth.NewRepository(database.DB)
+ticketRepo := ticket.NewRepository(database.DB)
 
 // Service (depends on Repository)
-authService := authservice.NewService(authRepo, jwtManager)
+ticketService := ticketservice.NewService(ticketRepo, qrCodeGenerator, emailService)
 
 // Handler (depends on Service)
-authHandler := handlers.NewAuthHandler(authService)
+ticketHandler := handlers.NewTicketHandler(ticketService)
 ```
 
 **Benefits:**
@@ -147,10 +174,11 @@ Repository menggunakan interface untuk abstraction:
 
 ```go
 // Interface
-type AuthRepository interface {
-    FindByEmail(email string) (*auth.User, error)
-    FindByID(id string) (*auth.User, error)
-    Create(user *auth.User) error
+type TicketRepository interface {
+    FindByID(id string) (*ticket.Ticket, error)
+    FindByQRCode(qrCode string) (*ticket.Ticket, error)
+    Create(ticket *ticket.Ticket) error
+    Update(ticket *ticket.Ticket) error
 }
 
 // Implementation
@@ -158,7 +186,7 @@ type repository struct {
     db *gorm.DB
 }
 
-func NewRepository(db *gorm.DB) interfaces.AuthRepository {
+func NewRepository(db *gorm.DB) interfaces.TicketRepository {
     return &repository{db: db}
 }
 ```
@@ -177,9 +205,37 @@ func NewRepository(db *gorm.DB) interfaces.AuthRepository {
 ```
 apps/web/src/
 ├── features/
-│   └── auth/
-│       ├── components/      # Feature components
-│       ├── hooks/           # Feature hooks
+│   ├── event/
+│   │   ├── components/      # Event components
+│   │   ├── hooks/           # Event hooks
+│   │   ├── services/        # API services
+│   │   ├── stores/          # Zustand stores
+│   │   ├── types/           # TypeScript types
+│   │   └── schemas/          # Zod schemas
+│   ├── ticket/
+│   │   ├── components/      # Ticket components
+│   │   ├── hooks/           # Ticket hooks
+│   │   ├── services/        # API services
+│   │   ├── stores/          # Zustand stores
+│   │   ├── types/           # TypeScript types
+│   │   └── schemas/         # Zod schemas
+│   ├── purchase/
+│   │   ├── components/      # Purchase components
+│   │   ├── hooks/           # Purchase hooks
+│   │   ├── services/        # API services
+│   │   ├── stores/          # Zustand stores
+│   │   ├── types/           # TypeScript types
+│   │   └── schemas/         # Zod schemas
+│   ├── checkin/
+│   │   ├── components/      # Check-in components
+│   │   ├── hooks/           # Check-in hooks
+│   │   ├── services/        # API services
+│   │   ├── stores/          # Zustand stores
+│   │   ├── types/           # TypeScript types
+│   │   └── schemas/         # Zod schemas
+│   └── admin/
+│       ├── components/      # Admin components
+│       ├── hooks/           # Admin hooks
 │       ├── services/        # API services
 │       ├── stores/          # Zustand stores
 │       ├── types/           # TypeScript types
@@ -195,7 +251,7 @@ apps/web/src/
 ### State Management
 
 **Zustand** untuk client state:
-- Auth state
+- Purchase cart state
 - UI state
 - Local state
 
@@ -203,6 +259,7 @@ apps/web/src/
 - API data caching
 - Automatic refetching
 - Background updates
+- Real-time polling untuk check-in status
 
 ### Form Handling
 
@@ -220,8 +277,9 @@ apps/web/src/
 Abstraction layer untuk data access:
 
 ```go
-type AuthRepository interface {
-    FindByEmail(email string) (*auth.User, error)
+type TicketRepository interface {
+    FindByID(id string) (*ticket.Ticket, error)
+    FindByQRCode(qrCode string) (*ticket.Ticket, error)
 }
 
 type repository struct {
@@ -234,9 +292,12 @@ type repository struct {
 Business logic encapsulation:
 
 ```go
-type Service struct {
-    repo      interfaces.AuthRepository
-    jwtManager *jwt.JWTManager
+type OrderService struct {
+    orderRepo      interfaces.OrderRepository
+    tierRepo       interfaces.TierRepository
+    ticketRepo     interfaces.TicketRepository
+    qrCodeGenerator *qr.QRCodeGenerator
+    emailService   *email.EmailService
 }
 ```
 
@@ -245,10 +306,17 @@ type Service struct {
 Constructor-based injection:
 
 ```go
-func NewService(repo interfaces.AuthRepository, jwtManager *jwt.JWTManager) *Service {
-    return &Service{
-        repo:       repo,
-        jwtManager: jwtManager,
+func NewService(
+    orderRepo interfaces.OrderRepository,
+    tierRepo interfaces.TierRepository,
+    qrCodeGenerator *qr.QRCodeGenerator,
+    emailService *email.EmailService,
+) *OrderService {
+    return &OrderService{
+        orderRepo:      orderRepo,
+        tierRepo:       tierRepo,
+        qrCodeGenerator: qrCodeGenerator,
+        emailService:   emailService,
     }
 }
 ```
@@ -261,7 +329,9 @@ Cross-cutting concerns:
 router.Use(middleware.LoggerMiddleware())
 router.Use(middleware.CORSMiddleware())
 router.Use(middleware.RequestIDMiddleware())
-router.Use(middleware.LocaleMiddleware())
+router.Use(middleware.AuthMiddleware())
+router.Use(middleware.RoleMiddleware())
+router.Use(middleware.RateLimitMiddleware())
 ```
 
 ---
@@ -277,8 +347,13 @@ router.Use(middleware.LocaleMiddleware())
 
 ```go
 // Service returns domain error
-if err == authservice.ErrInvalidCredentials {
-    errors.ErrorResponse(c, "INVALID_CREDENTIALS", nil, nil)
+if err == orderservice.ErrInsufficientQuota {
+    errors.ErrorResponse(c, "INSUFFICIENT_QUOTA", nil, nil)
+    return
+}
+
+if err == checkservice.ErrTicketAlreadyUsed {
+    errors.ErrorResponse(c, "TICKET_ALREADY_USED", nil, nil)
     return
 }
 ```
@@ -303,8 +378,8 @@ if err == authservice.ErrInvalidCredentials {
 
 ```go
 logger.LogError(err, map[string]interface{}{
-    "user_id": userID,
-    "action":  "login",
+    "order_id": orderID,
+    "action":   "create_order",
 })
 ```
 
@@ -326,8 +401,8 @@ logger.LogError(err, map[string]interface{}{
 
 ### Authorization
 
-- **Role-Based**: User roles
-- **Permission-Based**: Fine-grained permissions (future)
+- **Role-Based**: User roles (Super Admin, Finance, Gate Staff)
+- **Permission-Based**: Fine-grained permissions
 
 ### Data Protection
 
@@ -335,6 +410,14 @@ logger.LogError(err, map[string]interface{}{
 - **SQL Injection**: GORM parameterized queries
 - **XSS**: React automatic escaping
 - **CORS**: Configured middleware
+- **Rate Limiting**: Untuk check-in endpoint
+
+### QR Code Security
+
+- **Secure Hash**: QR code menggunakan secure hash
+- **One-Time Use**: QR code hanya bisa digunakan sekali
+- **Duplicate Detection**: Detect duplicate scan
+- **Screenshot Detection**: Basic detection untuk screenshot QR
 
 ---
 
@@ -345,7 +428,8 @@ logger.LogError(err, map[string]interface{}{
 1. **Stateless API**: JWT-based, no server-side sessions
 2. **Database Connection Pooling**: GORM handles this
 3. **Horizontal Scaling**: Stateless design enables this
-4. **Caching**: Ready for Redis integration
+4. **Caching**: Ready for Redis integration (untuk quota tracking)
+5. **Indexing**: Database indexing untuk QR code validation
 
 ### Frontend
 
@@ -363,12 +447,13 @@ logger.LogError(err, map[string]interface{}{
 - **Unit Tests**: Per layer (service, repository)
 - **Integration Tests**: API endpoints
 - **Mocking**: Interface-based mocking
+- **Manual Testing**: Untuk MVP (hackathon mode)
 
 ### Frontend
 
 - **Unit Tests**: Components, hooks
 - **Integration Tests**: User flows
-- **E2E Tests**: Critical paths (future)
+- **Manual Testing**: Untuk MVP (hackathon mode)
 
 ---
 
@@ -395,11 +480,42 @@ logger.LogError(err, map[string]interface{}{
 - **Request ID**: Track requests
 - **Structured Logging**: Easy to parse
 - **Error Tracking**: Error codes + context
+- **Performance Monitoring**: Response time tracking
 
 ### Frontend
 
 - **Error Boundary**: Catch errors
 - **API Error Tracking**: Request ID correlation
+- **Performance Monitoring**: Page load time
+
+---
+
+## Database Schema Overview
+
+### Core Tables
+
+- **events**: Event information
+- **ticket_tiers**: Ticket tier definitions
+- **ticket_quotas**: Ticket quota tracking
+- **orders**: Order transactions
+- **order_items**: Order items
+- **tickets**: Generated tickets dengan QR code
+- **check_ins**: Check-in records
+- **gates**: Gate definitions
+- **gate_assignments**: Gate assignments untuk tickets
+- **users**: User accounts
+- **roles**: User roles
+- **permissions**: Permissions
+
+### Key Relationships
+
+- Event → Ticket Tiers (1:N)
+- Ticket Tier → Ticket Quota (1:1)
+- Order → Order Items (1:N)
+- Order Item → Ticket (1:1)
+- Ticket → Check-in (1:1)
+- Gate → Gate Assignments (1:N)
+- User → Roles (N:M)
 
 ---
 
@@ -424,7 +540,7 @@ logger.LogError(err, map[string]interface{}{
 1. **Test Each Layer**: Unit tests per layer
 2. **Mock Dependencies**: Use interfaces
 3. **Integration Tests**: Test full flows
-4. **Coverage**: Aim for >80%
+4. **Manual Testing**: Untuk MVP (hackathon mode)
 
 ---
 

@@ -1,11 +1,11 @@
 # Product Requirements Document (PRD)
-## CRM Healthcare/Pharmaceutical Platform - Sales CRM
+## Ticketing Konser Internasional Platform
 
-**Versi**: 2.0  
+**Versi**: 1.0  
 **Status**: Active  
-**Last Updated**: 2025-01-15  
+**Last Updated**: 2025-01-XX  
 **Target Release**: MVP Q1 2025  
-**Product Type**: Sales CRM untuk Perusahaan Farmasi
+**Product Type**: Ticketing System untuk Konser Internasional (1 Event Only)
 
 ---
 
@@ -27,16 +27,17 @@
 
 ## Executive Summary
 
-CRM Healthcare/Pharmaceutical Platform adalah sistem manajemen hubungan pelanggan (CRM) yang dirancang khusus untuk **perusahaan farmasi** yang melakukan sales ke rumah sakit, klinik, dan apotek. Platform ini membantu sales team mengelola accounts, contacts, visit reports, sales pipeline, dan aktivitas sales secara terintegrasi melalui **Web Application** dan **Mobile App (Flutter)**.
+Ticketing Konser Internasional Platform adalah sistem ticketing online yang dirancang khusus untuk **konser internasional (1 event only)** dengan fitur lengkap mulai dari pembelian tiket, generasi E-Ticket dengan QR code unik, hingga check-in on-site menggunakan mobile-web scanner. Platform ini membantu panitia mengelola penjualan tiket, monitoring real-time, dan validasi check-in dengan sistem anti-fraud yang terintegrasi.
 
 ### Key Value Propositions
 
-- **Account & Contact Management**: Manajemen data rumah sakit, klinik, apotek, dan kontak (dokter, PIC) yang terpusat
-- **Visit Report & Activity Tracking**: Tracking kunjungan sales dengan check-in/out, GPS, dan dokumentasi foto
-- **Sales Pipeline Management**: Manage sales pipeline dari lead hingga deal dengan forecast yang akurat
-- **Task & Reminder**: Task management dan reminder otomatis untuk follow-up
-- **Mobile-First**: Mobile app (Flutter) untuk sales rep bekerja di lapangan
-- **On-Premise Ready**: Dapat di-install on-premise di server perusahaan
+- **Multiple Ticket Tier Management**: Manajemen berbagai tier tiket (Presale, Regular, VIP, VVIP, Meet & Greet) dengan quota tracking real-time
+- **Unique E-Ticket dengan QR Code**: Setiap pembeli menerima E-Ticket dengan QR code unik yang hanya bisa digunakan sekali
+- **On-site Check-in Scanner**: Mobile-web scanner untuk validasi tiket di lokasi konser tanpa perlu aplikasi native
+- **Real-time Monitoring**: Dashboard real-time untuk monitoring penjualan, check-in status, dan analytics
+- **Anti-Fraud Protection**: Sistem deteksi duplicate dan screenshot QR untuk mencegah penipuan
+- **Access Control**: Role-based access control untuk Super Admin, Finance, dan Gate Staff
+- **Mobile-Friendly**: User experience yang optimal untuk pembeli menggunakan mobile device
 
 ---
 
@@ -44,19 +45,19 @@ CRM Healthcare/Pharmaceutical Platform adalah sistem manajemen hubungan pelangga
 
 ### Vision
 
-Menjadi platform CRM Sales terdepan untuk perusahaan farmasi di Indonesia yang memungkinkan sales team bekerja lebih efisien dan efektif dalam mengelola hubungan dengan rumah sakit, klinik, dan apotek.
+Menjadi platform ticketing terdepan untuk konser internasional yang memungkinkan panitia mengelola penjualan tiket dan check-in dengan efisien, aman, dan user-friendly.
 
 ### Mission
 
-Menyediakan solusi CRM Sales yang komprehensif, mudah digunakan, dan mobile-first untuk membantu perusahaan farmasi mengoptimalkan aktivitas sales dan meningkatkan revenue.
+Menyediakan solusi ticketing yang komprehensif, mudah digunakan, dan mobile-first untuk membantu panitia konser mengoptimalkan penjualan tiket dan pengalaman check-in.
 
 ### Product Goals
 
-1. **Improve Sales Efficiency**: Mempermudah sales rep dalam mengelola kunjungan dan aktivitas sales
-2. **Better Visibility**: Memberikan visibility yang jelas kepada supervisor dan management tentang aktivitas sales
-3. **Data-Driven Decisions**: Memberikan insights yang actionable melalui data dan analitik sales
-4. **Mobile-First**: Mobile app yang memungkinkan sales rep bekerja di lapangan dengan mudah
-5. **Scalability**: Mendukung pertumbuhan dari tim sales kecil hingga enterprise
+1. **Efficient Ticket Management**: Mempermudah panitia dalam mengelola penjualan tiket dengan berbagai tier
+2. **Secure Check-in Process**: Memastikan validasi tiket yang aman dan anti-fraud
+3. **Real-time Visibility**: Memberikan visibility real-time kepada panitia tentang penjualan dan check-in
+4. **Mobile-First Experience**: User experience yang optimal untuk pembeli dan panitia menggunakan mobile device
+5. **Scalability**: Mendukung event dengan kapasitas besar (10,000+ tiket)
 
 ---
 
@@ -64,36 +65,34 @@ Menyediakan solusi CRM Sales yang komprehensif, mudah digunakan, dan mobile-firs
 
 ### Primary Users
 
-1. **Sales Rep / Sales Representative**
-   - Melakukan kunjungan ke rumah sakit, klinik, apotek
-   - Membuat visit report dengan check-in/out
-   - Mengelola tasks dan follow-up
-   - Melihat accounts dan contacts
-   - Menggunakan mobile app di lapangan
+1. **Buyer / Pembeli Tiket**
+   - Membeli tiket konser online
+   - Menerima E-Ticket via email
+   - Menampilkan E-Ticket dengan QR code untuk check-in
+   - Melihat order history
+   - Menggunakan mobile device untuk pembelian
 
-2. **Supervisor / Sales Manager**
-   - Review dan approve visit reports
-   - Monitor aktivitas sales team
-   - Manage sales pipeline
-   - Melihat dashboard dan laporan
-   - Assign tasks ke sales rep
+2. **Gate Staff / Panitia Check-in**
+   - Scan QR code tiket menggunakan mobile-web scanner
+   - Validasi tiket dan check-in tamu
+   - Melihat status check-in real-time
+   - Menggunakan mobile device di lapangan
 
-3. **Administrator**
-   - Mengelola users dan permissions
-   - Mengelola accounts dan contacts
+3. **Super Admin**
+   - Mengelola event dan ticket tiers
+   - Monitoring penjualan dan analytics
+   - Mengelola users dan access control
+   - Export buyer list
    - Konfigurasi sistem
-   - Melihat laporan dan analitik
-   - Manage products dan pricing
+
+4. **Finance Staff**
+   - Monitoring penjualan dan revenue
+   - Export data untuk laporan keuangan
+   - Melihat analytics penjualan
 
 ### Secondary Users
 
-1. **Manager / Owner**
-   - Melihat dashboard dan laporan
-   - Analisis sales performance
-   - Pengambilan keputusan strategis
-   - Forecast dan planning
-
-2. **Viewer / Read-Only User**
+1. **Viewer / Read-Only User**
    - Melihat data dan laporan (tanpa edit)
    - Export data untuk analisis
 
@@ -101,29 +100,27 @@ Menyediakan solusi CRM Sales yang komprehensif, mudah digunakan, dan mobile-firs
 
 ## Business Objectives
 
-### Short-term (MVP - 100 hari)
+### Short-term (MVP - 60 hari)
 
-1. **Core Functionality**: Implementasi fitur-fitur inti untuk sales operations
-2. **User Adoption**: Onboarding minimal 1 perusahaan farmasi dengan 10+ sales rep
-3. **Data Accuracy**: Akurasi data > 95%
-4. **System Uptime**: Uptime > 99%
-5. **Mobile App**: Functional Flutter app untuk sales rep
-6. **On-Premise**: Ready untuk install on-premise
+1. **Core Functionality**: Implementasi fitur-fitur inti untuk ticketing dan check-in
+2. **Event Support**: Support 1 konser internasional dengan multiple ticket tiers
+3. **System Uptime**: Uptime > 99%
+4. **Mobile-Friendly**: User experience optimal untuk mobile device
+5. **Security**: Sistem anti-fraud dan validasi QR code yang aman
 
-### Medium-term (6-12 bulan)
+### Medium-term (3-6 bulan)
 
-1. **Market Expansion**: Ekspansi ke 10+ perusahaan farmasi
-2. **Feature Enhancement**: Penambahan fitur advanced berdasarkan feedback
-3. **Integration**: Integrasi dengan sistem eksternal (ERP, accounting)
-4. **Advanced Analytics**: Advanced analytics dan reporting
-5. **Mobile Enhancement**: Offline support, advanced features di mobile app
+1. **Payment Integration**: Integrasi dengan Midtrans untuk payment processing
+2. **Feature Enhancement**: Penambahan fitur refund, transfer ownership, offline scan buffer
+3. **Advanced Analytics**: Advanced analytics dan reporting
+4. **Multi-Event Support**: Support untuk multiple events (jika diperlukan)
 
-### Long-term (12+ bulan)
+### Long-term (6+ bulan)
 
-1. **Market Leadership**: Menjadi market leader CRM Sales untuk pharma di Indonesia
-2. **AI/ML Integration**: Implementasi AI untuk sales prediction dan recommendation
-3. **Advanced Features**: Territory management, route optimization, digital signature
-4. **Analytics Platform**: Platform analitik advanced untuk sales insights
+1. **Market Expansion**: Ekspansi ke berbagai jenis event (festival, seminar, dll)
+2. **Advanced Features**: Seat numbering, section mapping, advanced fraud detection
+3. **Integration**: Integrasi dengan sistem eksternal (marketing, CRM)
+4. **AI/ML Integration**: Implementasi AI untuk fraud detection dan recommendation
 
 ---
 
@@ -133,263 +130,246 @@ Menyediakan solusi CRM Sales yang komprehensif, mudah digunakan, dan mobile-firs
 
 #### 1.1 User Authentication
 - **FR-1.1.1**: Sistem harus mendukung login dengan email dan password
-- **FR-1.1.2**: Sistem harus mendukung multi-factor authentication (MFA) - optional untuk MVP
-- **FR-1.1.3**: Sistem harus mendukung password reset via email
-- **FR-1.1.4**: Sistem harus mendukung session management dengan token-based authentication (JWT)
-- **FR-1.1.5**: Sistem harus mendukung remember me functionality
-- **FR-1.1.6**: Mobile app harus mendukung login dan token refresh
+- **FR-1.1.2**: Sistem harus mendukung password reset via email
+- **FR-1.1.3**: Sistem harus mendukung session management dengan token-based authentication (JWT)
+- **FR-1.1.4**: Sistem harus mendukung remember me functionality
+- **FR-1.1.5**: Buyer tidak perlu login untuk pembelian (guest checkout)
 
 #### 1.2 Role-Based Access Control (RBAC)
-- **FR-1.2.1**: Sistem harus mendukung multiple roles (Admin, Supervisor, Sales, Viewer)
+- **FR-1.2.1**: Sistem harus mendukung multiple roles (Super Admin, Finance, Gate Staff)
 - **FR-1.2.2**: Sistem harus mendukung permission-based access control
 - **FR-1.2.3**: Sistem harus mendukung role assignment per user
 - **FR-1.2.4**: Sistem harus mendukung audit log untuk semua akses
 
-### 2. Account & Contact Management
+### 2. Event & Ticket Tier Management
 
-#### 2.1 Account Management
-- **FR-2.1.1**: Sistem harus memungkinkan registrasi account baru (Rumah Sakit, Klinik, Apotek)
-- **FR-2.1.2**: Sistem harus menyimpan informasi account lengkap (nama, alamat, kategori, status)
-- **FR-2.1.3**: Sistem harus mendukung multiple accounts per sales rep
-- **FR-2.1.4**: Sistem harus mendukung import account dari Excel (optional untuk MVP)
-- **FR-2.1.5**: Sistem harus mendukung kategori account (Hospital, Clinic, Pharmacy)
+#### 2.1 Event Management
+- **FR-2.1.1**: Sistem harus memungkinkan admin membuat event baru (1 event only untuk MVP)
+- **FR-2.1.2**: Sistem harus menyimpan informasi event lengkap (nama, tanggal, lokasi, deskripsi)
+- **FR-2.1.3**: Sistem harus mendukung custom ticket design (nama event, seat info, tier)
+- **FR-2.1.4**: Sistem harus mendukung event status (draft, published, closed)
 
-#### 2.2 Contact Management
-- **FR-2.2.1**: Sistem harus menyimpan informasi kontak (Dokter, PIC, Manager) yang terhubung ke account
-- **FR-2.2.2**: Sistem harus menyimpan informasi kontak lengkap (nama, phone, email, jabatan)
-- **FR-2.2.3**: Sistem harus mendukung multiple contacts per account
-- **FR-2.2.4**: Sistem harus mendukung riwayat interaksi dengan contact
-- **FR-2.2.5**: Sistem harus mendukung kategori contact (Doctor, PIC, Manager, Other)
+#### 2.2 Ticket Tier Management
+- **FR-2.2.1**: Sistem harus memungkinkan admin membuat multiple ticket tiers (Presale, Regular, VIP, VVIP, Meet & Greet)
+- **FR-2.2.2**: Sistem harus menyimpan informasi ticket tier lengkap (nama, harga, quota, deskripsi)
+- **FR-2.2.3**: Sistem harus mendukung real-time quota tracking
+- **FR-2.2.4**: Sistem harus mendukung quota decrement otomatis saat pembelian
+- **FR-2.2.5**: Sistem harus mendukung seat numbering / section mapping (optional untuk festival area)
 
-#### 2.3 Account & Contact Search & Filter
-- **FR-2.3.1**: Sistem harus memungkinkan pencarian account berdasarkan nama, kategori, lokasi
-- **FR-2.3.2**: Sistem harus memungkinkan pencarian contact berdasarkan nama, phone, email
-- **FR-2.3.3**: Sistem harus memungkinkan filter berdasarkan status, kategori, sales rep assignment
-- **FR-2.3.4**: Sistem harus mendukung pagination untuk daftar account dan contact
+### 3. Ticket Purchase Flow
 
-### 3. Visit Report & Activity Tracking
+#### 3.1 Ticket Selection
+- **FR-3.1.1**: Buyer harus dapat melihat semua available ticket tiers
+- **FR-3.1.2**: Buyer harus dapat select ticket tier dan quantity
+- **FR-3.1.3**: Sistem harus menampilkan real-time quota availability
+- **FR-3.1.4**: Sistem harus validasi quota sebelum checkout
+- **FR-3.1.5**: UI harus mobile-friendly untuk pembeli
 
-#### 3.1 Visit Report Creation
-- **FR-3.1.1**: Sistem harus memungkinkan sales rep membuat visit report
-- **FR-3.1.2**: Sistem harus mendukung check-in/check-out dengan GPS location
-- **FR-3.1.3**: Sistem harus menyimpan informasi kunjungan (account, contact, purpose, notes)
-- **FR-3.1.4**: Sistem harus mendukung upload foto dokumentasi kunjungan
-- **FR-3.1.5**: Sistem harus mendukung multiple visit types (regular, follow-up, emergency)
-- **FR-3.1.6**: Mobile app harus mendukung create visit report dengan GPS dan foto
+#### 3.2 Order Creation
+- **FR-3.2.1**: Buyer harus dapat membuat order dengan informasi lengkap (nama, email, phone)
+- **FR-3.2.2**: Sistem harus menyimpan order dengan status (pending, confirmed, cancelled)
+- **FR-3.2.3**: Sistem harus decrement quota otomatis saat order dibuat
+- **FR-3.2.4**: Sistem harus validasi quota dan availability sebelum order creation
+- **FR-3.2.5**: Sistem harus support guest checkout (tanpa login)
 
-#### 3.2 Visit Report Management
-- **FR-3.2.1**: Sistem harus menampilkan list visit reports dengan filter
-- **FR-3.2.2**: Sistem harus mendukung status tracking (draft, submitted, approved, rejected)
-- **FR-3.2.3**: Supervisor harus dapat review dan approve/reject visit reports
-- **FR-3.2.4**: Sistem harus menampilkan activity timeline untuk setiap account
-- **FR-3.2.5**: Sistem harus mendukung search visit reports
+#### 3.3 Payment Integration (Future - Tidak termasuk di MVP)
+- **FR-3.3.1**: Sistem harus mendukung payment integration dengan Midtrans (Core API/Snap)
+- **FR-3.3.2**: Sistem harus mendukung multiple payment methods
+- **FR-3.3.3**: Sistem harus mendukung failed payment detection dan auto restore quota
 
-#### 3.3 Activity Tracking
-- **FR-3.3.1**: Sistem harus melacak semua aktivitas sales (visit, call, email, task)
-- **FR-3.3.2**: Sistem harus menampilkan activity timeline per account
-- **FR-3.3.3**: Sistem harus mendukung filter activity berdasarkan type, date, sales rep
-- **FR-3.3.4**: Mobile app harus menampilkan activity timeline
+### 4. E-Ticket Generation & QR Code
 
-### 4. Sales Pipeline Management
+#### 4.1 E-Ticket Generation
+- **FR-4.1.1**: Sistem harus generate unique E-Ticket per buyer setelah order confirmed
+- **FR-4.1.2**: Sistem harus generate unique ticket ID (UUID + hash)
+- **FR-4.1.3**: Sistem harus menyimpan informasi ticket (nama pembeli, tipe tiket, ID transaksi)
+- **FR-4.1.4**: Sistem harus support custom ticket design (nama event, seat info, tier)
 
-#### 4.1 Pipeline Stages
-- **FR-4.1.1**: Sistem harus mendukung multiple pipeline stages (Lead, Prospect, Proposal, Negotiation, Deal, Closed)
-- **FR-4.1.2**: Sistem harus memungkinkan custom pipeline stages
-- **FR-4.1.3**: Sistem harus menampilkan kanban view untuk pipeline
-- **FR-4.1.4**: Sistem harus mendukung drag-and-drop untuk move deal antar stages
+#### 4.2 QR Code Generation
+- **FR-4.2.1**: Sistem harus generate QR code unik per ticket
+- **FR-4.2.2**: QR code harus mengandung ticket ID dan validation data
+- **FR-4.2.3**: QR code harus dapat di-scan menggunakan mobile-web scanner
+- **FR-4.2.4**: QR code harus dapat di-download sebagai image/PDF
 
-#### 4.2 Deal/Opportunity Management
-- **FR-4.2.1**: Sistem harus memungkinkan create deal/opportunity
-- **FR-4.2.2**: Sistem harus menyimpan informasi deal (account, contact, product, value, expected close date)
-- **FR-4.2.3**: Sistem harus mendukung notes dan attachments untuk deal
-- **FR-4.2.4**: Sistem harus mendukung forecast berdasarkan deals
-- **FR-4.2.5**: Sistem harus mendukung win/loss tracking
+#### 4.3 E-Ticket Display
+- **FR-4.3.1**: Buyer harus dapat melihat E-Ticket dengan QR code
+- **FR-4.3.2**: E-Ticket harus menampilkan informasi lengkap (nama pembeli, tipe tiket, QR code, ID transaksi)
+- **FR-4.3.3**: E-Ticket harus dapat di-download sebagai PDF/image
+- **FR-4.3.4**: E-Ticket harus mobile-friendly untuk ditampilkan di mobile device
 
-#### 4.3 Pipeline Analytics
-- **FR-4.3.1**: Sistem harus menampilkan pipeline summary (total value, stage distribution)
-- **FR-4.3.2**: Sistem harus menampilkan forecast berdasarkan deals
-- **FR-4.3.3**: Sistem harus menampilkan conversion rate per stage
-- **FR-4.3.4**: Sistem harus mendukung date range filtering
+### 5. Email Service
 
-### 5. Task & Reminder Management
+#### 5.1 Email Confirmation
+- **FR-5.1.1**: Sistem harus mengirim email confirmation setelah order dibuat
+- **FR-5.1.2**: Email confirmation harus berisi informasi order lengkap
+- **FR-5.1.3**: Sistem harus support email template untuk confirmation
 
-#### 5.1 Task Creation
-- **FR-5.1.1**: Sistem harus memungkinkan create task untuk follow-up
-- **FR-5.1.2**: Sistem harus menyimpan informasi task (title, description, due date, assignee, priority)
-- **FR-5.1.3**: Sistem harus mendukung task assignment ke sales rep
-- **FR-5.1.4**: Sistem harus mendukung task linked ke account atau contact
-- **FR-5.1.5**: Mobile app harus mendukung create dan view tasks
+#### 5.2 E-Ticket Delivery
+- **FR-5.2.1**: Sistem harus mengirim E-Ticket via email setelah order confirmed
+- **FR-5.2.2**: Email E-Ticket harus berisi attachment PDF atau link untuk download
+- **FR-5.2.3**: Sistem harus support resend ticket functionality
+- **FR-5.2.4**: Sistem harus support email template untuk E-Ticket delivery
 
-#### 5.2 Task Management
-- **FR-5.2.1**: Sistem harus menampilkan task list dengan filter (status, assignee, due date)
-- **FR-5.2.2**: Sistem harus mendukung task status (open, in-progress, done, cancelled)
-- **FR-5.2.3**: Sistem harus mendukung task reminder (email, in-app notification)
-- **FR-5.2.4**: Mobile app harus mengirim push notification untuk task reminder
+### 6. Check-in Scanner System
 
-### 6. Product Management
+#### 6.1 Mobile-Web Scanner
+- **FR-6.1.1**: Gate staff harus dapat scan QR code menggunakan mobile-web scanner
+- **FR-6.1.2**: Scanner harus menggunakan web camera API (tidak perlu aplikasi native)
+- **FR-6.1.3**: Scanner harus mobile-friendly dan mudah digunakan di lapangan
+- **FR-6.1.4**: Scanner harus support camera permission handling
 
-#### 6.1 Product Catalog
-- **FR-6.1.1**: Sistem harus memungkinkan manage product catalog
-- **FR-6.1.2**: Sistem harus menyimpan informasi product (nama, SKU, kategori, harga)
-- **FR-6.1.3**: Sistem harus mendukung product categories
-- **FR-6.1.4**: Sistem harus mendukung search products
-- **FR-6.1.5**: Sistem harus mendukung product linked ke deals
+#### 6.2 QR Code Validation
+- **FR-6.2.1**: Sistem harus validasi QR code saat di-scan
+- **FR-6.2.2**: Sistem harus check ticket status (active, used, cancelled)
+- **FR-6.2.3**: Sistem harus implement one-scan validation (QR hanya bisa dipakai 1 kali)
+- **FR-6.2.4**: Sistem harus detect duplicate scan (anti-fraud)
+- **FR-6.2.5**: Sistem harus detect screenshot QR (basic detection)
 
-### 7. Dashboard & Reports
+#### 6.3 Check-in Process
+- **FR-6.3.1**: Sistem harus mark ticket sebagai "checked-in" setelah valid scan
+- **FR-6.3.2**: Sistem harus record check-in timestamp dan location
+- **FR-6.3.3**: Sistem harus support gate assignment (Gate A/B/C scanning separation)
+- **FR-6.3.4**: Sistem harus support VIP priority entry system
+- **FR-6.3.5**: Sistem harus implement rate limiting untuk check-in endpoint
 
-#### 7.1 Dashboard
-- **FR-7.1.1**: Sistem harus menampilkan dashboard dengan key metrics
-- **FR-7.1.2**: Sistem harus menampilkan visit statistics (today, this week, this month)
-- **FR-7.1.3**: Sistem harus menampilkan pipeline summary
-- **FR-7.1.4**: Sistem harus menampilkan top accounts, top sales rep
-- **FR-7.1.5**: Sistem harus menampilkan recent activities
-- **FR-7.1.6**: Mobile app harus menampilkan dashboard (basic)
+### 7. Real-time Check-in Status
 
-#### 7.2 Reports
-- **FR-7.2.1**: Sistem harus menghasilkan laporan visit reports (daily, weekly, monthly)
-- **FR-7.2.2**: Sistem harus menghasilkan laporan sales pipeline
-- **FR-7.2.3**: Sistem harus menghasilkan laporan sales performance per sales rep
-- **FR-7.2.4**: Sistem harus menghasilkan laporan account activity
-- **FR-7.2.5**: Sistem harus mendukung export ke PDF, Excel
+#### 7.1 Check-in Dashboard
+- **FR-7.1.1**: Sistem harus menampilkan real-time check-in status dashboard
+- **FR-7.1.2**: Dashboard harus menampilkan check-in statistics (total, by gate, by tier)
+- **FR-7.1.3**: Dashboard harus menampilkan real-time check-in feed
+- **FR-7.1.4**: Dashboard harus support auto-refresh (polling atau WebSocket)
 
-### 8. Mobile App (Flutter)
+#### 7.2 Check-in Analytics
+- **FR-7.2.1**: Sistem harus menampilkan check-in by gate
+- **FR-7.2.2**: Sistem harus menampilkan check-in by ticket tier
+- **FR-7.2.3**: Sistem harus menampilkan check-in timeline
+- **FR-7.2.4**: Sistem harus support date range filtering
 
-#### 8.1 Core Mobile Features
-- **FR-8.1.1**: Mobile app harus mendukung login dan authentication
-- **FR-8.1.2**: Mobile app harus menampilkan dashboard (basic metrics)
-- **FR-8.1.3**: Mobile app harus menampilkan visit reports list dan create visit report
-- **FR-8.1.4**: Mobile app harus mendukung check-in/out dengan GPS
-- **FR-8.1.5**: Mobile app harus menampilkan tasks list dan create task
-- **FR-8.1.6**: Mobile app harus menampilkan accounts dan contacts list
-- **FR-8.1.7**: Mobile app harus mendukung upload foto untuk visit report
-- **FR-8.1.8**: Mobile app harus mengirim push notification untuk task reminder
+### 8. Admin Dashboard & Monitoring
 
-#### 8.2 Mobile Offline Support (Optional untuk MVP)
-- **FR-8.2.1**: Mobile app harus mendukung offline mode (sync later)
-- **FR-8.2.2**: Mobile app harus sync data saat online
+#### 8.1 Sales Monitoring
+- **FR-8.1.1**: Sistem harus menampilkan sales overview (total revenue, total tickets sold)
+- **FR-8.1.2**: Sistem harus menampilkan ticket tier sales breakdown
+- **FR-8.1.3**: Sistem harus menampilkan peak hours analytics (jam pembelian tersibuk)
+- **FR-8.1.4**: Sistem harus menampilkan sales trend
 
-### 9. System Administration
+#### 8.2 Check-in Monitoring
+- **FR-8.2.1**: Sistem harus menampilkan check-in overview (total checked-in, by gate, by tier)
+- **FR-8.2.2**: Sistem harus menampilkan gate activity
+- **FR-8.2.3**: Sistem harus menampilkan real-time check-in feed
 
-#### 9.1 User Management
-- **FR-9.1.1**: Sistem harus memungkinkan admin mengelola users
-- **FR-9.1.2**: Sistem harus memungkinkan assign roles dan permissions
-- **FR-9.1.3**: Sistem harus memungkinkan enable/disable users
-- **FR-9.1.4**: Sistem harus menyimpan audit log untuk semua user actions
+#### 8.3 Buyer Management
+- **FR-8.3.1**: Sistem harus menampilkan buyer list
+- **FR-8.3.2**: Sistem harus support buyer search dan filter
+- **FR-8.3.3**: Sistem harus support export buyer list ke CSV/Excel
+- **FR-8.3.4**: Sistem harus menampilkan order history per buyer
 
-#### 9.2 Settings
-- **FR-9.2.1**: Sistem harus memungkinkan konfigurasi sistem (company info, logo, branding)
-- **FR-9.2.2**: Sistem harus memungkinkan konfigurasi notification settings
-- **FR-9.2.3**: Sistem harus memungkinkan konfigurasi pipeline stages
-- **FR-9.2.4**: Sistem harus memungkinkan konfigurasi account categories
+### 9. Gate Assignment & Management
 
-### 10. On-Premise Installation
+#### 9.1 Gate Management
+- **FR-9.1.1**: Sistem harus memungkinkan admin mengelola gates (Gate A, Gate B, Gate C)
+- **FR-9.1.2**: Sistem harus support gate assignment untuk tickets
+- **FR-9.1.3**: Sistem harus support gate separation logic (scan hanya valid di gate yang ditentukan)
+- **FR-9.1.4**: Sistem harus menampilkan gate activity dan statistics
 
-#### 10.1 Installation Requirements
-- **FR-10.1.1**: Sistem harus dapat di-install on-premise di server perusahaan
-- **FR-10.1.2**: Sistem harus menyediakan Docker Compose untuk easy installation
-- **FR-10.1.3**: Sistem harus menyediakan installation guide (PDF)
-- **FR-10.1.4**: Sistem harus menyediakan database migration scripts
-- **FR-10.1.5**: Sistem harus menyediakan environment configuration template
+#### 9.2 VIP Priority Entry
+- **FR-9.2.1**: Sistem harus support VIP priority entry system
+- **FR-9.2.2**: Sistem harus menampilkan VIP indicator di scanner
+- **FR-9.2.3**: Sistem harus support separate gate untuk VIP (optional)
+
+### 10. Order History & Resend Ticket
+
+#### 10.1 Order History
+- **FR-10.1.1**: Buyer harus dapat melihat order history
+- **FR-10.1.2**: Sistem harus menampilkan order detail dengan ticket information
+- **FR-10.1.3**: Sistem harus support order search dan filter
+
+#### 10.2 Resend Ticket
+- **FR-10.2.1**: Buyer harus dapat request resend ticket
+- **FR-10.2.2**: Admin harus dapat resend ticket untuk buyer
+- **FR-10.2.3**: Sistem harus mengirim email dengan E-Ticket saat resend
 
 ---
 
 ## Non-Functional Requirements
 
 ### 1. Performance
-- **NFR-1.1**: Sistem harus dapat menangani minimal 100 concurrent users
-- **NFR-1.2**: Response time untuk CRUD operations < 500ms
-- **NFR-1.3**: Response time untuk reports < 3 seconds
-- **NFR-1.4**: Sistem harus mendukung pagination untuk semua list views
+- **NFR-1.1**: Sistem harus dapat menangani minimal 1,000 concurrent users
+- **NFR-1.2**: Response time untuk ticket purchase < 2 seconds
+- **NFR-1.3**: Response time untuk QR code validation < 500ms
+- **NFR-1.4**: Response time untuk check-in < 1 second
+- **NFR-1.5**: Sistem harus mendukung pagination untuk semua list views
 
 ### 2. Security
 - **NFR-2.1**: Semua data harus dienkripsi dalam transit (HTTPS)
-- **NFR-2.2**: Data sensitif harus dienkripsi di rest (encryption at rest)
-- **NFR-2.3**: Sistem harus mematuhi HIPAA/standar privasi data kesehatan Indonesia
-- **NFR-2.4**: Sistem harus mendukung audit logging untuk compliance
-- **NFR-2.5**: Sistem harus mendukung data backup dan recovery
+- **NFR-2.2**: QR code harus menggunakan secure hash untuk validasi
+- **NFR-2.3**: Sistem harus implement anti-fraud protection (duplicate detection, screenshot detection)
+- **NFR-2.4**: Sistem harus mendukung audit logging untuk semua actions
+- **NFR-2.5**: Sistem harus implement rate limiting untuk check-in endpoint
 
 ### 3. Availability
-- **NFR-3.1**: Sistem harus memiliki uptime > 99.5%
-- **NFR-3.2**: Sistem harus mendukung maintenance mode dengan graceful degradation
+- **NFR-3.1**: Sistem harus memiliki uptime > 99% selama event
+- **NFR-3.2**: Sistem harus mendukung graceful degradation saat high traffic
 - **NFR-3.3**: Sistem harus memiliki disaster recovery plan
 
 ### 4. Scalability
-- **NFR-4.1**: Sistem harus dapat scale horizontal
-- **NFR-4.2**: Database harus dapat handle minimal 1M records per table
-- **NFR-4.3**: Sistem harus mendukung multi-tenant architecture
+- **NFR-4.1**: Sistem harus dapat handle minimal 10,000 tickets per event
+- **NFR-4.2**: Database harus dapat handle high concurrent check-in requests
+- **NFR-4.3**: Sistem harus dapat scale horizontal jika diperlukan
 
 ### 5. Usability
 - **NFR-5.1**: UI harus responsive (mobile, tablet, desktop)
-- **NFR-5.2**: Sistem harus mendukung bilingual (Bahasa Indonesia & English)
+- **NFR-5.2**: Mobile-web scanner harus mudah digunakan di lapangan
 - **NFR-5.3**: Sistem harus memiliki intuitive navigation
-- **NFR-5.4**: Sistem harus mendukung keyboard shortcuts untuk power users
+- **NFR-5.4**: Error messages harus user-friendly dan jelas
 
 ### 6. Compatibility
 - **NFR-6.1**: Sistem harus support modern browsers (Chrome, Firefox, Safari, Edge)
-- **NFR-6.2**: Sistem harus support mobile browsers
-- **NFR-6.3**: Sistem harus support printing untuk receipts, invoices, prescriptions
+- **NFR-6.2**: Sistem harus support mobile browsers (iOS Safari, Chrome Mobile)
+- **NFR-6.3**: Web camera API harus support di mobile browsers
 
 ---
 
 ## User Stories
 
-### Epic 1: Account & Contact Management
+### Epic 1: Ticket Purchase
 
-**US-1.1**: Sebagai admin, saya ingin dapat mendaftarkan account baru (RS/Klinik/Apotek) dengan data lengkap agar dapat mengelola customer dengan baik.
+**US-1.1**: Sebagai buyer, saya ingin dapat melihat semua available ticket tiers agar dapat memilih tiket yang sesuai.
 
-**US-1.2**: Sebagai sales rep, saya ingin dapat melihat list accounts yang ditugaskan kepada saya agar dapat merencanakan kunjungan.
+**US-1.2**: Sebagai buyer, saya ingin dapat membeli tiket dengan mudah menggunakan mobile device agar dapat melakukan pembelian kapan saja dan di mana saja.
 
-**US-1.3**: Sebagai admin, saya ingin dapat mencari account berdasarkan berbagai kriteria agar dapat menemukan data account dengan cepat.
+**US-1.3**: Sebagai buyer, saya ingin menerima E-Ticket via email dengan QR code agar dapat digunakan untuk check-in.
 
-**US-1.4**: Sebagai sales rep, saya ingin dapat melihat kontak (dokter, PIC) dari setiap account agar dapat menghubungi orang yang tepat.
+**US-1.4**: Sebagai buyer, saya ingin dapat melihat order history agar dapat melacak pembelian saya.
 
-### Epic 2: Visit Report & Activity Tracking
+### Epic 2: Check-in Process
 
-**US-2.1**: Sebagai sales rep, saya ingin dapat membuat visit report setelah kunjungan agar dapat mendokumentasikan aktivitas sales.
+**US-2.1**: Sebagai gate staff, saya ingin dapat scan QR code tiket menggunakan mobile-web scanner agar dapat validasi tiket dengan cepat.
 
-**US-2.2**: Sebagai sales rep, saya ingin dapat check-in/check-out dengan GPS di mobile app agar supervisor dapat memverifikasi lokasi kunjungan.
+**US-2.2**: Sebagai gate staff, saya ingin melihat status validasi tiket (valid, already used, invalid) agar dapat memberikan feedback ke tamu.
 
-**US-2.3**: Sebagai supervisor, saya ingin dapat review dan approve visit reports agar dapat memastikan kualitas laporan kunjungan.
+**US-2.3**: Sebagai gate staff, saya ingin melihat real-time check-in status agar dapat memantau jumlah tamu yang sudah masuk.
 
-**US-2.4**: Sebagai sales rep, saya ingin dapat upload foto dokumentasi kunjungan agar dapat memberikan bukti visual.
+**US-2.4**: Sebagai gate staff, saya ingin sistem mencegah duplicate scan agar tidak ada tiket yang digunakan dua kali.
 
-**US-2.5**: Sebagai supervisor, saya ingin dapat melihat activity timeline untuk setiap account agar dapat memahami history interaksi.
+### Epic 3: Admin Management
 
-### Epic 3: Sales Pipeline
+**US-3.1**: Sebagai super admin, saya ingin dapat mengelola event dan ticket tiers agar dapat setup event dengan benar.
 
-**US-3.1**: Sebagai sales rep, saya ingin dapat membuat deal/opportunity baru agar dapat melacak potential sales.
+**US-3.2**: Sebagai super admin, saya ingin dapat monitoring penjualan dan analytics agar dapat melihat performance event.
 
-**US-3.2**: Sebagai supervisor, saya ingin dapat melihat pipeline dalam kanban view agar dapat memantau progress deals.
+**US-3.3**: Sebagai super admin, saya ingin dapat export buyer list ke CSV/Excel agar dapat melakukan analisis lebih lanjut.
 
-**US-3.3**: Sebagai manager, saya ingin dapat melihat forecast berdasarkan pipeline agar dapat melakukan planning.
+**US-3.4**: Sebagai super admin, saya ingin dapat mengelola gates dan gate assignment agar dapat mengatur check-in dengan efisien.
 
-**US-3.4**: Sebagai sales rep, saya ingin dapat move deal antar stages agar dapat update progress sales.
+### Epic 4: Real-time Monitoring
 
-### Epic 4: Task & Reminder
+**US-4.1**: Sebagai admin, saya ingin melihat real-time check-in status agar dapat memantau jumlah tamu yang sudah masuk.
 
-**US-4.1**: Sebagai sales rep, saya ingin dapat membuat task untuk follow-up agar tidak lupa melakukan tindak lanjut.
+**US-4.2**: Sebagai admin, saya ingin melihat analytics penjualan (peak hours, tier paling laku, total revenue) agar dapat memahami pola pembelian.
 
-**US-4.2**: Sebagai supervisor, saya ingin dapat assign task ke sales rep agar dapat mengatur workload.
-
-**US-4.3**: Sebagai sales rep, saya ingin menerima reminder untuk task yang due date-nya mendekati agar dapat menyelesaikan tepat waktu.
-
-**US-4.4**: Sebagai sales rep, saya ingin dapat melihat task list di mobile app agar dapat mengelola tasks saat di lapangan.
-
-### Epic 5: Dashboard & Reports
-
-**US-5.1**: Sebagai supervisor, saya ingin dapat melihat dashboard dengan key metrics agar dapat memantau performance sales team.
-
-**US-5.2**: Sebagai manager, saya ingin dapat melihat laporan visit reports harian/mingguan/bulanan agar dapat menganalisis aktivitas sales.
-
-**US-5.3**: Sebagai admin, saya ingin dapat export laporan ke Excel/PDF agar dapat melakukan analisis lebih lanjut.
-
-### Epic 6: Mobile App
-
-**US-6.1**: Sebagai sales rep, saya ingin dapat login ke mobile app agar dapat mengakses CRM saat di lapangan.
-
-**US-6.2**: Sebagai sales rep, saya ingin dapat membuat visit report di mobile app dengan GPS dan foto agar dapat mendokumentasikan kunjungan secara real-time.
-
-**US-6.3**: Sebagai sales rep, saya ingin dapat melihat tasks dan accounts di mobile app agar dapat bekerja tanpa perlu membuka laptop.
+**US-4.3**: Sebagai admin, saya ingin melihat gate activity agar dapat memantau distribusi check-in per gate.
 
 ---
 
@@ -402,28 +382,21 @@ Menyediakan solusi CRM Sales yang komprehensif, mudah digunakan, dan mobile-firs
 - **Styling**: Tailwind CSS v4
 - **State Management**: Zustand
 - **UI Components**: shadcn/ui v4
-- **Internationalization**: next-intl (Bahasa Indonesia & English)
-
-#### Mobile App
-- **Framework**: Flutter
-- **State Management**: 
-- **HTTP Client**: 
-- **Local Storage**: 
+- **QR Code Library**: qrcode.js atau similar
+- **Charts**: Recharts atau similar
 
 #### Backend
 - **Language**: Go
 - **Framework**: Gin
 - **Database**: PostgreSQL
 - **ORM**: GORM
-- **Cache**: Redis (optional untuk MVP)
-- **File Storage**: Local / S3 compatible storage
+- **QR Code Generation**: go-qrcode atau similar
+- **Email Service**: SMTP (basic) atau service sederhana
 
 #### Infrastructure
-- **Hosting**: Cloud (AWS/GCP/Azure)
+- **Hosting**: Cloud (AWS/GCP/Azure) atau On-Premise
 - **Containerization**: Docker
-- **CI/CD**: GitHub Actions
-- **Monitoring**: Prometheus + Grafana
-- **Logging**: ELK Stack
+- **CI/CD**: GitHub Actions (optional)
 
 ### API Standards
 - Mengikuti API Response Standards yang sudah didefinisikan
@@ -435,7 +408,7 @@ Menyediakan solusi CRM Sales yang komprehensif, mudah digunakan, dan mobile-firs
 - Normalized database schema
 - Soft delete untuk data penting
 - Audit trails untuk compliance
-- Indexing untuk performance
+- Indexing untuk performance (terutama untuk QR code validation)
 
 ### Security
 - JWT-based authentication
@@ -444,76 +417,69 @@ Menyediakan solusi CRM Sales yang komprehensif, mudah digunakan, dan mobile-firs
 - SQL injection prevention
 - XSS prevention
 - CSRF protection
+- Rate limiting untuk check-in endpoint
 
 ---
 
 ## Success Metrics
 
 ### User Adoption
-- **Target**: 1 perusahaan farmasi dengan 10+ sales rep onboarded dalam 100 hari
-- **Metric**: Number of active users, number of daily logins, number of visit reports created
+- **Target**: 1 event dengan 5,000+ tickets sold dalam 60 hari
+- **Metric**: Number of orders, number of tickets sold, number of check-ins
 
 ### System Performance
-- **Target**: 99.5% uptime
+- **Target**: 99% uptime selama event
 - **Metric**: System availability, response time, error rate
-
-### Data Quality
-- **Target**: > 95% data accuracy
-- **Metric**: Data validation errors, data completeness
 
 ### User Satisfaction
 - **Target**: NPS > 50
 - **Metric**: User surveys, feedback, support tickets
 
 ### Business Impact
-- **Target**: 30% reduction in administrative time untuk sales rep
-- **Metric**: Time saved per visit report, number of visit reports per sales rep, pipeline conversion rate
+- **Target**: 100% ticket sales untuk event
+- **Metric**: Ticket sales rate, check-in completion rate, fraud prevention rate
 
 ---
 
 ## Timeline & Milestones
 
-### Phase 1: MVP (100 Hari / ~14 Minggu)
+### Phase 1: MVP (60 Hari / ~8.5 Minggu)
 
-#### Week 1-2: Foundation & Account Management
-- Authentication & Authorization (Web + Mobile)
-- User Management
-- Account & Contact Management (Web)
+#### Week 1-2: Foundation & Core Setup
+- Authentication & Authorization
+- Event & Ticket Tier Management
+- User Management & Access Control
 
-#### Week 3-4: Visit Report & Sales Pipeline
-- Visit Report & Activity Tracking (Web + Mobile)
-- Sales Pipeline Management (Web)
+#### Week 3-4: Purchase & Check-in
+- Ticket Purchase Flow (Basic)
+- E-Ticket Generation & QR Code
+- Check-in Scanner (Mobile-Web)
+- Real-time Check-in Status
 
-#### Week 5-6: Task, Product, Dashboard
-- Task & Reminder (Web + Mobile)
-- Product Management (Web)
-- Dashboard & Reports (Web)
+#### Week 5-6: Management & Analytics
+- Email Service & Order History
+- Gate Assignment & Management
+- Admin Dashboard Monitoring
+- Analytics Dashboard
 
-#### Week 7-8: Mobile App & Integration
-- Mobile App (Flutter) - Core Features
-- Integration & Testing
-
-#### Week 9-11: Polish & Demo
-- Testing & Bug Fixes
-- Demo Preparation
-- On-Premise Setup
-
-#### Week 12-14: Buffer & Delivery
-- Client Feedback
-- Customization
+#### Week 7-8: Integration & Testing
+- Integration Testing
+- Performance Testing
+- Security Testing
 - Final Delivery
 
-### Phase 2: Enhancement (Months 4-6)
-- Advanced Reports
-- Offline Support (Mobile)
-- Advanced Analytics
-- Performance Optimization
+### Phase 2: Enhancement (Months 3-4)
+- Payment Integration (Midtrans)
+- Refund Request Handling
+- Ticket Transfer Ownership
+- Offline Scan Buffer
+- Failed Payment Detection
 
-### Phase 3: Scale (Months 7-12)
-- Multi-company Support
-- Advanced Features (Territory Management, Route Optimization)
-- API for Third-party Integration
-- Advanced Mobile Features
+### Phase 3: Advanced Features (Months 5-6)
+- Seat Numbering / Section Mapping
+- Advanced Analytics
+- Multi-Event Support
+- Advanced Fraud Detection
 
 ---
 
@@ -521,33 +487,36 @@ Menyediakan solusi CRM Sales yang komprehensif, mudah digunakan, dan mobile-firs
 
 ### Technical Risks
 
-**Risk 1**: Performance issues dengan large dataset
-- **Mitigation**: Implement proper indexing, pagination, caching strategy
+**Risk 1**: Performance issues dengan high concurrent check-in requests
+- **Mitigation**: Implement proper indexing, caching, rate limiting, dan load testing
 
-**Risk 2**: Security vulnerabilities
-- **Mitigation**: Regular security audits, penetration testing, code reviews
+**Risk 2**: QR code validation latency saat high traffic
+- **Mitigation**: Optimize database queries, implement caching, dan use connection pooling
 
-**Risk 3**: Integration complexity dengan BPJS
-- **Mitigation**: Early research, proof of concept, phased integration
+**Risk 3**: Mobile-web camera API compatibility issues
+- **Mitigation**: Test di berbagai mobile browsers, provide fallback options
+
+**Risk 4**: Security vulnerabilities (QR code fraud, duplicate scan)
+- **Mitigation**: Implement secure hash, duplicate detection, rate limiting, dan security audits
 
 ### Business Risks
 
-**Risk 1**: Low user adoption
-- **Mitigation**: User training, excellent UX, responsive support
+**Risk 1**: Low ticket sales
+- **Mitigation**: Marketing support, user-friendly purchase flow, mobile-optimized UI
 
-**Risk 2**: Regulatory compliance issues
-- **Mitigation**: Early consultation with legal/regulatory experts, compliance audits
+**Risk 2**: Check-in bottleneck saat event
+- **Mitigation**: Multiple gates, efficient scanner, real-time monitoring, staff training
 
-**Risk 3**: Competition from established players
-- **Mitigation**: Focus on unique value propositions, excellent customer service
+**Risk 3**: System downtime saat event
+- **Mitigation**: High availability architecture, monitoring, alerting, disaster recovery plan
 
 ### Operational Risks
 
 **Risk 1**: Data loss
 - **Mitigation**: Regular backups, disaster recovery plan, data redundancy
 
-**Risk 2**: System downtime
-- **Mitigation**: High availability architecture, monitoring, alerting
+**Risk 2**: Email delivery issues
+- **Mitigation**: Reliable email service, retry mechanism, manual resend functionality
 
 ---
 
@@ -555,18 +524,19 @@ Menyediakan solusi CRM Sales yang komprehensif, mudah digunakan, dan mobile-firs
 
 ### Glossary
 
-- **Account**: Rumah Sakit, Klinik, atau Apotek yang menjadi customer perusahaan farmasi
-- **Contact**: Dokter, PIC, atau Manager yang merupakan kontak di account
-- **Visit Report**: Laporan kunjungan sales rep ke account
-- **Pipeline**: Sales pipeline dari lead hingga deal
-- **Deal/Opportunity**: Potential sales yang sedang dalam proses
-- **Check-in/Check-out**: Proses menandai mulai dan selesai kunjungan dengan GPS
+- **Ticket Tier**: Kategori tiket (Presale, Regular, VIP, VVIP, Meet & Greet)
+- **E-Ticket**: Electronic ticket yang dikirim via email dengan QR code
+- **QR Code**: Quick Response code untuk validasi check-in
+- **Check-in**: Proses validasi tiket dan entry tamu ke venue
+- **Gate**: Pintu masuk dengan scanner terpisah (Gate A, Gate B, Gate C)
+- **Quota**: Jumlah tiket yang tersedia untuk setiap tier
+- **Order**: Transaksi pembelian tiket oleh buyer
 
 ### References
 
 - API Response Standards: `/docs/api-standart/api-response-standards.md`
 - API Error Codes: `/docs/api-standart/api-error-codes.md`
-- Modules Documentation: `/docs/modules/01-modules.md`
+- Sprint Planning: `/docs/SPRINT_PLANNING.md`
 
 ---
 

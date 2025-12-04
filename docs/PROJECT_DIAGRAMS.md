@@ -1,9 +1,9 @@
-# Project Diagrams - Sales CRM
-## CRM Healthcare/Pharmaceutical Platform
+# Project Diagrams - Ticketing Konser
+## Ticketing Konser Internasional Platform
 
 **Versi**: 1.0  
-**Last Updated**: 2025-01-15  
-**Purpose**: Visualisasi scope, fitur, dan user flow untuk Developer 1, 2, dan 3
+**Last Updated**: 2025-01-XX  
+**Purpose**: Visualisasi scope, fitur, dan user flow untuk Developer 1 dan Developer 2
 
 ---
 
@@ -25,27 +25,26 @@
 graph TB
     subgraph "Platform"
         WEB[Web Application<br/>Next.js 16]
-        MOBILE[Mobile App<br/>Flutter]
         BACKEND[Backend API<br/>Go + Gin]
         DB[(PostgreSQL<br/>Database)]
     end
     
     subgraph "Users"
-        SALES[Sales Rep]
-        SUPERVISOR[Supervisor]
-        ADMIN[Admin]
+        BUYER[Buyer / Pembeli]
+        GATE_STAFF[Gate Staff]
+        ADMIN[Super Admin]
+        FINANCE[Finance Staff]
     end
     
-    SALES --> MOBILE
-    SUPERVISOR --> WEB
+    BUYER --> WEB
+    GATE_STAFF --> WEB
     ADMIN --> WEB
+    FINANCE --> WEB
     
-    MOBILE --> BACKEND
     WEB --> BACKEND
     BACKEND --> DB
     
     style WEB fill:#3b82f6
-    style MOBILE fill:#10b981
     style BACKEND fill:#f59e0b
     style DB fill:#8b5cf6
 ```
@@ -57,49 +56,48 @@ graph LR
     subgraph "Core Modules"
         AUTH[Authentication<br/>& Authorization]
         USER[User Management]
-        SETTINGS[Settings]
+        EVENT[Event Management]
     end
     
-    subgraph "Sales CRM Modules"
-        ACCOUNT[Account & Contact<br/>Management]
-        VISIT[Visit Report &<br/>Activity Tracking]
-        PIPELINE[Sales Pipeline<br/>Management]
-        TASK[Task & Reminder]
-        PRODUCT[Product<br/>Management]
+    subgraph "Ticketing Modules"
+        TIER[Ticket Tier<br/>Management]
+        PURCHASE[Ticket Purchase<br/>Flow]
+        ETICKET[E-Ticket Generation<br/>& QR Code]
+        EMAIL[Email Service]
+    end
+    
+    subgraph "Check-in Modules"
+        SCANNER[Check-in Scanner<br/>Mobile-Web]
+        CHECKIN[Check-in<br/>Management]
+        GATE[Gate Assignment<br/>& Management]
     end
     
     subgraph "Analytics"
-        DASHBOARD[Dashboard]
-        REPORTS[Reports]
+        DASHBOARD[Admin Dashboard]
+        ANALYTICS[Analytics<br/>& Reports]
     end
     
-    subgraph "AI Assistant"
-        AI[AI Assistant<br/>& Chatbot]
-        AI_SETTINGS[AI Settings<br/>& Privacy]
-    end
-    
-    AUTH --> ACCOUNT
-    AUTH --> VISIT
-    AUTH --> PIPELINE
-    AUTH --> AI
-    USER --> ACCOUNT
-    ACCOUNT --> VISIT
-    ACCOUNT --> PIPELINE
-    ACCOUNT --> TASK
-    ACCOUNT --> AI
-    VISIT --> DASHBOARD
-    VISIT --> AI
-    PIPELINE --> DASHBOARD
-    PIPELINE --> AI
-    TASK --> DASHBOARD
-    DASHBOARD --> REPORTS
-    AI --> AI_SETTINGS
+    AUTH --> TIER
+    AUTH --> PURCHASE
+    AUTH --> SCANNER
+    AUTH --> DASHBOARD
+    EVENT --> TIER
+    TIER --> PURCHASE
+    PURCHASE --> ETICKET
+    ETICKET --> EMAIL
+    ETICKET --> SCANNER
+    SCANNER --> CHECKIN
+    CHECKIN --> GATE
+    PURCHASE --> DASHBOARD
+    CHECKIN --> DASHBOARD
+    DASHBOARD --> ANALYTICS
     
     style AUTH fill:#ef4444
-    style ACCOUNT fill:#3b82f6
-    style VISIT fill:#10b981
-    style PIPELINE fill:#f59e0b
-    style DASHBOARD fill:#8b5cf6
+    style TIER fill:#3b82f6
+    style PURCHASE fill:#10b981
+    style ETICKET fill:#f59e0b
+    style SCANNER fill:#8b5cf6
+    style DASHBOARD fill:#ec4899
 ```
 
 ---
@@ -110,476 +108,321 @@ graph LR
 
 ```mermaid
 mindmap
-  root((Sales CRM<br/>Features))
+  root((Ticketing System<br/>Features))
     Authentication
       Login/Logout
       Token Management
       Role-Based Access
-    Account Management
-      CRUD Accounts
-      Search & Filter
-      Category Management
-    Contact Management
-      CRUD Contacts
-      Link to Accounts
-      Contact History
-    Visit Reports
-      Create Visit Report
-      Check-in/Check-out
-      GPS Tracking
-      Photo Upload
-      Approval Workflow
-    Sales Pipeline
-      Pipeline Stages
-      Deal Management
-      Forecast
-      Kanban View
-    Tasks
-      Create Tasks
-      Assign Tasks
-      Reminders
-      Status Tracking
-    Products
-      Product Catalog
-      Pricing
-      Categories
-    Dashboard
-      Overview Stats
-      Visit Statistics
-      Pipeline Summary
-      Activity Feed
-    Reports
-      Visit Reports
-      Sales Reports
-      Performance Reports
-      Export Excel
-    AI Assistant
-      Chatbot
-      Visit Report Analysis
-      Data Insights
-      Settings & Privacy
-      Usage Tracking
+    Event Management
+      Create Event
+      Event Details
+      Custom Ticket Design
+    Ticket Tier Management
+      Multiple Tiers
+      Quota Tracking
+      Real-time Availability
+    Ticket Purchase
+      Select Tier
+      Guest Checkout
+      Order Creation
+      Quota Decrement
+    E-Ticket Generation
+      Unique Ticket ID
+      QR Code Generation
+      Custom Design
+      PDF/Image Export
+    Email Service
+      Order Confirmation
+      E-Ticket Delivery
+      Resend Ticket
+    Check-in Scanner
+      Mobile-Web Scanner
+      QR Code Validation
+      One-Scan Validation
+      Anti-Fraud Detection
+    Check-in Management
+      Real-time Status
+      Gate Assignment
+      VIP Priority Entry
+      Check-in History
+    Admin Dashboard
+      Sales Monitoring
+      Check-in Monitoring
+      Gate Activity
+      Buyer List
+    Analytics
+      Sales Overview
+      Peak Hours
+      Tier Sales
+      Revenue Tracking
 ```
 
-### Feature Matrix by Platform & Role
+### Feature Matrix by Role
 
-| Feature | Web (Admin) | Web (Supervisor) | Web (Sales Rep) | Mobile (Sales Rep) | Backend API |
-|---------|------------|------------------|-----------------|-------------------|-------------|
-| **Authentication** | ✅ Full | ✅ Full | ✅ Full | ✅ Full | ✅ Full |
-| **User Management** | ✅ Full | ❌ | ❌ | ❌ | ✅ Full |
-| **Account Management** | ✅ Full (CRUD) | ✅ Full (CRUD) | ✅ Full (CRUD) | ✅ View Only | ✅ Full |
-| **Contact Management** | ✅ Full (CRUD) | ✅ Full (CRUD) | ✅ Full (CRUD) | ✅ View Only | ✅ Full |
-| **Visit Reports** | ✅ Full (View All) | ✅ Review/Approve | ✅ Create/View Own | ✅ Create/View Own | ✅ Full |
-| **Sales Pipeline** | ✅ Full | ✅ Full | ✅ Full (Own Deals) | ❌ | ✅ Full |
-| **Tasks** | ✅ Full | ✅ Full (Assign) | ✅ Full (Own Tasks) | ✅ Full (Own Tasks) | ✅ Full |
-| **Products** | ✅ Full | ✅ View Only | ✅ View Only | ✅ View Only | ✅ Full |
-| **Dashboard** | ✅ Full (All Data) | ✅ Full (Team Data) | ✅ Full (Own Data) | ✅ Basic (Own Data) | ✅ Full |
-| **Reports** | ✅ Full | ✅ Full (Team Reports) | ✅ View Own Reports | ❌ | ✅ Full |
-
-**Note**: 
-- Sales Rep dapat menggunakan **Web App** untuk semua fitur yang tersedia di Mobile, plus fitur tambahan seperti Sales Pipeline
-- Mobile App fokus pada fitur yang dibutuhkan di lapangan (Visit Reports dengan GPS/Camera, Tasks, Dashboard basic)
-- Web App memberikan akses lebih lengkap untuk Sales Rep, terutama untuk data entry dan review yang lebih nyaman
+| Feature | Buyer | Gate Staff | Finance | Super Admin | Backend API |
+|---------|-------|------------|---------|-------------|-------------|
+| **Authentication** | ❌ (Guest) | ✅ Full | ✅ Full | ✅ Full | ✅ Full |
+| **Event View** | ✅ View | ✅ View | ✅ View | ✅ Full (CRUD) | ✅ Full |
+| **Ticket Purchase** | ✅ Full | ❌ | ❌ | ❌ | ✅ Full |
+| **E-Ticket View** | ✅ Own Tickets | ❌ | ❌ | ✅ All Tickets | ✅ Full |
+| **Check-in Scanner** | ❌ | ✅ Full | ❌ | ✅ Full | ✅ Full |
+| **Check-in Status** | ❌ | ✅ View | ✅ View | ✅ Full | ✅ Full |
+| **Gate Management** | ❌ | ❌ | ❌ | ✅ Full | ✅ Full |
+| **Sales Monitoring** | ❌ | ❌ | ✅ View | ✅ Full | ✅ Full |
+| **Analytics** | ❌ | ❌ | ✅ View | ✅ Full | ✅ Full |
+| **Buyer List** | ❌ | ❌ | ✅ Export | ✅ Full | ✅ Full |
+| **User Management** | ❌ | ❌ | ❌ | ✅ Full | ✅ Full |
 
 ---
 
 ## User Flow Diagrams
 
-### 1. Sales Rep User Flow (Web)
+### 1. Buyer User Flow (Ticket Purchase)
 
 ```mermaid
 flowchart TD
-    START([Sales Rep Login - Web]) --> AUTH{Authenticated?}
-    AUTH -->|No| LOGIN[Login Screen]
-    LOGIN --> AUTH
-    AUTH -->|Yes| DASHBOARD[Dashboard<br/>- Today's Visits<br/>- Tasks<br/>- Pipeline<br/>- Stats]
-    
-    DASHBOARD --> MANAGE_ACCOUNTS[Manage Accounts]
-    DASHBOARD --> MANAGE_CONTACTS[Manage Contacts]
-    DASHBOARD --> CREATE_VISIT[Create Visit Report]
-    DASHBOARD --> VIEW_PIPELINE[View Sales Pipeline]
-    DASHBOARD --> MANAGE_TASKS[Manage Tasks]
-    
-    MANAGE_ACCOUNTS --> ACCOUNT_LIST[Account List<br/>- Search & Filter<br/>- View/Edit/Create]
-    ACCOUNT_LIST --> ACCOUNT_DETAIL[Account Detail<br/>- Info<br/>- Contacts<br/>- History]
-    ACCOUNT_DETAIL --> CREATE_VISIT
-    
-    MANAGE_CONTACTS --> CONTACT_LIST[Contact List<br/>- Search & Filter<br/>- View/Edit/Create]
-    CONTACT_LIST --> CONTACT_DETAIL[Contact Detail<br/>- Info<br/>- Account<br/>- History]
-    
-    CREATE_VISIT --> SELECT_ACCOUNT[Select Account & Contact]
-    SELECT_ACCOUNT --> FILL_FORM[Fill Visit Form<br/>- Purpose<br/>- Notes<br/>- Date/Time]
-    FILL_FORM --> UPLOAD_PHOTO[Upload Photo<br/>Optional]
-    UPLOAD_PHOTO --> SUBMIT[Submit Visit Report]
-    SUBMIT --> DASHBOARD
-    
-    VIEW_PIPELINE --> PIPELINE_KANBAN[Pipeline Kanban View<br/>- Own Deals<br/>- Move Between Stages]
-    PIPELINE_KANBAN --> CREATE_DEAL[Create New Deal]
-    PIPELINE_KANBAN --> DEAL_DETAIL[Deal Detail<br/>- Info<br/>- History<br/>- Update]
-    CREATE_DEAL --> DEAL_DETAIL
-    DEAL_DETAIL --> PIPELINE_KANBAN
-    
-    MANAGE_TASKS --> TASK_LIST[Task List<br/>- Own Tasks<br/>- Filter by Status]
-    TASK_LIST --> CREATE_TASK[Create Task<br/>- Title<br/>- Description<br/>- Due Date]
-    TASK_LIST --> TASK_DETAIL[Task Detail<br/>- Info<br/>- Complete/Update]
-    CREATE_TASK --> TASK_LIST
-    TASK_DETAIL --> TASK_LIST
+    START([Buyer Access Website]) --> VIEW_EVENT[View Event Details]
+    VIEW_EVENT --> VIEW_TIERS[View Available Ticket Tiers]
+    VIEW_TIERS --> SELECT_TIER[Select Ticket Tier & Quantity]
+    SELECT_TIER --> CHECK_QUOTA{Quota<br/>Available?}
+    CHECK_QUOTA -->|No| TIER_SOLD_OUT[Tier Sold Out<br/>Select Other Tier]
+    TIER_SOLD_OUT --> VIEW_TIERS
+    CHECK_QUOTA -->|Yes| FILL_FORM[Fill Buyer Information<br/>- Name<br/>- Email<br/>- Phone]
+    FILL_FORM --> REVIEW_ORDER[Review Order Summary]
+    REVIEW_ORDER --> CONFIRM_ORDER[Confirm Order]
+    CONFIRM_ORDER --> CREATE_ORDER[Create Order<br/>Decrement Quota]
+    CREATE_ORDER --> GENERATE_TICKETS[Generate E-Tickets<br/>with QR Code]
+    GENERATE_TICKETS --> SEND_EMAIL[Send Confirmation Email<br/>+ E-Ticket]
+    SEND_EMAIL --> ORDER_SUCCESS[Order Success Page]
+    ORDER_SUCCESS --> VIEW_TICKET[View E-Ticket<br/>with QR Code]
+    VIEW_TICKET --> DOWNLOAD[Download E-Ticket<br/>PDF/Image]
     
     style START fill:#10b981
-    style DASHBOARD fill:#3b82f6
-    style CREATE_VISIT fill:#f59e0b
-    style VIEW_PIPELINE fill:#8b5cf6
-    style MANAGE_TASKS fill:#ef4444
+    style SELECT_TIER fill:#3b82f6
+    style CREATE_ORDER fill:#f59e0b
+    style GENERATE_TICKETS fill:#8b5cf6
+    style SEND_EMAIL fill:#ec4899
 ```
 
-### 2. Sales Rep User Flow (Mobile)
+### 2. Gate Staff User Flow (Check-in)
 
 ```mermaid
 flowchart TD
-    START([Sales Rep Login]) --> AUTH{Authenticated?}
+    START([Gate Staff Login]) --> AUTH{Authenticated?}
     AUTH -->|No| LOGIN[Login Screen]
     LOGIN --> AUTH
-    AUTH -->|Yes| DASHBOARD[Dashboard<br/>- Today's Visits<br/>- Tasks<br/>- Stats]
-    
-    DASHBOARD --> VIEW_ACCOUNTS[View Accounts]
-    DASHBOARD --> VIEW_TASKS[View Tasks]
-    DASHBOARD --> CREATE_VISIT[Create Visit Report]
-    
-    VIEW_ACCOUNTS --> ACCOUNT_DETAIL[Account Detail<br/>- Info<br/>- Contacts<br/>- History]
-    ACCOUNT_DETAIL --> CREATE_VISIT
-    
-    VIEW_TASKS --> TASK_DETAIL[Task Detail<br/>- Info<br/>- Complete Task]
-    TASK_DETAIL --> DASHBOARD
-    
-    CREATE_VISIT --> SELECT_ACCOUNT[Select Account]
-    SELECT_ACCOUNT --> CHECK_IN[Check-in<br/>GPS Location]
-    CHECK_IN --> FILL_FORM[Fill Visit Form<br/>- Purpose<br/>- Notes<br/>- Contact]
-    FILL_FORM --> UPLOAD_PHOTO[Upload Photo<br/>Optional]
-    UPLOAD_PHOTO --> SUBMIT[Submit Visit Report]
-    SUBMIT --> CHECK_OUT[Check-out<br/>GPS Location]
-    CHECK_OUT --> DASHBOARD
+    AUTH -->|Yes| SCANNER_MODE[Scanner Mode<br/>Mobile-Web]
+    SCANNER_MODE --> CAMERA_PERMISSION{Request Camera<br/>Permission}
+    CAMERA_PERMISSION -->|Denied| ERROR[Permission Denied<br/>Show Error]
+    ERROR --> SCANNER_MODE
+    CAMERA_PERMISSION -->|Granted| SCAN_QR[Scan QR Code<br/>from Ticket]
+    SCAN_QR --> VALIDATE_QR[Validate QR Code]
+    VALIDATE_QR --> CHECK_STATUS{Ticket<br/>Status?}
+    CHECK_STATUS -->|Invalid| INVALID[Ticket Invalid<br/>Show Error]
+    INVALID --> SCAN_QR
+    CHECK_STATUS -->|Already Used| USED[Ticket Already Used<br/>Show Warning]
+    USED --> SCAN_QR
+    CHECK_STATUS -->|Active| CHECK_DUPLICATE{Duplicate<br/>Scan?}
+    CHECK_DUPLICATE -->|Yes| DUPLICATE[Duplicate Detected<br/>Show Warning]
+    DUPLICATE --> SCAN_QR
+    CHECK_DUPLICATE -->|No| CHECK_GATE{Gate<br/>Match?}
+    CHECK_GATE -->|No| WRONG_GATE[Wrong Gate<br/>Show Error]
+    WRONG_GATE --> SCAN_QR
+    CHECK_GATE -->|Yes| CHECK_VIP{VIP<br/>Ticket?}
+    CHECK_VIP -->|Yes| VIP_PRIORITY[VIP Priority Entry<br/>Fast Track]
+    CHECK_VIP -->|No| REGULAR_ENTRY[Regular Entry]
+    VIP_PRIORITY --> CHECK_IN[Mark as Checked-in<br/>Record Timestamp]
+    REGULAR_ENTRY --> CHECK_IN
+    CHECK_IN --> SUCCESS[Check-in Success<br/>Show Confirmation]
+    SUCCESS --> UPDATE_STATUS[Update Real-time Status]
+    UPDATE_STATUS --> SCAN_QR
     
     style START fill:#10b981
-    style DASHBOARD fill:#3b82f6
-    style CREATE_VISIT fill:#f59e0b
-    style CHECK_IN fill:#ef4444
-    style CHECK_OUT fill:#ef4444
+    style SCANNER_MODE fill:#3b82f6
+    style SCAN_QR fill:#f59e0b
+    style CHECK_IN fill:#8b5cf6
+    style SUCCESS fill:#10b981
 ```
 
-### 3. Supervisor User Flow (Web)
+### 3. Super Admin User Flow
 
 ```mermaid
 flowchart TD
-    START([Supervisor Login]) --> AUTH{Authenticated?}
+    START([Super Admin Login]) --> AUTH{Authenticated?}
     AUTH -->|No| LOGIN[Login Screen]
     LOGIN --> AUTH
-    AUTH -->|Yes| DASHBOARD[Dashboard<br/>- Team Stats<br/>- Pending Approvals<br/>- Pipeline]
+    AUTH -->|Yes| DASHBOARD[Admin Dashboard<br/>- Sales Overview<br/>- Check-in Status<br/>- Analytics]
     
-    DASHBOARD --> REVIEW_VISITS[Review Visit Reports]
-    DASHBOARD --> VIEW_PIPELINE[View Sales Pipeline]
-    DASHBOARD --> MANAGE_TASKS[Manage Tasks]
-    DASHBOARD --> VIEW_REPORTS[View Reports]
-    
-    REVIEW_VISITS --> VISIT_LIST[Visit Report List<br/>Filter by Status]
-    VISIT_LIST --> VISIT_DETAIL[Visit Report Detail<br/>- Info<br/>- Photos<br/>- GPS Location]
-    VISIT_DETAIL --> APPROVE{Approve?}
-    APPROVE -->|Yes| APPROVE_ACTION[Approve Visit]
-    APPROVE -->|No| REJECT_ACTION[Reject Visit<br/>Add Reason]
-    APPROVE_ACTION --> VISIT_LIST
-    REJECT_ACTION --> VISIT_LIST
-    
-    VIEW_PIPELINE --> PIPELINE_KANBAN[Pipeline Kanban View<br/>- Stages<br/>- Deals]
-    PIPELINE_KANBAN --> DEAL_DETAIL[Deal Detail<br/>- Info<br/>- History]
-    
-    MANAGE_TASKS --> TASK_LIST[Task List]
-    TASK_LIST --> CREATE_TASK[Create Task<br/>Assign to Sales Rep]
-    CREATE_TASK --> TASK_LIST
-    
-    VIEW_REPORTS --> REPORT_LIST[Report List<br/>- Visit Reports<br/>- Sales Reports]
-    REPORT_LIST --> EXPORT[Export Excel]
-    
-    style START fill:#10b981
-    style DASHBOARD fill:#3b82f6
-    style REVIEW_VISITS fill:#f59e0b
-    style APPROVE fill:#ef4444
-```
-
-### 4. Admin User Flow (Web)
-
-```mermaid
-flowchart TD
-    START([Admin Login]) --> AUTH{Authenticated?}
-    AUTH -->|No| LOGIN[Login Screen]
-    LOGIN --> AUTH
-    AUTH -->|Yes| DASHBOARD[Dashboard<br/>- System Stats<br/>- All Activities<br/>- Reports]
-    
+    DASHBOARD --> MANAGE_EVENT[Manage Event]
+    DASHBOARD --> MANAGE_TIERS[Manage Ticket Tiers]
+    DASHBOARD --> MONITOR_SALES[Monitor Sales]
+    DASHBOARD --> MONITOR_CHECKIN[Monitor Check-in]
+    DASHBOARD --> MANAGE_GATES[Manage Gates]
     DASHBOARD --> MANAGE_USERS[Manage Users]
-    DASHBOARD --> MANAGE_ACCOUNTS[Manage Accounts]
-    DASHBOARD --> MANAGE_PRODUCTS[Manage Products]
-    DASHBOARD --> SYSTEM_SETTINGS[System Settings]
-    DASHBOARD --> VIEW_REPORTS[View Reports]
+    DASHBOARD --> VIEW_ANALYTICS[View Analytics]
     
-    MANAGE_USERS --> USER_LIST[User List]
-    USER_LIST --> CREATE_USER[Create User<br/>- Email<br/>- Role<br/>- Permissions]
-    USER_LIST --> EDIT_USER[Edit User<br/>- Info<br/>- Role<br/>- Status]
-    CREATE_USER --> USER_LIST
-    EDIT_USER --> USER_LIST
+    MANAGE_EVENT --> EVENT_FORM[Event Form<br/>- Name<br/>- Date<br/>- Location<br/>- Description]
+    EVENT_FORM --> SAVE_EVENT[Save Event]
     
-    MANAGE_ACCOUNTS --> ACCOUNT_LIST[Account List]
-    ACCOUNT_LIST --> CREATE_ACCOUNT[Create Account<br/>- Name<br/>- Category<br/>- Address]
-    ACCOUNT_LIST --> EDIT_ACCOUNT[Edit Account]
-    ACCOUNT_LIST --> MANAGE_CONTACTS[Manage Contacts]
-    CREATE_ACCOUNT --> ACCOUNT_LIST
-    EDIT_ACCOUNT --> ACCOUNT_LIST
-    MANAGE_CONTACTS --> CONTACT_LIST[Contact List]
-    CONTACT_LIST --> CREATE_CONTACT[Create Contact]
-    CREATE_CONTACT --> CONTACT_LIST
+    MANAGE_TIERS --> TIER_LIST[Tier List]
+    TIER_LIST --> CREATE_TIER[Create Tier<br/>- Name<br/>- Price<br/>- Quota]
+    TIER_LIST --> EDIT_TIER[Edit Tier]
+    CREATE_TIER --> SAVE_TIER[Save Tier]
+    EDIT_TIER --> SAVE_TIER
     
-    MANAGE_PRODUCTS --> PRODUCT_LIST[Product List]
-    PRODUCT_LIST --> CREATE_PRODUCT[Create Product<br/>- SKU<br/>- Name<br/>- Price]
-    CREATE_PRODUCT --> PRODUCT_LIST
+    MONITOR_SALES --> SALES_DASHBOARD[Sales Dashboard<br/>- Total Revenue<br/>- Tickets Sold<br/>- Peak Hours]
+    SALES_DASHBOARD --> EXPORT_BUYERS[Export Buyer List<br/>CSV/Excel]
     
-    SYSTEM_SETTINGS --> SETTINGS_FORM[Settings Form<br/>- Company Info<br/>- Logo<br/>- Pipeline Stages]
-    SETTINGS_FORM --> SAVE[Save Settings]
+    MONITOR_CHECKIN --> CHECKIN_DASHBOARD[Check-in Dashboard<br/>- Total Checked-in<br/>- By Gate<br/>- By Tier]
+    CHECKIN_DASHBOARD --> REAL_TIME[Real-time Feed]
     
-    VIEW_REPORTS --> REPORT_LIST[Report List<br/>- All Reports<br/>- Export]
+    MANAGE_GATES --> GATE_LIST[Gate List]
+    GATE_LIST --> CREATE_GATE[Create Gate<br/>- Name<br/>- Location]
+    GATE_LIST --> ASSIGN_GATE[Assign Gate to Tickets]
+    
+    VIEW_ANALYTICS --> ANALYTICS_PAGE[Analytics Page<br/>- Sales Trend<br/>- Tier Sales<br/>- Revenue Chart]
     
     style START fill:#10b981
     style DASHBOARD fill:#3b82f6
-    style MANAGE_USERS fill:#f59e0b
-    style SYSTEM_SETTINGS fill:#8b5cf6
+    style MONITOR_SALES fill:#f59e0b
+    style MONITOR_CHECKIN fill:#8b5cf6
+    style VIEW_ANALYTICS fill:#ec4899
 ```
 
 ---
 
 ## Input/Output Diagrams
 
-### 1. Account & Contact Management - I/O
+### 1. Ticket Purchase Flow
 
 ```mermaid
 graph LR
     subgraph "Input"
-        I1[Account Data<br/>- Name<br/>- Category<br/>- Address<br/>- Phone/Email]
-        I2[Contact Data<br/>- Name<br/>- Role<br/>- Phone/Email<br/>- Account ID]
-        I3[Search/Filter<br/>- Query<br/>- Category<br/>- Status]
+        I1[Buyer Information<br/>- Name<br/>- Email<br/>- Phone]
+        I2[Ticket Selection<br/>- Tier ID<br/>- Quantity]
     end
     
     subgraph "Process"
-        P1[Create/Update Account]
-        P2[Create/Update Contact]
-        P3[Search & Filter]
+        P1[Validate Quota]
+        P2[Create Order]
+        P3[Decrement Quota]
+        P4[Generate E-Tickets]
+        P5[Generate QR Codes]
+        P6[Send Email]
     end
     
     subgraph "Output"
-        O1[Account List<br/>with Pagination]
-        O2[Account Detail<br/>with Contacts]
-        O3[Contact List<br/>with Account Info]
-        O4[Search Results]
+        O1[Order Confirmation]
+        O2[E-Tickets with QR]
+        O3[Email Confirmation]
     end
     
     I1 --> P1
-    I2 --> P2
-    I3 --> P3
-    
-    P1 --> O1
-    P1 --> O2
-    P2 --> O3
-    P3 --> O4
-    
-    style I1 fill:#3b82f6
-    style I2 fill:#3b82f6
-    style P1 fill:#10b981
-    style P2 fill:#10b981
-    style O1 fill:#f59e0b
-    style O2 fill:#f59e0b
-```
-
-### 2. Visit Report - I/O
-
-```mermaid
-graph LR
-    subgraph "Input"
-        I1[Visit Data<br/>- Account ID<br/>- Contact ID<br/>- Purpose<br/>- Notes]
-        I2[GPS Data<br/>- Latitude<br/>- Longitude<br/>- Address]
-        I3[Photo<br/>- Image File<br/>- Visit Report ID]
-        I4[Check-in/out<br/>- Visit Report ID<br/>- GPS]
-    end
-    
-    subgraph "Process"
-        P1[Create Visit Report]
-        P2[Check-in/Check-out]
-        P3[Upload Photo]
-        P4[Submit for Approval]
-        P5[Approve/Reject]
-    end
-    
-    subgraph "Output"
-        O1[Visit Report<br/>with Status]
-        O2[Visit Report List<br/>with Filters]
-        O3[Activity Timeline<br/>per Account]
-        O4[Approval Status]
-    end
-    
-    I1 --> P1
-    I2 --> P2
-    I3 --> P3
-    I4 --> P2
-    
+    I2 --> P1
     P1 --> P2
     P2 --> P3
     P3 --> P4
     P4 --> P5
-    
-    P1 --> O1
-    P4 --> O2
-    P5 --> O3
-    P5 --> O4
+    P5 --> P6
+    P2 --> O1
+    P5 --> O2
+    P6 --> O3
     
     style I1 fill:#3b82f6
-    style I2 fill:#ef4444
-    style I3 fill:#8b5cf6
-    style P1 fill:#10b981
-    style P5 fill:#f59e0b
-    style O1 fill:#f59e0b
+    style I2 fill:#3b82f6
+    style P1 fill:#f59e0b
+    style P4 fill:#10b981
+    style O2 fill:#8b5cf6
 ```
 
-### 3. Sales Pipeline - I/O
+### 2. Check-in Flow
 
 ```mermaid
 graph LR
     subgraph "Input"
-        I1[Deal Data<br/>- Account ID<br/>- Contact ID<br/>- Title<br/>- Value<br/>- Stage ID]
-        I2[Move Deal<br/>- Deal ID<br/>- New Stage ID]
-        I3[Filter<br/>- Stage<br/>- Account<br/>- Date Range]
+        I1[QR Code Scan]
+        I2[Gate ID]
+        I3[Staff ID]
     end
     
     subgraph "Process"
-        P1[Create Deal]
-        P2[Move Deal to Stage]
-        P3[Update Deal]
-        P4[Calculate Forecast]
+        P1[Decode QR Code]
+        P2[Validate Ticket]
+        P3[Check Status]
+        P4[Check Duplicate]
+        P5[Check Gate]
+        P6[Mark Checked-in]
+        P7[Record Timestamp]
     end
     
     subgraph "Output"
-        O1[Pipeline View<br/>Kanban by Stage]
-        O2[Deal Detail<br/>with History]
-        O3[Pipeline Summary<br/>- Total Value<br/>- By Stage<br/>- Forecast]
-        O4[Deal List<br/>with Filters]
+        O1[Check-in Success]
+        O2[Real-time Update]
+        O3[Error Message]
     end
     
     I1 --> P1
-    I2 --> P2
-    I3 --> P4
-    
-    P1 --> P4
-    P2 --> P4
+    I2 --> P5
+    I3 --> P7
+    P1 --> P2
+    P2 --> P3
     P3 --> P4
-    
-    P1 --> O1
-    P2 --> O1
+    P4 --> P5
+    P5 --> P6
+    P6 --> P7
+    P7 --> O1
+    P7 --> O2
+    P3 --> O3
     P4 --> O3
-    P1 --> O2
+    P5 --> O3
     
     style I1 fill:#3b82f6
-    style P1 fill:#10b981
-    style P4 fill:#f59e0b
+    style P1 fill:#f59e0b
+    style P6 fill:#10b981
     style O1 fill:#8b5cf6
-    style O3 fill:#ef4444
 ```
 
-### 4. Task & Reminder - I/O
+### 3. Analytics Flow
 
 ```mermaid
 graph LR
     subgraph "Input"
-        I1[Task Data<br/>- Title<br/>- Description<br/>- Account ID<br/>- Assigned To<br/>- Due Date<br/>- Priority]
-        I2[Reminder<br/>- Task ID<br/>- Notification Time]
-        I3[Status Update<br/>- Task ID<br/>- Status]
+        I1[Date Range]
+        I2[Filter Criteria]
     end
     
     subgraph "Process"
-        P1[Create Task]
-        P2[Assign Task]
-        P3[Update Status]
-        P4[Set Reminder]
-        P5[Send Notification]
+        P1[Query Sales Data]
+        P2[Query Check-in Data]
+        P3[Aggregate Data]
+        P4[Calculate Metrics]
+        P5[Generate Charts]
     end
     
     subgraph "Output"
-        O1[Task List<br/>with Filters]
-        O2[Task Detail<br/>with History]
-        O3[Reminder List<br/>for Mobile]
-        O4[Task Statistics<br/>- Open<br/>- In Progress<br/>- Completed]
+        O1[Sales Overview]
+        O2[Check-in Statistics]
+        O3[Analytics Charts]
+        O4[Export CSV/Excel]
     end
     
     I1 --> P1
     I1 --> P2
-    I2 --> P4
-    I3 --> P3
-    
-    P1 --> P4
-    P4 --> P5
-    P2 --> P4
-    
-    P1 --> O1
-    P3 --> O1
-    P4 --> O3
-    P1 --> O2
-    P3 --> O4
-    
-    style I1 fill:#3b82f6
-    style P1 fill:#10b981
-    style P5 fill:#ef4444
-    style O1 fill:#f59e0b
-    style O3 fill:#8b5cf6
-```
-
-### 5. Dashboard - I/O
-
-```mermaid
-graph LR
-    subgraph "Input"
-        I1[Date Range<br/>- From Date<br/>- To Date]
-        I2[Filters<br/>- Sales Rep<br/>- Account<br/>- Status]
-        I3[User Role<br/>- Admin<br/>- Supervisor<br/>- Sales]
-    end
-    
-    subgraph "Process"
-        P1[Aggregate Visit Data]
-        P2[Aggregate Pipeline Data]
-        P3[Aggregate Task Data]
-        P4[Calculate Statistics]
-        P5[Filter by Role]
-    end
-    
-    subgraph "Output"
-        O1[Dashboard Overview<br/>- Total Visits<br/>- Today's Visits<br/>- Pending Approvals]
-        O2[Visit Statistics<br/>- By Date<br/>- By Account<br/>- By Sales Rep]
-        O3[Pipeline Summary<br/>- Total Value<br/>- By Stage<br/>- Forecast]
-        O4[Activity Feed<br/>- Recent Activities<br/>- Timeline]
-        O5[Task Summary<br/>- Open Tasks<br/>- Completed Tasks]
-    end
-    
-    I1 --> P1
-    I2 --> P4
-    I3 --> P5
-    
-    P1 --> P4
-    P2 --> P4
+    I2 --> P1
+    I2 --> P2
+    P1 --> P3
+    P2 --> P3
     P3 --> P4
     P4 --> P5
-    
-    P5 --> O1
-    P1 --> O2
-    P2 --> O3
-    P1 --> O4
-    P3 --> O5
+    P4 --> O1
+    P4 --> O2
+    P5 --> O3
+    P4 --> O4
     
     style I1 fill:#3b82f6
+    style P3 fill:#f59e0b
     style P4 fill:#10b981
-    style P5 fill:#f59e0b
-    style O1 fill:#8b5cf6
-    style O2 fill:#ef4444
+    style O3 fill:#8b5cf6
 ```
 
 ---
@@ -591,264 +434,206 @@ graph LR
 ```mermaid
 graph TB
     subgraph "Client Layer"
-        WEB_APP[Web App<br/>Next.js 16<br/>Developer 1]
-        MOBILE_APP[Mobile App<br/>Flutter<br/>Developer 3]
+        WEB[Web Application<br/>Next.js 16]
     end
     
     subgraph "API Layer"
-        API_GATEWAY[API Gateway<br/>Go + Gin<br/>Developer 2]
-        AUTH_API[Auth API]
-        USER_API[User API]
-        ACCOUNT_API[Account API]
-        VISIT_API[Visit API]
-        PIPELINE_API[Pipeline API]
-        TASK_API[Task API]
-        PRODUCT_API[Product API]
-        DASHBOARD_API[Dashboard API]
-        AI_API[AI API]
+        API[Backend API<br/>Go + Gin]
+        AUTH_MW[Auth Middleware]
+        RATE_LIMIT[Rate Limit<br/>Middleware]
     end
     
-    subgraph "Business Logic Layer"
-        AUTH_SVC[Auth Service]
-        USER_SVC[User Service]
-        ACCOUNT_SVC[Account Service]
-        VISIT_SVC[Visit Service]
-        PIPELINE_SVC[Pipeline Service]
-        TASK_SVC[Task Service]
-        PRODUCT_SVC[Product Service]
-        DASHBOARD_SVC[Dashboard Service]
-        AI_SVC[AI Service]
-        AI_SETTINGS_SVC[AI Settings Service]
+    subgraph "Service Layer"
+        EVENT_SVC[Event Service]
+        TICKET_SVC[Ticket Service]
+        ORDER_SVC[Order Service]
+        CHECKIN_SVC[Check-in Service]
+        EMAIL_SVC[Email Service]
+        QR_SVC[QR Code Service]
     end
     
     subgraph "Data Layer"
         DB[(PostgreSQL<br/>Database)]
-        FILE_STORAGE[File Storage<br/>Photos/Documents]
+        CACHE[(Redis Cache<br/>Optional)]
     end
     
-    WEB_APP --> API_GATEWAY
-    MOBILE_APP --> API_GATEWAY
+    subgraph "External Services"
+        SMTP[SMTP Server<br/>Email]
+    end
     
-    API_GATEWAY --> AUTH_API
-    API_GATEWAY --> USER_API
-    API_GATEWAY --> ACCOUNT_API
-    API_GATEWAY --> VISIT_API
-    API_GATEWAY --> PIPELINE_API
-    API_GATEWAY --> TASK_API
-    API_GATEWAY --> PRODUCT_API
-    API_GATEWAY --> DASHBOARD_API
-    API_GATEWAY --> AI_API
+    WEB --> API
+    API --> AUTH_MW
+    AUTH_MW --> RATE_LIMIT
+    RATE_LIMIT --> EVENT_SVC
+    RATE_LIMIT --> TICKET_SVC
+    RATE_LIMIT --> ORDER_SVC
+    RATE_LIMIT --> CHECKIN_SVC
     
-    AUTH_API --> AUTH_SVC
-    USER_API --> USER_SVC
-    ACCOUNT_API --> ACCOUNT_SVC
-    VISIT_API --> VISIT_SVC
-    PIPELINE_API --> PIPELINE_SVC
-    TASK_API --> TASK_SVC
-    PRODUCT_API --> PRODUCT_SVC
-    DASHBOARD_API --> DASHBOARD_SVC
-    AI_API --> AI_SVC
-    AI_API --> AI_SETTINGS_SVC
+    EVENT_SVC --> DB
+    TICKET_SVC --> DB
+    ORDER_SVC --> DB
+    CHECKIN_SVC --> DB
     
-    AUTH_SVC --> DB
-    USER_SVC --> DB
-    ACCOUNT_SVC --> DB
-    VISIT_SVC --> DB
-    VISIT_SVC --> FILE_STORAGE
-    PIPELINE_SVC --> DB
-    TASK_SVC --> DB
-    PRODUCT_SVC --> DB
-    DASHBOARD_SVC --> DB
-    AI_SVC --> DB
-    AI_SETTINGS_SVC --> DB
-    AI_SVC --> AI_SETTINGS_SVC
+    ORDER_SVC --> EMAIL_SVC
+    EMAIL_SVC --> SMTP
     
-    style WEB_APP fill:#3b82f6
-    style MOBILE_APP fill:#10b981
-    style API_GATEWAY fill:#f59e0b
+    TICKET_SVC --> QR_SVC
+    QR_SVC --> DB
+    
+    EVENT_SVC --> CACHE
+    TICKET_SVC --> CACHE
+    
+    style WEB fill:#3b82f6
+    style API fill:#f59e0b
     style DB fill:#8b5cf6
-    style FILE_STORAGE fill:#ef4444
+    style SMTP fill:#10b981
 ```
 
-### Data Flow Diagram
+### Database Schema Overview
+
+```mermaid
+erDiagram
+    EVENTS ||--o{ TICKET_TIERS : has
+    TICKET_TIERS ||--|| TICKET_QUOTAS : has
+    ORDERS ||--o{ ORDER_ITEMS : contains
+    ORDER_ITEMS ||--|| TICKETS : generates
+    TICKETS ||--o| CHECK_INS : checked_in
+    GATES ||--o{ GATE_ASSIGNMENTS : has
+    TICKETS ||--o| GATE_ASSIGNMENTS : assigned_to
+    USERS ||--o{ USER_ROLES : has
+    ROLES ||--o{ USER_ROLES : assigned_to
+    ROLES ||--o{ ROLE_PERMISSIONS : has
+    PERMISSIONS ||--o{ ROLE_PERMISSIONS : assigned_to
+    
+    EVENTS {
+        string id PK
+        string name
+        datetime event_date
+        string location
+        text description
+        string status
+    }
+    
+    TICKET_TIERS {
+        string id PK
+        string event_id FK
+        string name
+        decimal price
+        int total_quota
+        text description
+    }
+    
+    TICKET_QUOTAS {
+        string id PK
+        string tier_id FK
+        int available_quota
+        int sold_quota
+    }
+    
+    ORDERS {
+        string id PK
+        string buyer_name
+        string buyer_email
+        string buyer_phone
+        string status
+        datetime created_at
+    }
+    
+    ORDER_ITEMS {
+        string id PK
+        string order_id FK
+        string tier_id FK
+        int quantity
+        decimal price
+    }
+    
+    TICKETS {
+        string id PK
+        string order_item_id FK
+        string ticket_code
+        string qr_code
+        string status
+        datetime generated_at
+    }
+    
+    CHECK_INS {
+        string id PK
+        string ticket_id FK
+        string gate_id FK
+        string staff_id FK
+        datetime checked_in_at
+        string location
+    }
+    
+    GATES {
+        string id PK
+        string name
+        string location
+        string description
+    }
+    
+    GATE_ASSIGNMENTS {
+        string id PK
+        string gate_id FK
+        string ticket_id FK
+    }
+```
+
+---
+
+## Data Flow Diagrams
+
+### 1. Ticket Purchase Data Flow
 
 ```mermaid
 sequenceDiagram
-    participant M as Mobile App
+    participant B as Buyer
     participant W as Web App
     participant API as Backend API
     participant DB as Database
-    participant FS as File Storage
+    participant E as Email Service
     
-    Note over M,FS: Visit Report Creation Flow
+    B->>W: Select Tier & Quantity
+    W->>API: POST /api/v1/orders
+    API->>DB: Check Quota
+    DB-->>API: Quota Available
+    API->>DB: Create Order
+    API->>DB: Decrement Quota
+    API->>DB: Generate Tickets
+    API->>DB: Generate QR Codes
+    API->>E: Send Confirmation Email
+    API-->>W: Order Created
+    W-->>B: Show Success + E-Ticket
+    E->>B: Email with E-Ticket
+```
+
+### 2. Check-in Data Flow
+
+```mermaid
+sequenceDiagram
+    participant GS as Gate Staff
+    participant W as Web App
+    participant API as Backend API
+    participant DB as Database
     
-    M->>API: POST /api/v1/visit-reports<br/>{accountId, contactId, purpose, notes}
-    API->>DB: Create Visit Report
-    DB-->>API: Visit Report Created
-    API-->>M: Visit Report ID
-    
-    M->>API: POST /api/v1/mobile/visit-reports/check-in<br/>{visitReportId, lat, lng, address}
-    API->>DB: Update Visit Report (check-in)
-    DB-->>API: Updated
-    API-->>M: Success
-    
-    M->>API: POST /api/v1/mobile/visit-reports/upload-photo<br/>{visitReportId, photo}
-    API->>FS: Store Photo
-    FS-->>API: Photo URL
-    API->>DB: Update Visit Report (photo URL)
-    DB-->>API: Updated
-    API-->>M: Success
-    
-    M->>API: POST /api/v1/mobile/visit-reports/check-out<br/>{visitReportId, lat, lng, address}
-    API->>DB: Update Visit Report (check-out, status: submitted)
-    DB-->>API: Updated
-    API-->>M: Success
-    
-    Note over W,DB: Supervisor Approval Flow
-    
-    W->>API: GET /api/v1/visit-reports?status=pending
-    API->>DB: Query Visit Reports
-    DB-->>API: Visit Reports List
-    API-->>W: Visit Reports List
-    
-    W->>API: GET /api/v1/visit-reports/:id
-    API->>DB: Get Visit Report Detail
-    DB-->>API: Visit Report Detail
-    API-->>W: Visit Report Detail
-    
-    W->>API: POST /api/v1/visit-reports/:id/approve<br/>{notes}
-    API->>DB: Update Visit Report (status: approved)
-    DB-->>API: Updated
-    API-->>W: Success
+    GS->>W: Scan QR Code
+    W->>API: POST /api/v1/check-in/validate
+    API->>DB: Find Ticket by QR Code
+    DB-->>API: Ticket Found
+    API->>DB: Check Ticket Status
+    DB-->>API: Ticket Active
+    API->>DB: Check Duplicate Scan
+    DB-->>API: No Duplicate
+    API->>DB: Check Gate Assignment
+    DB-->>API: Gate Match
+    API->>DB: Mark as Checked-in
+    API->>DB: Record Check-in
+    API-->>W: Check-in Success
+    W-->>GS: Show Success Message
+    API->>DB: Update Real-time Status
 ```
 
 ---
 
-## Developer Responsibilities Matrix
-
-### Developer 1: Web Developer
-
-**Responsibilities:**
-- ✅ Web UI/UX Development (Next.js 16)
-- ✅ Frontend State Management (Zustand)
-- ✅ Component Development (shadcn/ui v4)
-- ✅ Integration with Backend APIs
-- ✅ Form Validation (React Hook Form + Zod)
-- ✅ Responsive Design (Tailwind CSS v4)
-
-**Key Features:**
-- **For All Roles:**
-  - Account & Contact Management UI (CRUD)
-  - Visit Report Creation & Management UI
-  - Task Management UI
-  - Dashboard UI
-- **For Admin:**
-  - User Management UI
-  - System Settings UI
-  - Full Reports UI
-- **For Supervisor:**
-  - Visit Report Review & Approval UI
-  - Sales Pipeline Management UI
-  - Team Reports UI
-- **For Sales Rep:**
-  - Visit Report Creation UI
-  - Sales Pipeline View (Own Deals)
-  - Own Reports View
-  - AI Chatbot UI
-  - AI Settings UI
-
-### Developer 2: Backend Developer
-
-**Responsibilities:**
-- ✅ Backend API Development (Go + Gin)
-- ✅ Database Design & Migration
-- ✅ Business Logic Implementation
-- ✅ Authentication & Authorization
-- ✅ File Upload Handling
-- ✅ API Documentation (Postman)
-
-**Key Features:**
-- All REST APIs
-- Database Models & Migrations
-- Authentication Service
-- File Storage Service
-- AI Service (Cerebras/OpenAI/Anthropic)
-- AI Settings & Privacy Management
-- Data Validation
-- Error Handling
-
-### Developer 3: Mobile Developer
-
-**Responsibilities:**
-- ✅ Flutter Mobile App Development
-- ✅ Mobile UI/UX
-- ✅ GPS Integration
-- ✅ Camera Integration
-- ✅ Push Notifications
-- ✅ Offline Support (Future)
-
-**Key Features:**
-- Account & Contact View
-- Visit Report Creation with GPS & Camera
-- Task Management
-- Dashboard (Basic)
-- Check-in/Check-out
-- Photo Upload
-- AI Chatbot (Future - if backend supports)
-
----
-
-## Feature Priority Matrix
-
-### MVP (Must Have)
-
-| Feature | Priority | Developer 1 | Developer 2 | Developer 3 |
-|---------|----------|-------------|-------------|-------------|
-| Authentication | 🔴 High | ✅ | ✅ | ✅ |
-| Account & Contact Management | 🔴 High | ✅ | ✅ | ✅ |
-| Visit Report (Create) | 🔴 High | ✅ | ✅ | ✅ |
-| Visit Report (Approve) | 🔴 High | ✅ | ✅ | ❌ |
-| Sales Pipeline | 🟡 Medium | ✅ | ✅ | ❌ |
-| Task & Reminder | 🟡 Medium | ✅ | ✅ | ✅ |
-| Dashboard | 🟡 Medium | ✅ | ✅ | ✅ |
-| AI Assistant | 🟡 Medium | ✅ | ✅ | ❌ |
-| Product Management | 🟢 Low | ✅ | ✅ | ❌ |
-
-### Legend
-- 🔴 High: Critical for MVP
-- 🟡 Medium: Important but can be simplified
-- 🟢 Low: Nice to have, can be deferred
-
----
-
-## Summary
-
-### Project Scope
-- **Platform**: Web (Next.js 16) + Mobile (Flutter) + Backend (Go)
-- **Users**: Sales Rep, Supervisor, Admin
-- **Core Features**: 9 modules (Auth, Users, Accounts, Visits, Pipeline, Tasks, Products, Dashboard, AI Assistant)
-
-### Key User Flows
-
-1. **Sales Rep (Web)**: 
-   - Login → Dashboard → Manage Accounts/Contacts → Create Visit Report → View Pipeline → Manage Tasks
-   
-2. **Sales Rep (Mobile)**: 
-   - Login → Dashboard → Create Visit Report → Check-in (GPS) → Fill Form → Upload Photo → Check-out (GPS) → View Tasks
-   
-3. **Supervisor (Web)**: 
-   - Login → Dashboard → Review Visit Reports → Approve/Reject → View Pipeline → Manage Tasks → View Reports
-   
-4. **Admin (Web)**: 
-   - Login → Dashboard → Manage Users → Manage Accounts → Manage Products → System Settings → View All Reports
-
-### Developer Focus
-- **Developer 1**: Web UI/UX, Frontend Logic, Component Development
-- **Developer 2**: Backend APIs, Database, Business Logic
-- **Developer 3**: Mobile App, GPS/Camera Integration, Mobile UX
-
----
-
-**Last Updated**: 2025-01-15  
-**Maintained By**: Development Team
+**Dokumen ini akan diupdate sesuai dengan perkembangan development.**
 
