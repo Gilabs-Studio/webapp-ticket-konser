@@ -1,0 +1,3448 @@
+{
+  "info": {
+    "name": "CRM Healthcare API",
+    "description": "API collection untuk CRM Healthcare/Pharmaceutical Platform - Sales CRM",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "crm-healthcare"
+  },
+  "item": [
+    {
+      "name": "Authentication",
+      "item": [
+        {
+          "name": "Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    const jsonData = pm.response.json();",
+                  "    if (jsonData.success && jsonData.data.token) {",
+                  "        pm.environment.set(\"token\", jsonData.data.token);",
+                  "        pm.environment.set(\"refresh_token\", jsonData.data.refresh_token);",
+                  "        pm.environment.set(\"user_id\", jsonData.data.user.id);",
+                  "    }",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"admin@example.com\",\n  \"password\": \"admin123\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/auth/login",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "auth", "login"]
+            },
+            "description": "Login dengan email dan password. Response akan menyertakan JWT token dan refresh token."
+          },
+          "response": [
+            {
+              "name": "Success Response",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"email\": \"admin@example.com\",\n  \"password\": \"admin123\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{base_url}}/api/v1/auth/login",
+                  "host": ["{{base_url}}"],
+                  "path": ["api", "v1", "auth", "login"]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n  \"success\": true,\n  \"data\": {\n    \"user\": {\n      \"id\": \"user_abc123\",\n      \"email\": \"admin@example.com\",\n      \"name\": \"Admin User\",\n      \"role\": \"admin\",\n      \"permissions\": [\"users:read\", \"users:write\"],\n      \"created_at\": \"2024-01-15T10:30:45+07:00\",\n      \"updated_at\": \"2024-01-15T10:30:45+07:00\"\n    },\n    \"token\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...\",\n    \"refresh_token\": \"refresh_token_xyz789\",\n    \"expires_in\": 3600\n  },\n  \"timestamp\": \"2024-01-15T10:30:45+07:00\",\n  \"request_id\": \"req_abc123xyz\"\n}"
+            },
+            {
+              "name": "Error Response - Invalid Credentials",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"email\": \"wrong@example.com\",\n  \"password\": \"wrongpassword\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{base_url}}/api/v1/auth/login",
+                  "host": ["{{base_url}}"],
+                  "path": ["api", "v1", "auth", "login"]
+                }
+              },
+              "status": "Unauthorized",
+              "code": 401,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n  \"success\": false,\n  \"error\": {\n    \"code\": \"INVALID_CREDENTIALS\",\n    \"message\": \"Invalid email or password\"\n  },\n  \"timestamp\": \"2024-01-15T10:30:45+07:00\",\n  \"request_id\": \"req_abc123xyz\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Refresh Token",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    const jsonData = pm.response.json();",
+                  "    if (jsonData.success && jsonData.data.token) {",
+                  "        pm.environment.set(\"token\", jsonData.data.token);",
+                  "        pm.environment.set(\"refresh_token\", jsonData.data.refresh_token);",
+                  "    }",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"refresh_token\": \"{{refresh_token}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/auth/refresh",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "auth", "refresh"]
+            },
+            "description": "Refresh access token menggunakan refresh token."
+          },
+          "response": []
+        },
+        {
+          "name": "Logout",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/auth/logout",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "auth", "logout"]
+            },
+            "description": "Logout user dan invalidate token."
+          },
+          "response": []
+        }
+      ],
+      "description": "Endpoints untuk authentication dan authorization"
+    },
+    {
+      "name": "Web",
+      "item": [
+        {
+          "name": "Master Data",
+          "item": [
+            {
+              "name": "User Management",
+              "item": [
+    {
+      "name": "Users",
+      "item": [
+        {
+          "name": "List Users",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/users?page=1&per_page=20",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "users"],
+              "query": [
+                {"key": "page", "value": "1"},
+                {"key": "per_page", "value": "20"},
+                {"key": "search", "value": "", "disabled": true},
+                {"key": "status", "value": "", "disabled": true},
+                {"key": "role_id", "value": "", "disabled": true}
+              ]
+            },
+            "description": "Get list of users with pagination"
+          }
+        },
+        {
+          "name": "Get User by ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/users/:id",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "users", ":id"],
+              "variable": [
+                {"key": "id", "value": "user_id"}
+              ]
+            },
+            "description": "Get user details by ID"
+          }
+        },
+        {
+          "name": "Create User",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"newuser@example.com\",\n  \"password\": \"password123\",\n  \"name\": \"New User\",\n  \"role_id\": \"role_id_here\",\n  \"status\": \"active\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/users",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "users"]
+            },
+            "description": "Create a new user"
+          }
+        },
+        {
+          "name": "Update User",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Updated Name\",\n  \"role_id\": \"role_id_here\",\n  \"status\": \"active\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/users/:id",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "users", ":id"],
+              "variable": [
+                {"key": "id", "value": "user_id"}
+              ]
+            },
+            "description": "Update user information"
+          }
+        },
+        {
+          "name": "Delete User",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/users/:id",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "users", ":id"],
+              "variable": [
+                {"key": "id", "value": "user_id"}
+              ]
+            },
+            "description": "Delete a user"
+          }
+        },
+        {
+          "name": "Get User Permissions",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/users/:id/permissions",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "users", ":id", "permissions"],
+              "variable": [
+                {"key": "id", "value": "user_id"}
+              ]
+            },
+            "description": "Get user permissions in hierarchical menu structure"
+          }
+        },
+        {
+          "name": "Get User Profile",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/users/:id/profile",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "users", ":id", "profile"],
+              "variable": [
+                {"key": "id", "value": "user_id"}
+              ]
+            },
+            "description": "Get complete user profile with stats, activities, transactions, and connections"
+          },
+          "response": [
+            {
+              "name": "Success Response",
+              "originalRequest": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/v1/users/:id/profile",
+                  "host": ["{{base_url}}"],
+                  "path": ["api", "v1", "users", ":id", "profile"],
+                  "variable": [
+                    {"key": "id", "value": "user_id"}
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"success\": true,\n  \"data\": {\n    \"user\": {\n      \"id\": \"user_abc123\",\n      \"email\": \"user@example.com\",\n      \"name\": \"John Doe\",\n      \"avatar_url\": \"https://api.dicebear.com/7.x/lorelei/svg?seed=user@example.com\",\n      \"role_id\": \"role_xyz789\",\n      \"role\": {\n        \"id\": \"role_xyz789\",\n        \"name\": \"Sales Rep\",\n        \"code\": \"sales_rep\"\n      },\n      \"status\": \"active\",\n      \"created_at\": \"2024-01-15T10:30:45+07:00\",\n      \"updated_at\": \"2024-01-15T10:30:45+07:00\"\n    },\n    \"stats\": {\n      \"posts\": 184,\n      \"projects\": 32,\n      \"members\": 4500\n    },\n    \"activities\": [\n      {\n        \"id\": \"activity_001\",\n        \"title\": \"Visit Report\",\n        \"description\": \"Visit to Hospital ABC\",\n        \"type\": \"visit\",\n        \"date\": \"2024-01-15T10:30:45+07:00\"\n      }\n    ],\n    \"transactions\": [\n      {\n        \"id\": \"deal_001\",\n        \"product\": \"Product A\",\n        \"status\": \"paid\",\n        \"date\": \"2024-01-15T10:30:45+07:00\",\n        \"amount\": 5000000\n      }\n    ],\n    \"connections\": [\n      {\n        \"id\": \"user_002\",\n        \"name\": \"Jane Smith\",\n        \"email\": \"jane@example.com\",\n        \"avatar_url\": \"https://api.dicebear.com/7.x/lorelei/svg?seed=jane@example.com\",\n        \"is_connected\": false\n      }\n    ]\n  },\n  \"timestamp\": \"2024-01-15T10:30:45+07:00\",\n  \"request_id\": \"req_abc123xyz\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Update User Profile",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Updated Name\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/users/:id/profile",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "users", ":id", "profile"],
+              "variable": [
+                {"key": "id", "value": "user_id"}
+              ]
+            },
+            "description": "Update user profile information (name only)"
+          }
+        },
+        {
+          "name": "Change Password",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"current_password\": \"oldpassword123\",\n  \"password\": \"newpassword123\",\n  \"confirm_password\": \"newpassword123\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/users/:id/password",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "users", ":id", "password"],
+              "variable": [
+                {"key": "id", "value": "user_id"}
+              ]
+            },
+            "description": "Change user password. Requires current password verification."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Roles",
+      "item": [
+        {
+          "name": "List Roles",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/roles",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "roles"]
+            },
+            "description": "Get list of all roles"
+          }
+        },
+        {
+          "name": "Get Role by ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/roles/:id",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "roles", ":id"],
+              "variable": [
+                {"key": "id", "value": "role_id"}
+              ]
+            },
+            "description": "Get role details by ID"
+          }
+        },
+        {
+          "name": "Create Role",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"New Role\",\n  \"code\": \"new_role\",\n  \"description\": \"Role description\",\n  \"status\": \"active\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/roles",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "roles"]
+            },
+            "description": "Create a new role"
+          }
+        },
+        {
+          "name": "Update Role",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Updated Role\",\n  \"description\": \"Updated description\",\n  \"status\": \"active\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/roles/:id",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "roles", ":id"],
+              "variable": [
+                {"key": "id", "value": "role_id"}
+              ]
+            },
+            "description": "Update role information"
+          }
+        },
+        {
+          "name": "Delete Role",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/roles/:id",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "roles", ":id"],
+              "variable": [
+                {"key": "id", "value": "role_id"}
+              ]
+            },
+            "description": "Delete a role"
+          }
+        },
+        {
+          "name": "Assign Permissions to Role",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"permission_ids\": [\"permission_id_1\", \"permission_id_2\"]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/roles/:id/permissions",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "roles", ":id", "permissions"],
+              "variable": [
+                {"key": "id", "value": "role_id"}
+              ]
+            },
+            "description": "Assign permissions to a role"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Permissions",
+      "item": [
+        {
+          "name": "List Permissions",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/permissions",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "permissions"]
+            },
+            "description": "Get list of all permissions"
+          }
+        },
+        {
+          "name": "Get Permission by ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/permissions/:id",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "permissions", ":id"],
+              "variable": [
+                {"key": "id", "value": "permission_id"}
+              ]
+            },
+            "description": "Get permission details by ID"
+          }
+        }
+      ]
+                }
+              ],
+              "description": "User Management endpoints untuk mengelola users, roles, dan permissions"
+            },
+            {
+              "name": "Account Management",
+              "item": [
+                {
+                  "name": "List Accounts",
+                  "request": {
+                    "method": "GET",
+                    "header": [
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{token}}",
+                        "type": "text"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/accounts?page=1&per_page=20",
+                      "host": ["{{base_url}}"],
+                      "path": ["api", "v1", "accounts"],
+                      "query": [
+                        {"key": "page", "value": "1"},
+                        {"key": "per_page", "value": "20"},
+                        {"key": "search", "value": "", "disabled": true},
+                        {"key": "status", "value": "", "disabled": true},
+                        {"key": "category_id", "value": "", "disabled": true},
+                        {"key": "assigned_to", "value": "", "disabled": true}
+                      ]
+                    },
+                    "description": "Get list of accounts with pagination"
+                  }
+                },
+                {
+                  "name": "Get Account by ID",
+                  "request": {
+                    "method": "GET",
+                    "header": [
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{token}}",
+                        "type": "text"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/accounts/:id",
+                      "host": ["{{base_url}}"],
+                      "path": ["api", "v1", "accounts", ":id"],
+                      "variable": [
+                        {"key": "id", "value": "account_id"}
+                      ]
+                    },
+                    "description": "Get account details by ID"
+                  }
+                },
+                {
+                  "name": "Create Account",
+                  "request": {
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{token}}",
+                        "type": "text"
+                      },
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"name\": \"Rumah Sakit Umum\",\n  \"category_id\": \"category_id_here\",\n  \"address\": \"Jl. Contoh No. 123\",\n  \"city\": \"Jakarta\",\n  \"province\": \"DKI Jakarta\",\n  \"phone\": \"02112345678\",\n  \"email\": \"rsu@example.com\",\n  \"status\": \"active\"\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    },
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/accounts",
+                      "host": ["{{base_url}}"],
+                      "path": ["api", "v1", "accounts"]
+                    },
+                    "description": "Create a new account"
+                  }
+                },
+                {
+                  "name": "Update Account",
+                  "request": {
+                    "method": "PUT",
+                    "header": [
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{token}}",
+                        "type": "text"
+                      },
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"name\": \"Updated Account Name\",\n  \"category_id\": \"category_id_here\",\n  \"status\": \"active\"\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    },
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/accounts/:id",
+                      "host": ["{{base_url}}"],
+                      "path": ["api", "v1", "accounts", ":id"],
+                      "variable": [
+                        {"key": "id", "value": "account_id"}
+                      ]
+                    },
+                    "description": "Update account information"
+                  }
+                },
+                {
+                  "name": "Delete Account",
+                  "request": {
+                    "method": "DELETE",
+                    "header": [
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{token}}",
+                        "type": "text"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/accounts/:id",
+                      "host": ["{{base_url}}"],
+                      "path": ["api", "v1", "accounts", ":id"],
+                      "variable": [
+                        {"key": "id", "value": "account_id"}
+                      ]
+                    },
+                    "description": "Delete an account"
+                  }
+                }
+              ],
+              "description": "Account Management endpoints untuk mengelola accounts (Hospitals, Clinics, Pharmacies)"
+            },
+            {
+              "name": "Categories",
+              "item": [
+                {
+                  "name": "List Categories",
+                  "request": {
+                    "method": "GET",
+                    "header": [
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{token}}",
+                        "type": "text"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/categories",
+                      "host": ["{{base_url}}"],
+                      "path": ["api", "v1", "categories"]
+                    },
+                    "description": "Get list of all categories"
+                  }
+                },
+                {
+                  "name": "Get Category by ID",
+                  "request": {
+                    "method": "GET",
+                    "header": [
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{token}}",
+                        "type": "text"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/categories/:id",
+                      "host": ["{{base_url}}"],
+                      "path": ["api", "v1", "categories", ":id"],
+                      "variable": [
+                        {"key": "id", "value": "category_id"}
+                      ]
+                    },
+                    "description": "Get category details by ID"
+                  }
+                },
+                {
+                  "name": "Create Category",
+                  "request": {
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{token}}",
+                        "type": "text"
+                      },
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"name\": \"Hospital\",\n  \"code\": \"HOSPITAL\",\n  \"description\": \"Hospital account category\",\n  \"badge_color\": \"default\",\n  \"status\": \"active\"\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    },
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/categories",
+                      "host": ["{{base_url}}"],
+                      "path": ["api", "v1", "categories"]
+                    },
+                    "description": "Create a new category"
+                  }
+                },
+                {
+                  "name": "Update Category",
+                  "request": {
+                    "method": "PUT",
+                    "header": [
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{token}}",
+                        "type": "text"
+                      },
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"name\": \"Updated Category Name\",\n  \"badge_color\": \"secondary\",\n  \"status\": \"active\"\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    },
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/categories/:id",
+                      "host": ["{{base_url}}"],
+                      "path": ["api", "v1", "categories", ":id"],
+                      "variable": [
+                        {"key": "id", "value": "category_id"}
+                      ]
+                    },
+                    "description": "Update category information"
+                  }
+                },
+                {
+                  "name": "Delete Category",
+                  "request": {
+                    "method": "DELETE",
+                    "header": [
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{token}}",
+                        "type": "text"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/categories/:id",
+                      "host": ["{{base_url}}"],
+                      "path": ["api", "v1", "categories", ":id"],
+                      "variable": [
+                        {"key": "id", "value": "category_id"}
+                      ]
+                    },
+                    "description": "Delete a category"
+                  }
+                }
+              ],
+              "description": "Category Management endpoints untuk mengelola account categories (Hospital, Clinic, Pharmacy)"
+            },
+            {
+              "name": "Contact Roles",
+              "item": [
+                {
+                  "name": "List Contact Roles",
+                  "request": {
+                    "method": "GET",
+                    "header": [
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{token}}",
+                        "type": "text"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/contact-roles",
+                      "host": ["{{base_url}}"],
+                      "path": ["api", "v1", "contact-roles"]
+                    },
+                    "description": "Get list of all contact roles"
+                  }
+                },
+                {
+                  "name": "Get Contact Role by ID",
+                  "request": {
+                    "method": "GET",
+                    "header": [
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{token}}",
+                        "type": "text"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/contact-roles/:id",
+                      "host": ["{{base_url}}"],
+                      "path": ["api", "v1", "contact-roles", ":id"],
+                      "variable": [
+                        {"key": "id", "value": "contact_role_id"}
+                      ]
+                    },
+                    "description": "Get contact role details by ID"
+                  }
+                },
+                {
+                  "name": "Create Contact Role",
+                  "request": {
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{token}}",
+                        "type": "text"
+                      },
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"name\": \"Doctor\",\n  \"code\": \"DOCTOR\",\n  \"description\": \"Medical doctor role\",\n  \"badge_color\": \"default\",\n  \"status\": \"active\"\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    },
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/contact-roles",
+                      "host": ["{{base_url}}"],
+                      "path": ["api", "v1", "contact-roles"]
+                    },
+                    "description": "Create a new contact role"
+                  }
+                },
+                {
+                  "name": "Update Contact Role",
+                  "request": {
+                    "method": "PUT",
+                    "header": [
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{token}}",
+                        "type": "text"
+                      },
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"name\": \"Updated Contact Role Name\",\n  \"badge_color\": \"secondary\",\n  \"status\": \"active\"\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    },
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/contact-roles/:id",
+                      "host": ["{{base_url}}"],
+                      "path": ["api", "v1", "contact-roles", ":id"],
+                      "variable": [
+                        {"key": "id", "value": "contact_role_id"}
+                      ]
+                    },
+                    "description": "Update contact role information"
+                  }
+                },
+                {
+                  "name": "Delete Contact Role",
+                  "request": {
+                    "method": "DELETE",
+                    "header": [
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{token}}",
+                        "type": "text"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/contact-roles/:id",
+                      "host": ["{{base_url}}"],
+                      "path": ["api", "v1", "contact-roles", ":id"],
+                      "variable": [
+                        {"key": "id", "value": "contact_role_id"}
+                      ]
+                    },
+                    "description": "Delete a contact role"
+                  }
+                }
+              ],
+              "description": "Contact Role Management endpoints untuk mengelola contact roles (Doctor, PIC, Manager, Other)"
+            },
+            {
+              "name": "Contact Management",
+              "item": [
+                {
+                  "name": "List Contacts",
+                  "request": {
+                    "method": "GET",
+                    "header": [
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{token}}",
+                        "type": "text"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/contacts?page=1&per_page=20",
+                      "host": ["{{base_url}}"],
+                      "path": ["api", "v1", "contacts"],
+                      "query": [
+                        {"key": "page", "value": "1"},
+                        {"key": "per_page", "value": "20"},
+                        {"key": "search", "value": "", "disabled": true},
+                        {"key": "account_id", "value": "", "disabled": true},
+                        {"key": "role_id", "value": "", "disabled": true}
+                      ]
+                    },
+                    "description": "Get list of contacts with pagination"
+                  }
+                },
+                {
+                  "name": "Get Contact by ID",
+                  "request": {
+                    "method": "GET",
+                    "header": [
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{token}}",
+                        "type": "text"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/contacts/:id",
+                      "host": ["{{base_url}}"],
+                      "path": ["api", "v1", "contacts", ":id"],
+                      "variable": [
+                        {"key": "id", "value": "contact_id"}
+                      ]
+                    },
+                    "description": "Get contact details by ID"
+                  }
+                },
+                {
+                  "name": "Create Contact",
+                  "request": {
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{token}}",
+                        "type": "text"
+                      },
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"account_id\": \"account_id_here\",\n  \"name\": \"Dr. John Doe\",\n  \"role_id\": \"contact_role_id_here\",\n  \"phone\": \"081234567890\",\n  \"email\": \"doctor@example.com\",\n  \"position\": \"Chief Medical Officer\",\n  \"notes\": \"Primary contact for medical supplies\"\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    },
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/contacts",
+                      "host": ["{{base_url}}"],
+                      "path": ["api", "v1", "contacts"]
+                    },
+                    "description": "Create a new contact"
+                  }
+                },
+                {
+                  "name": "Update Contact",
+                  "request": {
+                    "method": "PUT",
+                    "header": [
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{token}}",
+                        "type": "text"
+                      },
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"name\": \"Updated Contact Name\",\n  \"role_id\": \"contact_role_id_here\",\n  \"phone\": \"081234567890\"\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    },
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/contacts/:id",
+                      "host": ["{{base_url}}"],
+                      "path": ["api", "v1", "contacts", ":id"],
+                      "variable": [
+                        {"key": "id", "value": "contact_id"}
+                      ]
+                    },
+                    "description": "Update contact information"
+                  }
+                },
+                {
+                  "name": "Delete Contact",
+                  "request": {
+                    "method": "DELETE",
+                    "header": [
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{token}}",
+                        "type": "text"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/contacts/:id",
+                      "host": ["{{base_url}}"],
+                      "path": ["api", "v1", "contacts", ":id"],
+                      "variable": [
+                        {"key": "id", "value": "contact_id"}
+                      ]
+                    },
+                    "description": "Delete a contact"
+                  }
+                }
+              ],
+              "description": "Contact Management endpoints untuk mengelola contacts (Doctors, PICs, Managers)"
+            },
+            {
+              "name": "Sales Pipeline Management",
+              "item": [
+                {
+                  "name": "Pipeline Stages",
+                  "item": [
+                    {
+                      "name": "List Pipeline Stages",
+                      "request": {
+                        "method": "GET",
+                        "header": [
+                          {
+                            "key": "Authorization",
+                            "value": "Bearer {{token}}",
+                            "type": "text"
+                          }
+                        ],
+                        "url": {
+                          "raw": "{{base_url}}/api/v1/pipelines?is_active=true",
+                          "host": ["{{base_url}}"],
+                          "path": ["api", "v1", "pipelines"],
+                          "query": [
+                            {"key": "is_active", "value": "true", "disabled": true}
+                          ]
+                        },
+                        "description": "Get list of all pipeline stages"
+                      },
+                      "response": [
+                        {
+                          "name": "Success Response",
+                          "originalRequest": {
+                            "method": "GET",
+                            "header": [
+                              {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}"
+                              }
+                            ],
+                            "url": {
+                              "raw": "{{base_url}}/api/v1/pipelines",
+                              "host": ["{{base_url}}"],
+                              "path": ["api", "v1", "pipelines"]
+                            }
+                          },
+                          "status": "OK",
+                          "code": 200,
+                          "_postman_previewlanguage": "json",
+                          "header": [
+                            {
+                              "key": "Content-Type",
+                              "value": "application/json"
+                            }
+                          ],
+                          "cookie": [],
+                          "body": "{\n  \"success\": true,\n  \"data\": [\n    {\n      \"id\": \"stage_abc123\",\n      \"name\": \"Lead\",\n      \"code\": \"lead\",\n      \"order\": 1,\n      \"color\": \"#94A3B8\",\n      \"is_active\": true,\n      \"is_won\": false,\n      \"is_lost\": false,\n      \"description\": \"New lead that needs qualification\",\n      \"created_at\": \"2024-01-15T10:30:45+07:00\",\n      \"updated_at\": \"2024-01-15T10:30:45+07:00\"\n    },\n    {\n      \"id\": \"stage_def456\",\n      \"name\": \"Qualification\",\n      \"code\": \"qualification\",\n      \"order\": 2,\n      \"color\": \"#3B82F6\",\n      \"is_active\": true,\n      \"is_won\": false,\n      \"is_lost\": false,\n      \"description\": \"Qualifying the lead to determine if it's a good fit\",\n      \"created_at\": \"2024-01-15T10:30:45+07:00\",\n      \"updated_at\": \"2024-01-15T10:30:45+07:00\"\n    }\n  ],\n  \"meta\": {\n    \"filters\": {\n      \"is_active\": true\n    }\n  },\n  \"timestamp\": \"2024-01-15T10:30:45+07:00\",\n  \"request_id\": \"req_abc123xyz\"\n}"
+                        }
+                      ]
+                    },
+                    {
+                      "name": "Get Pipeline Stage by ID",
+                      "request": {
+                        "method": "GET",
+                        "header": [
+                          {
+                            "key": "Authorization",
+                            "value": "Bearer {{token}}",
+                            "type": "text"
+                          }
+                        ],
+                        "url": {
+                          "raw": "{{base_url}}/api/v1/pipelines/:id",
+                          "host": ["{{base_url}}"],
+                          "path": ["api", "v1", "pipelines", ":id"],
+                          "variable": [
+                            {"key": "id", "value": "pipeline_stage_id"}
+                          ]
+                        },
+                        "description": "Get pipeline stage details by ID"
+                      },
+                      "response": []
+                    },
+                    {
+                      "name": "Get Pipeline Summary",
+                      "request": {
+                        "method": "GET",
+                        "header": [
+                          {
+                            "key": "Authorization",
+                            "value": "Bearer {{token}}",
+                            "type": "text"
+                          }
+                        ],
+                        "url": {
+                          "raw": "{{base_url}}/api/v1/pipelines/summary",
+                          "host": ["{{base_url}}"],
+                          "path": ["api", "v1", "pipelines", "summary"]
+                        },
+                        "description": "Get pipeline summary statistics (total deals, won/lost/open deals, value by stage)"
+                      },
+                      "response": [
+                        {
+                          "name": "Success Response",
+                          "originalRequest": {
+                            "method": "GET",
+                            "header": [
+                              {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}"
+                              }
+                            ],
+                            "url": {
+                              "raw": "{{base_url}}/api/v1/pipelines/summary",
+                              "host": ["{{base_url}}"],
+                              "path": ["api", "v1", "pipelines", "summary"]
+                            }
+                          },
+                          "status": "OK",
+                          "code": 200,
+                          "_postman_previewlanguage": "json",
+                          "header": [
+                            {
+                              "key": "Content-Type",
+                              "value": "application/json"
+                            }
+                          ],
+                          "cookie": [],
+                          "body": "{\n  \"success\": true,\n  \"data\": {\n    \"total_deals\": 150,\n    \"total_value\": 5000000000,\n    \"total_value_formatted\": \"Rp 50.000.000\",\n    \"won_deals\": 45,\n    \"won_value\": 2000000000,\n    \"won_value_formatted\": \"Rp 20.000.000\",\n    \"lost_deals\": 20,\n    \"lost_value\": 500000000,\n    \"lost_value_formatted\": \"Rp 5.000.000\",\n    \"open_deals\": 85,\n    \"open_value\": 2500000000,\n    \"open_value_formatted\": \"Rp 25.000.000\",\n    \"by_stage\": [\n      {\n        \"stage_id\": \"stage_abc123\",\n        \"stage_name\": \"Lead\",\n        \"stage_code\": \"lead\",\n        \"deal_count\": 30,\n        \"total_value\": 1000000000,\n        \"total_value_formatted\": \"Rp 10.000.000\"\n      },\n      {\n        \"stage_id\": \"stage_def456\",\n        \"stage_name\": \"Qualification\",\n        \"stage_code\": \"qualification\",\n        \"deal_count\": 25,\n        \"total_value\": 800000000,\n        \"total_value_formatted\": \"Rp 8.000.000\"\n      }\n    ]\n  },\n  \"timestamp\": \"2024-01-15T10:30:45+07:00\",\n  \"request_id\": \"req_abc123xyz\"\n}"
+                        }
+                      ]
+                    },
+                    {
+                      "name": "Get Forecast",
+                      "request": {
+                        "method": "GET",
+                        "header": [
+                          {
+                            "key": "Authorization",
+                            "value": "Bearer {{token}}",
+                            "type": "text"
+                          }
+                        ],
+                        "url": {
+                          "raw": "{{base_url}}/api/v1/pipelines/forecast?period=month",
+                          "host": ["{{base_url}}"],
+                          "path": ["api", "v1", "pipelines", "forecast"],
+                          "query": [
+                            {"key": "period", "value": "month", "description": "month, quarter, or year"}
+                          ]
+                        },
+                        "description": "Get forecast data for deals (expected revenue, weighted revenue)"
+                      },
+                      "response": []
+                    },
+                    {
+                      "name": "Create Pipeline Stage",
+                      "request": {
+                        "method": "POST",
+                        "header": [
+                          {
+                            "key": "Authorization",
+                            "value": "Bearer {{token}}",
+                            "type": "text"
+                          },
+                          {
+                            "key": "Content-Type",
+                            "value": "application/json"
+                          }
+                        ],
+                        "body": {
+                          "mode": "raw",
+                          "raw": "{\n  \"name\": \"New Stage\",\n  \"code\": \"new_stage\",\n  \"order\": 7,\n  \"color\": \"#8B5CF6\",\n  \"is_active\": true,\n  \"is_won\": false,\n  \"is_lost\": false,\n  \"description\": \"New pipeline stage\"\n}",
+                          "options": {
+                            "raw": {
+                              "language": "json"
+                            }
+                          }
+                        },
+                        "url": {
+                          "raw": "{{base_url}}/api/v1/pipelines",
+                          "host": ["{{base_url}}"],
+                          "path": ["api", "v1", "pipelines"]
+                        },
+                        "description": "Create a new pipeline stage"
+                      },
+                      "response": []
+                    },
+                    {
+                      "name": "Update Pipeline Stage",
+                      "request": {
+                        "method": "PUT",
+                        "header": [
+                          {
+                            "key": "Authorization",
+                            "value": "Bearer {{token}}",
+                            "type": "text"
+                          },
+                          {
+                            "key": "Content-Type",
+                            "value": "application/json"
+                          }
+                        ],
+                        "body": {
+                          "mode": "raw",
+                          "raw": "{\n  \"name\": \"Updated Stage\",\n  \"order\": 3,\n  \"color\": \"#10B981\",\n  \"is_active\": true\n}",
+                          "options": {
+                            "raw": {
+                              "language": "json"
+                            }
+                          }
+                        },
+                        "url": {
+                          "raw": "{{base_url}}/api/v1/pipelines/:id",
+                          "host": ["{{base_url}}"],
+                          "path": ["api", "v1", "pipelines", ":id"],
+                          "variable": [
+                            {"key": "id", "value": "pipeline_stage_id"}
+                          ]
+                        },
+                        "description": "Update a pipeline stage"
+                      },
+                      "response": []
+                    },
+                    {
+                      "name": "Delete Pipeline Stage",
+                      "request": {
+                        "method": "DELETE",
+                        "header": [
+                          {
+                            "key": "Authorization",
+                            "value": "Bearer {{token}}",
+                            "type": "text"
+                          }
+                        ],
+                        "url": {
+                          "raw": "{{base_url}}/api/v1/pipelines/:id",
+                          "host": ["{{base_url}}"],
+                          "path": ["api", "v1", "pipelines", ":id"],
+                          "variable": [
+                            {"key": "id", "value": "pipeline_stage_id"}
+                          ]
+                        },
+                        "description": "Delete a pipeline stage"
+                      },
+                      "response": []
+                    },
+                    {
+                      "name": "Update Stages Order",
+                      "request": {
+                        "method": "PUT",
+                        "header": [
+                          {
+                            "key": "Authorization",
+                            "value": "Bearer {{token}}",
+                            "type": "text"
+                          },
+                          {
+                            "key": "Content-Type",
+                            "value": "application/json"
+                          }
+                        ],
+                        "body": {
+                          "mode": "raw",
+                          "raw": "{\n  \"stages\": [\n    {\n      \"id\": \"stage_abc123\",\n      \"order\": 1\n    },\n    {\n      \"id\": \"stage_def456\",\n      \"order\": 2\n    },\n    {\n      \"id\": \"stage_ghi789\",\n      \"order\": 3\n    }\n  ]\n}",
+                          "options": {
+                            "raw": {
+                              "language": "json"
+                            }
+                          }
+                        },
+                        "url": {
+                          "raw": "{{base_url}}/api/v1/pipelines/order",
+                          "host": ["{{base_url}}"],
+                          "path": ["api", "v1", "pipelines", "order"]
+                        },
+                        "description": "Update the order of multiple pipeline stages"
+                      },
+                      "response": []
+                    }
+                  ],
+                  "description": "Pipeline Stages endpoints untuk mengelola pipeline stages (Lead, Qualification, Proposal, Negotiation, Closed Won, Closed Lost)"
+                },
+                {
+                  "name": "Deals",
+                  "item": [
+                    {
+                      "name": "List Deals",
+                      "request": {
+                        "method": "GET",
+                        "header": [
+                          {
+                            "key": "Authorization",
+                            "value": "Bearer {{token}}",
+                            "type": "text"
+                          }
+                        ],
+                        "url": {
+                          "raw": "{{base_url}}/api/v1/deals?page=1&per_page=20",
+                          "host": ["{{base_url}}"],
+                          "path": ["api", "v1", "deals"],
+                          "query": [
+                            {"key": "page", "value": "1"},
+                            {"key": "per_page", "value": "20"},
+                            {"key": "search", "value": "", "disabled": true},
+                            {"key": "stage_id", "value": "", "disabled": true},
+                            {"key": "account_id", "value": "", "disabled": true},
+                            {"key": "assigned_to", "value": "", "disabled": true},
+                            {"key": "status", "value": "", "disabled": true, "description": "open, won, lost"},
+                            {"key": "source", "value": "", "disabled": true}
+                          ]
+                        },
+                        "description": "Get list of deals with pagination and filters"
+                      },
+                      "response": [
+                        {
+                          "name": "Success Response",
+                          "originalRequest": {
+                            "method": "GET",
+                            "header": [
+                              {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}"
+                              }
+                            ],
+                            "url": {
+                              "raw": "{{base_url}}/api/v1/deals?page=1&per_page=20",
+                              "host": ["{{base_url}}"],
+                              "path": ["api", "v1", "deals"],
+                              "query": [
+                                {"key": "page", "value": "1"},
+                                {"key": "per_page", "value": "20"}
+                              ]
+                            }
+                          },
+                          "status": "OK",
+                          "code": 200,
+                          "_postman_previewlanguage": "json",
+                          "header": [
+                            {
+                              "key": "Content-Type",
+                              "value": "application/json"
+                            }
+                          ],
+                          "cookie": [],
+                          "body": "{\n  \"success\": true,\n  \"data\": [\n    {\n      \"id\": \"deal_abc123\",\n      \"title\": \"New Deal Opportunity\",\n      \"description\": \"Deal description here\",\n      \"account_id\": \"account_xyz789\",\n      \"account\": {\n        \"id\": \"account_xyz789\",\n        \"name\": \"Rumah Sakit Umum\"\n      },\n      \"contact_id\": \"contact_def456\",\n      \"contact\": {\n        \"id\": \"contact_def456\",\n        \"name\": \"Dr. John Doe\",\n        \"email\": \"doctor@example.com\",\n        \"phone\": \"081234567890\"\n      },\n      \"stage_id\": \"stage_abc123\",\n      \"stage\": {\n        \"id\": \"stage_abc123\",\n        \"name\": \"Lead\",\n        \"code\": \"lead\",\n        \"order\": 1,\n        \"color\": \"#94A3B8\",\n        \"is_active\": true,\n        \"is_won\": false,\n        \"is_lost\": false\n      },\n      \"value\": 50000000,\n      \"value_formatted\": \"Rp 500.000\",\n      \"probability\": 50,\n      \"expected_close_date\": \"2024-12-31T00:00:00+07:00\",\n      \"actual_close_date\": null,\n      \"assigned_to\": \"user_789\",\n      \"assigned_user\": {\n        \"id\": \"user_789\",\n        \"name\": \"Sales Rep Name\",\n        \"email\": \"sales@example.com\"\n      },\n      \"status\": \"open\",\n      \"source\": \"website\",\n      \"notes\": \"Additional notes\",\n      \"created_by\": \"user_789\",\n      \"created_at\": \"2024-01-15T10:30:45+07:00\",\n      \"updated_at\": \"2024-01-15T10:30:45+07:00\"\n    }\n  ],\n  \"meta\": {\n    \"pagination\": {\n      \"page\": 1,\n      \"per_page\": 20,\n      \"total\": 150,\n      \"total_pages\": 8,\n      \"has_next\": true,\n      \"has_prev\": false,\n      \"next_page\": 2,\n      \"prev_page\": null\n    },\n    \"filters\": {}\n  },\n  \"timestamp\": \"2024-01-15T10:30:45+07:00\",\n  \"request_id\": \"req_abc123xyz\"\n}"
+                        }
+                      ]
+                    },
+                    {
+                      "name": "Get Deal by ID",
+                      "request": {
+                        "method": "GET",
+                        "header": [
+                          {
+                            "key": "Authorization",
+                            "value": "Bearer {{token}}",
+                            "type": "text"
+                          }
+                        ],
+                        "url": {
+                          "raw": "{{base_url}}/api/v1/deals/:id",
+                          "host": ["{{base_url}}"],
+                          "path": ["api", "v1", "deals", ":id"],
+                          "variable": [
+                            {"key": "id", "value": "deal_id"}
+                          ]
+                        },
+                        "description": "Get deal details by ID"
+                      },
+                      "response": []
+                    },
+                    {
+                      "name": "Create Deal",
+                      "request": {
+                        "method": "POST",
+                        "header": [
+                          {
+                            "key": "Authorization",
+                            "value": "Bearer {{token}}",
+                            "type": "text"
+                          },
+                          {
+                            "key": "Content-Type",
+                            "value": "application/json"
+                          }
+                        ],
+                        "body": {
+                          "mode": "raw",
+                          "raw": "{\n  \"title\": \"New Deal Opportunity\",\n  \"description\": \"Deal description here\",\n  \"account_id\": \"account_id_here\",\n  \"contact_id\": \"contact_id_here\",\n  \"stage_id\": \"pipeline_stage_id_here\",\n  \"value\": 50000000,\n  \"probability\": 50,\n  \"expected_close_date\": \"2024-12-31T00:00:00+07:00\",\n  \"assigned_to\": \"user_id_here\",\n  \"source\": \"website\",\n  \"notes\": \"Additional notes\"\n}",
+                          "options": {
+                            "raw": {
+                              "language": "json"
+                            }
+                          }
+                        },
+                        "url": {
+                          "raw": "{{base_url}}/api/v1/deals",
+                          "host": ["{{base_url}}"],
+                          "path": ["api", "v1", "deals"]
+                        },
+                        "description": "Create a new deal. Value is in smallest currency unit (sen). Probability is 0-100 percentage."
+                      },
+                      "response": [
+                        {
+                          "name": "Success Response",
+                          "originalRequest": {
+                            "method": "POST",
+                            "header": [
+                              {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}"
+                              },
+                              {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                              }
+                            ],
+                            "body": {
+                              "mode": "raw",
+                              "raw": "{\n  \"title\": \"New Deal Opportunity\",\n  \"description\": \"Deal description here\",\n  \"account_id\": \"account_xyz789\",\n  \"contact_id\": \"contact_def456\",\n  \"stage_id\": \"stage_abc123\",\n  \"value\": 50000000,\n  \"probability\": 50,\n  \"expected_close_date\": \"2024-12-31T00:00:00+07:00\",\n  \"assigned_to\": \"user_789\",\n  \"source\": \"website\",\n  \"notes\": \"Additional notes\"\n}",
+                              "options": {
+                                "raw": {
+                                  "language": "json"
+                                }
+                              }
+                            },
+                            "url": {
+                              "raw": "{{base_url}}/api/v1/deals",
+                              "host": ["{{base_url}}"],
+                              "path": ["api", "v1", "deals"]
+                            }
+                          },
+                          "status": "Created",
+                          "code": 201,
+                          "_postman_previewlanguage": "json",
+                          "header": [
+                            {
+                              "key": "Content-Type",
+                              "value": "application/json"
+                            }
+                          ],
+                          "cookie": [],
+                          "body": "{\n  \"success\": true,\n  \"data\": {\n    \"id\": \"deal_abc123\",\n    \"title\": \"New Deal Opportunity\",\n    \"description\": \"Deal description here\",\n    \"account_id\": \"account_xyz789\",\n    \"account\": {\n      \"id\": \"account_xyz789\",\n      \"name\": \"Rumah Sakit Umum\"\n    },\n    \"contact_id\": \"contact_def456\",\n    \"contact\": {\n      \"id\": \"contact_def456\",\n      \"name\": \"Dr. John Doe\",\n      \"email\": \"doctor@example.com\",\n      \"phone\": \"081234567890\"\n    },\n    \"stage_id\": \"stage_abc123\",\n    \"stage\": {\n      \"id\": \"stage_abc123\",\n      \"name\": \"Lead\",\n      \"code\": \"lead\",\n      \"order\": 1,\n      \"color\": \"#94A3B8\",\n      \"is_active\": true,\n      \"is_won\": false,\n      \"is_lost\": false\n    },\n    \"value\": 50000000,\n    \"value_formatted\": \"Rp 500.000\",\n    \"probability\": 50,\n    \"expected_close_date\": \"2024-12-31T00:00:00+07:00\",\n    \"actual_close_date\": null,\n    \"assigned_to\": \"user_789\",\n    \"assigned_user\": {\n      \"id\": \"user_789\",\n      \"name\": \"Sales Rep Name\",\n      \"email\": \"sales@example.com\"\n    },\n    \"status\": \"open\",\n    \"source\": \"website\",\n    \"notes\": \"Additional notes\",\n    \"created_by\": \"user_789\",\n    \"created_at\": \"2024-01-15T10:30:45+07:00\",\n    \"updated_at\": \"2024-01-15T10:30:45+07:00\"\n  },\n  \"meta\": {\n    \"created_by\": \"user_789\"\n  },\n  \"timestamp\": \"2024-01-15T10:30:45+07:00\",\n  \"request_id\": \"req_abc123xyz\"\n}"
+                        },
+                        {
+                          "name": "Error Response - Account Not Found",
+                          "originalRequest": {
+                            "method": "POST",
+                            "header": [
+                              {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}"
+                              },
+                              {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                              }
+                            ],
+                            "body": {
+                              "mode": "raw",
+                              "raw": "{\n  \"title\": \"New Deal Opportunity\",\n  \"account_id\": \"invalid_account_id\",\n  \"stage_id\": \"stage_abc123\",\n  \"value\": 50000000\n}",
+                              "options": {
+                                "raw": {
+                                  "language": "json"
+                                }
+                              }
+                            },
+                            "url": {
+                              "raw": "{{base_url}}/api/v1/deals",
+                              "host": ["{{base_url}}"],
+                              "path": ["api", "v1", "deals"]
+                            }
+                          },
+                          "status": "Not Found",
+                          "code": 404,
+                          "_postman_previewlanguage": "json",
+                          "header": [
+                            {
+                              "key": "Content-Type",
+                              "value": "application/json"
+                            }
+                          ],
+                          "cookie": [],
+                          "body": "{\n  \"success\": false,\n  \"error\": {\n    \"code\": \"NOT_FOUND\",\n    \"message\": \"Resource not found\",\n    \"details\": {\n      \"resource\": \"account\",\n      \"resource_id\": \"invalid_account_id\"\n    }\n  },\n  \"timestamp\": \"2024-01-15T10:30:45+07:00\",\n  \"request_id\": \"req_abc123xyz\"\n}"
+                        }
+                      ]
+                    },
+                    {
+                      "name": "Update Deal",
+                      "request": {
+                        "method": "PUT",
+                        "header": [
+                          {
+                            "key": "Authorization",
+                            "value": "Bearer {{token}}",
+                            "type": "text"
+                          },
+                          {
+                            "key": "Content-Type",
+                            "value": "application/json"
+                          }
+                        ],
+                        "body": {
+                          "mode": "raw",
+                          "raw": "{\n  \"title\": \"Updated Deal Title\",\n  \"description\": \"Updated description\",\n  \"stage_id\": \"pipeline_stage_id_here\",\n  \"value\": 60000000,\n  \"probability\": 75,\n  \"expected_close_date\": \"2024-12-31T00:00:00+07:00\",\n  \"status\": \"open\"\n}",
+                          "options": {
+                            "raw": {
+                              "language": "json"
+                            }
+                          }
+                        },
+                        "url": {
+                          "raw": "{{base_url}}/api/v1/deals/:id",
+                          "host": ["{{base_url}}"],
+                          "path": ["api", "v1", "deals", ":id"],
+                          "variable": [
+                            {"key": "id", "value": "deal_id"}
+                          ]
+                        },
+                        "description": "Update deal information. All fields are optional."
+                      },
+                      "response": []
+                    },
+                    {
+                      "name": "Move Deal",
+                      "request": {
+                        "method": "POST",
+                        "header": [
+                          {
+                            "key": "Authorization",
+                            "value": "Bearer {{token}}",
+                            "type": "text"
+                          },
+                          {
+                            "key": "Content-Type",
+                            "value": "application/json"
+                          }
+                        ],
+                        "body": {
+                          "mode": "raw",
+                          "raw": "{\n  \"stage_id\": \"pipeline_stage_id_here\"\n}",
+                          "options": {
+                            "raw": {
+                              "language": "json"
+                            }
+                          }
+                        },
+                        "url": {
+                          "raw": "{{base_url}}/api/v1/deals/:id/move",
+                          "host": ["{{base_url}}"],
+                          "path": ["api", "v1", "deals", ":id", "move"],
+                          "variable": [
+                            {"key": "id", "value": "deal_id"}
+                          ]
+                        },
+                        "description": "Move deal to a different pipeline stage. Status will be automatically updated based on stage (won/lost/open)."
+                      },
+                      "response": []
+                    },
+                    {
+                      "name": "Delete Deal",
+                      "request": {
+                        "method": "DELETE",
+                        "header": [
+                          {
+                            "key": "Authorization",
+                            "value": "Bearer {{token}}",
+                            "type": "text"
+                          }
+                        ],
+                        "url": {
+                          "raw": "{{base_url}}/api/v1/deals/:id",
+                          "host": ["{{base_url}}"],
+                          "path": ["api", "v1", "deals", ":id"],
+                          "variable": [
+                            {"key": "id", "value": "deal_id"}
+                          ]
+                        },
+                        "description": "Delete a deal (soft delete)"
+                      },
+                      "response": []
+                    }
+                  ],
+                  "description": "Deals endpoints untuk mengelola sales deals/opportunities"
+                }
+              ],
+              "description": "Sales Pipeline Management endpoints untuk mengelola pipeline stages dan deals"
+            },
+            {
+              "name": "Visit Reports",
+              "item": [
+                {
+                  "name": "List Visit Reports",
+                  "request": {
+                    "method": "GET",
+                    "header": [
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{token}}",
+                        "type": "text"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/visit-reports?page=1&per_page=20",
+                      "host": ["{{base_url}}"],
+                      "path": ["api", "v1", "visit-reports"],
+                      "query": [
+                        {"key": "page", "value": "1"},
+                        {"key": "per_page", "value": "20"},
+                        {"key": "search", "value": "", "disabled": true},
+                        {"key": "status", "value": "", "disabled": true},
+                        {"key": "account_id", "value": "", "disabled": true},
+                        {"key": "sales_rep_id", "value": "", "disabled": true},
+                        {"key": "start_date", "value": "", "disabled": true},
+                        {"key": "end_date", "value": "", "disabled": true}
+                      ]
+                    },
+                    "description": "Get list of visit reports with pagination"
+                  }
+                },
+                {
+                  "name": "Get Visit Report by ID",
+                  "request": {
+                    "method": "GET",
+                    "header": [
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{token}}",
+                        "type": "text"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/visit-reports/:id",
+                      "host": ["{{base_url}}"],
+                      "path": ["api", "v1", "visit-reports", ":id"],
+                      "variable": [
+                        {"key": "id", "value": "visit_report_id"}
+                      ]
+                    },
+                    "description": "Get visit report details by ID"
+                  }
+                },
+                {
+                  "name": "Create Visit Report",
+                  "request": {
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{token}}",
+                        "type": "text"
+                      },
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"account_id\": \"account_id_here\",\n  \"contact_id\": \"contact_id_here\",\n  \"visit_date\": \"2024-01-15\",\n  \"purpose\": \"Sales visit to discuss new products\",\n  \"notes\": \"Meeting went well, discussed pricing\"\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    },
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/visit-reports",
+                      "host": ["{{base_url}}"],
+                      "path": ["api", "v1", "visit-reports"]
+                    },
+                    "description": "Create a new visit report"
+                  }
+                },
+                {
+                  "name": "Update Visit Report",
+                  "request": {
+                    "method": "PUT",
+                    "header": [
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{token}}",
+                        "type": "text"
+                      },
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"purpose\": \"Updated purpose\",\n  \"notes\": \"Updated notes\"\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    },
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/visit-reports/:id",
+                      "host": ["{{base_url}}"],
+                      "path": ["api", "v1", "visit-reports", ":id"],
+                      "variable": [
+                        {"key": "id", "value": "visit_report_id"}
+                      ]
+                    },
+                    "description": "Update visit report information"
+                  }
+                },
+                {
+                  "name": "Delete Visit Report",
+                  "request": {
+                    "method": "DELETE",
+                    "header": [
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{token}}",
+                        "type": "text"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/visit-reports/:id",
+                      "host": ["{{base_url}}"],
+                      "path": ["api", "v1", "visit-reports", ":id"],
+                      "variable": [
+                        {"key": "id", "value": "visit_report_id"}
+                      ]
+                    },
+                    "description": "Delete a visit report"
+                  }
+                },
+                {
+                  "name": "Check In",
+                  "request": {
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{token}}",
+                        "type": "text"
+                      },
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"location\": {\n    \"latitude\": -6.2088,\n    \"longitude\": 106.8456,\n    \"address\": \"Jl. Merdeka No. 123, Jakarta\"\n  }\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    },
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/visit-reports/:id/check-in",
+                      "host": ["{{base_url}}"],
+                      "path": ["api", "v1", "visit-reports", ":id", "check-in"],
+                      "variable": [
+                        {"key": "id", "value": "visit_report_id"}
+                      ]
+                    },
+                    "description": "Check in to a visit report with GPS location"
+                  }
+                },
+                {
+                  "name": "Check Out",
+                  "request": {
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{token}}",
+                        "type": "text"
+                      },
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"location\": {\n    \"latitude\": -6.2088,\n    \"longitude\": 106.8456,\n    \"address\": \"Jl. Merdeka No. 123, Jakarta\"\n  }\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    },
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/visit-reports/:id/check-out",
+                      "host": ["{{base_url}}"],
+                      "path": ["api", "v1", "visit-reports", ":id", "check-out"],
+                      "variable": [
+                        {"key": "id", "value": "visit_report_id"}
+                      ]
+                    },
+                    "description": "Check out from a visit report with GPS location"
+                  }
+                },
+                {
+                  "name": "Approve Visit Report",
+                  "request": {
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{token}}",
+                        "type": "text"
+                      },
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    },
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/visit-reports/:id/approve",
+                      "host": ["{{base_url}}"],
+                      "path": ["api", "v1", "visit-reports", ":id", "approve"],
+                      "variable": [
+                        {"key": "id", "value": "visit_report_id"}
+                      ]
+                    },
+                    "description": "Approve a visit report (supervisor action)"
+                  }
+                },
+                {
+                  "name": "Reject Visit Report",
+                  "request": {
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{token}}",
+                        "type": "text"
+                      },
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"reason\": \"Incomplete information\"\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    },
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/visit-reports/:id/reject",
+                      "host": ["{{base_url}}"],
+                      "path": ["api", "v1", "visit-reports", ":id", "reject"],
+                      "variable": [
+                        {"key": "id", "value": "visit_report_id"}
+                      ]
+                    },
+                    "description": "Reject a visit report with reason (supervisor action)"
+                  }
+                },
+                {
+                  "name": "Upload Photo",
+                  "request": {
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{token}}",
+                        "type": "text"
+                      },
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"photo_url\": \"https://example.com/photos/visit-123.jpg\"\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    },
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/visit-reports/:id/photos",
+                      "host": ["{{base_url}}"],
+                      "path": ["api", "v1", "visit-reports", ":id", "photos"],
+                      "variable": [
+                        {"key": "id", "value": "visit_report_id"}
+                      ]
+                    },
+                    "description": "Upload a photo to a visit report"
+                  }
+                }
+              ],
+              "description": "Visit Report Management endpoints untuk mengelola visit reports dengan check-in/out, GPS, dan dokumentasi foto"
+            },
+            {
+              "name": "Dashboard",
+              "item": [
+                {
+                  "name": "Get Overview",
+                  "request": {
+                    "method": "GET",
+                    "header": [
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{token}}",
+                        "type": "text"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/dashboard/overview?period=today",
+                      "host": ["{{base_url}}"],
+                      "path": ["api", "v1", "dashboard", "overview"],
+                      "query": [
+                        {"key": "period", "value": "today", "description": "today, week, month, year"},
+                        {"key": "start_date", "value": "", "disabled": true},
+                        {"key": "end_date", "value": "", "disabled": true},
+                        {"key": "limit", "value": "", "disabled": true}
+                      ]
+                    },
+                    "description": "Get dashboard overview statistics"
+                  }
+                },
+                {
+                  "name": "Get Visit Statistics",
+                  "request": {
+                    "method": "GET",
+                    "header": [
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{token}}",
+                        "type": "text"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/dashboard/visits?period=month",
+                      "host": ["{{base_url}}"],
+                      "path": ["api", "v1", "dashboard", "visits"],
+                      "query": [
+                        {"key": "period", "value": "month", "description": "today, week, month, year"},
+                        {"key": "start_date", "value": "", "disabled": true},
+                        {"key": "end_date", "value": "", "disabled": true},
+                        {"key": "limit", "value": "", "disabled": true}
+                      ]
+                    },
+                    "description": "Get detailed visit statistics"
+                  }
+                },
+                {
+                  "name": "Get Pipeline Summary",
+                  "request": {
+                    "method": "GET",
+                    "header": [
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{token}}",
+                        "type": "text"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/dashboard/pipeline?period=month",
+                      "host": ["{{base_url}}"],
+                      "path": ["api", "v1", "dashboard", "pipeline"],
+                      "query": [
+                        {"key": "period", "value": "month", "description": "today, week, month, year"},
+                        {"key": "start_date", "value": "", "disabled": true},
+                        {"key": "end_date", "value": "", "disabled": true}
+                      ]
+                    },
+                    "description": "Get sales pipeline summary"
+                  }
+                },
+                {
+                  "name": "Get Top Accounts",
+                  "request": {
+                    "method": "GET",
+                    "header": [
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{token}}",
+                        "type": "text"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/dashboard/top-accounts?limit=10",
+                      "host": ["{{base_url}}"],
+                      "path": ["api", "v1", "dashboard", "top-accounts"],
+                      "query": [
+                        {"key": "limit", "value": "10", "description": "Number of top accounts to return"},
+                        {"key": "period", "value": "", "disabled": true},
+                        {"key": "start_date", "value": "", "disabled": true},
+                        {"key": "end_date", "value": "", "disabled": true}
+                      ]
+                    },
+                    "description": "Get top performing accounts"
+                  }
+                },
+                {
+                  "name": "Get Top Sales Rep",
+                  "request": {
+                    "method": "GET",
+                    "header": [
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{token}}",
+                        "type": "text"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/dashboard/top-sales-rep?limit=10",
+                      "host": ["{{base_url}}"],
+                      "path": ["api", "v1", "dashboard", "top-sales-rep"],
+                      "query": [
+                        {"key": "limit", "value": "10", "description": "Number of top sales reps to return"},
+                        {"key": "period", "value": "", "disabled": true},
+                        {"key": "start_date", "value": "", "disabled": true},
+                        {"key": "end_date", "value": "", "disabled": true}
+                      ]
+                    },
+                    "description": "Get top performing sales representatives"
+                  }
+                },
+                {
+                  "name": "Get Recent Activities",
+                  "request": {
+                    "method": "GET",
+                    "header": [
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{token}}",
+                        "type": "text"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/dashboard/recent-activities?limit=20",
+                      "host": ["{{base_url}}"],
+                      "path": ["api", "v1", "dashboard", "recent-activities"],
+                      "query": [
+                        {"key": "limit", "value": "20", "description": "Number of recent activities to return"},
+                        {"key": "period", "value": "", "disabled": true},
+                        {"key": "start_date", "value": "", "disabled": true},
+                        {"key": "end_date", "value": "", "disabled": true}
+                      ]
+                    },
+                    "description": "Get recent activities"
+                  }
+                }
+              ],
+              "description": "Dashboard endpoints untuk mendapatkan overview dan statistik dashboard"
+            },
+            {
+              "name": "Reports",
+              "item": [
+                {
+                  "name": "Get Visit Report Report",
+                  "request": {
+                    "method": "GET",
+                    "header": [
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{token}}",
+                        "type": "text"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/reports/visit-reports?start_date=2024-01-01&end_date=2024-01-31",
+                      "host": ["{{base_url}}"],
+                      "path": ["api", "v1", "reports", "visit-reports"],
+                      "query": [
+                        {"key": "start_date", "value": "2024-01-01", "description": "Start date (required)"},
+                        {"key": "end_date", "value": "2024-01-31", "description": "End date (required)"},
+                        {"key": "account_id", "value": "", "disabled": true},
+                        {"key": "sales_rep_id", "value": "", "disabled": true},
+                        {"key": "status", "value": "", "disabled": true},
+                        {"key": "page", "value": "", "disabled": true},
+                        {"key": "per_page", "value": "", "disabled": true}
+                      ]
+                    },
+                    "description": "Get visit report report with statistics"
+                  }
+                },
+                {
+                  "name": "Export Visit Report Report",
+                  "request": {
+                    "method": "GET",
+                    "header": [
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{token}}",
+                        "type": "text"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/reports/visit-reports/export?start_date=2024-01-01&end_date=2024-01-31&format=csv",
+                      "host": ["{{base_url}}"],
+                      "path": ["api", "v1", "reports", "visit-reports", "export"],
+                      "query": [
+                        {"key": "start_date", "value": "2024-01-01", "description": "Start date (required)"},
+                        {"key": "end_date", "value": "2024-01-31", "description": "End date (required)"},
+                        {"key": "format", "value": "csv", "description": "Export format: csv or excel"},
+                        {"key": "account_id", "value": "", "disabled": true},
+                        {"key": "sales_rep_id", "value": "", "disabled": true},
+                        {"key": "status", "value": "", "disabled": true}
+                      ]
+                    },
+                    "description": "Export visit report report as CSV or Excel file"
+                  }
+                },
+                {
+                  "name": "Get Pipeline Report",
+                  "request": {
+                    "method": "GET",
+                    "header": [
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{token}}",
+                        "type": "text"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/reports/pipeline?start_date=2024-01-01&end_date=2024-01-31",
+                      "host": ["{{base_url}}"],
+                      "path": ["api", "v1", "reports", "pipeline"],
+                      "query": [
+                        {"key": "start_date", "value": "2024-01-01", "description": "Start date (required)"},
+                        {"key": "end_date", "value": "2024-01-31", "description": "End date (required)"}
+                      ]
+                    },
+                    "description": "Get pipeline report"
+                  }
+                },
+                {
+                  "name": "Export Pipeline Report",
+                  "request": {
+                    "method": "GET",
+                    "header": [
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{token}}",
+                        "type": "text"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/reports/pipeline/export?start_date=2024-01-01&end_date=2024-01-31&format=csv",
+                      "host": ["{{base_url}}"],
+                      "path": ["api", "v1", "reports", "pipeline", "export"],
+                      "query": [
+                        {"key": "start_date", "value": "2024-01-01", "description": "Start date (required)"},
+                        {"key": "end_date", "value": "2024-01-31", "description": "End date (required)"},
+                        {"key": "format", "value": "csv", "description": "Export format: csv or excel"}
+                      ]
+                    },
+                    "description": "Export pipeline report as CSV or Excel file"
+                  }
+                },
+                {
+                  "name": "Get Sales Performance Report",
+                  "request": {
+                    "method": "GET",
+                    "header": [
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{token}}",
+                        "type": "text"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/reports/sales-performance?start_date=2024-01-01&end_date=2024-01-31",
+                      "host": ["{{base_url}}"],
+                      "path": ["api", "v1", "reports", "sales-performance"],
+                      "query": [
+                        {"key": "start_date", "value": "2024-01-01", "description": "Start date (required)"},
+                        {"key": "end_date", "value": "2024-01-31", "description": "End date (required)"},
+                        {"key": "sales_rep_id", "value": "", "disabled": true}
+                      ]
+                    },
+                    "description": "Get sales performance report"
+                  }
+                },
+                {
+                  "name": "Export Sales Performance Report",
+                  "request": {
+                    "method": "GET",
+                    "header": [
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{token}}",
+                        "type": "text"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/reports/sales-performance/export?start_date=2024-01-01&end_date=2024-01-31&format=csv",
+                      "host": ["{{base_url}}"],
+                      "path": ["api", "v1", "reports", "sales-performance", "export"],
+                      "query": [
+                        {"key": "start_date", "value": "2024-01-01", "description": "Start date (required)"},
+                        {"key": "end_date", "value": "2024-01-31", "description": "End date (required)"},
+                        {"key": "format", "value": "csv", "description": "Export format: csv or excel"},
+                        {"key": "sales_rep_id", "value": "", "disabled": true}
+                      ]
+                    },
+                    "description": "Export sales performance report as CSV or Excel file"
+                  }
+                },
+                {
+                  "name": "Get Account Activity Report",
+                  "request": {
+                    "method": "GET",
+                    "header": [
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{token}}",
+                        "type": "text"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/reports/account-activity?start_date=2024-01-01&end_date=2024-01-31&account_id=account_id_here",
+                      "host": ["{{base_url}}"],
+                      "path": ["api", "v1", "reports", "account-activity"],
+                      "query": [
+                        {"key": "start_date", "value": "2024-01-01", "description": "Start date (required)"},
+                        {"key": "end_date", "value": "2024-01-31", "description": "End date (required)"},
+                        {"key": "account_id", "value": "account_id_here", "description": "Account ID (required)"}
+                      ]
+                    },
+                    "description": "Get account activity report for a specific account"
+                  }
+                },
+                {
+                  "name": "Export Account Activity Report",
+                  "request": {
+                    "method": "GET",
+                    "header": [
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{token}}",
+                        "type": "text"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/reports/account-activity/export?start_date=2024-01-01&end_date=2024-01-31&account_id=account_id_here&format=csv",
+                      "host": ["{{base_url}}"],
+                      "path": ["api", "v1", "reports", "account-activity", "export"],
+                      "query": [
+                        {"key": "start_date", "value": "2024-01-01", "description": "Start date (required)"},
+                        {"key": "end_date", "value": "2024-01-31", "description": "End date (required)"},
+                        {"key": "account_id", "value": "account_id_here", "description": "Account ID (required)"},
+                        {"key": "format", "value": "csv", "description": "Export format: csv or excel"}
+                      ]
+                    },
+                    "description": "Export account activity report as CSV or Excel file"
+                  }
+                }
+              ],
+              "description": "Report endpoints untuk generate berbagai jenis laporan"
+            },
+            {
+              "name": "Activities",
+              "item": [
+                {
+                  "name": "List Activities",
+                  "request": {
+                    "method": "GET",
+                    "header": [
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{token}}",
+                        "type": "text"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/activities?page=1&per_page=20",
+                      "host": ["{{base_url}}"],
+                      "path": ["api", "v1", "activities"],
+                      "query": [
+                        {"key": "page", "value": "1"},
+                        {"key": "per_page", "value": "20"},
+                        {"key": "type", "value": "", "disabled": true},
+                        {"key": "account_id", "value": "", "disabled": true},
+                        {"key": "contact_id", "value": "", "disabled": true},
+                        {"key": "user_id", "value": "", "disabled": true},
+                        {"key": "start_date", "value": "", "disabled": true},
+                        {"key": "end_date", "value": "", "disabled": true}
+                      ]
+                    },
+                    "description": "Get list of activities with pagination"
+                  }
+                },
+                {
+                  "name": "Get Activity by ID",
+                  "request": {
+                    "method": "GET",
+                    "header": [
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{token}}",
+                        "type": "text"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/activities/:id",
+                      "host": ["{{base_url}}"],
+                      "path": ["api", "v1", "activities", ":id"],
+                      "variable": [
+                        {"key": "id", "value": "activity_id"}
+                      ]
+                    },
+                    "description": "Get activity details by ID"
+                  }
+                },
+                {
+                  "name": "Create Activity",
+                  "request": {
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{token}}",
+                        "type": "text"
+                      },
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"type\": \"visit\",\n  \"account_id\": \"account_id_here\",\n  \"contact_id\": \"contact_id_here\",\n  \"description\": \"Visit completed successfully\",\n  \"timestamp\": \"2024-01-15T10:30:45+07:00\",\n  \"metadata\": {}\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    },
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/activities",
+                      "host": ["{{base_url}}"],
+                      "path": ["api", "v1", "activities"]
+                    },
+                    "description": "Create a new activity"
+                  }
+                },
+                {
+                  "name": "Get Activity Timeline",
+                  "request": {
+                    "method": "GET",
+                    "header": [
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{token}}",
+                        "type": "text"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/activities/timeline?account_id=account_id_here&limit=50",
+                      "host": ["{{base_url}}"],
+                      "path": ["api", "v1", "activities", "timeline"],
+                      "query": [
+                        {"key": "account_id", "value": "account_id_here"},
+                        {"key": "contact_id", "value": "", "disabled": true},
+                        {"key": "user_id", "value": "", "disabled": true},
+                        {"key": "start_date", "value": "", "disabled": true},
+                        {"key": "end_date", "value": "", "disabled": true},
+                        {"key": "limit", "value": "50"}
+                      ]
+                    },
+                    "description": "Get activity timeline for account/contact/user"
+                  }
+                }
+              ],
+              "description": "Activity Tracking endpoints untuk mengelola activities dan timeline"
+            },
+            {
+              "name": "Settings",
+              "item": [
+                {
+                  "name": "Get Settings",
+                  "request": {
+                    "method": "GET",
+                    "header": [
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{token}}",
+                        "type": "text"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/settings",
+                      "host": ["{{base_url}}"],
+                      "path": ["api", "v1", "settings"]
+                    },
+                    "description": "Get all system settings grouped by category (general, notifications, pipeline)"
+                  },
+                  "response": [
+                    {
+                      "name": "Success Response",
+                      "originalRequest": {
+                        "method": "GET",
+                        "header": [
+                          {
+                            "key": "Authorization",
+                            "value": "Bearer {{token}}",
+                            "type": "text"
+                          }
+                        ],
+                        "url": {
+                          "raw": "{{base_url}}/api/v1/settings",
+                          "host": ["{{base_url}}"],
+                          "path": ["api", "v1", "settings"]
+                        }
+                      },
+                      "status": "OK",
+                      "code": 200,
+                      "_postman_previewlanguage": "json",
+                      "header": [
+                        {
+                          "key": "Content-Type",
+                          "value": "application/json"
+                        }
+                      ],
+                      "cookie": [],
+                      "body": "{\n  \"success\": true,\n  \"data\": {\n    \"general\": {\n      \"company_name\": \"CRM Healthcare\",\n      \"company_email\": \"info@crmhealthcare.com\",\n      \"company_phone\": \"+62 123 456 7890\",\n      \"company_address\": \"Jakarta, Indonesia\",\n      \"timezone\": \"Asia/Jakarta\",\n      \"date_format\": \"DD/MM/YYYY\",\n      \"currency\": \"IDR\"\n    },\n    \"notifications\": {\n      \"email_notifications\": \"true\",\n      \"sms_notifications\": \"false\",\n      \"push_notifications\": \"true\",\n      \"visit_report_notifications\": \"true\",\n      \"task_reminder_notifications\": \"true\",\n      \"pipeline_update_notifications\": \"true\"\n    },\n    \"pipeline\": {\n      \"stages\": \"[{\\\"id\\\":\\\"1\\\",\\\"name\\\":\\\"Lead\\\",\\\"order\\\":1}]\",\n      \"default_stage\": \"1\",\n      \"auto_advance\": \"false\"\n    }\n  },\n  \"timestamp\": \"2024-01-15T10:30:45+07:00\",\n  \"request_id\": \"req_abc123xyz\"\n}"
+                    }
+                  ]
+                },
+                {
+                  "name": "Update Settings",
+                  "request": {
+                    "method": "PUT",
+                    "header": [
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{token}}",
+                        "type": "text"
+                      },
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"general\": {\n    \"company_name\": \"CRM Healthcare Updated\",\n    \"company_email\": \"info@crmhealthcare.com\",\n    \"timezone\": \"Asia/Jakarta\"\n  },\n  \"notifications\": {\n    \"email_notifications\": \"true\",\n    \"push_notifications\": \"true\"\n  },\n  \"pipeline\": {\n    \"default_stage\": \"1\",\n    \"auto_advance\": \"false\"\n  }\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    },
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/settings",
+                      "host": ["{{base_url}}"],
+                      "path": ["api", "v1", "settings"]
+                    },
+                    "description": "Update system settings. You can update one or more categories (general, notifications, pipeline). Only provided categories will be updated."
+                  },
+                  "response": [
+                    {
+                      "name": "Success Response",
+                      "originalRequest": {
+                        "method": "PUT",
+                        "header": [
+                          {
+                            "key": "Authorization",
+                            "value": "Bearer {{token}}",
+                            "type": "text"
+                          },
+                          {
+                            "key": "Content-Type",
+                            "value": "application/json"
+                          }
+                        ],
+                        "body": {
+                          "mode": "raw",
+                          "raw": "{\n  \"general\": {\n    \"company_name\": \"CRM Healthcare Updated\"\n  }\n}",
+                          "options": {
+                            "raw": {
+                              "language": "json"
+                            }
+                          }
+                        },
+                        "url": {
+                          "raw": "{{base_url}}/api/v1/settings",
+                          "host": ["{{base_url}}"],
+                          "path": ["api", "v1", "settings"]
+                        }
+                      },
+                      "status": "OK",
+                      "code": 200,
+                      "_postman_previewlanguage": "json",
+                      "header": [
+                        {
+                          "key": "Content-Type",
+                          "value": "application/json"
+                        }
+                      ],
+                      "cookie": [],
+                      "body": "{\n  \"success\": true,\n  \"data\": {\n    \"general\": {\n      \"company_name\": \"CRM Healthcare Updated\",\n      \"company_email\": \"info@crmhealthcare.com\",\n      \"timezone\": \"Asia/Jakarta\"\n    },\n    \"notifications\": {\n      \"email_notifications\": \"true\",\n      \"push_notifications\": \"true\"\n    },\n    \"pipeline\": {\n      \"default_stage\": \"1\",\n      \"auto_advance\": \"false\"\n    }\n  },\n  \"meta\": {\n    \"updated_by\": \"user_abc123\"\n  },\n  \"timestamp\": \"2024-01-15T10:30:45+07:00\",\n  \"request_id\": \"req_abc123xyz\"\n}"
+                    }
+                  ]
+                }
+              ],
+              "description": "Settings endpoints untuk mengelola system settings (general, notifications, pipeline)"
+            },
+            {
+              "name": "Tasks",
+              "item": [
+                {
+                  "name": "List Tasks",
+                  "request": {
+                    "method": "GET",
+                    "header": [
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{token}}",
+                        "type": "text"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/tasks?page=1&per_page=20",
+                      "host": ["{{base_url}}"],
+                      "path": ["api", "v1", "tasks"],
+                      "query": [
+                        {"key": "page", "value": "1"},
+                        {"key": "per_page", "value": "20"},
+                        {"key": "search", "value": "", "disabled": true},
+                        {"key": "status", "value": "", "disabled": true, "description": "pending, in_progress, completed, cancelled"},
+                        {"key": "priority", "value": "", "disabled": true, "description": "low, medium, high, urgent"},
+                        {"key": "type", "value": "", "disabled": true, "description": "general, call, email, meeting, follow_up"},
+                        {"key": "assigned_to", "value": "", "disabled": true},
+                        {"key": "account_id", "value": "", "disabled": true},
+                        {"key": "contact_id", "value": "", "disabled": true},
+                        {"key": "deal_id", "value": "", "disabled": true},
+                        {"key": "due_date_from", "value": "", "disabled": true},
+                        {"key": "due_date_to", "value": "", "disabled": true}
+                      ]
+                    },
+                    "description": "Get list of tasks with pagination and filters"
+                  }
+                },
+                {
+                  "name": "Get Task by ID",
+                  "request": {
+                    "method": "GET",
+                    "header": [
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{token}}",
+                        "type": "text"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/tasks/:id",
+                      "host": ["{{base_url}}"],
+                      "path": ["api", "v1", "tasks", ":id"],
+                      "variable": [
+                        {"key": "id", "value": "task_id"}
+                      ]
+                    },
+                    "description": "Get task details by ID"
+                  }
+                },
+                {
+                  "name": "Create Task",
+                  "request": {
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{token}}",
+                        "type": "text"
+                      },
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"title\": \"Follow up with client\",\n  \"description\": \"Call client to discuss proposal\",\n  \"type\": \"call\",\n  \"priority\": \"high\",\n  \"due_date\": \"2024-01-20T10:00:00+07:00\",\n  \"assigned_to\": \"user_id_here\",\n  \"account_id\": \"account_id_here\",\n  \"contact_id\": \"contact_id_here\",\n  \"deal_id\": \"deal_id_here\"\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    },
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/tasks",
+                      "host": ["{{base_url}}"],
+                      "path": ["api", "v1", "tasks"]
+                    },
+                    "description": "Create a new task"
+                  }
+                },
+                {
+                  "name": "Update Task",
+                  "request": {
+                    "method": "PUT",
+                    "header": [
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{token}}",
+                        "type": "text"
+                      },
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"title\": \"Updated task title\",\n  \"description\": \"Updated description\",\n  \"status\": \"in_progress\",\n  \"priority\": \"urgent\",\n  \"due_date\": \"2024-01-25T10:00:00+07:00\"\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    },
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/tasks/:id",
+                      "host": ["{{base_url}}"],
+                      "path": ["api", "v1", "tasks", ":id"],
+                      "variable": [
+                        {"key": "id", "value": "task_id"}
+                      ]
+                    },
+                    "description": "Update task information"
+                  }
+                },
+                {
+                  "name": "Delete Task",
+                  "request": {
+                    "method": "DELETE",
+                    "header": [
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{token}}",
+                        "type": "text"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/tasks/:id",
+                      "host": ["{{base_url}}"],
+                      "path": ["api", "v1", "tasks", ":id"],
+                      "variable": [
+                        {"key": "id", "value": "task_id"}
+                      ]
+                    },
+                    "description": "Delete a task"
+                  }
+                },
+                {
+                  "name": "Assign Task",
+                  "request": {
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{token}}",
+                        "type": "text"
+                      },
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"assigned_to\": \"user_id_here\"\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    },
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/tasks/:id/assign",
+                      "host": ["{{base_url}}"],
+                      "path": ["api", "v1", "tasks", ":id", "assign"],
+                      "variable": [
+                        {"key": "id", "value": "task_id"}
+                      ]
+                    },
+                    "description": "Assign a task to a user"
+                  }
+                },
+                {
+                  "name": "Complete Task",
+                  "request": {
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{token}}",
+                        "type": "text"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/tasks/:id/complete",
+                      "host": ["{{base_url}}"],
+                      "path": ["api", "v1", "tasks", ":id", "complete"],
+                      "variable": [
+                        {"key": "id", "value": "task_id"}
+                      ]
+                    },
+                    "description": "Mark a task as completed"
+                  }
+                },
+                {
+                  "name": "List Reminders",
+                  "request": {
+                    "method": "GET",
+                    "header": [
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{token}}",
+                        "type": "text"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/tasks/reminders?page=1&per_page=20",
+                      "host": ["{{base_url}}"],
+                      "path": ["api", "v1", "tasks", "reminders"],
+                      "query": [
+                        {"key": "page", "value": "1"},
+                        {"key": "per_page", "value": "20"},
+                        {"key": "task_id", "value": "", "disabled": true},
+                        {"key": "reminder_type", "value": "", "disabled": true, "description": "in_app, email, sms"},
+                        {"key": "is_sent", "value": "", "disabled": true},
+                        {"key": "remind_at_from", "value": "", "disabled": true},
+                        {"key": "remind_at_to", "value": "", "disabled": true}
+                      ]
+                    },
+                    "description": "Get list of reminders with pagination"
+                  }
+                },
+                {
+                  "name": "Get Reminder by ID",
+                  "request": {
+                    "method": "GET",
+                    "header": [
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{token}}",
+                        "type": "text"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/tasks/reminders/:id",
+                      "host": ["{{base_url}}"],
+                      "path": ["api", "v1", "tasks", "reminders", ":id"],
+                      "variable": [
+                        {"key": "id", "value": "reminder_id"}
+                      ]
+                    },
+                    "description": "Get reminder details by ID"
+                  }
+                },
+                {
+                  "name": "Create Reminder",
+                  "request": {
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{token}}",
+                        "type": "text"
+                      },
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"task_id\": \"task_id_here\",\n  \"remind_at\": \"2024-01-20T09:00:00+07:00\",\n  \"reminder_type\": \"email\",\n  \"message\": \"Don't forget to follow up with client\"\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    },
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/tasks/reminders",
+                      "host": ["{{base_url}}"],
+                      "path": ["api", "v1", "tasks", "reminders"]
+                    },
+                    "description": "Create a new reminder for a task"
+                  }
+                },
+                {
+                  "name": "Update Reminder",
+                  "request": {
+                    "method": "PUT",
+                    "header": [
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{token}}",
+                        "type": "text"
+                      },
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"remind_at\": \"2024-01-20T10:00:00+07:00\",\n  \"reminder_type\": \"in_app\",\n  \"message\": \"Updated reminder message\"\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    },
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/tasks/reminders/:id",
+                      "host": ["{{base_url}}"],
+                      "path": ["api", "v1", "tasks", "reminders", ":id"],
+                      "variable": [
+                        {"key": "id", "value": "reminder_id"}
+                      ]
+                    },
+                    "description": "Update reminder information"
+                  }
+                },
+                {
+                  "name": "Delete Reminder",
+                  "request": {
+                    "method": "DELETE",
+                    "header": [
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{token}}",
+                        "type": "text"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/tasks/reminders/:id",
+                      "host": ["{{base_url}}"],
+                      "path": ["api", "v1", "tasks", "reminders", ":id"],
+                      "variable": [
+                        {"key": "id", "value": "reminder_id"}
+                      ]
+                    },
+                    "description": "Delete a reminder"
+                  }
+                }
+              ],
+              "description": "Task & Reminder Management endpoints untuk mengelola tasks dan reminders"
+            }
+          ],
+          "description": "Endpoints untuk master data Sales CRM"
+        }
+      ],
+      "description": "Endpoints untuk Web Application"
+    },
+    {
+      "name": "Mobile",
+      "item": [
+        {
+          "name": "Visit Reports",
+          "item": [
+            {
+              "name": "List Visit Reports",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}",
+                    "type": "text"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/v1/visit-reports?page=1&per_page=20",
+                  "host": ["{{base_url}}"],
+                  "path": ["api", "v1", "visit-reports"],
+                  "query": [
+                    {"key": "page", "value": "1"},
+                    {"key": "per_page", "value": "20"},
+                    {"key": "search", "value": "", "disabled": true},
+                    {"key": "status", "value": "", "disabled": true},
+                    {"key": "account_id", "value": "", "disabled": true},
+                    {"key": "sales_rep_id", "value": "", "disabled": true},
+                    {"key": "start_date", "value": "", "disabled": true},
+                    {"key": "end_date", "value": "", "disabled": true}
+                  ]
+                },
+                "description": "Get list of visit reports with pagination (Mobile)"
+              }
+            },
+            {
+              "name": "Get Visit Report by ID",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}",
+                    "type": "text"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/v1/visit-reports/:id",
+                  "host": ["{{base_url}}"],
+                  "path": ["api", "v1", "visit-reports", ":id"],
+                  "variable": [
+                    {"key": "id", "value": "visit_report_id"}
+                  ]
+                },
+                "description": "Get visit report details by ID (Mobile)"
+              }
+            },
+            {
+              "name": "Create Visit Report",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}",
+                    "type": "text"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"account_id\": \"account_id_here\",\n  \"contact_id\": \"contact_id_here\",\n  \"sales_rep_id\": \"sales_rep_id_here\",\n  \"visit_date\": \"2024-01-15\",\n  \"purpose\": \"Sales visit to discuss new products\",\n  \"notes\": \"Meeting went well, discussed pricing\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{base_url}}/api/v1/visit-reports",
+                  "host": ["{{base_url}}"],
+                  "path": ["api", "v1", "visit-reports"]
+                },
+                "description": "Create a new visit report (Mobile)"
+              }
+            },
+            {
+              "name": "Update Visit Report",
+              "request": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}",
+                    "type": "text"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"purpose\": \"Updated purpose\",\n  \"notes\": \"Updated notes\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{base_url}}/api/v1/visit-reports/:id",
+                  "host": ["{{base_url}}"],
+                  "path": ["api", "v1", "visit-reports", ":id"],
+                  "variable": [
+                    {"key": "id", "value": "visit_report_id"}
+                  ]
+                },
+                "description": "Update visit report information (Mobile)"
+              }
+            },
+            {
+              "name": "Delete Visit Report",
+              "request": {
+                "method": "DELETE",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}",
+                    "type": "text"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/v1/visit-reports/:id",
+                  "host": ["{{base_url}}"],
+                  "path": ["api", "v1", "visit-reports", ":id"],
+                  "variable": [
+                    {"key": "id", "value": "visit_report_id"}
+                  ]
+                },
+                "description": "Delete a visit report (Mobile)"
+              }
+            },
+            {
+              "name": "Check In",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}",
+                    "type": "text"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"location\": {\n    \"latitude\": -6.2088,\n    \"longitude\": 106.8456,\n    \"address\": \"Jl. Merdeka No. 123, Jakarta\"\n  }\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{base_url}}/api/v1/visit-reports/:id/check-in",
+                  "host": ["{{base_url}}"],
+                  "path": ["api", "v1", "visit-reports", ":id", "check-in"],
+                  "variable": [
+                    {"key": "id", "value": "visit_report_id"}
+                  ]
+                },
+                "description": "Check in to a visit report with GPS location (Mobile - typically uses device GPS)"
+              }
+            },
+            {
+              "name": "Check Out",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}",
+                    "type": "text"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"location\": {\n    \"latitude\": -6.2088,\n    \"longitude\": 106.8456,\n    \"address\": \"Jl. Merdeka No. 123, Jakarta\"\n  }\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{base_url}}/api/v1/visit-reports/:id/check-out",
+                  "host": ["{{base_url}}"],
+                  "path": ["api", "v1", "visit-reports", ":id", "check-out"],
+                  "variable": [
+                    {"key": "id", "value": "visit_report_id"}
+                  ]
+                },
+                "description": "Check out from a visit report with GPS location (Mobile - typically uses device GPS)"
+              }
+            },
+            {
+              "name": "Upload Photo",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}",
+                    "type": "text"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"photo_url\": \"https://example.com/photos/visit-123.jpg\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{base_url}}/api/v1/visit-reports/:id/photos",
+                  "host": ["{{base_url}}"],
+                  "path": ["api", "v1", "visit-reports", ":id", "photos"],
+                  "variable": [
+                    {"key": "id", "value": "visit_report_id"}
+                  ]
+                },
+                "description": "Upload a photo to a visit report (Mobile - typically uploads from device camera/gallery)"
+              }
+            }
+          ],
+          "description": "Visit Report Management endpoints untuk Mobile Application dengan check-in/out, GPS, dan dokumentasi foto"
+        }
+      ],
+      "description": "Endpoints untuk Mobile Application"
+    },
+    {
+      "name": "Health Check",
+      "item": [
+        {
+          "name": "Health",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/health",
+              "host": ["{{base_url}}"],
+              "path": ["health"]
+            },
+            "description": "Health check endpoint untuk memastikan API berjalan."
+          },
+          "response": []
+        },
+        {
+          "name": "Ping",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/ping",
+              "host": ["{{base_url}}"],
+              "path": ["ping"]
+            },
+            "description": "Ping endpoint untuk testing."
+          },
+          "response": []
+        }
+      ],
+      "description": "Health check endpoints"
+    }
+  ],
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:8080",
+      "type": "string"
+    }
+  ]
+}
