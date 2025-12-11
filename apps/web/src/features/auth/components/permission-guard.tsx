@@ -1,24 +1,26 @@
 "use client";
 
-import type React from "react";
+import { useAuthStore } from "../stores/useAuthStore";
 
 interface PermissionGuardProps {
   readonly children: React.ReactNode;
-  readonly requiredPermission?: string;
-  readonly fallbackUrl?: string;
+  readonly permission: string;
+  readonly fallback?: React.ReactNode;
 }
 
-/**
- * PermissionGuard component that checks if user has required permission
- * Simplified version - always allows access for now
- * Can be extended later when permission system is implemented
- */
 export function PermissionGuard({
   children,
-  requiredPermission,
-  fallbackUrl = "/login",
+  permission,
+  fallback = null,
 }: PermissionGuardProps) {
-  // For now, always allow access
-  // TODO: Implement permission checking when permission system is added
+  const { user } = useAuthStore();
+  const permissions = user?.permissions ?? [];
+
+  if (!permissions.includes(permission)) {
+    return <>{fallback}</>;
+  }
+
   return <>{children}</>;
 }
+
+

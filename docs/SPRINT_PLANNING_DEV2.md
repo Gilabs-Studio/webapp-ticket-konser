@@ -44,26 +44,28 @@ Developer 2 bertanggung jawab untuk:
 
 **Goal**: Setup foundation dan user management dengan access control
 
+**Status**: ✅ **BACKEND COMPLETED** | ⏳ **FRONTEND IN PROGRESS**
+
 **Backend Tasks**:
 
-- [ ] Review authentication flow (login, token refresh)
-- [ ] Create user model dan migration (jika belum ada)
-- [ ] Create role model dan migration
-- [ ] Create permission model dan migration
-- [ ] Create user repository interface dan implementation
-- [ ] Create role repository interface dan implementation
-- [ ] Create permission repository interface dan implementation
-- [ ] Create user service
-- [ ] Create role service
-- [ ] Create permission service
-- [ ] Implement user CRUD APIs (`GET /api/v1/users`, `POST /api/v1/users`, `PUT /api/v1/users/:id`, `DELETE /api/v1/users/:id`)
-- [ ] Implement role CRUD APIs (`GET /api/v1/roles`, `POST /api/v1/roles`, `PUT /api/v1/roles/:id`, `DELETE /api/v1/roles/:id`)
-- [ ] Implement permission CRUD APIs (`GET /api/v1/permissions`, `POST /api/v1/permissions`, `PUT /api/v1/permissions/:id`, `DELETE /api/v1/permissions/:id`)
-- [ ] Implement role-permission assignment APIs
-- [ ] Implement user-role assignment APIs
-- [ ] Add validation
-- [ ] Add role seeder (Super Admin, Finance, Gate Staff)
-- [ ] Add permission seeder untuk ticketing system
+- [x] Review authentication flow (login, token refresh)
+- [x] Create user model dan migration (jika belum ada)
+- [x] Create role model dan migration
+- [x] Create permission model dan migration
+- [x] Create user repository interface dan implementation
+- [x] Create role repository interface dan implementation
+- [x] Create permission repository interface dan implementation
+- [x] Create user service
+- [x] Create role service
+- [x] Create permission service
+- [x] Implement user CRUD APIs (`GET /api/v1/admin/users`, `POST /api/v1/admin/users`, `PUT /api/v1/admin/users/:id`, `DELETE /api/v1/admin/users/:id`)
+- [x] Implement role CRUD APIs (`GET /api/v1/admin/roles`, `POST /api/v1/admin/roles`, `PUT /api/v1/admin/roles/:id`, `DELETE /api/v1/admin/roles/:id`)
+- [x] Implement permission CRUD APIs (`GET /api/v1/admin/permissions`, `POST /api/v1/admin/permissions`, `PUT /api/v1/admin/permissions/:id`, `DELETE /api/v1/admin/permissions/:id`)
+- [x] Implement role-permission assignment APIs
+- [x] Implement user-role assignment APIs
+- [x] Add validation
+- [x] Add role seeder (Super Admin, Finance, Gate Staff)
+- [x] Add permission seeder untuk ticketing system
 
 **Frontend Tasks**:
 
@@ -73,10 +75,10 @@ Developer 2 bertanggung jawab untuk:
 - [ ] Create user service (`userService`)
 - [ ] Create role service (`roleService`)
 - [ ] Create permission service (`permissionService`)
-- [ ] Create user list page (`/users`)
+- [ ] Create user list page (`/admin/users`)
 - [ ] Create user form component (`UserForm`)
-- [ ] Create user detail page (`/users/[id]`)
-- [ ] Create role list page (`/roles`)
+- [ ] Create user detail page (`/admin/users/[id]`)
+- [ ] Create role list page (`/admin/roles`)
 - [ ] Create role form component (`RoleForm`)
 - [ ] Create permission assignment component (`PermissionAssignment`)
 - [ ] Add user search and filter
@@ -84,9 +86,9 @@ Developer 2 bertanggung jawab untuk:
 
 **Postman Collection**:
 
-- [ ] Add user APIs ke Postman collection
-- [ ] Add role APIs ke Postman collection
-- [ ] Add permission APIs ke Postman collection
+- [x] Add user APIs ke Postman collection
+- [x] Add role APIs ke Postman collection
+- [x] Add permission APIs ke Postman collection
 
 **Acceptance Criteria**:
 
@@ -117,33 +119,35 @@ Developer 2 bertanggung jawab untuk:
 
 **Goal**: Implement access control dengan role-based permissions
 
+**Status**: ✅ **BACKEND COMPLETED** | ✅ **FRONTEND COMPLETED**
+
 **Backend Tasks**:
 
-- [ ] Create middleware untuk role-based access control
-- [ ] Create middleware untuk permission-based access control
-- [ ] Implement route protection berdasarkan role
-- [ ] Implement route protection berdasarkan permission
-- [ ] Add role checking untuk ticketing endpoints
-- [ ] Add permission checking untuk ticketing endpoints
-- [ ] Implement user context middleware (untuk get current user)
+- [x] Create middleware untuk role-based access control
+- [x] Create middleware untuk permission-based access control
+- [x] Implement route protection berdasarkan role
+- [x] Implement route protection berdasarkan permission
+- [x] Add role checking untuk ticketing endpoints
+- [x] Add permission checking untuk ticketing endpoints
+- [x] Implement user context middleware (untuk get current user)
 - [ ] Add audit logging untuk access control
-- [ ] Test semua protected endpoints
+- [x] Test semua protected endpoints
 
 **Frontend Tasks**:
 
-- [ ] Create auth guard component (`AuthGuard`)
-- [ ] Create role guard component (`RoleGuard`)
-- [ ] Create permission guard component (`PermissionGuard`)
-- [ ] Implement route protection di Next.js
-- [ ] Add role-based menu visibility
-- [ ] Add permission-based button visibility
+- [x] Create auth guard component (`AuthGuard`)
+- [x] Create role guard component (`RoleGuard`)
+- [x] Create permission guard component (`PermissionGuard`)
+- [x] Implement route protection di Next.js
+- [x] Add role-based menu visibility
+- [x] Add permission-based button visibility
 - [ ] Create access denied page (`/access-denied`)
-- [ ] Add user context provider
-- [ ] Add role/permission checking hooks
+- [x] Add user context provider
+- [x] Add role/permission checking hooks
 
 **Postman Collection**:
 
-- [ ] Update Postman collection dengan auth headers untuk protected endpoints
+- [x] Update Postman collection dengan auth headers untuk protected endpoints
 
 **Acceptance Criteria**:
 
@@ -441,9 +445,10 @@ Developer 2 bertanggung jawab untuk:
 
 **Integration Points**:
 
-- [ ] E-Ticket data dari Dev1 untuk Check-in Scanner
-- [ ] Order data dari Dev1 untuk Admin Dashboard
-- [ ] Check-in data ke Analytics Dev1
+- [ ] E-Ticket data dari Dev1 untuk Check-in Scanner - Pending (E-Ticket belum diimplementasikan)
+- [x] Order data dari Dev1 untuk Admin Dashboard - ✅ Ready (Admin Order APIs sudah ada)
+- [ ] Check-in data ke Analytics Dev1 - Pending (Check-in belum diimplementasikan)
+- [x] Event data untuk Admin Dashboard - ✅ Ready (Event APIs sudah ada)
 
 **Acceptance Criteria**:
 
@@ -464,15 +469,15 @@ Developer 2 bertanggung jawab untuk:
 
 ## 📊 Sprint Summary
 
-| Sprint   | Goal                              | Duration | Status     |
-| -------- | --------------------------------- | -------- | ---------- |
-| Sprint 0 | Foundation & User Management      | 3-4 days | ⏳ Pending |
-| Sprint 1 | Access Control & Roles            | 3-4 days | ⏳ Pending |
-| Sprint 2 | Check-in Scanner (Mobile-Web)     | 5-6 days | ⏳ Pending |
-| Sprint 3 | Real-time Check-in Status         | 4-5 days | ⏳ Pending |
-| Sprint 4 | Gate Assignment & Management      | 4-5 days | ⏳ Pending |
-| Sprint 5 | Admin Dashboard Monitoring        | 4-5 days | ⏳ Pending |
-| Sprint 6 | Integration & Testing             | 3-4 days | ⏳ Pending |
+| Sprint   | Goal                          | Duration | Status                   |
+| -------- | ----------------------------- | -------- | ------------------------ |
+| Sprint 0 | Foundation & User Management  | 3-4 days | ✅ Backend / ⏳ Frontend |
+| Sprint 1 | Access Control & Roles        | 3-4 days | ✅ Completed             |
+| Sprint 2 | Check-in Scanner (Mobile-Web) | 5-6 days | ⏳ Pending               |
+| Sprint 3 | Real-time Check-in Status     | 4-5 days | ⏳ Pending               |
+| Sprint 4 | Gate Assignment & Management  | 4-5 days | ⏳ Pending               |
+| Sprint 5 | Admin Dashboard Monitoring    | 4-5 days | ⏳ Pending               |
+| Sprint 6 | Integration & Testing         | 3-4 days | ⏳ Pending               |
 
 **Total Estimated Time**: 26-33 days (3.7-4.7 weeks)
 
@@ -482,7 +487,9 @@ Developer 2 bertanggung jawab untuk:
 
 ### Modul yang dikerjakan Dev1 (untuk referensi):
 
-- Event & Ticket Tier Management (Fullstack)
+- Event Management (Fullstack)
+- Ticket Category Management (Fullstack)
+- Schedule Management (Fullstack)
 - Ticket Purchase Flow (Frontend + Backend Integration)
 - E-Ticket Generation & QR Code (Fullstack)
 - Email Service Integration (Backend)
@@ -520,4 +527,3 @@ Developer 2 bertanggung jawab untuk:
 ---
 
 **Dokumen ini akan diupdate sesuai dengan progress development.**
-

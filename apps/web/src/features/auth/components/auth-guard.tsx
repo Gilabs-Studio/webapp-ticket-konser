@@ -1,40 +1,25 @@
- "use client";
+"use client";
 
 import { useEffect } from "react";
-import { usePathname, useRouter } from "next/navigation";
-import { useAuthGuard } from "../hooks/useAuthGuard";
+import { useRouter } from "next/navigation";
+import { useAuthStore } from "../stores/useAuthStore";
 
 interface AuthGuardProps {
   readonly children: React.ReactNode;
+  readonly redirectTo?: string;
 }
 
-export function AuthGuard({ children }: AuthGuardProps) {
+export function AuthGuard({ children, redirectTo = "/login" }: AuthGuardProps) {
   const router = useRouter();
-  const pathname = usePathname();
-  const { isAuthenticated, isLoading } = useAuthGuard();
+  const { isAuthenticated, token } = useAuthStore();
 
   useEffect(() => {
-    if (!isLoading && !isAuthenticated) {
-      const segments = pathname.split("/").filter(Boolean);
-      const locale = segments[0] ?? "en";
-      router.push(`/${locale}/login`);
+    if (!isAuthenticated || !token) {
+      router.push(redirectTo);
     }
-  }, [isAuthenticated, isLoading, pathname, router]);
+  }, [isAuthenticated, token, router, redirectTo]);
 
-  if (isLoading) {
-    return (
-      <div className="flex min-h-screen items-center justify-center bg-background">
-        <div className="text-center space-y-4">
-          <div className="flex items-center justify-center">
-            <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
-          </div>
-          <div className="text-sm text-muted-foreground">Loading...</div>
-        </div>
-      </div>
-    );
-  }
-
-  if (!isAuthenticated) {
+  if (!isAuthenticated || !token) {
     return null;
   }
 

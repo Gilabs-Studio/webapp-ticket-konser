@@ -1,21 +1,19 @@
 package menu
 
 import (
+	"errors"
 	"log"
 
 	"github.com/gilabs/webapp-ticket-konser/api/internal/database"
 	"github.com/gilabs/webapp-ticket-konser/api/internal/domain/menu"
+	"github.com/gilabs/webapp-ticket-konser/api/internal/domain/permission"
+	"gorm.io/gorm"
 )
 
 // Seed seeds initial menus
+// This function uses upsert logic: creates menu if not exists, skips if exists
+// Also validates that permission_code exists in permissions table if provided
 func Seed() error {
-	var count int64
-	database.DB.Model(&menu.Menu{}).Count(&count)
-	if count > 0 {
-		log.Println("[Menu Seeder] Menus already seeded, skipping...")
-		return nil
-	}
-
 	menus := []menu.Menu{
 		{
 			Code:           "dashboard",
@@ -27,11 +25,20 @@ func Seed() error {
 			IsActive:       true,
 		},
 		{
+			Code:           "event-management",
+			Label:          "Event Management",
+			Icon:           "calendar",
+			Path:           "/events",
+			OrderIndex:     2,
+			PermissionCode: "event.read",
+			IsActive:       true,
+		},
+		{
 			Code:           "ticket-management",
 			Label:          "Ticket Management",
 			Icon:           "ticket",
 			Path:           "/tickets",
-			OrderIndex:     2,
+			OrderIndex:     3,
 			PermissionCode: "ticket.read",
 			IsActive:       true,
 		},
@@ -40,7 +47,7 @@ func Seed() error {
 			Label:          "User Management",
 			Icon:           "users",
 			Path:           "/users",
-			OrderIndex:     3,
+			OrderIndex:     4,
 			PermissionCode: "user.read",
 			IsActive:       true,
 		},
@@ -49,21 +56,55 @@ func Seed() error {
 			Label:          "Settings",
 			Icon:           "settings",
 			Path:           "/settings",
-			OrderIndex:     4,
+			OrderIndex:     5,
 			PermissionCode: "menu.read",
 			IsActive:       true,
 		},
 	}
 
+	createdCount := 0
+	skippedCount := 0
+
 	for _, m := range menus {
-		if err := database.DB.Create(&m).Error; err != nil {
-			return err
+		// Validate permission_code if provided
+		if m.PermissionCode != "" {
+			var perm permission.Permission
+			if err := database.DB.Where("code = ?", m.PermissionCode).First(&perm).Error; err != nil {
+				if errors.Is(err, gorm.ErrRecordNotFound) {
+					log.Printf("[Menu Seeder] Warning: Permission code '%s' not found for menu '%s', skipping menu creation", m.PermissionCode, m.Code)
+					continue
+				}
+				return err
+			}
 		}
-		log.Printf("[Menu Seeder] Created menu: %s (code: %s)", m.Label, m.Code)
+
+		// Check if menu already exists
+		var existingMenu menu.Menu
+		result := database.DB.Where("code = ?", m.Code).First(&existingMenu)
+
+		if result.Error != nil {
+			// Check if error is "record not found" - means menu doesn't exist
+			if errors.Is(result.Error, gorm.ErrRecordNotFound) {
+				// Menu doesn't exist, create it
+				if err := database.DB.Create(&m).Error; err != nil {
+					return err
+				}
+				log.Printf("[Menu Seeder] Created menu: %s (code: %s)", m.Label, m.Code)
+				createdCount++
+			} else {
+				// Other database error
+				return result.Error
+			}
+		} else {
+			// Menu exists, skip
+			log.Printf("[Menu Seeder] Menu %s already exists, skipping...", m.Code)
+			skippedCount++
+		}
 	}
 
-	log.Println("[Menu Seeder] Menus seeded successfully")
+	log.Printf("[Menu Seeder] Menus seeded successfully. Created: %d, Skipped: %d", createdCount, skippedCount)
 	return nil
 }
+
 
 

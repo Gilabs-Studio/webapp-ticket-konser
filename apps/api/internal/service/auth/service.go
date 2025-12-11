@@ -4,8 +4,11 @@ import (
 	"errors"
 
 	"github.com/gilabs/webapp-ticket-konser/api/internal/domain/auth"
+	"github.com/gilabs/webapp-ticket-konser/api/internal/domain/menu"
+	"github.com/gilabs/webapp-ticket-konser/api/internal/domain/permission"
 	authrepo "github.com/gilabs/webapp-ticket-konser/api/internal/repository/interfaces/auth"
 	"github.com/gilabs/webapp-ticket-konser/api/internal/repository/interfaces/role"
+	menuservice "github.com/gilabs/webapp-ticket-konser/api/internal/service/menu"
 	"github.com/gilabs/webapp-ticket-konser/api/pkg/jwt"
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
@@ -18,16 +21,18 @@ var (
 )
 
 type Service struct {
-	repo       authrepo.Repository
-	roleRepo   role.Repository
-	jwtManager *jwt.JWTManager
+	repo        authrepo.Repository
+	roleRepo    role.Repository
+	menuService *menuservice.Service
+	jwtManager  *jwt.JWTManager
 }
 
-func NewService(repo authrepo.Repository, roleRepo role.Repository, jwtManager *jwt.JWTManager) *Service {
+func NewService(repo authrepo.Repository, roleRepo role.Repository, menuService *menuservice.Service, jwtManager *jwt.JWTManager) *Service {
 	return &Service{
-		repo:       repo,
-		roleRepo:   roleRepo,
-		jwtManager: jwtManager,
+		repo:        repo,
+		roleRepo:    roleRepo,
+		menuService: menuService,
+		jwtManager:  jwtManager,
 	}
 }
 
@@ -68,6 +73,18 @@ func (s *Service) Login(req *auth.LoginRequest) (*auth.LoginResponse, error) {
 		roleID = user.Role.ID
 	}
 
+	// Get permissions for the role
+	var permissions []string
+	if roleID != "" {
+		perms, err := s.roleRepo.GetPermissions(roleID)
+		if err == nil {
+			permissions = make([]string, len(perms))
+			for i, p := range perms {
+				permissions[i] = p.Code
+			}
+		}
+	}
+
 	// Generate tokens
 	accessToken, err := s.jwtManager.GenerateAccessToken(user.ID, user.Email, roleCode, roleID)
 	if err != nil {
@@ -85,14 +102,15 @@ func (s *Service) Login(req *auth.LoginRequest) (*auth.LoginResponse, error) {
 	// Convert to auth response format
 	userResp := user.ToUserResponse()
 	authUserResp := &auth.UserResponse{
-		ID:        userResp.ID,
-		Email:     userResp.Email,
-		Name:      userResp.Name,
-		AvatarURL: userResp.AvatarURL,
-		Role:      roleCode,
-		Status:    userResp.Status,
-		CreatedAt: userResp.CreatedAt,
-		UpdatedAt: userResp.UpdatedAt,
+		ID:         userResp.ID,
+		Email:      userResp.Email,
+		Name:       userResp.Name,
+		AvatarURL:  userResp.AvatarURL,
+		Role:       roleCode,
+		Status:     userResp.Status,
+		Permissions: permissions,
+		CreatedAt:  userResp.CreatedAt,
+		UpdatedAt:  userResp.UpdatedAt,
 	}
 
 	return &auth.LoginResponse{
@@ -130,6 +148,18 @@ func (s *Service) RefreshToken(refreshToken string) (*auth.LoginResponse, error)
 		roleID = user.Role.ID
 	}
 
+	// Get permissions for the role
+	var permissions []string
+	if roleID != "" {
+		perms, err := s.roleRepo.GetPermissions(roleID)
+		if err == nil {
+			permissions = make([]string, len(perms))
+			for i, p := range perms {
+				permissions[i] = p.Code
+			}
+		}
+	}
+
 	// Generate new tokens
 	accessToken, err := s.jwtManager.GenerateAccessToken(user.ID, user.Email, roleCode, roleID)
 	if err != nil {
@@ -146,14 +176,15 @@ func (s *Service) RefreshToken(refreshToken string) (*auth.LoginResponse, error)
 	// Convert to auth response format
 	userResp := user.ToUserResponse()
 	authUserResp := &auth.UserResponse{
-		ID:        userResp.ID,
-		Email:     userResp.Email,
-		Name:      userResp.Name,
-		AvatarURL: userResp.AvatarURL,
-		Role:      roleCode,
-		Status:    userResp.Status,
-		CreatedAt: userResp.CreatedAt,
-		UpdatedAt: userResp.UpdatedAt,
+		ID:         userResp.ID,
+		Email:      userResp.Email,
+		Name:       userResp.Name,
+		AvatarURL:  userResp.AvatarURL,
+		Role:       roleCode,
+		Status:     userResp.Status,
+		Permissions: permissions,
+		CreatedAt:  userResp.CreatedAt,
+		UpdatedAt:  userResp.UpdatedAt,
 	}
 
 	return &auth.LoginResponse{
@@ -161,5 +192,43 @@ func (s *Service) RefreshToken(refreshToken string) (*auth.LoginResponse, error)
 		Token:        accessToken,
 		RefreshToken: newRefreshToken,
 		ExpiresIn:    expiresIn,
+	}, nil
+}
+
+// MenusAndPermissionsResponse represents response for user menus and permissions
+type MenusAndPermissionsResponse struct {
+	Menus       []*menu.MenuResponse       `json:"menus"`
+	Permissions []*permission.PermissionResponse `json:"permissions"`
+}
+
+// GetUserMenusAndPermissions returns menus and permissions for a user based on their role
+func (s *Service) GetUserMenusAndPermissions(roleID string) (*MenusAndPermissionsResponse, error) {
+	// Get menus by role
+	menus, err := s.menuService.GetMenusByRole(roleID)
+	if err != nil {
+		return nil, err
+	}
+
+	// Get permissions by role
+	permissions, err := s.roleRepo.GetPermissions(roleID)
+	if err != nil {
+		return nil, err
+	}
+
+	// Convert menus to response format
+	menuResponses := make([]*menu.MenuResponse, len(menus))
+	for i, m := range menus {
+		menuResponses[i] = m.ToMenuResponse()
+	}
+
+	// Convert permissions to response format
+	permissionResponses := make([]*permission.PermissionResponse, len(permissions))
+	for i, p := range permissions {
+		permissionResponses[i] = p.ToPermissionResponse()
+	}
+
+	return &MenusAndPermissionsResponse{
+		Menus:       menuResponses,
+		Permissions: permissionResponses,
 	}, nil
 }

@@ -59,6 +59,32 @@ func (p *Permission) ToPermissionResponse() *PermissionResponse {
 	}
 }
 
+// CreatePermissionRequest represents create permission request DTO
+type CreatePermissionRequest struct {
+	Code        string `json:"code" binding:"required,min=3,max=100"`
+	Name        string `json:"name" binding:"required,min=3,max=255"`
+	Description string `json:"description"`
+	Resource    string `json:"resource" binding:"required,min=1,max=100"`
+	Action      string `json:"action" binding:"required,min=1,max=50"`
+}
+
+// UpdatePermissionRequest represents update permission request DTO
+type UpdatePermissionRequest struct {
+	Name        string `json:"name" binding:"omitempty,min=3,max=255"`
+	Description string `json:"description"`
+	Resource    string `json:"resource" binding:"omitempty,min=1,max=100"`
+	Action      string `json:"action" binding:"omitempty,min=1,max=50"`
+}
+
+// ListPermissionsRequest represents list permissions query parameters
+type ListPermissionsRequest struct {
+	Page     int    `form:"page" binding:"omitempty,min=1"`
+	PerPage  int    `form:"per_page" binding:"omitempty,min=1,max=100"`
+	Search   string `form:"search" binding:"omitempty"`
+	Resource string `form:"resource" binding:"omitempty"`
+}
+
+
 
 
 

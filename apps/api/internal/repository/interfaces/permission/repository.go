@@ -7,10 +7,11 @@ type Repository interface {
 	FindByID(id string) (*permission.Permission, error)
 	FindByCode(code string) (*permission.Permission, error)
 	FindByResource(resource string) ([]*permission.Permission, error)
+	List(req *permission.ListPermissionsRequest) ([]permission.Permission, int64, error)
 	Create(p *permission.Permission) error
 	Update(p *permission.Permission) error
 	Delete(id string) error
-	List() ([]*permission.Permission, error)
 }
+
 
 

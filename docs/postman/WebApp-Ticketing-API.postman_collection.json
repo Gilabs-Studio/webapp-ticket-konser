@@ -1,7 +1,7 @@
 {
   "info": {
     "name": "WebApp Ticketing API",
-    "description": "API collection untuk WebApp Ticketing Konser Platform - RBAC & Menu Management",
+    "description": "API collection untuk WebApp Ticketing Konser Platform - RBAC, Menu Management, Event Management, Ticket Category Management, Schedule Management (dengan rundown jadwal), Order Management, User Management, Role Management, dan Permission Management. Sistem mendukung multiple events.",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
     "_exporter_id": "webapp-ticketing"
   },
@@ -34,6 +34,20 @@
               "path": ["ping"]
             },
             "description": "Ping endpoint"
+          },
+          "response": []
+        },
+        {
+          "name": "API v1 Info",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", ""]
+            },
+            "description": "Get API v1 information and version"
           },
           "response": []
         }
@@ -144,6 +158,319 @@
             "description": "Logout user (invalidate token on client side)"
           },
           "response": []
+        },
+        {
+          "name": "Get User Menus and Permissions",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/auth/me/menus-permissions",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "auth", "me", "menus-permissions"]
+            },
+            "description": "Get menus dan permissions untuk user yang sedang login berdasarkan JWT token. Response berisi array menus dan array permissions yang dapat diakses oleh role user tersebut. Endpoint ini menggunakan role_id dari JWT token yang sedang login."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Event Management",
+      "item": [
+        {
+          "name": "List Events (Admin)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/admin/events?page=1&per_page=20",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "admin", "events"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1",
+                  "description": "Page number (default: 1)"
+                },
+                {
+                  "key": "per_page",
+                  "value": "20",
+                  "description": "Items per page (default: 20, max: 100)"
+                },
+                {
+                  "key": "search",
+                  "value": "",
+                  "description": "Search by event name",
+                  "disabled": true
+                },
+                {
+                  "key": "status",
+                  "value": "",
+                  "description": "Filter by status",
+                  "disabled": true
+                }
+              ]
+            },
+            "description": "Get semua events dengan pagination dan filters (admin only, requires event.read permission)"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Event by ID (Admin)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/admin/events/:id",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "admin", "events", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "event-uuid-here"
+                }
+              ]
+            },
+            "description": "Get event by ID (admin only, requires event.read permission)"
+          },
+          "response": []
+        },
+        {
+          "name": "Create Event",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"event_name\": \"Harry Potter Museum Exhibition\",\n  \"description\": \"Experience the magic of Harry Potter with interactive exhibits, original props, and immersive experiences.\",\n  \"banner_image\": \"https://example.com/banner.jpg\",\n  \"start_date\": \"2025-06-01\",\n  \"end_date\": \"2025-07-31\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/admin/events",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "admin", "events"]
+            },
+            "description": "Create event baru (admin only, requires event.create permission)"
+          },
+          "response": []
+        },
+        {
+          "name": "Update Event",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"event_name\": \"Harry Potter Museum Exhibition - Updated\",\n  \"description\": \"Updated description with new features and attractions.\",\n  \"banner_image\": \"https://example.com/new-banner.jpg\",\n  \"start_date\": \"2025-06-01\",\n  \"end_date\": \"2025-08-31\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/admin/events/:id",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "admin", "events", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "event-uuid-here"
+                }
+              ]
+            },
+            "description": "Update event (admin only, requires event.update permission)"
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Event",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/admin/events/:id",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "admin", "events", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "event-uuid-here"
+                }
+              ]
+            },
+            "description": "Delete event (admin only, requires event.delete permission)"
+          },
+          "response": []
+        },
+        {
+          "name": "Update Event Status",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"published\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/admin/events/:id/status",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "admin", "events", ":id", "status"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "event-uuid-here"
+                }
+              ]
+            },
+            "description": "Update event status (admin only, requires event.update permission).\n\n**Valid Status Values:**\n- `draft` - Event masih dalam tahap draft, belum dipublikasikan. Default status saat event dibuat.\n- `published` - Event sudah dipublikasikan dan dapat dilihat oleh guest/authenticated users di public endpoint (`/api/v1/events`).\n- `closed` - Event sudah ditutup, tidak dapat menerima order baru.\n\n**Request Body:**\n```json\n{\n  \"status\": \"published\"\n}\n```\n\n**Notes:**\n- Status harus salah satu dari: `draft`, `published`, atau `closed`\n- Hanya event dengan status `published` yang akan muncul di public endpoint (`GET /api/v1/events`)\n- Event dengan status `draft` hanya dapat dilihat oleh admin"
+          },
+          "response": []
+        },
+        {
+          "name": "Upload Event Banner",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "banner",
+                  "type": "file",
+                  "src": [],
+                  "description": "Banner image file (jpg, png, etc)"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/admin/events/:id/banner",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "admin", "events", ":id", "banner"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "event-uuid-here"
+                }
+              ]
+            },
+            "description": "Upload banner image untuk event (admin only, requires event.update permission). Gunakan form-data dengan key 'banner'."
+          },
+          "response": []
+        },
+        {
+          "name": "List Published Events (Public)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/events?page=1&per_page=20",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "events"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1",
+                  "description": "Page number (default: 1)"
+                },
+                {
+                  "key": "per_page",
+                  "value": "20",
+                  "description": "Items per page (default: 20, max: 100)"
+                },
+                {
+                  "key": "search",
+                  "value": "",
+                  "description": "Search by event name",
+                  "disabled": true
+                }
+              ]
+            },
+            "description": "Get published events saja untuk guest/authenticated users (public endpoint, requires authentication). Hanya menampilkan events dengan status 'published'."
+          },
+          "response": []
+        },
+        {
+          "name": "Get Published Event by ID (Public)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/events/:id",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "events", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "event-uuid-here"
+                }
+              ]
+            },
+            "description": "Get published event by ID untuk guest/authenticated users (public endpoint, requires authentication). Hanya menampilkan event jika statusnya 'published'."
+          },
+          "response": []
         }
       ]
     },
@@ -165,7 +492,7 @@
               "host": ["{{base_url}}"],
               "path": ["api", "v1", "menus"]
             },
-            "description": "Get menus yang dapat diakses oleh role user yang sedang login. Admin akan mendapat semua menu, staff_ticket hanya mendapat Dashboard dan Ticket Management."
+            "description": "Get menus yang dapat diakses oleh role user yang sedang login berdasarkan JWT token. Admin akan mendapat semua menu, staff_ticket hanya mendapat Dashboard dan Ticket Management. Endpoint ini menggunakan role_id dari JWT token yang sedang login."
           },
           "response": []
         },
@@ -274,6 +601,1005 @@
           "response": []
         }
       ]
+    },
+    {
+      "name": "Ticket Category Management",
+      "item": [
+        {
+          "name": "List Ticket Categories",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/admin/ticket-categories",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "admin", "ticket-categories"]
+            },
+            "description": "Get semua ticket categories (admin only, requires ticket_category.read permission)"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Ticket Category by ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/admin/ticket-categories/:id",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "admin", "ticket-categories", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "ticket-category-uuid-here"
+                }
+              ]
+            },
+            "description": "Get ticket category by ID (admin only, requires ticket_category.read permission)"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Ticket Categories by Event ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/admin/ticket-categories/event/:event_id",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "admin", "ticket-categories", "event", ":event_id"],
+              "variable": [
+                {
+                  "key": "event_id",
+                  "value": "event-uuid-here"
+                }
+              ]
+            },
+            "description": "Get ticket categories by event ID (admin only, requires ticket_category.read permission)"
+          },
+          "response": []
+        },
+        {
+          "name": "Create Ticket Category",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"event_id\": \"{{event_id}}\",\n  \"category_name\": \"VIP\",\n  \"price\": 300000,\n  \"quota\": 200,\n  \"limit_per_user\": 3\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/admin/ticket-categories",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "admin", "ticket-categories"]
+            },
+            "description": "Create ticket category baru (admin only, requires ticket_category.create permission)"
+          },
+          "response": []
+        },
+        {
+          "name": "Update Ticket Category",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"category_name\": \"VIP Updated\",\n  \"price\": 350000,\n  \"quota\": 250,\n  \"limit_per_user\": 4\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/admin/ticket-categories/:id",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "admin", "ticket-categories", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "ticket-category-uuid-here"
+                }
+              ]
+            },
+            "description": "Update ticket category (admin only, requires ticket_category.update permission)"
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Ticket Category",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/admin/ticket-categories/:id",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "admin", "ticket-categories", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "ticket-category-uuid-here"
+                }
+              ]
+            },
+            "description": "Delete ticket category (admin only, requires ticket_category.delete permission)"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Schedule Management",
+      "item": [
+        {
+          "name": "List Schedules",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/admin/schedules",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "admin", "schedules"]
+            },
+            "description": "Get semua schedules (admin only, requires schedule.read permission)"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Schedule by ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/admin/schedules/:id",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "admin", "schedules", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "schedule-uuid-here"
+                }
+              ]
+            },
+            "description": "Get schedule by ID (admin only, requires schedule.read permission)"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Schedules by Event ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/admin/schedules/event/:event_id",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "admin", "schedules", "event", ":event_id"],
+              "variable": [
+                {
+                  "key": "event_id",
+                  "value": "event-uuid-here"
+                }
+              ]
+            },
+            "description": "Get schedules by event ID (admin only, requires schedule.read permission). Response includes artist_name dan rundown jadwal event."
+          },
+          "response": []
+        },
+        {
+          "name": "Create Schedule",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"event_id\": \"{{event_id}}\",\n  \"date\": \"2025-06-01\",\n  \"session_name\": \"Morning Session\",\n  \"start_time\": \"2025-06-01T09:00:00Z\",\n  \"end_time\": \"2025-06-01T12:00:00Z\",\n  \"artist_name\": \"Harry Potter Orchestra\",\n  \"rundown\": \"09:00 - Opening Ceremony\\n09:30 - Main Performance by Harry Potter Orchestra\\n11:00 - Interactive Session with Props\\n11:30 - Q&A Session with Cast\\n12:00 - Closing & Photo Session\",\n  \"capacity\": 200,\n  \"remaining_seat\": 200\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/admin/schedules",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "admin", "schedules"]
+            },
+            "description": "Create schedule baru dengan rundown jadwal event (admin only, requires schedule.create permission). Include artist_name dan rundown untuk detail jadwal acara."
+          },
+          "response": []
+        },
+        {
+          "name": "Update Schedule",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"session_name\": \"Morning Session Updated\",\n  \"start_time\": \"2025-06-01T10:00:00Z\",\n  \"end_time\": \"2025-06-01T13:00:00Z\",\n  \"artist_name\": \"Harry Potter Orchestra & Special Guest\",\n  \"rundown\": \"10:00 - Opening Ceremony\\n10:30 - Main Performance by Orchestra\\n11:30 - Special Guest Performance (Surprise Artist)\\n12:00 - Interactive Session with Magic Props\\n12:30 - Q&A Session with Cast & Crew\\n13:00 - Closing & Autograph Session\",\n  \"capacity\": 250,\n  \"remaining_seat\": 200\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/admin/schedules/:id",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "admin", "schedules", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "schedule-uuid-here"
+                }
+              ]
+            },
+            "description": "Update schedule termasuk rundown jadwal event (admin only, requires schedule.update permission). Dapat update artist_name dan rundown."
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Schedule",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/admin/schedules/:id",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "admin", "schedules", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "schedule-uuid-here"
+                }
+              ]
+            },
+            "description": "Delete schedule (admin only, requires schedule.delete permission)"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Order Management",
+      "item": [
+        {
+          "name": "List Orders",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/admin/orders?page=1&per_page=20&payment_status=PAID",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "admin", "orders"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1",
+                  "description": "Page number (default: 1)"
+                },
+                {
+                  "key": "per_page",
+                  "value": "20",
+                  "description": "Items per page (default: 20, max: 100)"
+                },
+                {
+                  "key": "payment_status",
+                  "value": "PAID",
+                  "description": "Filter by payment status: UNPAID, PAID, FAILED, CANCELED, REFUNDED",
+                  "disabled": true
+                },
+                {
+                  "key": "user_id",
+                  "value": "",
+                  "description": "Filter by user ID",
+                  "disabled": true
+                },
+                {
+                  "key": "schedule_id",
+                  "value": "",
+                  "description": "Filter by schedule ID",
+                  "disabled": true
+                },
+                {
+                  "key": "start_date",
+                  "value": "",
+                  "description": "Filter by start date (ISO 8601 format)",
+                  "disabled": true
+                },
+                {
+                  "key": "end_date",
+                  "value": "",
+                  "description": "Filter by end date (ISO 8601 format)",
+                  "disabled": true
+                }
+              ]
+            },
+            "description": "Get semua orders dengan pagination dan filters (admin only, requires order.read permission)"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Order by ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/admin/orders/:id",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "admin", "orders", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "order-uuid-here"
+                }
+              ]
+            },
+            "description": "Get order by ID (admin only, requires order.read permission)"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Order by Order Code",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/admin/orders/code/:order_code",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "admin", "orders", "code", ":order_code"],
+              "variable": [
+                {
+                  "key": "order_code",
+                  "value": "ORD-20250601-abc12345"
+                }
+              ]
+            },
+            "description": "Get order by order code (admin only, requires order.read permission)"
+          },
+          "response": []
+        },
+        {
+          "name": "Update Order",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"payment_status\": \"PAID\",\n  \"payment_method\": \"midtrans\",\n  \"midtrans_transaction_id\": \"midtrans-123456\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/admin/orders/:id",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "admin", "orders", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "order-uuid-here"
+                }
+              ]
+            },
+            "description": "Update order (admin only, requires order.update permission). Biasanya digunakan untuk update payment status setelah webhook dari Midtrans."
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Order",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/admin/orders/:id",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "admin", "orders", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "order-uuid-here"
+                }
+              ]
+            },
+            "description": "Delete order (admin only, requires order.delete permission)"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "User Management",
+      "item": [
+        {
+          "name": "List Users",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/admin/users?page=1&per_page=20",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "admin", "users"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1",
+                  "description": "Page number (default: 1)"
+                },
+                {
+                  "key": "per_page",
+                  "value": "20",
+                  "description": "Items per page (default: 20, max: 100)"
+                },
+                {
+                  "key": "search",
+                  "value": "",
+                  "description": "Search by name or email",
+                  "disabled": true
+                },
+                {
+                  "key": "status",
+                  "value": "",
+                  "description": "Filter by status: active, inactive",
+                  "disabled": true
+                },
+                {
+                  "key": "role_id",
+                  "value": "",
+                  "description": "Filter by role ID",
+                  "disabled": true
+                }
+              ]
+            },
+            "description": "Get semua users dengan pagination dan filters (admin only, requires user.read permission)"
+          },
+          "response": []
+        },
+        {
+          "name": "Get User by ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/admin/users/:id",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "admin", "users", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "user-uuid-here"
+                }
+              ]
+            },
+            "description": "Get user by ID (admin only, requires user.read permission)"
+          },
+          "response": []
+        },
+        {
+          "name": "Create User",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Staff Gate User\",\n  \"email\": \"staffgate@example.com\",\n  \"password\": \"password123\",\n  \"role_id\": \"staff-gate-role-uuid-here\",\n  \"status\": \"active\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/admin/users",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "admin", "users"]
+            },
+            "description": "Create user baru (admin only, requires user.create permission). Biasanya digunakan untuk membuat Staff Gate user."
+          },
+          "response": []
+        },
+        {
+          "name": "Update User",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Updated Staff Gate User\",\n  \"email\": \"updated.staffgate@example.com\",\n  \"role_id\": \"staff-gate-role-uuid-here\",\n  \"status\": \"active\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/admin/users/:id",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "admin", "users", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "user-uuid-here"
+                }
+              ]
+            },
+            "description": "Update user (admin only, requires user.update permission)"
+          },
+          "response": []
+        },
+        {
+          "name": "Delete User",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/admin/users/:id",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "admin", "users", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "user-uuid-here"
+                }
+              ]
+            },
+            "description": "Delete user (admin only, requires user.delete permission)"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Role Management",
+      "item": [
+        {
+          "name": "List Roles",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/admin/roles?page=1&per_page=20",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "admin", "roles"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1",
+                  "description": "Page number (default: 1)"
+                },
+                {
+                  "key": "per_page",
+                  "value": "20",
+                  "description": "Items per page (default: 20, max: 100)"
+                },
+                {
+                  "key": "search",
+                  "value": "",
+                  "description": "Search by name or code",
+                  "disabled": true
+                }
+              ]
+            },
+            "description": "Get semua roles dengan pagination dan filters (admin only, requires role.read permission)"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Role by ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/admin/roles/:id",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "admin", "roles", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "role-uuid-here"
+                }
+              ]
+            },
+            "description": "Get role by ID (admin only, requires role.read permission)"
+          },
+          "response": []
+        },
+        {
+          "name": "Create Role",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"code\": \"new_role\",\n  \"name\": \"New Role\",\n  \"description\": \"Description of the new role\",\n  \"is_admin\": false,\n  \"can_login_admin\": true\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/admin/roles",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "admin", "roles"]
+            },
+            "description": "Create role baru (admin only, requires role.create permission)"
+          },
+          "response": []
+        },
+        {
+          "name": "Update Role",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Updated Role Name\",\n  \"description\": \"Updated description\",\n  \"is_admin\": false,\n  \"can_login_admin\": true\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/admin/roles/:id",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "admin", "roles", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "role-uuid-here"
+                }
+              ]
+            },
+            "description": "Update role (admin only, requires role.update permission)"
+          },
+          "response": []
+        },
+        {
+          "name": "Assign Permissions to Role",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"permission_ids\": [\n    \"permission-uuid-1\",\n    \"permission-uuid-2\",\n    \"permission-uuid-3\"\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/admin/roles/:id/permissions",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "admin", "roles", ":id", "permissions"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "role-uuid-here"
+                }
+              ]
+            },
+            "description": "Assign permissions to role (admin only, requires role.update permission)"
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Role",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/admin/roles/:id",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "admin", "roles", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "role-uuid-here"
+                }
+              ]
+            },
+            "description": "Delete role (admin only, requires role.delete permission)"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Permission Management",
+      "item": [
+        {
+          "name": "List Permissions",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/admin/permissions?page=1&per_page=20",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "admin", "permissions"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1",
+                  "description": "Page number (default: 1)"
+                },
+                {
+                  "key": "per_page",
+                  "value": "20",
+                  "description": "Items per page (default: 20, max: 100)"
+                },
+                {
+                  "key": "search",
+                  "value": "",
+                  "description": "Search by name or code",
+                  "disabled": true
+                },
+                {
+                  "key": "resource",
+                  "value": "",
+                  "description": "Filter by resource",
+                  "disabled": true
+                }
+              ]
+            },
+            "description": "Get semua permissions dengan pagination dan filters (admin only, requires permission.read permission)"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Permission by ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/admin/permissions/:id",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "admin", "permissions", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "permission-uuid-here"
+                }
+              ]
+            },
+            "description": "Get permission by ID (admin only, requires permission.read permission)"
+          },
+          "response": []
+        },
+        {
+          "name": "Create Permission",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"code\": \"resource.action\",\n  \"name\": \"Permission Name\",\n  \"description\": \"Description of the permission\",\n  \"resource\": \"resource\",\n  \"action\": \"action\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/admin/permissions",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "admin", "permissions"]
+            },
+            "description": "Create permission baru (admin only, requires permission.create permission)"
+          },
+          "response": []
+        },
+        {
+          "name": "Update Permission",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Updated Permission Name\",\n  \"description\": \"Updated description\",\n  \"resource\": \"resource\",\n  \"action\": \"action\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/admin/permissions/:id",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "admin", "permissions", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "permission-uuid-here"
+                }
+              ]
+            },
+            "description": "Update permission (admin only, requires permission.update permission)"
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Permission",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/admin/permissions/:id",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "admin", "permissions", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "permission-uuid-here"
+                }
+              ]
+            },
+            "description": "Delete permission (admin only, requires permission.delete permission)"
+          },
+          "response": []
+        }
+      ]
     }
   ],
   "variable": [
@@ -298,9 +1624,40 @@
       "type": "string"
     },
     {
+      "key": "event_id",
+      "value": "",
+      "type": "string",
+      "description": "Event ID untuk testing. Event ID dapat diambil dari seeder atau create event baru."
+    },
+    {
+      "key": "ticket_category_id",
+      "value": "",
+      "type": "string",
+      "description": "Ticket Category ID untuk testing"
+    },
+    {
+      "key": "schedule_id",
+      "value": "",
+      "type": "string",
+      "description": "Schedule ID untuk testing"
+    },
+    {
+      "key": "order_id",
+      "value": "",
+      "type": "string",
+      "description": "Order ID untuk testing"
+    },
+    {
       "key": "role_id",
       "value": "",
-      "type": "string"
+      "type": "string",
+      "description": "Role ID untuk testing"
+    },
+    {
+      "key": "permission_id",
+      "value": "",
+      "type": "string",
+      "description": "Permission ID untuk testing"
     }
   ]
 }

@@ -13,7 +13,11 @@ func SetupRoutes(router *gin.RouterGroup, authHandler *auth.Handler, jwtManager 
 		auth.POST("/login", authHandler.Login)
 		auth.POST("/refresh", authHandler.RefreshToken)
 		auth.POST("/logout", middleware.AuthMiddleware(jwtManager), authHandler.Logout)
+		
+		// Protected routes
+		auth.GET("/me/menus-permissions", middleware.AuthMiddleware(jwtManager), authHandler.GetUserMenusAndPermissions)
 	}
 }
+
 
 

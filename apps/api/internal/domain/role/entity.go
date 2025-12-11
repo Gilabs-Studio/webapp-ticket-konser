@@ -57,23 +57,78 @@ func (r *Role) BeforeCreate(tx *gorm.DB) error {
 
 // RoleResponse represents role response DTO
 type RoleResponse struct {
-	ID          string    `json:"id"`
-	Code        string    `json:"code"`
-	Name        string    `json:"name"`
-	Description string    `json:"description"`
-	CreatedAt   time.Time `json:"created_at"`
-	UpdatedAt   time.Time `json:"updated_at"`
+	ID           string    `json:"id"`
+	Code         string    `json:"code"`
+	Name         string    `json:"name"`
+	Description  string    `json:"description"`
+	IsAdmin      bool      `json:"is_admin"`
+	CanLoginAdmin bool     `json:"can_login_admin"`
+	CreatedAt    time.Time `json:"created_at"`
+	UpdatedAt    time.Time `json:"updated_at"`
+}
+
+// RoleWithPermissionsResponse represents role response with permissions
+type RoleWithPermissionsResponse struct {
+	ID           string                      `json:"id"`
+	Code         string                      `json:"code"`
+	Name         string                      `json:"name"`
+	Description  string                      `json:"description"`
+	IsAdmin      bool                        `json:"is_admin"`
+	CanLoginAdmin bool                       `json:"can_login_admin"`
+	Permissions  []PermissionResponse        `json:"permissions,omitempty"`
+	CreatedAt    time.Time                   `json:"created_at"`
+	UpdatedAt    time.Time                   `json:"updated_at"`
+}
+
+// PermissionResponse represents permission in role response
+type PermissionResponse struct {
+	ID          string `json:"id"`
+	Code        string `json:"code"`
+	Name        string `json:"name"`
+	Resource    string `json:"resource"`
+	Action      string `json:"action"`
 }
 
 // ToRoleResponse converts Role to RoleResponse
 func (r *Role) ToRoleResponse() *RoleResponse {
 	return &RoleResponse{
-		ID:          r.ID,
-		Code:        r.Code,
-		Name:        r.Name,
-		Description: r.Description,
-		CreatedAt:   r.CreatedAt,
-		UpdatedAt:   r.UpdatedAt,
+		ID:           r.ID,
+		Code:         r.Code,
+		Name:         r.Name,
+		Description:  r.Description,
+		IsAdmin:      r.IsAdmin,
+		CanLoginAdmin: r.CanLoginAdmin,
+		CreatedAt:    r.CreatedAt,
+		UpdatedAt:    r.UpdatedAt,
 	}
+}
+
+// CreateRoleRequest represents create role request DTO
+type CreateRoleRequest struct {
+	Code         string `json:"code" binding:"required,min=3,max=50"`
+	Name         string `json:"name" binding:"required,min=3,max=255"`
+	Description  string `json:"description"`
+	IsAdmin      *bool  `json:"is_admin"`
+	CanLoginAdmin *bool `json:"can_login_admin"`
+}
+
+// UpdateRoleRequest represents update role request DTO
+type UpdateRoleRequest struct {
+	Name         string `json:"name" binding:"omitempty,min=3,max=255"`
+	Description  string `json:"description"`
+	IsAdmin      *bool  `json:"is_admin"`
+	CanLoginAdmin *bool `json:"can_login_admin"`
+}
+
+// ListRolesRequest represents list roles query parameters
+type ListRolesRequest struct {
+	Page    int    `form:"page" binding:"omitempty,min=1"`
+	PerPage int    `form:"per_page" binding:"omitempty,min=1,max=100"`
+	Search  string `form:"search" binding:"omitempty"`
+}
+
+// AssignPermissionsRequest represents assign permissions to role request
+type AssignPermissionsRequest struct {
+	PermissionIDs []string `json:"permission_ids" binding:"required,min=1"`
 }
 

@@ -8,7 +8,7 @@ export const apiClient: AxiosInstance = axios.create({
   headers: {
     "Content-Type": "application/json",
   },
-  timeout: 10000, // 10 seconds timeout
+  timeout: 10000,
 });
 
 // Flag to prevent multiple refresh attempts
@@ -20,7 +20,7 @@ const failedQueue: Array<{
 
 const processQueue = (error: AxiosError | null, token: string | null = null) => {
   const queue = [...failedQueue];
-  failedQueue.splice(0, failedQueue.length); // Clear array
+  failedQueue.splice(0, failedQueue.length);
   queue.forEach((prom) => {
     if (error) {
       prom.reject(error);
@@ -67,7 +67,6 @@ interface ApiErrorResponse {
 apiClient.interceptors.response.use(
   (response) => response,
   async (error: AxiosError<ApiErrorResponse>) => {
-    // Network error (tidak terhubung ke server)
     if (!error.response) {
       if (error.code === "ECONNABORTED" || error.message === "Network Error") {
         toast.error("Cannot connect to server", {
@@ -85,7 +84,6 @@ apiClient.interceptors.response.use(
       return Promise.reject(error);
     }
 
-    // HTTP error responses
     const status = error.response.status;
     const errorData = error.response.data;
 
@@ -101,9 +99,7 @@ apiClient.interceptors.response.use(
     const errorDetails = errorData.error.details;
     const fieldErrors = errorData.error.field_errors;
 
-    // Handle specific error codes
     if (errorCode === "RESOURCE_ALREADY_EXISTS" || errorCode === "CONFLICT") {
-      // Handle duplicate email or other resource conflicts
       if (errorDetails?.field === "email" && errorDetails?.resource === "user") {
         toast.error("Email already exists", {
           description: `The email "${errorDetails.value}" is already registered. Please use a different email.`,
@@ -120,7 +116,6 @@ apiClient.interceptors.response.use(
       return Promise.reject(error);
     }
 
-    // Handle INTERNAL_SERVER_ERROR with details (e.g., duplicate email from database constraint)
     if (errorCode === "INTERNAL_SERVER_ERROR" && errorDetails) {
       if (errorDetails.field === "email" && errorDetails.resource === "user") {
         toast.error("Email already exists", {
@@ -128,7 +123,6 @@ apiClient.interceptors.response.use(
         });
         return Promise.reject(error);
       }
-      // Other internal errors with details
       if (errorDetails.field && errorDetails.resource) {
         toast.error("Validation error", {
           description: `The ${errorDetails.field} "${errorDetails.value}" is invalid or already exists for this ${errorDetails.resource}.`,
@@ -137,7 +131,6 @@ apiClient.interceptors.response.use(
       }
     }
 
-    // Handle validation errors
     if (errorCode === "VALIDATION_ERROR" && fieldErrors && fieldErrors.length > 0) {
       const firstError = fieldErrors[0];
       toast.error("Validation error", {
@@ -146,13 +139,10 @@ apiClient.interceptors.response.use(
       return Promise.reject(error);
     }
 
-    // Handle HTTP status codes
     if (status === 401) {
       const originalRequest = error.config as InternalAxiosRequestConfig & { _retry?: boolean };
 
-      // Skip refresh if this is already a retry or if it's a refresh token request
       if (originalRequest?._retry || originalRequest?.url?.includes("/auth/refresh")) {
-        // Refresh failed or already retried, logout user
         if (typeof window !== "undefined") {
           localStorage.removeItem("token");
           localStorage.removeItem("refreshToken");
@@ -160,19 +150,17 @@ apiClient.interceptors.response.use(
             description: "Please login again",
           });
           setTimeout(() => {
-            window.location.href = "/";
+            window.location.href = "/login";
           }, 1000);
         }
         return Promise.reject(error);
       }
 
-      // Try to refresh token
       if (!isRefreshing) {
         isRefreshing = true;
         const refreshToken = typeof window !== "undefined" ? localStorage.getItem("refreshToken") : null;
 
         if (!refreshToken) {
-          // No refresh token, logout
           isRefreshing = false;
           if (typeof window !== "undefined") {
             localStorage.removeItem("token");
@@ -181,14 +169,13 @@ apiClient.interceptors.response.use(
               description: "Please login again",
             });
             setTimeout(() => {
-              window.location.href = "/";
+              window.location.href = "/login";
             }, 1000);
           }
           processQueue(error, null);
           return Promise.reject(error);
         }
 
-        // Create separate axios instance for refresh to avoid circular dependency
         const refreshClient = axios.create({
           baseURL: `${API_BASE_URL}/api/v1`,
           headers: {
@@ -197,7 +184,6 @@ apiClient.interceptors.response.use(
           timeout: 10000,
         });
 
-        // Call refresh token endpoint directly
         return refreshClient
           .post<{
             success: boolean;
@@ -225,21 +211,13 @@ apiClient.interceptors.response.use(
               if (typeof window !== "undefined") {
                 localStorage.setItem("token", token);
                 localStorage.setItem("refreshToken", refresh_token);
-                // Update cookie
                 document.cookie = `token=${token}; path=/; max-age=${7 * 24 * 60 * 60}; SameSite=Lax`;
               }
 
-              // Update auth store with user data and tokens
               import("@/features/auth/stores/useAuthStore").then(({ useAuthStore }) => {
-                useAuthStore.getState().setToken(token);
-                useAuthStore.getState().setUser(user);
-                useAuthStore.setState({
-                  refreshToken: refresh_token,
-                  isAuthenticated: true,
-                });
+                useAuthStore.getState().setAuth(user, token, refresh_token);
               });
 
-              // Update original request with new token
               if (originalRequest?.headers) {
                 originalRequest.headers.Authorization = `Bearer ${token}`;
               }
@@ -248,14 +226,12 @@ apiClient.interceptors.response.use(
               processQueue(null, token);
               isRefreshing = false;
 
-              // Retry original request
               return apiClient(originalRequest);
             } else {
               throw new Error("Refresh token failed");
             }
           })
           .catch((refreshError) => {
-            // Refresh failed, logout user
             isRefreshing = false;
             if (typeof window !== "undefined") {
               localStorage.removeItem("token");
@@ -264,14 +240,13 @@ apiClient.interceptors.response.use(
                 description: "Please login again",
               });
               setTimeout(() => {
-                window.location.href = "/";
+                window.location.href = "/login";
               }, 1000);
             }
             processQueue(refreshError as AxiosError, null);
             return Promise.reject(refreshError);
           });
       } else {
-        // Already refreshing, queue this request
         return new Promise((resolve, reject) => {
           failedQueue.push({ resolve, reject });
         })
@@ -291,7 +266,6 @@ apiClient.interceptors.response.use(
         description: errorMessage || "You do not have permission to perform this action",
       });
     } else if (status === 404) {
-      // Only show 404 toast for mutations, not queries (to avoid showing on page refresh)
       const isMutation = error.config?.method && ["post", "put", "patch", "delete"].includes(error.config.method.toLowerCase());
       if (isMutation) {
         toast.error("Not found", {
@@ -299,7 +273,6 @@ apiClient.interceptors.response.use(
         });
       }
     } else if (status === 409) {
-      // Conflict - already handled above but keep as fallback
       toast.error("Conflict", {
         description: errorMessage || "Resource conflict occurred",
       });
@@ -308,7 +281,6 @@ apiClient.interceptors.response.use(
         description: errorMessage || "An error occurred on the server",
       });
     } else {
-      // Other 4xx errors
       toast.error("Request failed", {
         description: errorMessage || "An error occurred",
       });
@@ -319,3 +291,5 @@ apiClient.interceptors.response.use(
 );
 
 export default apiClient;
+
+

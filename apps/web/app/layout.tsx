@@ -1,60 +1,41 @@
-import type { Metadata, Viewport } from "next";
-import { Geist, Geist_Mono, Sora } from "next/font/google";
-import { getLocale } from "next-intl/server";
-import { routing } from "@/i18n/routing";
-import type { Locale } from "@/types/locale";
+import type { Metadata } from "next";
+import { Inter } from "next/font/google";
+import { ReactQueryProvider } from "@/lib/react-query";
+import { ThemeProvider } from "@/components/providers/theme-provider";
+import { AppLayout } from "@/components/layouts/app-layout";
+import { Toaster } from "sonner";
 import "./globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
-
-const headingFont = Sora({
-  variable: "--font-heading",
-  subsets: ["latin"],
-  weight: ["500", "600", "700"],
-});
+const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "CRM Healthcare Platform",
-  description: "CRM Healthcare/Pharmaceutical Platform",
+  title: "Ticket Konser - Web App",
+  description: "Web application for ticket management",
 };
 
-export const viewport: Viewport = {
-  width: "device-width",
-  initialScale: 1,
-  maximumScale: 5,
-  userScalable: true,
-};
-
-export default async function RootLayout({
+export default function RootLayout({
   children,
-}: Readonly<{
+}: {
   children: React.ReactNode;
-}>) {
-  let locale: Locale;
-  try {
-    const localeValue = await getLocale();
-    locale = routing.locales.includes(localeValue as Locale)
-      ? (localeValue as Locale)
-      : routing.defaultLocale;
-  } catch {
-    locale = routing.defaultLocale;
-  }
-
+}) {
   return (
-    <html lang={locale} suppressHydrationWarning>
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} ${headingFont.variable} antialiased`}
-      >
-        {children}
+    <html lang="en" suppressHydrationWarning>
+      <body className={inter.className}>
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="light"
+          enableSystem
+          disableTransitionOnChange
+        >
+          <ReactQueryProvider>
+            <AppLayout>
+              {children}
+            </AppLayout>
+            <Toaster position="top-right" richColors />
+          </ReactQueryProvider>
+        </ThemeProvider>
       </body>
     </html>
   );
 }
+

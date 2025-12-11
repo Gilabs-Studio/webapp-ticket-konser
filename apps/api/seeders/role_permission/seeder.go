@@ -26,6 +26,8 @@ func Seed() error {
 	}
 
 	// Admin gets all permissions
+	assignedCount := 0
+	skippedCount := 0
 	for _, p := range allPermissions {
 		var count int64
 		database.DB.Model(&role.RolePermission{}).
@@ -41,8 +43,12 @@ func Seed() error {
 				return err
 			}
 			log.Printf("[Role Permission Seeder] Assigned permission %s to admin role", p.Code)
+			assignedCount++
+		} else {
+			skippedCount++
 		}
 	}
+	log.Printf("[Role Permission Seeder] Admin role: Assigned %d new permissions, Skipped %d existing permissions", assignedCount, skippedCount)
 
 	// Staff ticket gets only ticket permissions
 	ticketPermissions := []string{"ticket.create", "ticket.read", "ticket.update", "ticket.delete"}
@@ -72,5 +78,6 @@ func Seed() error {
 	log.Println("[Role Permission Seeder] Role permissions seeded successfully")
 	return nil
 }
+
 
 

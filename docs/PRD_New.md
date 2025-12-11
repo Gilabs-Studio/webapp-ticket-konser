@@ -73,7 +73,6 @@ Bisa melihat:
 Tidak dapat:
 
 - Masuk dashboard / backend
-- Mengubah data event
 - Melakukan scanning
 
 ---
@@ -85,6 +84,7 @@ Platform terdiri dari dua bagian:
 ## 4.1 Public Website (Frontend)
 
 - Landing Page
+- Event List / Event Selection
 - Event Detail
 - Ticket Selection
 - Guest Login / Register
@@ -104,7 +104,7 @@ Platform terdiri dari dua bagian:
 ## 5.1 Guest Flow
 
 ```
-Landing Page → Event Detail → Pilih Tanggal → Pilih Sesi → Pilih Tiket →
+Landing Page → Event List → Pilih Event → Event Detail → Pilih Tanggal → Pilih Sesi → Pilih Tiket →
 Check Login → (Jika belum login → Login/Register → kembali ke checkout) →
 Checkout → Payment Midtrans → Success → E-Ticket (QR) → File/My Tickets →
 Datang ke Event → Staff Gate Scan QR → Status: Valid → Masuk Gate
@@ -221,6 +221,8 @@ Menampilkan:
 - Create/Edit/Delete event
 - Upload banner image
 - Set event date range
+- Set event status (draft, published, closed)
+- View event details
 
 ### 7.2.3 Ticket Category Management
 
@@ -233,6 +235,8 @@ Menampilkan:
 - Buat sesi harian
 - Atur kapasitas per sesi
 - Atur jam buka–tutup sesi
+- Input nama artist/performer
+- Input rundown jadwal event (detail acara per waktu)
 
 ### 7.2.5 Transaction Management
 
@@ -289,14 +293,17 @@ Menampilkan:
 
 ## 8.2 Events Table
 
-| Field        | Type    | Description         |
-| ------------ | ------- | ------------------- |
-| id           | integer | Primary key         |
-| event_name   | string  | Nama event          |
-| description  | text    | Deskripsi event     |
-| banner_image | string  | URL gambar banner   |
-| start_date   | date    | Tanggal mulai event |
-| end_date     | date    | Tanggal akhir event |
+| Field        | Type      | Description            |
+| ------------ | --------- | ---------------------- |
+| id           | integer   | Primary key            |
+| event_name   | string    | Nama event             |
+| description  | text      | Deskripsi event        |
+| banner_image | string    | URL gambar banner      |
+| start_date   | date      | Tanggal mulai event    |
+| end_date     | date      | Tanggal akhir event    |
+| status       | enum      | draft/published/closed |
+| created_at   | timestamp | Waktu dibuat           |
+| updated_at   | timestamp | Waktu diupdate         |
 
 ## 8.3 Ticket Categories Table
 
