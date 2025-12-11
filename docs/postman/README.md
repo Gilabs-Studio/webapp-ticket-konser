@@ -1,16 +1,16 @@
-# Postman Collection - CRM Healthcare API
+# Postman Collection - WebApp Ticketing API
 
-Dokumentasi Postman collection untuk CRM Healthcare API.
+Dokumentasi Postman collection untuk WebApp Ticketing API.
 
 ## Setup
 
 1. **Import Collection**
    - Buka Postman
    - Klik Import
-   - Pilih file `CRM-Healthcare-API.postman_collection.json`
+   - Pilih file `WebApp-Ticketing-API.postman_collection.json`
 
 2. **Setup Environment Variables**
-   - Buat environment baru dengan nama "CRM Healthcare - Local"
+   - Buat environment baru dengan nama "WebApp Ticketing - Local"
    - Set variable:
      - `base_url`: `http://localhost:8080`
    - Set variable:

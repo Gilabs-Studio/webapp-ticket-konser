@@ -4,8 +4,8 @@ import (
 	"strings"
 
 	"github.com/gin-gonic/gin"
-	"github.com/gilabs/crm-healthcare/api/pkg/errors"
-	"github.com/gilabs/crm-healthcare/api/pkg/jwt"
+	"github.com/gilabs/webapp-ticket-konser/api/pkg/errors"
+	"github.com/gilabs/webapp-ticket-konser/api/pkg/jwt"
 )
 
 // AuthMiddleware validates JWT token and sets user info in context
@@ -44,6 +44,7 @@ func AuthMiddleware(jwtManager *jwt.JWTManager) gin.HandlerFunc {
 		c.Set("user_id", claims.UserID)
 		c.Set("user_email", claims.Email)
 		c.Set("user_role", claims.Role)
+		c.Set("role_id", claims.RoleID)
 
 		c.Next()
 	}

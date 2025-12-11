@@ -208,6 +208,16 @@ function SelectItem({
   value,
   ...props
 }: React.ComponentProps<typeof SelectPrimitive.Item>) {
+  // Validate that value is not empty string (Radix UI requirement)
+  if (value === "" || value === null || value === undefined) {
+    if (process.env.NODE_ENV === "development") {
+      console.warn(
+        "SelectItem: value prop cannot be empty string, null, or undefined. Skipping render."
+      );
+    }
+    return null;
+  }
+
   const context = React.useContext(SelectContext);
   const hasIncrementedRef = React.useRef(false);
   const lastItemCountRef = React.useRef(0);

@@ -176,11 +176,13 @@ export function DataTable<T extends { id: string }>({
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
-                        {perPageOptions.map((option) => (
-                          <SelectItem key={option} value={String(option)}>
-                            {option}
-                          </SelectItem>
-                        ))}
+                        {perPageOptions
+                          .filter((option) => option != null && String(option).trim() !== "")
+                          .map((option) => (
+                            <SelectItem key={option} value={String(option)}>
+                              {option}
+                            </SelectItem>
+                          ))}
                       </SelectContent>
                     </Select>
                   </div>
@@ -324,11 +326,13 @@ export function DataTable<T extends { id: string }>({
                         <SelectValue placeholder="Select rows" />
                       </SelectTrigger>
                       <SelectContent>
-                        {perPageOptions.map((option) => (
-                          <SelectItem key={option} value={String(option)}>
-                            {option}
-                          </SelectItem>
-                        ))}
+                        {perPageOptions
+                          .filter((option) => option != null && String(option).trim() !== "")
+                          .map((option) => (
+                            <SelectItem key={option} value={String(option)}>
+                              {option}
+                            </SelectItem>
+                          ))}
                       </SelectContent>
                     </Select>
                   </div>

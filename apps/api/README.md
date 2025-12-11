@@ -1,6 +1,6 @@
-# CRM Healthcare API
+# WebApp Ticketing API
 
-Backend API untuk CRM Healthcare/Pharmaceutical Platform menggunakan Go dan Gin framework.
+Backend API untuk WebApp Ticketing Platform (Harry Potter Museum Exhibition) menggunakan Go dan Gin framework.
 
 ## Tech Stack
 
@@ -49,17 +49,20 @@ Database (PostgreSQL)
 ### Local Development dengan pnpm
 
 1. Dari root monorepo:
+
 ```bash
 pnpm dev --filter=api
 ```
 
 2. Atau dari folder api:
+
 ```bash
 cd apps/api
 pnpm dev
 ```
 
 3. Atau langsung dengan Go:
+
 ```bash
 cd apps/api
 go run cmd/server/main.go
@@ -74,11 +77,12 @@ cp .env.example .env
 ```
 
 **Required Variables:**
+
 - `DB_HOST`: PostgreSQL host (default: localhost)
 - `DB_PORT`: PostgreSQL port (default: 5432)
 - `DB_USER`: PostgreSQL user (default: postgres)
 - `DB_PASSWORD`: PostgreSQL password
-- `DB_NAME`: Database name (default: crm_healthcare)
+- `DB_NAME`: Database name (default: ticketing_app)
 - `JWT_SECRET`: JWT secret key (min 32 characters)
 
 ### Database Setup
@@ -90,14 +94,15 @@ cd apps/api
 docker-compose up -d postgres
 ```
 
-**Note**: Docker Compose menggunakan port **5434** (bukan 5432) untuk menghindari konflik dengan PostgreSQL lain. Pastikan `.env` file menggunakan `DB_PORT=5434`.
+**Note**: Docker Compose menggunakan port **5435** (bukan 5432) untuk menghindari konflik dengan PostgreSQL lain (termasuk CRM Healthcare yang mungkin menggunakan 5434). Pastikan `.env` file menggunakan `DB_PORT=5435` saat connect dari host, atau `DB_PORT=5432` saat connect dari dalam Docker network.
 
 #### Option 2: Local PostgreSQL
 
 1. Install PostgreSQL
 2. Create database:
+
 ```sql
-CREATE DATABASE crm_healthcare;
+CREATE DATABASE ticketing_app;
 ```
 
 **Note**: Jika menggunakan local PostgreSQL, gunakan `DB_PORT=5432` di `.env` file.
@@ -107,12 +112,14 @@ CREATE DATABASE crm_healthcare;
 Migrations dan seeders akan otomatis dijalankan saat server start.
 
 **Manual migration:**
+
 ```bash
 cd apps/api
 go run cmd/server/main.go
 ```
 
 **Seed data:**
+
 - Admin: `admin@example.com` / `admin123`
 - Doctor: `doctor@example.com` / `admin123`
 - Pharmacist: `pharmacist@example.com` / `admin123`
@@ -120,11 +127,13 @@ go run cmd/server/main.go
 ### Build
 
 Dari root monorepo:
+
 ```bash
 pnpm build --filter=api
 ```
 
 Atau dari folder api:
+
 ```bash
 cd apps/api
 pnpm build
@@ -135,63 +144,58 @@ go build -o bin/server ./cmd/server/main.go
 ### Docker Development
 
 1. Build and run with Docker Compose:
+
 ```bash
 cd apps/api
 docker-compose up --build
 ```
 
 2. Atau build image manually:
+
 ```bash
 cd apps/api
-docker build -t crm-healthcare-api .
-docker run -p 8080:8080 crm-healthcare-api
+docker build -t ticketing-api .
+docker run -p 8083:8083 ticketing-api
 ```
 
 ## API Endpoints
 
 ### Health Check
+
 - `GET /health` - Health check endpoint
 - `GET /ping` - Ping endpoint
 
 ### Authentication
+
 - `POST /api/v1/auth/login` - Login dengan email/password
 - `POST /api/v1/auth/refresh` - Refresh access token
 - `POST /api/v1/auth/logout` - Logout (client-side)
 
 ## Project Structure
 
+Untuk dokumentasi lengkap tentang struktur folder, arsitektur, dan best practices, lihat **[STRUCTURE.md](./STRUCTURE.md)**.
+
+### Quick Overview
+
 ```
 apps/api/
-├── cmd/
-│   └── server/
-│       └── main.go              # Application entry point
-├── internal/
-│   ├── api/                      # HTTP layer
-│   │   ├── handlers/             # Request handlers
-│   │   ├── middleware/           # HTTP middleware
-│   │   └── routes/               # Route definitions
-│   ├── domain/                   # Business logic & entities
-│   │   └── auth/                 # Auth domain
-│   ├── repository/               # Data access layer
-│   │   ├── interfaces/           # Repository interfaces
-│   │   └── postgres/             # PostgreSQL implementation
-│   ├── service/                  # Application services
-│   │   └── auth/                 # Auth service
-│   ├── config/                   # Configuration
-│   └── database/                 # Database connection
-├── pkg/                          # Public packages
-│   ├── response/                 # API response helpers
-│   ├── errors/                   # Error handling
-│   ├── jwt/                      # JWT utilities
-│   └── logger/                   # Logging
-├── migrations/                   # Database migrations
-├── seeders/                      # Database seeders
-├── go.mod
-├── go.sum
-├── Dockerfile
-├── docker-compose.yml
-└── README.md
+├── cmd/server/          # Application entry point
+├── internal/            # Private application code
+│   ├── api/             # HTTP layer (handlers, routes, middleware)
+│   ├── domain/          # Business entities & DTOs
+│   ├── repository/      # Data access layer
+│   ├── service/         # Business logic layer
+│   ├── config/          # Configuration management
+│   └── database/        # Database connection & migrations
+├── pkg/                 # Public reusable packages
+│   ├── response/        # API response helpers
+│   ├── errors/          # Error handling
+│   ├── jwt/             # JWT utilities
+│   └── logger/          # Logging
+└── seeders/             # Database seeders
 ```
+
+**📖 Baca dokumentasi lengkap**: [STRUCTURE.md](./STRUCTURE.md)
 
 ## Development Guidelines
 

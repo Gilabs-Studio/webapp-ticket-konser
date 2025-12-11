@@ -1,20 +1,20 @@
-package handlers
+package auth
 
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
-	"github.com/gilabs/crm-healthcare/api/internal/domain/auth"
-	authservice "github.com/gilabs/crm-healthcare/api/internal/service/auth"
-	"github.com/gilabs/crm-healthcare/api/pkg/errors"
-	"github.com/gilabs/crm-healthcare/api/pkg/response"
+	"github.com/gilabs/webapp-ticket-konser/api/internal/domain/auth"
+	authservice "github.com/gilabs/webapp-ticket-konser/api/internal/service/auth"
+	"github.com/gilabs/webapp-ticket-konser/api/pkg/errors"
+	"github.com/gilabs/webapp-ticket-konser/api/pkg/response"
 )
 
-type AuthHandler struct {
+type Handler struct {
 	authService *authservice.Service
 }
 
-func NewAuthHandler(authService *authservice.Service) *AuthHandler {
-	return &AuthHandler{
+func NewHandler(authService *authservice.Service) *Handler {
+	return &Handler{
 		authService: authService,
 	}
 }
@@ -30,7 +30,7 @@ func NewAuthHandler(authService *authservice.Service) *AuthHandler {
 // @Failure 400 {object} response.APIResponse
 // @Failure 401 {object} response.APIResponse
 // @Router /api/v1/auth/login [post]
-func (h *AuthHandler) Login(c *gin.Context) {
+func (h *Handler) Login(c *gin.Context) {
 	var req auth.LoginRequest
 
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -51,6 +51,12 @@ func (h *AuthHandler) Login(c *gin.Context) {
 		if err == authservice.ErrUserInactive {
 			errors.ErrorResponse(c, "ACCOUNT_DISABLED", map[string]interface{}{
 				"reason": "User account is inactive",
+			}, nil)
+			return
+		}
+		if err.Error() == "this role cannot login to admin dashboard" {
+			errors.ErrorResponse(c, "FORBIDDEN", map[string]interface{}{
+				"reason": "This role cannot login to admin dashboard",
 			}, nil)
 			return
 		}
@@ -78,7 +84,7 @@ func (h *AuthHandler) Login(c *gin.Context) {
 // @Success 200 {object} response.APIResponse
 // @Failure 401 {object} response.APIResponse
 // @Router /api/v1/auth/refresh [post]
-func (h *AuthHandler) RefreshToken(c *gin.Context) {
+func (h *Handler) RefreshToken(c *gin.Context) {
 	var req struct {
 		RefreshToken string `json:"refresh_token" binding:"required"`
 	}
@@ -113,9 +119,10 @@ func (h *AuthHandler) RefreshToken(c *gin.Context) {
 // @Produce json
 // @Success 204
 // @Router /api/v1/auth/logout [post]
-func (h *AuthHandler) Logout(c *gin.Context) {
+func (h *Handler) Logout(c *gin.Context) {
 	// In a stateless JWT system, logout is handled client-side
 	// Server can maintain a blacklist if needed
 	response.SuccessResponseNoContent(c)
 }
+
 

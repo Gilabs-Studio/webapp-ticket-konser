@@ -5,17 +5,25 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/gilabs/crm-healthcare/api/internal/api/handlers"
-	"github.com/gilabs/crm-healthcare/api/internal/api/middleware"
-	"github.com/gilabs/crm-healthcare/api/internal/api/routes"
-	"github.com/gilabs/crm-healthcare/api/internal/config"
-	"github.com/gilabs/crm-healthcare/api/internal/database"
-	"github.com/gilabs/crm-healthcare/api/internal/repository/postgres/auth"
-	authservice "github.com/gilabs/crm-healthcare/api/internal/service/auth"
-	"github.com/gilabs/crm-healthcare/api/pkg/jwt"
-	"github.com/gilabs/crm-healthcare/api/pkg/logger"
-	"github.com/gilabs/crm-healthcare/api/pkg/response"
-	"github.com/gilabs/crm-healthcare/api/seeders"
+	authhandler "github.com/gilabs/webapp-ticket-konser/api/internal/api/handlers/auth"
+	menuhandler "github.com/gilabs/webapp-ticket-konser/api/internal/api/handlers/menu"
+	"github.com/gilabs/webapp-ticket-konser/api/internal/api/middleware"
+	authroutes "github.com/gilabs/webapp-ticket-konser/api/internal/api/routes/auth"
+	menuroutes "github.com/gilabs/webapp-ticket-konser/api/internal/api/routes/menu"
+	"github.com/gilabs/webapp-ticket-konser/api/internal/config"
+	"github.com/gilabs/webapp-ticket-konser/api/internal/database"
+	"github.com/gilabs/webapp-ticket-konser/api/internal/repository/interfaces/role"
+	authrepo "github.com/gilabs/webapp-ticket-konser/api/internal/repository/postgres/auth"
+	menurepo "github.com/gilabs/webapp-ticket-konser/api/internal/repository/postgres/menu"
+	permissionrepo "github.com/gilabs/webapp-ticket-konser/api/internal/repository/postgres/permission"
+	rolerepo "github.com/gilabs/webapp-ticket-konser/api/internal/repository/postgres/role"
+	authservice "github.com/gilabs/webapp-ticket-konser/api/internal/service/auth"
+	menuservice "github.com/gilabs/webapp-ticket-konser/api/internal/service/menu"
+	permissionservice "github.com/gilabs/webapp-ticket-konser/api/internal/service/permission"
+	"github.com/gilabs/webapp-ticket-konser/api/pkg/jwt"
+	"github.com/gilabs/webapp-ticket-konser/api/pkg/logger"
+	"github.com/gilabs/webapp-ticket-konser/api/pkg/response"
+	"github.com/gilabs/webapp-ticket-konser/api/seeders"
 	"github.com/gin-gonic/gin"
 )
 
@@ -52,18 +60,26 @@ func main() {
 	)
 
 	// Setup repositories
-	authRepo := auth.NewRepository(database.DB)
+	authRepo := authrepo.NewRepository(database.DB)
+	roleRepo := rolerepo.NewRepository(database.DB)
+	permissionRepo := permissionrepo.NewRepository(database.DB)
+	menuRepo := menurepo.NewRepository(database.DB)
 
 	// Setup services
-	authService := authservice.NewService(authRepo, jwtManager)
+	authService := authservice.NewService(authRepo, roleRepo, jwtManager)
+	_ = permissionservice.NewService(permissionRepo) // Reserved for future use
+	menuService := menuservice.NewService(menuRepo, roleRepo)
 
 	// Setup handlers
-	authHandler := handlers.NewAuthHandler(authService)
+	authHandler := authhandler.NewHandler(authService)
+	menuHandler := menuhandler.NewHandler(menuService)
 
 	// Setup router
 	router := setupRouter(
 		jwtManager,
 		authHandler,
+		menuHandler,
+		roleRepo,
 	)
 
 	// Run server
@@ -76,7 +92,9 @@ func main() {
 
 func setupRouter(
 	jwtManager *jwt.JWTManager,
-	authHandler *handlers.AuthHandler,
+	authHandler *authhandler.Handler,
+	menuHandler *menuhandler.Handler,
+	roleRepo role.Repository,
 ) *gin.Engine {
 	// Set Gin mode
 	if config.AppConfig.Server.Env == "production" {
@@ -115,7 +133,10 @@ func setupRouter(
 		})
 
 		// Auth routes
-		routes.SetupAuthRoutes(v1, authHandler, jwtManager)
+		authroutes.SetupRoutes(v1, authHandler, jwtManager)
+
+		// Menu routes
+		menuroutes.SetupRoutes(v1, menuHandler, roleRepo, jwtManager)
 	}
 
 	return router

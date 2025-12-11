@@ -1,6 +1,6 @@
-# CRM Healthcare Web
+# WebApp Ticketing Web
 
-Frontend application untuk CRM Healthcare/Pharmaceutical Platform menggunakan Next.js 16.
+Frontend application untuk WebApp Ticketing Platform (Harry Potter Museum Exhibition) menggunakan Next.js 16.
 
 ## Tech Stack
 

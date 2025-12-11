@@ -1,17 +1,19 @@
+name: ticketing_api
+
 services:
   postgres:
     image: postgres:16-alpine
-    container_name: crm-healthcare-db
+    container_name: ticketing-db
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: crm_healthcare
+      POSTGRES_DB: ticketing_app
     ports:
-      - "5434:5432"
+      - "5435:5432"  # Changed from 5434 to avoid conflict with CRM Healthcare
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - ticketing_postgres_data:/var/lib/postgresql/data
     networks:
-      - crm-network
+      - ticketing-network
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres"]
       interval: 10s
@@ -22,18 +24,18 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: crm-healthcare-api
+    container_name: ticketing-api
     ports:
-      - "8080:8080"
+      - "8083:8083"
     environment:
       - GIN_MODE=release
-      - PORT=8080
+      - PORT=8083
       - ENV=production
       - DB_HOST=postgres
       - DB_PORT=5432
       - DB_USER=postgres
       - DB_PASSWORD=postgres
-      - DB_NAME=crm_healthcare
+      - DB_NAME=ticketing_app
       - DB_SSLMODE=disable
       - JWT_SECRET=${JWT_SECRET:-your-secret-key-change-in-production-min-32-chars}
       - JWT_ACCESS_TTL=24
@@ -43,11 +45,13 @@ services:
         condition: service_healthy
     restart: unless-stopped
     networks:
-      - crm-network
+      - ticketing-network
 
 networks:
-  crm-network:
+  ticketing-network:
+    name: ticketing-network
     driver: bridge
 
 volumes:
-  postgres_data:
+  ticketing_postgres_data:
+    name: ticketing_postgres_data

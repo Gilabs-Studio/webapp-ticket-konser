@@ -3,9 +3,10 @@ package auth
 import (
 	"errors"
 
-	"github.com/gilabs/crm-healthcare/api/internal/domain/auth"
-	"github.com/gilabs/crm-healthcare/api/internal/repository/interfaces"
-	"github.com/gilabs/crm-healthcare/api/pkg/jwt"
+	"github.com/gilabs/webapp-ticket-konser/api/internal/domain/auth"
+	authrepo "github.com/gilabs/webapp-ticket-konser/api/internal/repository/interfaces/auth"
+	"github.com/gilabs/webapp-ticket-konser/api/internal/repository/interfaces/role"
+	"github.com/gilabs/webapp-ticket-konser/api/pkg/jwt"
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
 )
@@ -17,13 +18,15 @@ var (
 )
 
 type Service struct {
-	repo      interfaces.AuthRepository
+	repo       authrepo.Repository
+	roleRepo   role.Repository
 	jwtManager *jwt.JWTManager
 }
 
-func NewService(repo interfaces.AuthRepository, jwtManager *jwt.JWTManager) *Service {
+func NewService(repo authrepo.Repository, roleRepo role.Repository, jwtManager *jwt.JWTManager) *Service {
 	return &Service{
 		repo:       repo,
+		roleRepo:   roleRepo,
 		jwtManager: jwtManager,
 	}
 }
@@ -49,14 +52,24 @@ func (s *Service) Login(req *auth.LoginRequest) (*auth.LoginResponse, error) {
 		return nil, ErrInvalidCredentials
 	}
 
-	// Get role code
+	// Check if user role can login admin
+	if user.RoleID != "" {
+		role, err := s.roleRepo.FindByID(user.RoleID)
+		if err == nil && !role.CanLoginAdmin {
+			return nil, errors.New("this role cannot login to admin dashboard")
+		}
+	}
+
+	// Get role code and role ID
 	roleCode := "user"
+	roleID := ""
 	if user.Role != nil {
 		roleCode = user.Role.Code
+		roleID = user.Role.ID
 	}
 
 	// Generate tokens
-	accessToken, err := s.jwtManager.GenerateAccessToken(user.ID, user.Email, roleCode)
+	accessToken, err := s.jwtManager.GenerateAccessToken(user.ID, user.Email, roleCode, roleID)
 	if err != nil {
 		return nil, err
 	}
@@ -109,14 +122,16 @@ func (s *Service) RefreshToken(refreshToken string) (*auth.LoginResponse, error)
 		return nil, ErrUserInactive
 	}
 
-	// Get role code
+	// Get role code and role ID
 	roleCode := "user"
+	roleID := ""
 	if user.Role != nil {
 		roleCode = user.Role.Code
+		roleID = user.Role.ID
 	}
 
 	// Generate new tokens
-	accessToken, err := s.jwtManager.GenerateAccessToken(user.ID, user.Email, roleCode)
+	accessToken, err := s.jwtManager.GenerateAccessToken(user.ID, user.Email, roleCode, roleID)
 	if err != nil {
 		return nil, err
 	}
@@ -148,4 +163,3 @@ func (s *Service) RefreshToken(refreshToken string) (*auth.LoginResponse, error)
 		ExpiresIn:    expiresIn,
 	}, nil
 }
-

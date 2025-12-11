@@ -3,8 +3,8 @@ package user
 import (
 	"strings"
 
-	"github.com/gilabs/crm-healthcare/api/internal/domain/user"
-	"github.com/gilabs/crm-healthcare/api/internal/repository/interfaces"
+	"github.com/gilabs/webapp-ticket-konser/api/internal/domain/user"
+	userrepo "github.com/gilabs/webapp-ticket-konser/api/internal/repository/interfaces/user"
 	"gorm.io/gorm"
 )
 
@@ -13,7 +13,7 @@ type repository struct {
 }
 
 // NewRepository creates a new user repository
-func NewRepository(db *gorm.DB) interfaces.UserRepository {
+func NewRepository(db *gorm.DB) userrepo.Repository {
 	return &repository{db: db}
 }
 

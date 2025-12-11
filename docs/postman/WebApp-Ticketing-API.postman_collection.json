@@ -1,0 +1,306 @@
+{
+  "info": {
+    "name": "WebApp Ticketing API",
+    "description": "API collection untuk WebApp Ticketing Konser Platform - RBAC & Menu Management",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "webapp-ticketing"
+  },
+  "item": [
+    {
+      "name": "Health Check",
+      "item": [
+        {
+          "name": "Health",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/health",
+              "host": ["{{base_url}}"],
+              "path": ["health"]
+            },
+            "description": "Health check endpoint"
+          },
+          "response": []
+        },
+        {
+          "name": "Ping",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/ping",
+              "host": ["{{base_url}}"],
+              "path": ["ping"]
+            },
+            "description": "Ping endpoint"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Authentication",
+      "item": [
+        {
+          "name": "Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    var jsonData = pm.response.json();",
+                  "    if (jsonData.success && jsonData.data) {",
+                  "        pm.environment.set(\"token\", jsonData.data.token);",
+                  "        pm.environment.set(\"refresh_token\", jsonData.data.refresh_token);",
+                  "        if (jsonData.data.user) {",
+                  "            pm.environment.set(\"user_id\", jsonData.data.user.id);",
+                  "            pm.environment.set(\"role_id\", jsonData.data.user.role_id || \"\");",
+                  "        }",
+                  "    }",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"admin@example.com\",\n  \"password\": \"admin123\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/auth/login",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "auth", "login"]
+            },
+            "description": "Login dengan email dan password. Guest role tidak bisa login ke admin dashboard."
+          },
+          "response": []
+        },
+        {
+          "name": "Refresh Token",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    var jsonData = pm.response.json();",
+                  "    if (jsonData.success && jsonData.data) {",
+                  "        pm.environment.set(\"token\", jsonData.data.token);",
+                  "        pm.environment.set(\"refresh_token\", jsonData.data.refresh_token);",
+                  "    }",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"refresh_token\": \"{{refresh_token}}\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/auth/refresh",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "auth", "refresh"]
+            },
+            "description": "Refresh access token menggunakan refresh token"
+          },
+          "response": []
+        },
+        {
+          "name": "Logout",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/auth/logout",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "auth", "logout"]
+            },
+            "description": "Logout user (invalidate token on client side)"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Menu Management",
+      "item": [
+        {
+          "name": "Get Menus by Role",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/menus",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "menus"]
+            },
+            "description": "Get menus yang dapat diakses oleh role user yang sedang login. Admin akan mendapat semua menu, staff_ticket hanya mendapat Dashboard dan Ticket Management."
+          },
+          "response": []
+        },
+        {
+          "name": "List All Menus (Admin)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/admin/menus",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "admin", "menus"]
+            },
+            "description": "Get semua menus (admin only, requires menu.read permission)"
+          },
+          "response": []
+        },
+        {
+          "name": "Create Menu (Admin)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"code\": \"new-menu\",\n  \"label\": \"New Menu\",\n  \"icon\": \"icon-name\",\n  \"path\": \"/new-menu\",\n  \"order_index\": 5,\n  \"permission_code\": \"ticket.read\",\n  \"parent_id\": null,\n  \"is_active\": true\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/admin/menus",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "admin", "menus"]
+            },
+            "description": "Create menu baru (admin only, requires menu.create permission)"
+          },
+          "response": []
+        },
+        {
+          "name": "Update Menu (Admin)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"label\": \"Updated Menu Label\",\n  \"icon\": \"updated-icon\",\n  \"path\": \"/updated-path\",\n  \"order_index\": 10,\n  \"is_active\": true\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/admin/menus/:id",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "admin", "menus", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "menu-uuid-here"
+                }
+              ]
+            },
+            "description": "Update menu (admin only, requires menu.update permission)"
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Menu (Admin)",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/admin/menus/:id",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "admin", "menus", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "menu-uuid-here"
+                }
+              ]
+            },
+            "description": "Delete menu (admin only, requires menu.delete permission)"
+          },
+          "response": []
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:8080",
+      "type": "string"
+    },
+    {
+      "key": "token",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "refresh_token",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "user_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "role_id",
+      "value": "",
+      "type": "string"
+    }
+  ]
+}

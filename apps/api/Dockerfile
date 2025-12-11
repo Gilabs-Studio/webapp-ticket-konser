@@ -31,7 +31,7 @@ WORKDIR /root/
 COPY --from=builder /app/server .
 
 # Expose port
-EXPOSE 8080
+EXPOSE 8083
 
 # Run the binary
 CMD ["./server"]

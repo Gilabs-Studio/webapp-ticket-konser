@@ -1,11 +1,11 @@
-package interfaces
+package auth
 
 import (
-	"github.com/gilabs/crm-healthcare/api/internal/domain/user"
+	"github.com/gilabs/webapp-ticket-konser/api/internal/domain/user"
 )
 
-// AuthRepository defines the interface for auth repository
-type AuthRepository interface {
+// Repository defines the interface for auth repository
+type Repository interface {
 	// FindByEmail finds a user by email
 	FindByEmail(email string) (*user.User, error)
 	
@@ -18,4 +18,5 @@ type AuthRepository interface {
 	// Update updates a user
 	Update(user *user.User) error
 }
+
 

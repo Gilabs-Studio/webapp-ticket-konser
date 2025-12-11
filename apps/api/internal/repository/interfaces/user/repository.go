@@ -1,11 +1,11 @@
-package interfaces
+package user
 
 import (
-	"github.com/gilabs/crm-healthcare/api/internal/domain/user"
+	"github.com/gilabs/webapp-ticket-konser/api/internal/domain/user"
 )
 
-// UserRepository defines the interface for user repository
-type UserRepository interface {
+// Repository defines the interface for user repository
+type Repository interface {
 	// FindByID finds a user by ID
 	FindByID(id string) (*user.User, error)
 	
@@ -24,4 +24,5 @@ type UserRepository interface {
 	// Delete soft deletes a user
 	Delete(id string) error
 }
+
 

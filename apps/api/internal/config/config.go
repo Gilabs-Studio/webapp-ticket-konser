@@ -48,7 +48,7 @@ func Load() error {
 
 	AppConfig = &Config{
 		Server: ServerConfig{
-			Port: getEnv("PORT", "8080"),
+			Port: getEnv("PORT", "8083"),
 			Env:  getEnv("ENV", "development"),
 		},
 		Database: DatabaseConfig{
@@ -56,7 +56,7 @@ func Load() error {
 			Port:     getEnv("DB_PORT", "5432"),
 			User:     getEnv("DB_USER", "postgres"),
 			Password: getEnv("DB_PASSWORD", "postgres"),
-			DBName:   getEnv("DB_NAME", "crm_healthcare"),
+			DBName:   getEnv("DB_NAME", "ticketing_app"),
 			SSLMode:  getEnv("DB_SSLMODE", "disable"),
 		},
 		JWT: JWTConfig{
