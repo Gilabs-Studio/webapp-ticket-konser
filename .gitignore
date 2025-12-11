@@ -48,3 +48,9 @@ pnpm-debug.log*
 # Misc
 .DS_Store
 *.pem
+
+# Docker secrets (CRITICAL: Never commit secrets!)
+secrets/
+*.secret
+*.key
+**/secrets/
