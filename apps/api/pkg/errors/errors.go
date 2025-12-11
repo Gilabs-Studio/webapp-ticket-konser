@@ -4,7 +4,7 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/gilabs/crm-healthcare/api/pkg/response"
+	"github.com/gilabs/webapp-ticket-konser/api/pkg/response"
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
 	"gorm.io/gorm"
@@ -128,6 +128,10 @@ var ErrorCodeMap = map[string]ErrorInfo{
 	"INVALID_QUERY_PARAM": {
 		HTTPStatus: http.StatusBadRequest,
 		Message:    "Invalid query parameter",
+	},
+	"INVALID_PATH_PARAM": {
+		HTTPStatus: http.StatusBadRequest,
+		Message:    "Invalid path parameter",
 	},
 
 	// AI Service Errors

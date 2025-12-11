@@ -1,14 +1,17 @@
 import type { AxiosError } from "axios";
+import type { ApiError } from "./index";
 
-export interface ApiErrorResponse {
-  success: false;
-  error: {
-    code: string;
-    message: string;
+export interface AuthError extends AxiosError<{ error: ApiError }> {
+  response?: {
+    data: {
+      success: false;
+      error: ApiError;
+      timestamp: string;
+      request_id: string;
+    };
+    status: number;
+    statusText: string;
+    headers: unknown;
+    config: unknown;
   };
-  timestamp: string;
-  request_id: string;
 }
-
-export type AuthError = AxiosError<ApiErrorResponse>;
-

@@ -1,8 +1,8 @@
 package auth
 
 import (
-	"github.com/gilabs/crm-healthcare/api/internal/domain/user"
-	"github.com/gilabs/crm-healthcare/api/internal/repository/interfaces"
+	"github.com/gilabs/webapp-ticket-konser/api/internal/domain/user"
+	authrepo "github.com/gilabs/webapp-ticket-konser/api/internal/repository/interfaces/auth"
 	"gorm.io/gorm"
 )
 
@@ -11,7 +11,7 @@ type repository struct {
 }
 
 // NewRepository creates a new auth repository
-func NewRepository(db *gorm.DB) interfaces.AuthRepository {
+func NewRepository(db *gorm.DB) authrepo.Repository {
 	return &repository{db: db}
 }
 

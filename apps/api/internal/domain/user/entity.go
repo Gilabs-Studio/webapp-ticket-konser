@@ -3,7 +3,7 @@ package user
 import (
 	"time"
 
-	"github.com/gilabs/crm-healthcare/api/internal/domain/role"
+	"github.com/gilabs/webapp-ticket-konser/api/internal/domain/role"
 	"github.com/google/uuid"
 	"gorm.io/gorm"
 )

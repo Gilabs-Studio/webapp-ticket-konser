@@ -1,10 +1,11 @@
 # Sprint Planning - Master
+
 ## Ticketing Konser Internasional Platform
 
 **Versi**: 1.0  
 **Status**: Active  
 **Last Updated**: 2025-01-XX  
-**Product Type**: Ticketing System untuk Konser Internasional (1 Event Only)
+**Product Type**: Ticketing System untuk Konser Internasional (Multiple Events)
 
 ---
 
@@ -24,6 +25,7 @@
 ## Overview
 
 Dokumen ini adalah **master planning** untuk development Ticketing Konser Platform dengan **2 developers**:
+
 - **Developer 1**: Fullstack Developer (Go Backend + Next.js Frontend)
 - **Developer 2**: Fullstack Developer (Go Backend + Next.js Frontend)
 
@@ -31,15 +33,18 @@ Setiap developer memiliki sprint planning terpisah yang detail.
 
 ### Product Scope
 
-**Ticketing System untuk Konser Internasional (1 Event Only)** dengan fitur:
-- Multiple Ticket Tier Management (Presale, Regular, VIP, VVIP, Meet & Greet)
+**Ticketing System untuk Konser Internasional (Multiple Events)** dengan fitur:
+
+- Event Management (Create/Edit/Delete Event, Event Status Management)
+- Multiple Ticket Category Management (Presale, Regular, VIP, VVIP, Meet & Greet)
+- Schedule Management (Sesi harian per event dengan rundown jadwal dan artist name)
 - Real-time Ticket Quota Management
 - Unique E-Ticket Generation dengan QR/Barcode
 - Email Confirmation & E-ticket Delivery
 - On-site Check-in Scanner (Mobile-Web)
 - Real-time Check-in Status Dashboard
 - Admin Dashboard untuk Monitoring Penjualan
-- Access Control Roles (Super Admin, Finance, Gate Staff)
+- Access Control Roles (Admin, Staff Gate, Guest)
 - Gate Assignment (Gate A/B/C scanning separation)
 - Order History & Resend Ticket Function
 - Analytics Penjualan
@@ -61,6 +66,7 @@ Setiap developer memiliki sprint planning terpisah yang detail.
 ## Team Structure
 
 ### Developer 1: Fullstack Developer
+
 - **Focus**: Fullstack development (Go Backend + Next.js Frontend)
 - **Responsibilities**:
   - Develop modul-modul yang ditugaskan secara fullstack
@@ -68,7 +74,9 @@ Setiap developer memiliki sprint planning terpisah yang detail.
   - Database design dan migration
   - Update Postman collection
 - **Modul yang ditugaskan**:
-  - Event & Ticket Tier Management (Fullstack)
+  - Event Management (Fullstack)
+  - Ticket Category Management (Fullstack)
+  - Schedule Management (Fullstack)
   - Ticket Purchase Flow (Frontend + Backend Integration)
   - E-Ticket Generation & QR Code (Fullstack)
   - Email Service Integration (Backend)
@@ -77,6 +85,7 @@ Setiap developer memiliki sprint planning terpisah yang detail.
 - **Sprint Planning**: [`SPRINT_PLANNING_DEV1.md`](./SPRINT_PLANNING_DEV1.md)
 
 ### Developer 2: Fullstack Developer
+
 - **Focus**: Fullstack development (Go Backend + Next.js Frontend)
 - **Responsibilities**:
   - Develop modul-modul yang ditugaskan secara fullstack
@@ -96,66 +105,80 @@ Setiap developer memiliki sprint planning terpisah yang detail.
 
 ## Sprint Overview
 
-### Master Timeline (60 Hari / ~8.5 Minggu)
+### Master Timeline (65 Hari / ~9.3 Minggu)
 
-| Week | Developer 1 (Fullstack) | Developer 2 (Fullstack) |
-|------|-------------------------|------------------------|
-| 1 | Foundation & Event Setup | Foundation & User Management |
-| 2 | Ticket Tier Management | Access Control & Roles |
-| 3 | Ticket Purchase Flow (Basic) | Check-in Scanner (Mobile-Web) |
-| 4 | E-Ticket Generation & QR | Real-time Check-in Status |
-| 5 | Email Service & Order History | Gate Assignment & Management |
-| 6 | Analytics Dashboard | Admin Dashboard Monitoring |
-| 7 | Integration & Testing | Integration & Testing |
-| 8 | Polish & Final Testing | Polish & Final Testing |
+| Week | Developer 1 (Fullstack)               | Developer 2 (Fullstack)       |
+| ---- | ------------------------------------- | ----------------------------- |
+| 1    | Foundation & Event Setup              | Foundation & User Management  |
+| 2    | Event Management                      | Access Control & Roles        |
+| 3    | Ticket Category & Schedule Management | Check-in Scanner (Mobile-Web) |
+| 4    | Ticket Purchase Flow (Basic)          | Real-time Check-in Status     |
+| 5    | E-Ticket Generation & QR              | Gate Assignment & Management  |
+| 6    | Email Service & Order History         | Admin Dashboard Monitoring    |
+| 7    | Analytics Dashboard                   | Integration & Testing         |
+| 8    | Integration & Testing                 | Polish & Final Testing        |
+| 9    | Polish & Final Testing                | -                             |
 
 ---
 
 ## Developer Sprint Plans
 
 ### Developer 1: Fullstack Developer
+
 📄 **Detail Sprint Planning**: [`SPRINT_PLANNING_DEV1.md`](./SPRINT_PLANNING_DEV1.md)
 
 **Sprint Summary**:
-- Sprint 0: Foundation & Event Setup (3-4 days)
-- Sprint 1: Ticket Tier Management (4-5 days)
-- Sprint 2: Ticket Purchase Flow (Basic) (5-6 days)
-- Sprint 3: E-Ticket Generation & QR Code (4-5 days)
-- Sprint 4: Email Service & Order History (4-5 days)
-- Sprint 5: Analytics Dashboard (4-5 days)
-- Sprint 6: Integration & Testing (3-4 days)
 
-**Total**: 27-34 days (3.9-4.9 weeks)
+- Sprint 0: Foundation & Event Setup (3-4 days) - ✅ **Completed**
+- Sprint 1: Event Management (4-5 days) - ✅ **Backend Completed** / ⏳ **Frontend In Progress**
+- Sprint 2: Ticket Category & Schedule Management (4-5 days) - ✅ **Backend Completed** / ⏳ **Frontend In Progress**
+- Sprint 3: Ticket Purchase Flow (Basic) (5-6 days) - ✅ **Backend (Admin APIs) Completed** / ⏳ **Guest APIs & Frontend Pending**
+- Sprint 4: E-Ticket Generation & QR Code (4-5 days) - ⏳ **Pending**
+- Sprint 5: Email Service & Order History (4-5 days) - ⏳ **Pending**
+- Sprint 6: Analytics Dashboard (4-5 days) - ⏳ **Pending**
+- Sprint 7: Integration & Testing (3-4 days) - ⏳ **Pending**
+
+**Total**: 32-39 days (4.6-5.6 weeks)
 
 **Modul yang dikerjakan**:
-- ✅ Event & Ticket Tier Management (Backend + Frontend)
-- ✅ Ticket Purchase Flow (Frontend + Backend Integration)
-- ✅ E-Ticket Generation & QR Code (Backend + Frontend)
-- ✅ Email Service Integration (Backend)
-- ✅ Order History & Resend Ticket (Backend + Frontend)
-- ✅ Analytics Dashboard (Backend + Frontend)
+
+- ✅ Event Management (✅ Backend / ⏳ Frontend)
+- ✅ Ticket Category Management (✅ Backend / ⏳ Frontend - Components only)
+- ✅ Schedule Management (✅ Backend / ⏳ Frontend - Components only)
+- ⏳ Ticket Purchase Flow (✅ Backend Admin APIs / ⏳ Guest APIs & Frontend)
+- ⏳ E-Ticket Generation & QR Code (⏳ Pending)
+- ⏳ Email Service Integration (⏳ Pending)
+- ⏳ Order History & Resend Ticket (⏳ Pending)
+- ⏳ Analytics Dashboard (⏳ Pending)
 
 ### Developer 2: Fullstack Developer
+
 📄 **Detail Sprint Planning**: [`SPRINT_PLANNING_DEV2.md`](./SPRINT_PLANNING_DEV2.md)
 
 **Sprint Summary**:
-- Sprint 0: Foundation & User Management (3-4 days)
-- Sprint 1: Access Control & Roles (3-4 days)
-- Sprint 2: Check-in Scanner (Mobile-Web) (5-6 days)
-- Sprint 3: Real-time Check-in Status (4-5 days)
-- Sprint 4: Gate Assignment & Management (4-5 days)
-- Sprint 5: Admin Dashboard Monitoring (4-5 days)
-- Sprint 6: Integration & Testing (3-4 days)
+
+- Sprint 0: Foundation & User Management (3-4 days) - ✅ **Backend Completed** / ⏳ **Frontend In Progress**
+- Sprint 1: Access Control & Roles (3-4 days) - ✅ **Completed**
+- Sprint 2: Check-in Scanner (Mobile-Web) (5-6 days) - ⏳ **Pending**
+- Sprint 3: Real-time Check-in Status (4-5 days) - ⏳ **Pending**
+- Sprint 4: Gate Assignment & Management (4-5 days) - ⏳ **Pending**
+- Sprint 5: Admin Dashboard Monitoring (4-5 days) - ⏳ **Pending**
+- Sprint 6: Integration & Testing (3-4 days) - ⏳ **Pending**
 
 **Total**: 26-33 days (3.7-4.7 weeks)
 
 **Modul yang dikerjakan**:
-- ✅ User Management & Access Control (Backend + Frontend)
-- ✅ Check-in Scanner System (Backend + Frontend - Mobile-Web)
-- ✅ Real-time Check-in Status (Backend + Frontend)
-- ✅ Gate Assignment & Management (Backend + Frontend)
-- ✅ Admin Dashboard Monitoring (Backend + Frontend)
-- ✅ Buyer List Export (CSV/Excel) (Backend)
+
+- ✅ User Management & Access Control (✅ Backend / ⏳ Frontend)
+- ✅ Role Management (✅ Backend / ⏳ Frontend)
+- ✅ Permission Management (✅ Backend / ⏳ Frontend)
+- ✅ Menu Management (✅ Backend / ✅ Frontend - Menu List)
+- ✅ Authentication (✅ Backend / ✅ Frontend - Login, Logout, Guards)
+- ⏳ Check-in Scanner System (⏳ Pending)
+- ⏳ Real-time Check-in Status (⏳ Pending)
+- ⏳ Gate Assignment & Management (⏳ Pending)
+- ⏳ Admin Dashboard Monitoring (⏳ Pending)
+- ⏳ Buyer List Export (CSV/Excel) (⏳ Pending)
 
 ---
 
@@ -169,10 +192,12 @@ Setiap developer memiliki sprint planning terpisah yang detail.
    - Integration dilakukan di akhir (Week 7-8)
 
 2. **Integration Points** (Week 7-8):
-   - Check-in Scanner (Dev2) perlu data dari E-Ticket (Dev1)
-   - Admin Dashboard (Dev2) perlu data dari Analytics (Dev1)
-   - Gate Assignment (Dev2) perlu data dari Ticket Purchase (Dev1)
-   - Order History (Dev1) perlu data dari Check-in Status (Dev2)
+   - Check-in Scanner (Dev2) perlu data dari E-Ticket (Dev1) - ⏳ Pending
+   - Admin Dashboard (Dev2) perlu data dari Analytics (Dev1) - ⏳ Pending
+   - Admin Dashboard (Dev2) perlu data dari Order (Dev1) - ✅ Ready (Admin Order APIs sudah ada)
+   - Admin Dashboard (Dev2) perlu data dari Event (Dev1) - ✅ Ready (Event APIs sudah ada)
+   - Gate Assignment (Dev2) perlu data dari Ticket Purchase (Dev1) - ⏳ Pending
+   - Order History (Dev1) perlu data dari Check-in Status (Dev2) - ⏳ Pending
 
 3. **Shared Resources**:
    - Database schema untuk Event, Ticket, Order, Check-in
@@ -186,7 +211,8 @@ Setiap developer memiliki sprint planning terpisah yang detail.
 3. **Week 4**: Mid-sprint review - check progress dan blockers
 4. **Week 6**: Pre-integration review - plan integration testing
 5. **Week 7**: Integration testing - test semua integration points
-6. **Week 8**: Final review - final testing dan delivery
+6. **Week 8**: Integration & polish - continue integration dan polish
+7. **Week 9**: Final review - final testing dan delivery
 
 ### API Design Coordination
 
@@ -202,41 +228,57 @@ Setiap developer memiliki sprint planning terpisah yang detail.
 ### Overall Timeline (60 Hari)
 
 **Week 1**: Foundation & Setup
+
 - Developer 1: Foundation & Event Setup
 - Developer 2: Foundation & User Management
 
-**Week 2**: Core Features Setup
-- Developer 1: Ticket Tier Management
+**Week 2**: Event & Access Control
+
+- Developer 1: Event Management
 - Developer 2: Access Control & Roles
 
-**Week 3**: Purchase & Scanner
-- Developer 1: Ticket Purchase Flow (Basic)
+**Week 3**: Ticket & Scanner
+
+- Developer 1: Ticket Category & Schedule Management
 - Developer 2: Check-in Scanner (Mobile-Web)
 
-**Week 4**: Ticket & Check-in
-- Developer 1: E-Ticket Generation & QR Code
+**Week 4**: Purchase & Check-in
+
+- Developer 1: Ticket Purchase Flow (Basic)
 - Developer 2: Real-time Check-in Status
 
-**Week 5**: Management Features
-- Developer 1: Email Service & Order History
+**Week 5**: Ticket Generation & Gate
+
+- Developer 1: E-Ticket Generation & QR Code
 - Developer 2: Gate Assignment & Management
 
-**Week 6**: Dashboard & Monitoring
-- Developer 1: Analytics Dashboard
+**Week 6**: Services & Monitoring
+
+- Developer 1: Email Service & Order History
 - Developer 2: Admin Dashboard Monitoring
 
-**Week 7**: Integration
-- All Developers: Integration, Testing, Bug Fixes
+**Week 7**: Analytics & Integration
 
-**Week 8**: Final Delivery
-- All Developers: Final Testing, Polish, Documentation
+- Developer 1: Analytics Dashboard
+- Developer 2: Integration & Testing
+
+**Week 8**: Integration & Polish
+
+- Developer 1: Integration & Testing
+- Developer 2: Polish & Final Testing
+
+**Week 9**: Final Delivery
+
+- Developer 1: Polish & Final Testing
+- All Developers: Final Review, Documentation
 
 ---
 
 ## Sprint Details
 
 > **Note**: Detail sprint untuk setiap developer ada di file terpisah:
-> - [`SPRINT_PLANNING_DEV1.md`](./SPRINT_PLANNING_DEV1.md) - Developer 1 (7 sprints)
+>
+> - [`SPRINT_PLANNING_DEV1.md`](./SPRINT_PLANNING_DEV1.md) - Developer 1 (8 sprints)
 > - [`SPRINT_PLANNING_DEV2.md`](./SPRINT_PLANNING_DEV2.md) - Developer 2 (7 sprints)
 
 ---
@@ -244,6 +286,7 @@ Setiap developer memiliki sprint planning terpisah yang detail.
 ## Sprint Checklist
 
 ### Before Starting Sprint
+
 - [ ] Review sprint goal dan tasks
 - [ ] Check dependencies dari previous sprints
 - [ ] Coordinate dengan developers lain
@@ -251,6 +294,7 @@ Setiap developer memiliki sprint planning terpisah yang detail.
 - [ ] Create feature branch
 
 ### During Sprint
+
 - [ ] Follow coding standards
 - [ ] Write tests untuk new features (manual testing)
 - [ ] Update documentation
@@ -258,6 +302,7 @@ Setiap developer memiliki sprint planning terpisah yang detail.
 - [ ] Coordinate dengan developers lain jika ada blockers
 
 ### After Sprint
+
 - [ ] Test all acceptance criteria
 - [ ] Code review
 - [ ] Update sprint status
@@ -278,12 +323,13 @@ Sprint 0 (Foundation) ✅
 └─────────────────────────────────────────┘
     ↓                    ↓
 Dev1:                 Dev2:
-- Event & Ticket Tier - User Management
-- Purchase Flow        - Access Control
-- E-Ticket & QR        - Check-in Scanner
-- Email & Order        - Check-in Status
-- Analytics            - Gate Assignment
-                        - Admin Dashboard
+- Event Management     - User Management
+- Ticket Category      - Access Control
+- Schedule Management  - Check-in Scanner
+- Purchase Flow        - Check-in Status
+- E-Ticket & QR        - Gate Assignment
+- Email & Order        - Admin Dashboard
+- Analytics
     ↓                    ↓
 ┌─────────────────────────────────────────┐
 │  Integration & Testing (Week 7-8)        │
@@ -301,9 +347,9 @@ Dev1:                 Dev2:
 
 ## Estimated Timeline
 
-- **Total Duration**: 60 hari (~8.5 minggu)
+- **Total Duration**: 65 hari (~9.3 minggu)
 - **Team Size**: 2 developers
-  - Developer 1 (Fullstack): 27-34 days (3.9-4.9 weeks)
+  - Developer 1 (Fullstack): 32-39 days (4.6-5.6 weeks)
   - Developer 2 (Fullstack): 26-33 days (3.7-4.7 weeks)
 
 ---
@@ -322,10 +368,10 @@ Dev1:                 Dev2:
 ---
 
 **Dokumen ini adalah master planning. Untuk detail sprint, lihat:**
+
 - [`SPRINT_PLANNING_DEV1.md`](./SPRINT_PLANNING_DEV1.md) - Developer 1
 - [`SPRINT_PLANNING_DEV2.md`](./SPRINT_PLANNING_DEV2.md) - Developer 2
 
 ---
 
 **Dokumen ini akan diupdate sesuai dengan progress development.**
-

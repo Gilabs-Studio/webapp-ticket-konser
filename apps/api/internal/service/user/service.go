@@ -4,8 +4,9 @@ import (
 	"errors"
 	"net/url"
 
-	"github.com/gilabs/crm-healthcare/api/internal/domain/user"
-	"github.com/gilabs/crm-healthcare/api/internal/repository/interfaces"
+	"github.com/gilabs/webapp-ticket-konser/api/internal/domain/user"
+	"github.com/gilabs/webapp-ticket-konser/api/internal/repository/interfaces/role"
+	userrepo "github.com/gilabs/webapp-ticket-konser/api/internal/repository/interfaces/user"
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
 )
@@ -17,11 +18,11 @@ var (
 )
 
 type Service struct {
-	userRepo interfaces.UserRepository
-	roleRepo interfaces.RoleRepository
+	userRepo userrepo.Repository
+	roleRepo role.Repository
 }
 
-func NewService(userRepo interfaces.UserRepository, roleRepo interfaces.RoleRepository) *Service {
+func NewService(userRepo userrepo.Repository, roleRepo role.Repository) *Service {
 	return &Service{
 		userRepo: userRepo,
 		roleRepo: roleRepo,

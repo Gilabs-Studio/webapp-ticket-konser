@@ -44,9 +44,9 @@ sudo -u postgres psql
 
 Then in PostgreSQL shell:
 ```sql
-CREATE DATABASE crm_healthcare;
+CREATE DATABASE ticketing_app;
 CREATE USER postgres WITH PASSWORD 'postgres';
-GRANT ALL PRIVILEGES ON DATABASE crm_healthcare TO postgres;
+GRANT ALL PRIVILEGES ON DATABASE ticketing_app TO postgres;
 \q
 ```
 
@@ -56,7 +56,7 @@ DB_HOST=localhost
 DB_PORT=5432
 DB_USER=postgres
 DB_PASSWORD=your_password_here
-DB_NAME=crm_healthcare
+DB_NAME=ticketing_app
 DB_SSLMODE=disable
 ```
 
@@ -79,7 +79,7 @@ DB_HOST=localhost
 DB_PORT=5432
 DB_USER=postgres
 DB_PASSWORD=postgres
-DB_NAME=crm_healthcare
+DB_NAME=ticketing_app
 DB_SSLMODE=disable
 
 # JWT Configuration
@@ -114,7 +114,7 @@ docker-compose ps
 
 4. Test connection manually:
 ```bash
-psql -h localhost -p 5432 -U postgres -d crm_healthcare
+psql -h localhost -p 5435 -U postgres -d ticketing_app
 ```
 
 ### Database Doesn't Exist
@@ -122,12 +122,12 @@ psql -h localhost -p 5432 -U postgres -d crm_healthcare
 Create the database:
 ```bash
 # Using Docker
-docker exec -it crm-healthcare-db psql -U postgres
-CREATE DATABASE crm_healthcare;
+docker exec -it ticketing-db psql -U postgres
+CREATE DATABASE ticketing_app;
 \q
 
 # Using local PostgreSQL
-createdb -U postgres crm_healthcare
+createdb -U postgres ticketing_app
 ```
 
 ## Default Seeded Users

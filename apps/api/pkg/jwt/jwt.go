@@ -17,6 +17,7 @@ type Claims struct {
 	UserID string `json:"user_id"`
 	Email  string `json:"email"`
 	Role   string `json:"role"`
+	RoleID string `json:"role_id"`
 	jwt.RegisteredClaims
 }
 
@@ -38,18 +39,19 @@ func (m *JWTManager) RefreshTokenTTL() time.Duration {
 
 func NewJWTManager(secretKey string, accessTokenTTL, refreshTokenTTL time.Duration) *JWTManager {
 	return &JWTManager{
-		secretKey:      secretKey,
-		accessTokenTTL: accessTokenTTL,
+		secretKey:       secretKey,
+		accessTokenTTL:  accessTokenTTL,
 		refreshTokenTTL: refreshTokenTTL,
 	}
 }
 
 // GenerateAccessToken generates a new access token
-func (m *JWTManager) GenerateAccessToken(userID, email, role string) (string, error) {
+func (m *JWTManager) GenerateAccessToken(userID, email, role, roleID string) (string, error) {
 	claims := &Claims{
 		UserID: userID,
 		Email:  email,
 		Role:   role,
+		RoleID: roleID,
 		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(time.Now().Add(m.accessTokenTTL)),
 			IssuedAt:  jwt.NewNumericDate(time.Now()),
@@ -123,4 +125,3 @@ func (m *JWTManager) ValidateRefreshToken(tokenString string) (string, error) {
 
 	return claims.Subject, nil
 }
-

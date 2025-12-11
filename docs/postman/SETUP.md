@@ -5,7 +5,7 @@
 ### Method 1: Import File
 1. Buka Postman
 2. Klik **Import** di sidebar kiri
-3. Pilih file `CRM-Healthcare-API.postman_collection.json`
+3. Pilih file `WebApp-Ticketing-API.postman_collection.json`
 4. Klik **Import**
 
 ### Method 2: Import via URL (jika collection di-host)
@@ -19,12 +19,12 @@
 
 1. Klik **Environments** di sidebar kiri
 2. Klik **+** untuk membuat environment baru
-3. Beri nama: `CRM Healthcare - Local`
+3. Beri nama: `WebApp Ticketing - Local`
 4. Tambahkan variables:
 
 | Variable | Initial Value | Current Value |
 |----------|---------------|---------------|
-| `base_url` | `http://localhost:8080` | `http://localhost:8080` |
+| `base_url` | `http://localhost:8083` | `http://localhost:8083` |
 | `token` | (kosong) | (akan di-set otomatis) |
 | `refresh_token` | (kosong) | (akan di-set otomatis) |
 | `user_id` | (kosong) | (akan di-set otomatis) |
@@ -82,6 +82,6 @@
 - Coba refresh token atau login ulang
 
 ### Connection Error
-- Pastikan API server berjalan di `http://localhost:8080`
+- Pastikan API server berjalan di `http://localhost:8083`
 - Cek firewall/network settings
 

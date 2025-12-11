@@ -1,22 +1,27 @@
-# Binaries
+# Git
+.git
+.gitignore
+.gitattributes
+
+# Documentation
+*.md
+docs/
+README.md
+DOCKER_SETUP.md
+SETUP.md
+STRUCTURE.md
+
+# Build artifacts
 *.exe
 *.exe~
 *.dll
 *.so
 *.dylib
 server
-
-# Test binary
 *.test
-
-# Output of the go coverage tool
 *.out
-
-# Dependency directories
-vendor/
-
-# Go workspace file
-go.work
+dist/
+build/
 
 # IDE
 .idea/
@@ -25,27 +30,33 @@ go.work
 *.swo
 *~
 
-# OS
-.DS_Store
-Thumbs.db
-
-# Logs
-*.log
-
-# Environment files
+# Environment
 .env
 .env.local
 .env.*.local
 
-# Git
-.git
-.gitignore
+# Logs
+*.log
+logs/
 
-# Documentation
-README.md
-docs/
+# OS
+.DS_Store
+Thumbs.db
 
-# Build artifacts
-dist/
-build/
+# Dependency directories
+vendor/
+
+# Go workspace file
+go.work
+
+# Docker
+Dockerfile
+docker-compose.yml
+docker-compose.*.yml
+.dockerignore
+
+# Secrets (should never be in image)
+secrets/
+*.secret
+*.key
 

@@ -1,6 +1,6 @@
-# CRM Healthcare Platform
+# WebApp Ticket Konser Platform
 
-Monorepo untuk CRM Healthcare/Pharmaceutical Platform menggunakan Turborepo.
+Monorepo untuk WebApp Ticketing Platform (Harry Potter Museum Exhibition) menggunakan Turborepo.
 
 ## Tech Stack
 
@@ -22,7 +22,7 @@ Monorepo untuk CRM Healthcare/Pharmaceutical Platform menggunakan Turborepo.
 ## Struktur Project
 
 ```
-crm-healthcare/
+webapp-ticket-konser/
 ├── apps/
 │   ├── api/          # Go API backend (Gin)
 │   └── web/          # Next.js frontend

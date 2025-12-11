@@ -1,53 +1,85 @@
+name: ticketing_api
+
 services:
   postgres:
     image: postgres:16-alpine
-    container_name: crm-healthcare-db
+    container_name: ticketing-db
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: crm_healthcare
+      POSTGRES_DB: ticketing_app
     ports:
-      - "5434:5432"
+      - "5435:5432"  # Changed from 5434 to avoid conflict with CRM Healthcare
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - ticketing_postgres_data:/var/lib/postgresql/data
+      - ./seeders:/docker-entrypoint-initdb.d
     networks:
-      - crm-network
+      - ticketing-network
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres"]
       interval: 10s
       timeout: 5s
       retries: 5
+      start_period: 10s
+    restart: unless-stopped
 
   api:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: crm-healthcare-api
+      target: builder
+    container_name: ticketing-api
+    command: >
+      /bin/sh -c "
+      export PATH=/usr/local/go/bin:$$PATH &&
+      cd /app &&
+      go mod download &&
+      go run ./cmd/server/main.go
+      "
+    working_dir: /app
     ports:
-      - "8080:8080"
+      - "8083:8083"
     environment:
-      - GIN_MODE=release
-      - PORT=8080
-      - ENV=production
+      - GIN_MODE=debug
+      - PORT=8083
+      - ENV=development
       - DB_HOST=postgres
       - DB_PORT=5432
       - DB_USER=postgres
       - DB_PASSWORD=postgres
-      - DB_NAME=crm_healthcare
+      - DB_NAME=ticketing_app
       - DB_SSLMODE=disable
-      - JWT_SECRET=${JWT_SECRET:-your-secret-key-change-in-production-min-32-chars}
+      - JWT_SECRET=dev-secret-key-min-32-chars-for-development-only
       - JWT_ACCESS_TTL=24
       - JWT_REFRESH_TTL=7
+      - CGO_ENABLED=0
+    volumes:
+      - .:/app
+      - go-mod-cache:/go/pkg/mod
     depends_on:
       postgres:
         condition: service_healthy
-    restart: unless-stopped
     networks:
-      - crm-network
+      - ticketing-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8083/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
 
 networks:
-  crm-network:
+  ticketing-network:
+    name: ticketing-network
     driver: bridge
+    # Remove external: true if you want to recreate the network
+    # external: true
 
 volumes:
-  postgres_data:
+  ticketing_postgres_data:
+    name: ticketing_postgres_data
+  go-mod-cache:
+    name: ticketing_go_mod_cache
+    # Remove external: true if you want to recreate the volume
+    # external: true

@@ -49,14 +49,15 @@ type LoginResponse struct {
 
 // UserResponse represents user response DTO (without sensitive data)
 type UserResponse struct {
-	ID        string    `json:"id"`
-	Email     string    `json:"email"`
-	Name      string    `json:"name"`
-	AvatarURL string    `json:"avatar_url"`
-	Role      string    `json:"role"`
-	Status    string    `json:"status"`
-	CreatedAt time.Time `json:"created_at"`
-	UpdatedAt time.Time `json:"updated_at"`
+	ID         string    `json:"id"`
+	Email      string    `json:"email"`
+	Name       string    `json:"name"`
+	AvatarURL  string    `json:"avatar_url"`
+	Role       string    `json:"role"`
+	Status     string    `json:"status"`
+	Permissions []string `json:"permissions"`
+	CreatedAt  time.Time `json:"created_at"`
+	UpdatedAt  time.Time `json:"updated_at"`
 }
 
 // ToUserResponse converts User to UserResponse

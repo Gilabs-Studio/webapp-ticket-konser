@@ -4,7 +4,7 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
-	"github.com/gilabs/crm-healthcare/api/pkg/logger"
+	"github.com/gilabs/webapp-ticket-konser/api/pkg/logger"
 )
 
 // LoggerMiddleware logs HTTP requests

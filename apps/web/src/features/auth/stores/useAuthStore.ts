@@ -7,18 +7,18 @@ import type { User, AuthState } from "../types";
 interface AuthStore extends AuthState {
   setUser: (user: User | null) => void;
   setToken: (token: string | null) => void;
-  clearError: () => void;
+  setRefreshToken: (refreshToken: string | null) => void;
+  setAuth: (user: User | null, token: string | null, refreshToken: string | null) => void;
+  clearAuth: () => void;
 }
 
 export const useAuthStore = create<AuthStore>()(
   persist(
-    (set, get) => ({
+    (set) => ({
       user: null,
       token: null,
       refreshToken: null,
       isAuthenticated: false,
-      isLoading: false,
-      error: null,
 
       setUser: (user: User | null) => {
         set({ user, isAuthenticated: !!user });
@@ -32,8 +32,43 @@ export const useAuthStore = create<AuthStore>()(
         }
       },
 
-      clearError: () => {
-        set({ error: null });
+      setRefreshToken: (refreshToken: string | null) => {
+        set({ refreshToken });
+        if (typeof window !== "undefined" && refreshToken) {
+          localStorage.setItem("refreshToken", refreshToken);
+        }
+      },
+
+      setAuth: (user: User | null, token: string | null, refreshToken: string | null) => {
+        set({
+          user,
+          token,
+          refreshToken,
+          isAuthenticated: !!user && !!token,
+        });
+        if (typeof window !== "undefined") {
+          if (token) {
+            localStorage.setItem("token", token);
+            document.cookie = `token=${token}; path=/; max-age=${7 * 24 * 60 * 60}; SameSite=Lax`;
+          }
+          if (refreshToken) {
+            localStorage.setItem("refreshToken", refreshToken);
+          }
+        }
+      },
+
+      clearAuth: () => {
+        set({
+          user: null,
+          token: null,
+          refreshToken: null,
+          isAuthenticated: false,
+        });
+        if (typeof window !== "undefined") {
+          localStorage.removeItem("token");
+          localStorage.removeItem("refreshToken");
+          document.cookie = "token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
+        }
       },
     }),
     {
@@ -44,51 +79,6 @@ export const useAuthStore = create<AuthStore>()(
         refreshToken: state.refreshToken,
         isAuthenticated: state.isAuthenticated,
       }),
-      onRehydrateStorage: () => (state) => {
-        // After rehydration, sync state with localStorage
-        if (typeof window !== "undefined" && state) {
-          const token = localStorage.getItem("token");
-          const refreshToken = localStorage.getItem("refreshToken");
-
-          // Priority: Zustand persisted state > localStorage
-          // If Zustand has token, use it and sync to localStorage
-          if (state.token) {
-            // Sync Zustand state to localStorage
-            if (!token || token !== state.token) {
-              localStorage.setItem("token", state.token);
-            }
-            if (state.refreshToken && (!refreshToken || refreshToken !== state.refreshToken)) {
-              localStorage.setItem("refreshToken", state.refreshToken);
-            }
-            // Set authenticated if we have token
-            if (!state.isAuthenticated) {
-              state.isAuthenticated = true;
-            }
-            // Set cookie if not exists
-            if (!document.cookie.includes("token=")) {
-              document.cookie = `token=${state.token}; path=/; max-age=${7 * 24 * 60 * 60}; SameSite=Lax`;
-            }
-          } else if (token) {
-            // No Zustand token but localStorage has it, restore from localStorage
-            state.token = token;
-            if (refreshToken) {
-              state.refreshToken = refreshToken;
-            }
-            state.isAuthenticated = true;
-            // Set cookie if not exists
-            if (!document.cookie.includes("token=")) {
-              document.cookie = `token=${token}; path=/; max-age=${7 * 24 * 60 * 60}; SameSite=Lax`;
-            }
-          } else if (!token && state.isAuthenticated) {
-            // No token anywhere but store says authenticated, clear it
-            state.isAuthenticated = false;
-            state.user = null;
-            state.token = null;
-            state.refreshToken = null;
-          }
-        }
-      },
     }
   )
 );
-
