@@ -131,5 +131,54 @@
       "discountModeDesc": "Terapkan diskon 10% untuk semua tiket",
       "exportReport": "Ekspor Laporan"
     }
+  },
+  "tickets": {
+    "title": "Manajemen Tiket",
+    "createType": "Buat Tipe",
+    "orders": {
+      "recent": "Pesanan Terkini",
+      "viewAll": "Lihat Semua",
+      "empty": "Tidak ada pesanan tersedia",
+      "orderId": "ID Pesanan",
+      "customer": "Pelanggan",
+      "tickets": "Tiket",
+      "status": "Status",
+      "total": "Total",
+      "statusLabels": {
+        "completed": "Selesai",
+        "pending": "Menunggu",
+        "failed": "Gagal",
+        "canceled": "Dibatalkan",
+        "refunded": "Dikembalikan"
+      }
+    }
+  },
+  "settings": {
+    "title": "Pengaturan Acara",
+    "tabs": {
+      "general": "Umum",
+      "team": "Anggota Tim",
+      "billing": "Tagihan",
+      "notifications": "Notifikasi"
+    },
+    "eventDetails": {
+      "title": "Detail Acara",
+      "description": "Informasi dasar tentang acara Anda.",
+      "eventName": "Nama Acara",
+      "date": "Tanggal",
+      "capacity": "Kapasitas",
+      "urlSlug": "URL Slug",
+      "urlPrefix": "nexus.event/"
+    },
+    "dangerZone": {
+      "title": "Zona Bahaya",
+      "description": "Tindakan yang tidak dapat dibatalkan untuk acara ini.",
+      "cancelEvent": "Batalkan Acara"
+    },
+    "actions": {
+      "cancel": "Batal",
+      "saveChanges": "Simpan Perubahan",
+      "saving": "Menyimpan..."
+    }
   }
 }

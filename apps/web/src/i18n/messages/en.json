@@ -131,5 +131,54 @@
       "discountModeDesc": "Apply 10% discount to all tickets",
       "exportReport": "Export Report"
     }
+  },
+  "tickets": {
+    "title": "Ticket Management",
+    "createType": "Create Type",
+    "orders": {
+      "recent": "Recent Orders",
+      "viewAll": "View All",
+      "empty": "No orders available",
+      "orderId": "Order ID",
+      "customer": "Customer",
+      "tickets": "Tickets",
+      "status": "Status",
+      "total": "Total",
+      "statusLabels": {
+        "completed": "Completed",
+        "pending": "Pending",
+        "failed": "Failed",
+        "canceled": "Canceled",
+        "refunded": "Refunded"
+      }
+    }
+  },
+  "settings": {
+    "title": "Event Settings",
+    "tabs": {
+      "general": "General",
+      "team": "Team Members",
+      "billing": "Billing",
+      "notifications": "Notifications"
+    },
+    "eventDetails": {
+      "title": "Event Details",
+      "description": "Basic information about your event.",
+      "eventName": "Event Name",
+      "date": "Date",
+      "capacity": "Capacity",
+      "urlSlug": "URL Slug",
+      "urlPrefix": "nexus.event/"
+    },
+    "dangerZone": {
+      "title": "Danger Zone",
+      "description": "Irreversible actions for this event.",
+      "cancelEvent": "Cancel Event"
+    },
+    "actions": {
+      "cancel": "Cancel",
+      "saveChanges": "Save Changes",
+      "saving": "Saving..."
+    }
   }
 }
