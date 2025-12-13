@@ -37,7 +37,7 @@ export function MerchandiseProductCard({
 
   return (
     <div
-      className="border border-border bg-card/30 rounded-lg p-4 group hover:border-ring transition-all cursor-pointer"
+      className="border border-border bg-card/30 rounded-xl p-4 group hover:border-ring transition-all cursor-pointer"
       onClick={() => onClick?.(product.id)}
       role="button"
       tabIndex={0}
@@ -48,7 +48,7 @@ export function MerchandiseProductCard({
         }
       }}
     >
-      <div className="aspect-square bg-muted rounded border border-border mb-4 flex items-center justify-center relative overflow-hidden">
+      <div className="aspect-square bg-muted rounded-xl border border-border mb-4 flex items-center justify-center relative overflow-hidden">
         <DynamicIcon
           name={product.iconName}
           className="text-muted-foreground"

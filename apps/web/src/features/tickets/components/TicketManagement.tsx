@@ -54,7 +54,7 @@ export function TicketManagement({
             onClick={onCreateType}
             className="text-xs"
           >
-            <Plus className="h-3.5 w-3.5 mr-2" />
+            <Plus className="h-3.5 w-3.5" />
             {t("createType")}
           </Button>
         )}

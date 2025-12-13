@@ -128,12 +128,12 @@ export function StorefrontPreview() {
                       ? t("storefront.available")
                       : t("storefront.lowStock")}
                   </div>
-                  <button className="group/btn relative inline-flex items-center justify-center opacity-0 group-hover:opacity-100 translate-y-2 group-hover:translate-y-0 transition-all duration-300 px-3 py-1.5 text-xs font-light tracking-wide uppercase overflow-hidden rounded">
+                  <button className="group/btn relative inline-flex items-center justify-center opacity-0 group-hover:opacity-100 translate-y-2 group-hover:translate-y-0 transition-all duration-300 px-3 py-1.5 text-xs font-light tracking-wide uppercase overflow-hidden rounded-xl">
                     <span className="relative z-10 text-white transition-colors duration-300">
                       Select
                     </span>
-                    <div className="absolute inset-0 border border-transparent transition-all duration-300" />
-                    <div className="absolute inset-0 bg-gradient-to-r from-[var(--gradient-purple)] via-[var(--gradient-magenta)] to-[var(--gradient-pink)] opacity-100 bg-[length:200%_100%] animate-[gradient-shift_3s_ease_infinite]" />
+                    <div className="absolute inset-0 border border-transparent transition-all duration-300 rounded-xl" />
+                    <div className="absolute inset-0 bg-gradient-to-r from-[var(--gradient-purple)] via-[var(--gradient-magenta)] to-[var(--gradient-pink)] opacity-100 bg-[length:200%_100%] animate-[gradient-shift_3s_ease_infinite] rounded-xl" />
                   </button>
                 </div>
               </div>
@@ -151,9 +151,9 @@ export function StorefrontPreview() {
               return (
                 <div
                   key={item.id}
-                  className="group border border-border bg-card/30 rounded-lg p-3 hover:border-ring transition-all"
+                  className="group border border-border bg-card/30 rounded-xl p-3 hover:border-ring transition-all"
                 >
-                  <div className="aspect-square bg-card rounded border border-border mb-3 flex items-center justify-center relative overflow-hidden">
+                  <div className="aspect-square bg-card rounded-xl border border-border mb-3 flex items-center justify-center relative overflow-hidden">
                     <Icon className="h-8 w-8 text-muted-foreground" />
                     <div className="absolute inset-0 bg-background/60 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity backdrop-blur-sm">
                       <button className="group/btn relative inline-flex items-center justify-center p-2 rounded-full overflow-hidden hover:scale-105 transition-transform">

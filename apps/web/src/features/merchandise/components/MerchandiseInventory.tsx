@@ -34,9 +34,9 @@ export function MerchandiseInventory({
           {Array.from({ length: 3 }).map((_, i) => (
             <div
               key={i}
-              className="border border-border bg-card/30 rounded-lg p-4 animate-pulse"
+              className="border border-border bg-card/30 rounded-xl p-4 animate-pulse"
             >
-              <div className="aspect-square bg-muted rounded mb-4" />
+              <div className="aspect-square bg-muted rounded-xl mb-4" />
               <div className="h-4 bg-muted rounded mb-2" />
               <div className="h-2 bg-muted rounded" />
             </div>
@@ -69,7 +69,7 @@ export function MerchandiseInventory({
             onClick={onExportCSV}
             className="text-xs px-3 py-1.5"
           >
-            <Download className="h-3 w-3" />
+            <Download className="h-3.5 w-3.5" />
             Export CSV
           </Button>
           <Button
@@ -78,7 +78,7 @@ export function MerchandiseInventory({
             onClick={onAddProduct}
             className="text-xs px-3 py-1.5"
           >
-            <Plus className="h-3 w-3" />
+            <Plus className="h-3.5 w-3.5" />
             Add Product
           </Button>
         </div>
@@ -88,13 +88,13 @@ export function MerchandiseInventory({
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.3, delay: 0.2 }}
-          className="border border-border bg-card/30 rounded-lg p-8 text-center"
+          className="border border-border bg-card/30 rounded-xl p-8 text-center"
         >
           <p className="text-sm text-muted-foreground mb-4">
             No products found. Create one to get started.
           </p>
           <Button variant="outline" size="sm" onClick={onAddProduct}>
-            <Plus className="h-4 w-4" />
+            <Plus className="h-3.5 w-3.5" />
             Add Product
           </Button>
         </motion.div>

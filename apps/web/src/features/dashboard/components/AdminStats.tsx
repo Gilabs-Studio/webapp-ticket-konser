@@ -86,7 +86,7 @@ export function AdminStats({ filters }: AdminStatsProps) {
             className="p-5 rounded-xl border border-border bg-card/30 hover:border-ring transition-colors group"
           >
             <div className="flex justify-between items-start mb-4">
-              <div className="p-2 bg-card rounded-lg border border-border group-hover:border-ring text-foreground">
+              <div className="p-2 bg-card rounded-xl border border-border group-hover:border-ring text-foreground">
                 <Icon className="h-[18px] w-[18px]" />
               </div>
               {(() => {

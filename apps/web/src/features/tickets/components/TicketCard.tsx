@@ -62,11 +62,11 @@ export function TicketCard({ ticket, onEdit, onMore }: TicketCardProps) {
   return (
     <div
       className={cn(
-        "col-span-1 border border-border bg-card/40 rounded-xl p-5 relative overflow-hidden group hover:border-ring transition-all",
+        "col-span-1 border border-border bg-card/40 rounded-xl p-5 relative group hover:border-ring transition-all",
         ticket.status === "sold_out" && "opacity-75"
       )}
     >
-      <div className="absolute top-0 right-0 p-3">
+      <div className="absolute top-0 right-0 p-2 z-10">
         {getStatusBadge()}
       </div>
 
@@ -103,7 +103,7 @@ export function TicketCard({ ticket, onEdit, onMore }: TicketCardProps) {
           className="flex-1 text-xs"
           onClick={() => onEdit?.(ticket)}
         >
-          <Edit className="h-3 w-3 mr-1" />
+          <Edit className="h-3.5 w-3.5" />
           {ticket.status === "sold_out" ? "Details" : "Edit"}
         </Button>
         <Button

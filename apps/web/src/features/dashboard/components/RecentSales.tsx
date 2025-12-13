@@ -99,7 +99,7 @@ export function RecentSales({ filters, limit = 5 }: RecentSalesProps) {
               {recentSales.map((sale) => (
                 <div
                   key={sale.id}
-                  className="flex items-center justify-between p-3 rounded-lg border bg-card"
+                  className="flex items-center justify-between p-3 rounded-xl border bg-card"
                 >
                   <div className="flex items-center gap-3">
                     <Avatar className="h-10 w-10">

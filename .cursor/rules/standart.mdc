@@ -8,6 +8,7 @@ Technology baseline
 - Use Tailwind CSS v4. Simplified setup with `@import "tailwindcss"`, automatic content detection, and modern CSS features. See `https://tailwindcss.com/blog/tailwindcss-v4`.
 - Use Zod for schema validation and React Hook Form for form handling. Always use `@hookform/resolvers` to integrate Zod with RHF.
 - Use TanStack Query for server state management (API data, caching, refetching).
+- Use `framer-motion` for entrance animations (PageMotion, StaggerContainer). Keep animations subtle and performant.
 - **CRITICAL**: Never use `any` type. Always define proper types or use `unknown` with type guards.
 
 Folder structure (per feature)
@@ -283,6 +284,342 @@ Smart Suspense usage (Next.js App Router)
 - Do not suspend global layout chrome; suspend leaf/async components instead.
 - For lists, show static shell (headers, filters) immediately; suspend the data region.
 - Combine with `error.tsx` for graceful failures; never block the entire page for one widget.
+
+**Route-Level Loading Pattern:**
+- **CRITICAL**: Setiap page route harus punya `loading.tsx` untuk consistent UX.
+  
+  ✅ GOOD:
+  ```tsx
+  // app/admin/merchandise/loading.tsx
+  import { Skeleton } from "@/components/ui/skeleton";
+  
+  export default function MerchandiseLoading() {
+    return (
+      <div className="p-6 space-y-6">
+        <Skeleton className="h-6 w-32" />
+        <div className="grid grid-cols-4 gap-6">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <Skeleton key={i} className="h-48" />
+          ))}
+        </div>
+      </div>
+    );
+  }
+  ```
+  
+  - Gunakan `loading: () => null` di dynamic import untuk rely on route-level loading
+  - Route-level loading lebih consistent dan predictable
+
+Performance Optimization for Dashboard/Admin Apps (CRITICAL)
+- **CRITICAL**: Untuk web app manajemen (dashboard/admin) di Next.js, navigasi harus terasa instan & semua komponen cepat. Kuncinya adalah arsitektur + data fetching + caching + bundling yang benar.
+
+1. **App Router + Server Components (WAJIB)**
+   - **Default-kan semua page & component jadi Server Component.**
+   - Client Component hanya jika **benar-benar perlu interaksi**.
+   
+   ✅ GOOD:
+   ```tsx
+   // app/users/page.tsx
+   export default async function UsersPage() {
+     const users = await getUsers(); // server-side
+     return <UsersTable users={users} />;
+   }
+   ```
+   
+   ❌ BAD:
+   - `useEffect + fetch` untuk data awal
+   - Redux / Zustand untuk data yang bisa diambil server
+   
+   **Keuntungan:**
+   - JS yang dikirim ke browser jauh lebih kecil
+   - Navigasi antar page tidak reload penuh
+
+2. **Split Client Component sekecil mungkin**
+   - Jangan jadikan satu halaman full client.
+   
+   ❌ BAD:
+   ```tsx
+   "use client";
+   export default function Page() {
+     return <BigDashboard />;
+   }
+   ```
+   
+   ✅ GOOD:
+   ```tsx
+   export default function Page() {
+     return (
+       <>
+         <Stats />          {/* Server */}
+         <ChartClient />    {/* Client */}
+       </>
+     );
+   }
+   
+   // ChartClient.tsx
+   "use client";
+   ```
+   
+   **Dampak:**
+   - Bundle JS turun drastis
+   - Navigasi jauh lebih cepat
+
+3. **Gunakan `Link` + Prefetch (Default tapi sering dilupakan)**
+   - **SEMUA navigasi pakai `next/link`**, bukan `router.push` manual atau `<a>` biasa.
+   
+   ✅ GOOD:
+   ```tsx
+   import Link from "next/link";
+   <Link href="/users">Users</Link>
+   ```
+   
+   - Next.js otomatis **prefetch page saat hover / idle**.
+   - Untuk menu dashboard, ini bikin navigasi terasa **instant**.
+
+4. **Streaming + Suspense (Perceived performance)**
+   - Untuk page berat, gunakan Suspense dengan fallback.
+   
+   ✅ GOOD:
+   ```tsx
+   <Suspense fallback={<SkeletonTable />}>
+     <UsersTable />
+   </Suspense>
+   ```
+   
+   **Keuntungan:**
+   - User melihat UI langsung
+   - Data menyusul
+   - Tidak blank page
+
+5. **Cache Data dengan Benar (Game Changer)**
+   - **a. Gunakan `fetch` bawaan Next.js:**
+   
+   ✅ GOOD:
+   ```ts
+   fetch("https://api.example.com/users", {
+     cache: "force-cache",
+   });
+   
+   // Atau dengan revalidation
+   fetch(url, {
+     next: { revalidate: 60 },
+   });
+   ```
+   
+   - **b. Gunakan `unstable_cache` untuk DB:**
+   
+   ✅ GOOD:
+   ```ts
+   import { unstable_cache } from "next/cache";
+   
+   export const getUsers = unstable_cache(
+     async () => db.user.findMany(),
+     ["users"],
+     { revalidate: 60 }
+   );
+   ```
+   
+   **Hasil:**
+   - Navigasi antar page = **no re-fetch**
+   - Server response super cepat
+
+6. **Hindari Global State untuk Data Server**
+   - ❌ Jangan simpan di Redux / Zustand:
+     - list user
+     - dashboard stats
+     - table data
+   
+   ✅ Gunakan:
+     - Server fetch + cache
+     - Client state hanya untuk:
+       - modal open/close
+       - filter UI
+       - form state
+
+7. **Dynamic Import untuk Komponen Berat (Code Splitting)**
+   - Chart, editor, map, dan komponen berat lainnya = **lazy load**.
+   - **CRITICAL**: Untuk page yang butuh client-side logic, gunakan pattern Client Wrapper.
+   
+   ✅ GOOD Pattern 1 - Simple Dynamic Import:
+   ```tsx
+   import dynamic from "next/dynamic";
+   
+   const Chart = dynamic(() => import("./ChartClient"), {
+     ssr: false,
+     loading: () => <SkeletonChart />,
+   });
+   ```
+   
+   ✅ GOOD Pattern 2 - Page dengan Client Wrapper (handlers):
+   ```tsx
+   // app/admin/merchandise/page.tsx (Server Component)
+   import { Suspense } from "react";
+   import { PageMotion } from "@/components/motion";
+   import { MerchandisePageClient } from "./merchandise-page-client";
+   
+   export default function MerchandisePage() {
+     return (
+       <PageMotion className="p-6">
+         <Suspense fallback={null}>
+           <MerchandisePageClient />
+         </Suspense>
+       </PageMotion>
+     );
+   }
+   
+   // app/admin/merchandise/merchandise-page-client.tsx (Client Component)
+   "use client";
+   
+   import dynamic from "next/dynamic";
+   
+   const MerchandiseInventory = dynamic(
+     () => import("@/features/merchandise/components/MerchandiseInventory").then(
+       (mod) => ({ default: mod.MerchandiseInventory }),
+     ),
+     { loading: () => null } // Use route-level loading.tsx
+   );
+   
+   export function MerchandisePageClient() {
+     // Client-side logic: handlers, mock data, etc.
+     const handleAddProduct = () => { /* ... */ };
+     
+     return (
+       <MerchandiseInventory
+         products={mockProducts}
+         onAddProduct={handleAddProduct}
+       />
+     );
+   }
+   ```
+   
+   ❌ BAD - Pass component sebagai prop:
+   ```tsx
+   // ❌ Tidak bisa - Next.js tidak allow pass function sebagai prop
+   <MerchandisePageClient Component={MerchandiseInventory} />
+   ```
+   
+   **Keuntungan:**
+   - Code splitting otomatis per route
+   - Server Component tetap ringan
+   - Client logic terisolasi di wrapper
+
+8. **Layout Persisten (Navigation Super Cepat)**
+   - Manfaatkan `app/layout.tsx` untuk layout yang tidak perlu reload.
+   
+   ✅ GOOD:
+   ```tsx
+   export default function DashboardLayout({ children }) {
+     return (
+       <div className="flex">
+         <Sidebar />
+         <main>{children}</main>
+       </div>
+     );
+   }
+   ```
+   
+   **Keuntungan:**
+   - Sidebar tidak reload
+   - Header tidak re-render
+   - Navigasi terasa SPA
+
+9. **Optimasi Bundle & Asset**
+   - **a. Jangan import library global:**
+   
+   ❌ BAD:
+   ```ts
+   import * as lodash from "lodash";
+   ```
+   
+   ✅ GOOD:
+   ```ts
+   import debounce from "lodash/debounce";
+   ```
+   
+   - **b. Icon:**
+     - Gunakan `lucide-react`
+     - Import per icon (tree-shaking)
+
+10. **Motion Animations untuk Entrance (UX Enhancement)**
+    - Gunakan `framer-motion` untuk smooth entrance animations.
+    - **CRITICAL**: Jangan overuse - hanya untuk page transitions dan list items.
+    
+    ✅ GOOD - Page Motion Wrapper:
+    ```tsx
+    // app/admin/page.tsx
+    import { PageMotion } from "@/components/motion";
+    
+    export default function AdminPage() {
+      return (
+        <PageMotion className="p-6">
+          <Content />
+        </PageMotion>
+      );
+    }
+    ```
+    
+    ✅ GOOD - Stagger Container untuk Lists/Grids:
+    ```tsx
+    import { StaggerContainer } from "@/components/motion";
+    
+    export function ProductList({ products }) {
+      return (
+        <StaggerContainer className="grid grid-cols-4 gap-6">
+          {products.map((product) => (
+            <ProductCard key={product.id} product={product} />
+          ))}
+        </StaggerContainer>
+      );
+    }
+    ```
+    
+    ✅ GOOD - Motion pada Component Level:
+    ```tsx
+    import { motion } from "framer-motion";
+    
+    export function Component() {
+      return (
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3, ease: [0.4, 0, 0.2, 1] }}
+        >
+          Content
+        </motion.div>
+      );
+    }
+    ```
+    
+    ❌ BAD - Overuse animations:
+    - Jangan animate setiap element kecil
+    - Jangan gunakan motion untuk static content
+    - Jangan gunakan complex animations yang slow
+    
+    **Best Practices:**
+    - Gunakan `PageMotion` untuk page-level entrance
+    - Gunakan `StaggerContainer` untuk list/grid items
+    - Gunakan motion langsung hanya untuk specific interactive elements
+    - Keep animations subtle (duration: 0.2-0.3s, ease: [0.4, 0, 0.2, 1])
+
+**Performance Checklist (Production Standard):**
+- [ ] App Router digunakan
+- [ ] Server Components sebagai default
+- [ ] Client Component kecil & spesifik
+- [ ] `next/link` di semua navigasi
+- [ ] Suspense + Skeleton untuk async components
+- [ ] Route-level `loading.tsx` untuk setiap page
+- [ ] Cache fetch / DB dengan benar
+- [ ] Dynamic import untuk komponen berat (dengan Client Wrapper pattern jika perlu)
+- [ ] Layout persisten untuk navigasi
+- [ ] Minim global state (hanya untuk UI state)
+- [ ] Motion animations untuk entrance (PageMotion, StaggerContainer)
+- [ ] Code splitting dengan dynamic import di client wrapper (bukan pass component sebagai prop)
+
+**Target Hasil Realistis:**
+- Navigasi page: **< 100ms**
+- JS bundle turun **40–70%**
+- TTI jauh lebih cepat
+- Dashboard terasa native-app
 
 Backend Standards (Go + Gin)
 - Use layered architecture: Handler → Service → Repository.
