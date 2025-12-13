@@ -1,4 +1,4 @@
-import { forwardRef, useImperativeHandle, useEffect, useRef, useMemo, FC, ReactNode } from 'react';
+import { forwardRef, useImperativeHandle, useEffect, useRef, useMemo, FC, ReactNode, Suspense, Component } from 'react';
 
 import * as THREE from 'three';
 
@@ -185,7 +185,7 @@ const Beams: FC<BeamsProps> = ({
   noiseIntensity = 1.75,
   scale = 0.2,
   rotation = 0,
-  backgroundImage = 'bg.jpg'
+  backgroundImage = '/bg.jpg'
 }) => {
   const meshRef = useRef<THREE.Mesh<THREE.BufferGeometry, THREE.ShaderMaterial>>(null!);
 
@@ -248,7 +248,9 @@ const Beams: FC<BeamsProps> = ({
 
   return (
     <CanvasWrapper>
-      <BackgroundScene imageUrl={backgroundImage} />
+      <Suspense fallback={null}>
+        <BackgroundScene imageUrl={backgroundImage} />
+      </Suspense>
       <group rotation={[0, 0, degToRad(rotation)]}>
         <PlaneNoise ref={meshRef} material={beamMaterial} count={beamNumber} width={beamWidth} height={beamHeight} />
         <DirLight color={lightColor} position={[0, 3, 10]} />
@@ -365,9 +367,14 @@ const DirLight: FC<{ position: [number, number, number]; color: string }> = ({ p
   return <directionalLight ref={dir} color={color} intensity={1} position={position} />;
 };
 
-const BackgroundScene: FC<{ imageUrl: string }> = ({ imageUrl }) => {
+// Internal component that loads texture - wrapped in error boundary
+const BackgroundSceneInternal: FC<{ imageUrl: string }> = ({ imageUrl }) => {
   const { scene, camera, size } = useThree();
-  const texture = useTexture(imageUrl);
+  
+  // Normalize image URL - ensure it starts with / for Next.js public folder
+  const normalizedUrl = imageUrl.startsWith('/') ? imageUrl : `/${imageUrl}`;
+  
+  const texture = useTexture(normalizedUrl);
 
   useEffect(() => {
     if (!texture) return;
@@ -412,6 +419,44 @@ const BackgroundScene: FC<{ imageUrl: string }> = ({ imageUrl }) => {
   }, [scene, texture, camera, size]);
 
   return null;
+};
+
+// Error boundary wrapper for texture loading
+class TextureErrorBoundary extends Component<
+  { children: ReactNode; fallback?: ReactNode },
+  { hasError: boolean }
+> {
+  constructor(props: { children: ReactNode; fallback?: ReactNode }) {
+    super(props);
+    this.state = { hasError: false };
+  }
+
+  static getDerivedStateFromError() {
+    return { hasError: true };
+  }
+
+  componentDidCatch(error: Error) {
+    // Silently handle texture loading errors
+    console.warn('Background texture failed to load:', error.message);
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return this.props.fallback ?? null;
+    }
+
+    return this.props.children;
+  }
+}
+
+// Safe wrapper component
+const BackgroundScene: FC<{ imageUrl: string }> = ({ imageUrl }) => {
+  // Always try to render background, error boundary will handle failures gracefully
+  return (
+    <TextureErrorBoundary>
+      <BackgroundSceneInternal imageUrl={imageUrl} />
+    </TextureErrorBoundary>
+  );
 };
 
 export default Beams;
