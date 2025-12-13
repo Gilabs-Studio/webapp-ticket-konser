@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { useAuthStore } from "@/features/auth/stores/useAuthStore";
 import { UserMenu } from "@/components/user-menu";
 import { ThemeToggleButton } from "@/components/ui/theme-toggle";
+import { LanguageToggleButton } from "@/components/ui/language-toggle";
 
 interface HeaderProps {
   locale: string;
@@ -40,7 +41,7 @@ export default function Header({ locale }: HeaderProps) {
 
   return (
     <header
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+      className={`dark fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
         scrolled ? "bg-background/80 backdrop-blur-md border-b border-foreground/10" : "bg-transparent"
       }`}
     >
@@ -60,11 +61,12 @@ export default function Header({ locale }: HeaderProps) {
             ))}
           </ul>
           <div className="flex items-center gap-3">
+            <LanguageToggleButton />
             <ThemeToggleButton />
             {isAuthenticated && isGuest ? (
               <UserMenu showHistory />
             ) : (
-              <Button asChild variant="ghost" className="text-sm font-light tracking-wide uppercase">
+              <Button asChild variant="outline" className="text-sm font-light tracking-wide uppercase border-foreground/30 text-foreground hover:border-foreground/50 hover:bg-foreground/10 bg-background/50">
                 <Link href={`/login`}>Login</Link>
               </Button>
             )}

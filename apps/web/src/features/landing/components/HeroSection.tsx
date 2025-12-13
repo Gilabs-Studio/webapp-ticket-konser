@@ -59,7 +59,7 @@ export default function HeroSection({ locale }: Readonly<HeroSectionProps>) {
   }
 
   return (
-    <section className="relative w-full h-screen overflow-hidden bg-background">
+    <section className="dark relative w-full h-screen overflow-hidden bg-background">
       {/* Beams Background */}
       <div className="absolute inset-0 z-0">
         <Beams
