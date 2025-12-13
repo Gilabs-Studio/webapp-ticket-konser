@@ -7,31 +7,31 @@
   --gradient-pink: oklch(0.5822 0.2218 11.61); /* #DE1A58 */
   --gradient-gold: oklch(0.8084 0.1453 77.42); /* #F4B342 */
   
-  /* Base Colors */
-  --background: oklch(0.98 0.005 288);
-  --foreground: oklch(0.25 0.02 288);
-  --card: oklch(0.99 0.003 288);
-  --card-foreground: oklch(0.25 0.02 288);
-  --popover: oklch(0.99 0.003 288);
-  --popover-foreground: oklch(0.25 0.02 288);
+  /* Base Colors - Dark background for Beams compatibility */
+  --background: oklch(0 0 0); /* Black background */
+  --foreground: oklch(0.95 0.005 288); /* Light foreground */
+  --card: oklch(0.08 0.005 288); /* Dark card */
+  --card-foreground: oklch(0.95 0.005 288); /* Light text on dark */
+  --popover: oklch(0.08 0.005 288); /* Dark popover */
+  --popover-foreground: oklch(0.95 0.005 288); /* Light text on dark */
   
-  /* Primary - Purple to Magenta Gradient */
-  --primary: var(--gradient-purple);
+  /* Primary - Brighter for dark background */
+  --primary: oklch(0.60 0.22 288); /* Brighter purple */
   --primary-foreground: oklch(0.99 0 0);
   --primary-gradient: linear-gradient(135deg, var(--gradient-purple) 0%, var(--gradient-magenta) 100%);
   
   /* Secondary - Pink to Gold Gradient */
-  --secondary: oklch(0.95 0.015 11);
-  --secondary-foreground: var(--gradient-pink);
+  --secondary: oklch(0.15 0.015 11); /* Dark secondary */
+  --secondary-foreground: oklch(0.70 0.25 11); /* Bright pink */
   --secondary-gradient: linear-gradient(135deg, var(--gradient-pink) 0%, var(--gradient-gold) 100%);
   
   /* Muted */
-  --muted: oklch(0.94 0.008 288);
-  --muted-foreground: oklch(0.45 0.03 288);
+  --muted: oklch(0.15 0.008 288); /* Dark muted */
+  --muted-foreground: oklch(0.60 0.02 288); /* Light muted text */
   
   /* Accent - Magenta to Pink Gradient */
-  --accent: oklch(0.92 0.02 337);
-  --accent-foreground: var(--gradient-magenta);
+  --accent: oklch(0.20 0.02 337); /* Dark accent */
+  --accent-foreground: oklch(0.70 0.25 337); /* Bright magenta */
   --accent-gradient: linear-gradient(135deg, var(--gradient-magenta) 0%, var(--gradient-pink) 100%);
   
   /* Destructive */
@@ -39,9 +39,9 @@
   --destructive-foreground: oklch(0.99 0 0);
   
   /* Borders & Inputs */
-  --border: oklch(0.88 0.015 288);
-  --input: oklch(0.88 0.015 288);
-  --ring: var(--gradient-purple);
+  --border: oklch(0.6 0 0); /* Dark border */
+  --input: oklch(0.25 0.015 288); /* Dark input */
+  --ring: oklch(0.60 0.22 288); /* Brighter ring */
   --ring-gradient: linear-gradient(135deg, var(--gradient-purple) 0%, var(--gradient-magenta) 50%, var(--gradient-pink) 100%);
   
   /* Charts - Gradient Colors */
@@ -52,14 +52,14 @@
   --chart-5: oklch(0.65 0.15 288);
   
   /* Sidebar */
-  --sidebar: oklch(0.96 0.008 288);
-  --sidebar-foreground: oklch(0.25 0.02 288);
-  --sidebar-primary: var(--gradient-purple);
+  --sidebar: oklch(0.05 0.008 288); /* Very dark sidebar */
+  --sidebar-foreground: oklch(0.95 0.005 288); /* Light text */
+  --sidebar-primary: oklch(0.60 0.22 288); /* Bright purple */
   --sidebar-primary-foreground: oklch(0.99 0 0);
-  --sidebar-accent: oklch(0.92 0.02 337);
-  --sidebar-accent-foreground: var(--gradient-magenta);
-  --sidebar-border: oklch(0.88 0.015 288);
-  --sidebar-ring: var(--gradient-purple);
+  --sidebar-accent: oklch(0.20 0.02 337); /* Dark accent */
+  --sidebar-accent-foreground: oklch(0.70 0.25 337); /* Bright magenta */
+  --sidebar-border: oklch(0.25 0.015 288); /* Dark border */
+  --sidebar-ring: oklch(0.60 0.22 288); /* Bright ring */
   
   /* Typography */
   --font-sans: Montserrat, sans-serif;
