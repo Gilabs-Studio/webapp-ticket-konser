@@ -133,10 +133,12 @@ export function LoginForm() {
         transition={{ duration: 0.3 }}
         className="w-full"
       >
-        <Card className="border border-border/60 bg-card/90 shadow-sm">
+        <Card className="border border-foreground/10 bg-background/80 backdrop-blur-md shadow-lg">
           <CardHeader className="space-y-2 px-6 pb-2 pt-6">
-            <CardTitle className="text-2xl">{t("title")}</CardTitle>
-            <CardDescription className="text-sm text-muted-foreground">
+            <CardTitle className="text-4xl font-light tracking-tight text-foreground">
+              {t("title")}
+            </CardTitle>
+            <CardDescription className="text-sm font-light text-muted-foreground">
               {t("description")}
             </CardDescription>
           </CardHeader>
@@ -144,7 +146,9 @@ export function LoginForm() {
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
               <FieldGroup className="space-y-4">
                 <Field className="space-y-2">
-                  <FieldLabel htmlFor="email">{t("emailLabel")}</FieldLabel>
+                  <FieldLabel htmlFor="email" className="text-sm font-light text-foreground/70">
+                    {t("emailLabel")}
+                  </FieldLabel>
                   <Input
                     id="email"
                     type="email"
@@ -152,21 +156,21 @@ export function LoginForm() {
                     {...register("email")}
                     disabled={isFormLoading}
                     aria-invalid={!!errors.email}
-                    className="h-11"
+                    className="h-11 font-light bg-background/50 border-foreground/10"
                   />
                   {errors.email && (
-                    <FieldError>{errors.email.message}</FieldError>
+                    <FieldError className="text-xs font-light">{errors.email.message}</FieldError>
                   )}
                 </Field>
 
                 <Field className="space-y-2">
                   <div className="flex items-center justify-between">
-                    <FieldLabel htmlFor="password">
+                    <FieldLabel htmlFor="password" className="text-sm font-light text-foreground/70">
                       {t("passwordLabel")}
                     </FieldLabel>
                     <button
                       type="button"
-                      className="text-xs font-medium text-primary hover:underline"
+                      className="text-xs font-light text-primary hover:underline transition-colors"
                     >
                       {t("forgotPassword")}
                     </button>
@@ -179,7 +183,7 @@ export function LoginForm() {
                       {...register("password")}
                       disabled={isFormLoading}
                       aria-invalid={!!errors.password}
-                      className="h-11 pr-10"
+                      className="h-11 pr-10 font-light bg-background/50 border-foreground/10"
                     />
                     <button
                       type="button"
@@ -198,7 +202,7 @@ export function LoginForm() {
                     </button>
                   </div>
                   {errors.password && (
-                    <FieldError>{errors.password.message}</FieldError>
+                    <FieldError className="text-xs font-light">{errors.password.message}</FieldError>
                   )}
                 </Field>
 
@@ -208,7 +212,7 @@ export function LoginForm() {
                       {...register("rememberMe")}
                       disabled={isFormLoading}
                     />
-                    <span className="text-sm text-muted-foreground">
+                    <span className="text-sm font-light text-muted-foreground">
                       {t("rememberMe")}
                     </span>
                   </label>
@@ -216,15 +220,15 @@ export function LoginForm() {
 
                 {errors.root && (
                   <Field>
-                    <FieldError>{errors.root.message}</FieldError>
+                    <FieldError className="text-xs font-light">{errors.root.message}</FieldError>
                   </Field>
                 )}
 
                 {/* Rate limit countdown display */}
                 {countdownText && resetTime && (
                   <Field>
-                    <div className="rounded-md bg-muted/50 px-3 py-2 text-sm text-muted-foreground">
-                      <p className="font-medium">
+                    <div className="rounded-md bg-muted/50 px-3 py-2 text-sm font-light text-muted-foreground">
+                      <p>
                         {t("rateLimitMessage", { countdown: countdownText }) ||
                           `Too many login attempts. Please try again in ${countdownText}.`}
                       </p>
@@ -236,7 +240,7 @@ export function LoginForm() {
                   <Button
                     type="submit"
                     disabled={isFormLoading || isRateLimited}
-                    className="h-11 w-full text-sm font-semibold tracking-wide"
+                    className="h-11 w-full text-sm font-light tracking-wide uppercase"
                   >
                     {isFormLoading ? t("submitting") : t("submit")}
                   </Button>
