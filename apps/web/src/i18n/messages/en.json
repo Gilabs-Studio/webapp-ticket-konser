@@ -1,0 +1,23 @@
+{
+  "notFound": {
+    "label": "404",
+    "title": "Page Not Found",
+    "description": "The page you are looking for does not exist or has been moved.",
+    "backHome": "Back to Login"
+  },
+  "auth": {
+    "login": {
+      "title": "Welcome Back",
+      "description": "Sign in to your account to continue",
+      "emailLabel": "Email",
+      "emailPlaceholder": "Enter your email",
+      "passwordLabel": "Password",
+      "passwordPlaceholder": "Enter your password",
+      "forgotPassword": "Forgot password?",
+      "rememberMe": "Remember me",
+      "submit": "Sign In",
+      "submitting": "Signing in...",
+      "rateLimitMessage": "Too many login attempts. Please try again in {countdown}."
+    }
+  }
+}
