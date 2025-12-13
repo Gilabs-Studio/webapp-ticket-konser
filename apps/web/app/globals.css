@@ -1,4 +1,7 @@
 @import "tailwindcss";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
 
 :root {
   /* Gradient Color Palette - Softer for light mode */
@@ -6,7 +9,7 @@
   --gradient-magenta: oklch(0.55 0.13 337.87); /* Softer magenta */
   --gradient-pink: oklch(0.65 0.15 11.61); /* Softer pink */
   --gradient-gold: oklch(0.75 0.10 77.42); /* Softer gold */
-  
+
   /* Base Colors - Light Mode */
   --background: oklch(0.99 0.002 288); /* Very light background */
   --foreground: oklch(0.15 0.008 288); /* Dark foreground for contrast */
@@ -14,43 +17,43 @@
   --card-foreground: oklch(0.15 0.008 288); /* Dark text on light */
   --popover: oklch(0.99 0.002 288); /* Light popover */
   --popover-foreground: oklch(0.15 0.008 288); /* Dark text on light */
-  
+
   /* Primary - Calmer, less saturated */
   --primary: oklch(0.50 0.12 288); /* Softer purple */
   --primary-foreground: oklch(0.99 0 0); /* White text */
   --primary-gradient: linear-gradient(135deg, oklch(0.50 0.12 288) 0%, oklch(0.55 0.13 337) 100%);
-  
+
   /* Secondary - Softer pink to gold */
   --secondary: oklch(0.95 0.005 11); /* Very light secondary */
   --secondary-foreground: oklch(0.55 0.15 11); /* Softer pink text */
   --secondary-gradient: linear-gradient(135deg, oklch(0.65 0.15 11) 0%, oklch(0.75 0.10 77) 100%);
-  
+
   /* Muted - Light gray tones */
   --muted: oklch(0.96 0.003 288); /* Very light muted */
   --muted-foreground: oklch(0.45 0.01 288); /* Medium gray text */
-  
+
   /* Accent - Softer magenta to pink */
   --accent: oklch(0.95 0.005 337); /* Very light accent */
   --accent-foreground: oklch(0.55 0.13 337); /* Softer magenta text */
   --accent-gradient: linear-gradient(135deg, oklch(0.55 0.13 337) 0%, oklch(0.65 0.15 11) 100%);
-  
+
   /* Destructive - Softer red */
   --destructive: oklch(0.55 0.15 11);
   --destructive-foreground: oklch(0.99 0 0);
-  
+
   /* Borders & Inputs - Subtle light mode borders */
   --border: oklch(0.90 0.005 288); /* Light border */
   --input: oklch(0.95 0.003 288); /* Light input */
   --ring: oklch(0.50 0.12 288); /* Softer ring */
   --ring-gradient: linear-gradient(135deg, oklch(0.50 0.12 288) 0%, oklch(0.55 0.13 337) 50%, oklch(0.65 0.15 11) 100%);
-  
+
   /* Charts - Softer colors for light mode */
   --chart-1: oklch(0.50 0.12 288);
   --chart-2: oklch(0.55 0.13 337);
   --chart-3: oklch(0.65 0.15 11);
   --chart-4: oklch(0.75 0.10 77);
   --chart-5: oklch(0.60 0.10 288);
-  
+
   /* Sidebar - Light sidebar */
   --sidebar: oklch(0.97 0.003 288); /* Light sidebar */
   --sidebar-foreground: oklch(0.20 0.008 288); /* Dark text */
@@ -60,18 +63,18 @@
   --sidebar-accent-foreground: oklch(0.55 0.13 337); /* Softer magenta */
   --sidebar-border: oklch(0.90 0.005 288); /* Light border */
   --sidebar-ring: oklch(0.50 0.12 288); /* Softer ring */
-  
+
   /* Typography */
   --font-sans: Montserrat, sans-serif;
   --font-serif: Merriweather, serif;
   --font-mono: Source Code Pro, monospace;
   --font-heading: var(--font-heading, system-ui);
-  
+
   /* Spacing & Layout */
   --radius: 0.75rem;
   --tracking-normal: 0em;
   --spacing: 0.25rem;
-  
+
   /* Shadows - Subtle for light mode */
   --shadow-x: 0;
   --shadow-y: 1px;
@@ -87,7 +90,7 @@
   --shadow-lg: 0 10px 15px -3px oklch(0.15 0.005 288 / 0.10), 0 4px 6px -4px oklch(0.15 0.005 288 / 0.10);
   --shadow-xl: 0 20px 25px -5px oklch(0.15 0.005 288 / 0.12), 0 8px 10px -6px oklch(0.15 0.005 288 / 0.12);
   --shadow-2xl: 0 25px 50px -12px oklch(0.15 0.005 288 / 0.15);
-  
+
   /* Expo easing for smooth transitions */
   --expo-out: cubic-bezier(0.16, 1, 0.3, 1);
   --expo-in: cubic-bezier(0.7, 0, 0.84, 0);
@@ -99,7 +102,7 @@
   --gradient-magenta: oklch(0.50 0.13 337.87); /* Softer magenta */
   --gradient-pink: oklch(0.60 0.15 11.61); /* Softer pink */
   --gradient-gold: oklch(0.75 0.10 77.42); /* Softer gold */
-  
+
   /* Base Colors - Dark Mode (softer) */
   --background: oklch(0.18 0.008 288); /* Slightly lighter */
   --foreground: oklch(0.92 0.004 288); /* Slightly darker */
@@ -107,43 +110,43 @@
   --card-foreground: oklch(0.92 0.004 288);
   --popover: oklch(0.20 0.010 288);
   --popover-foreground: oklch(0.92 0.004 288);
-  
+
   /* Primary - Softer, less saturated */
   --primary: oklch(0.52 0.12 288); /* Reduced saturation */
   --primary-foreground: oklch(0.99 0 0);
   --primary-gradient: linear-gradient(135deg, oklch(0.52 0.12 288) 0%, oklch(0.57 0.13 337) 100%);
-  
+
   /* Secondary - Softer */
   --secondary: oklch(0.28 0.012 11); /* Slightly lighter */
   --secondary-foreground: oklch(0.65 0.15 11); /* Reduced saturation */
   --secondary-gradient: linear-gradient(135deg, oklch(0.62 0.15 11) 0%, oklch(0.72 0.12 77) 100%);
-  
+
   /* Muted - Softer */
   --muted: oklch(0.25 0.008 288); /* Slightly lighter */
   --muted-foreground: oklch(0.65 0.015 288); /* Reduced saturation */
-  
+
   /* Accent - Softer */
   --accent: oklch(0.30 0.015 337); /* Slightly lighter */
   --accent-foreground: oklch(0.65 0.15 337); /* Reduced saturation */
   --accent-gradient: linear-gradient(135deg, oklch(0.57 0.13 337) 0%, oklch(0.62 0.15 11) 100%);
-  
+
   /* Destructive - Softer */
   --destructive: oklch(0.58 0.15 11); /* Reduced saturation */
   --destructive-foreground: oklch(0.99 0 0);
-  
+
   /* Borders & Inputs - Softer */
   --border: oklch(0.35 0.010 288); /* Lighter border */
   --input: oklch(0.32 0.012 288); /* Slightly lighter */
   --ring: oklch(0.52 0.12 288); /* Reduced saturation */
   --ring-gradient: linear-gradient(135deg, oklch(0.52 0.12 288) 0%, oklch(0.57 0.13 337) 50%, oklch(0.62 0.15 11) 100%);
-  
+
   /* Charts - Softer colors */
   --chart-1: oklch(0.52 0.12 288);
   --chart-2: oklch(0.57 0.13 337);
   --chart-3: oklch(0.62 0.15 11);
   --chart-4: oklch(0.72 0.12 77);
   --chart-5: oklch(0.48 0.10 288);
-  
+
   /* Sidebar - Softer */
   --sidebar: oklch(0.15 0.006 288); /* Slightly lighter */
   --sidebar-foreground: oklch(0.92 0.004 288);
@@ -153,16 +156,16 @@
   --sidebar-accent-foreground: oklch(0.65 0.15 337); /* Reduced saturation */
   --sidebar-border: oklch(0.32 0.012 288); /* Lighter border */
   --sidebar-ring: oklch(0.52 0.12 288); /* Reduced saturation */
-  
+
   /* Typography */
   --font-sans: Montserrat, sans-serif;
   --font-serif: Merriweather, serif;
   --font-mono: Source Code Pro, monospace;
   --font-heading: var(--font-heading, system-ui);
-  
+
   /* Spacing & Layout */
   --radius: 0.75rem;
-  
+
   /* Shadows - Softer for dark mode */
   --shadow-x: 0;
   --shadow-y: 1px;
@@ -229,6 +232,18 @@
   --shadow-lg: var(--shadow-lg);
   --shadow-xl: var(--shadow-xl);
   --shadow-2xl: var(--shadow-2xl);
+  --animate-shine: shine var(--duration) infinite linear;
+  @keyframes shine {
+  0% {
+    background-position: 0% 0%;
+    }
+  50% {
+    background-position: 100% 100%;
+    }
+  to {
+    background-position: 0% 0%;
+    }
+  }
 }
 
 * {
@@ -523,5 +538,30 @@ textarea {
   to {
     opacity: 1;
     transform: translateX(0);
+  }
+}
+
+@theme inline {
+  --animate-shine: shine var(--duration) infinite linear;
+
+  @keyframes shine {
+    0% {
+      background-position: 0% 0%;
+    }
+    50% {
+      background-position: 100% 100%;
+    }
+    to {
+      background-position: 0% 0%;
+    }
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
   }
 }

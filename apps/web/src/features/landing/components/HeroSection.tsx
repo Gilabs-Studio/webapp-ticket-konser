@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Beams from "./Beams";
 import { Button } from "../../../components/ui/button";
+import { ShineBorder } from "../../../components/ui/shine-border";
 
 interface TimeLeft {
   days: number;
@@ -121,9 +122,17 @@ export default function HeroSection({ locale }: Readonly<HeroSectionProps>) {
         </div>
 
         {/* CTA Button */}
-        <Button>
-          {locale === "id" ? "Dapatkan Tiket" : "Get Tickets"}
-        </Button>
+        <div className="relative inline-block rounded-xl">
+          <ShineBorder
+            borderWidth={2}
+            duration={14}
+            shineColor={["oklch(0.50 0.12 288)", "oklch(0.55 0.13 337)", "oklch(0.65 0.15 11)"]}
+            className="rounded-xl"
+          />
+          <Button className="relative z-10">
+            {locale === "id" ? "Dapatkan Tiket" : "Get Tickets"}
+          </Button>
+        </div>
       </div>
     </section>
   );

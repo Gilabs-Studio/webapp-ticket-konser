@@ -5,7 +5,7 @@
   "tsx": true,
   "tailwind": {
     "config": "tailwind.config.ts",
-    "css": "src/app/globals.css",
+    "css": "app/globals.css",
     "baseColor": "slate",
     "cssVariables": true,
     "prefix": ""
@@ -22,6 +22,7 @@
     "@aceternity": "https://ui.aceternity.com/registry/{name}.json",
     "@cult-ui": "https://cult-ui.com/r/{name}.json",
     "@kokonutui": "https://kokonutui.com/r/{name}.json",
-    "@react-bits": "https://reactbits.dev/r/{name}.json"
+    "@react-bits": "https://reactbits.dev/r/{name}.json",
+    "@magicui": "https://magicui.design/r/{name}.json"
   }
 }
