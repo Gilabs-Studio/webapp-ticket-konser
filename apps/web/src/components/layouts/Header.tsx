@@ -3,6 +3,9 @@
 import { useState, useEffect } from "react";
 import { Link } from "@/i18n/routing";
 import { Button } from "@/components/ui/button";
+import { useAuthStore } from "@/features/auth/stores/useAuthStore";
+import { UserMenu } from "@/components/user-menu";
+import { ThemeToggleButton } from "@/components/ui/theme-toggle";
 
 interface HeaderProps {
   locale: string;
@@ -10,6 +13,7 @@ interface HeaderProps {
 
 export default function Header({ locale }: HeaderProps) {
   const [scrolled, setScrolled] = useState(false);
+  const { isAuthenticated, user } = useAuthStore();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -26,6 +30,10 @@ export default function Header({ locale }: HeaderProps) {
     { label: "Ticket", href: "#ticket" },
     { label: "About Us", href: "#about" },
   ];
+
+  // Check if user is guest (not admin or staff)
+  const isGuest = isAuthenticated && user && 
+    !["admin", "super_admin", "staff_ticket", "gate_staff"].includes(user.role?.toLowerCase() ?? "");
 
   return (
     <header
@@ -48,9 +56,16 @@ export default function Header({ locale }: HeaderProps) {
               </li>
             ))}
           </ul>
-          <Button asChild variant="ghost" className="text-sm font-light tracking-wide uppercase">
-            <Link href={`/login`}>Login</Link>
-          </Button>
+          <div className="flex items-center gap-3">
+            <ThemeToggleButton />
+            {isAuthenticated && isGuest ? (
+              <UserMenu showHistory />
+            ) : (
+              <Button asChild variant="ghost" className="text-sm font-light tracking-wide uppercase">
+                <Link href={`/login`}>Login</Link>
+              </Button>
+            )}
+          </div>
         </div>
       </nav>
     </header>

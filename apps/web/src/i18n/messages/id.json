@@ -1,9 +1,10 @@
 {
   "notFound": {
     "label": "404",
-    "title": "Halaman Tidak Ditemukan",
-    "description": "Halaman yang Anda cari tidak ada atau telah dipindahkan.",
-    "backHome": "Kembali ke Login"
+    "headline": "Halaman Ini Melewatkan Panggung.",
+    "subtext": "Sepertinya tautan yang Anda cari tidak masuk ke lineup.",
+    "cta": "Mari kita kembalikan Anda ke panggung utama.",
+    "backHome": "Kembali ke Panggung Utama"
   },
   "auth": {
     "login": {
@@ -18,6 +19,117 @@
       "submit": "Masuk",
       "submitting": "Masuk...",
       "rateLimitMessage": "Terlalu banyak percobaan login. Silakan coba lagi dalam {countdown}."
+    }
+  },
+  "admin": {
+    "menu": {
+      "dashboard": "Overview",
+      "users": "Pengguna",
+      "events": "Acara",
+      "tickets": "Tiket",
+      "merchandise": "Merchandise",
+      "attendees": "Peserta",
+      "orders": "Pesanan",
+      "analytics": "Analitik",
+      "settings": "Pengaturan",
+      "management": "MANAJEMEN"
+    },
+    "logout": "Keluar"
+  },
+  "common": {
+    "orderHistory": "Riwayat Pesanan",
+    "profile": "Profil",
+    "logout": "Keluar"
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "description": "Pantau penjualan, check-in, dan kuota tiket",
+    "filters": {
+      "reset": "Reset"
+    },
+    "error": {
+      "loading": "Gagal memuat data"
+    },
+    "sales": {
+      "title": "Ringkasan Penjualan",
+      "description": "Pantau pendapatan dan statistik pesanan",
+      "totalRevenue": "Total Pendapatan",
+      "totalOrders": "Total Pesanan",
+      "paidOrders": "Pesanan Lunas",
+      "unpaidOrders": "Pesanan Belum Lunas",
+      "failedOrders": "Pesanan Gagal",
+      "canceledOrders": "Pesanan Dibatalkan",
+      "refundedOrders": "Pesanan Dikembalikan"
+    },
+    "checkIns": {
+      "title": "Ringkasan Check-in",
+      "description": "Pantau statistik check-in",
+      "totalCheckIns": "Total Check-in",
+      "checkedIn": "Sudah Check-in",
+      "notCheckedIn": "Belum Check-in",
+      "checkInRate": "Tingkat Check-in"
+    },
+    "quota": {
+      "title": "Kuota Tiket",
+      "description": "Pantau ketersediaan dan pemanfaatan tiket",
+      "totalQuota": "Total Kuota",
+      "sold": "Terjual",
+      "remaining": "Tersisa",
+      "utilizationRate": "Tingkat Pemanfaatan",
+      "overallUtilization": "Pemanfaatan Keseluruhan",
+      "byTier": "Berdasarkan Tier",
+      "noData": "Tidak ada data kuota"
+    },
+    "gates": {
+      "title": "Aktivitas Gerbang",
+      "description": "Pantau aktivitas check-in gerbang",
+      "active": "Aktif",
+      "inactive": "Tidak Aktif",
+      "totalCheckIns": "Total Check-in",
+      "lastCheckIn": "Check-in Terakhir",
+      "noData": "Tidak ada data gerbang"
+    },
+    "buyers": {
+      "title": "Pembeli Teratas",
+      "description": "Daftar pembeli dengan pesanan terbanyak",
+      "name": "Nama",
+      "email": "Email",
+      "totalOrders": "Total Pesanan",
+      "totalSpent": "Total Pengeluaran",
+      "lastOrder": "Pesanan Terakhir",
+      "noData": "Tidak ada data pembeli",
+      "showing": "Menampilkan {count} dari {total} pembeli"
+    },
+    "stats": {
+      "totalRevenue": "Total Pendapatan",
+      "ticketsIssued": "Tiket Terbit",
+      "merchSales": "Penjualan Merch"
+    },
+    "storefront": {
+      "title": "Pratinjau Toko",
+      "description": "Pratinjau toko Anda yang aktif",
+      "tickets": "TIKET",
+      "officialMerchandise": "MERCHANDISE RESMI",
+      "available": "Tersedia",
+      "lowStock": "Stok Terbatas",
+      "editProducts": "Edit Produk",
+      "visitLivePage": "Kunjungi Halaman Live"
+    },
+    "recentSales": {
+      "title": "Penjualan Terkini",
+      "description": "Transaksi terbaru",
+      "viewAll": "Lihat Semua",
+      "noData": "Tidak ada penjualan terkini",
+      "liveUpdates": "Pembaruan langsung aktif"
+    },
+    "quickActions": {
+      "title": "Aksi Cepat",
+      "description": "Kelola acara Anda dengan cepat",
+      "pauseTicketSales": "Jeda Penjualan Tiket",
+      "pauseTicketSalesDesc": "Sementara hentikan penjualan tiket",
+      "discountMode": "Mode Diskon (-10%)",
+      "discountModeDesc": "Terapkan diskon 10% untuk semua tiket",
+      "exportReport": "Ekspor Laporan"
     }
   }
 }

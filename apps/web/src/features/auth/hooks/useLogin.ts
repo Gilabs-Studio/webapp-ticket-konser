@@ -41,8 +41,16 @@ export function useLogin() {
           isAuthenticated: true,
           error: null,
         });
-        // Redirect ke dashboard dengan locale aktif
-        router.push("/dashboard");
+        // Redirect berdasarkan role
+        const userRole = user.role?.toLowerCase() ?? "";
+        if (userRole === "admin" || userRole === "super_admin") {
+          router.push("/admin/dashboard");
+        } else if (userRole === "staff_ticket" || userRole === "gate_staff") {
+          router.push("/staff/ticket");
+        } else {
+          // Guest atau role lain - redirect ke landing page
+          router.push("/");
+        }
       }
     } catch (err) {
       const authError = err as AuthError;
