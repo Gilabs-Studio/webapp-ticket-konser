@@ -39,7 +39,7 @@
   --destructive-foreground: oklch(0.99 0 0);
   
   /* Borders & Inputs */
-  --border: oklch(0.6 0 0); /* Dark border */
+  --border: oklch(0.30 0.015 288); /* Dark border */
   --input: oklch(0.25 0.015 288); /* Dark input */
   --ring: oklch(0.60 0.22 288); /* Brighter ring */
   --ring-gradient: linear-gradient(135deg, var(--gradient-purple) 0%, var(--gradient-magenta) 50%, var(--gradient-pink) 100%);
@@ -132,7 +132,7 @@
   --destructive-foreground: oklch(0.99 0 0);
   
   /* Borders & Inputs */
-  --border: oklch(0.30 0.015 288);
+  --border: oklch(0.7 0 0); /* Dark border */
   --input: oklch(0.30 0.015 288);
   --ring: oklch(0.55 0.20 288);
   --ring-gradient: linear-gradient(135deg, oklch(0.55 0.20 288) 0%, oklch(0.60 0.22 337) 50%, oklch(0.65 0.25 11) 100%);

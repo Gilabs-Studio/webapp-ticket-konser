@@ -28,7 +28,7 @@ function extendMaterial<T extends THREE.Material = THREE.Material>(
 
   const uniforms: Record<string, THREE.IUniform> = THREE.UniformsUtils.clone(baseUniforms);
 
-  const defaults = new BaseMaterial(cfg.material || {});
+  const defaults = new BaseMaterial(cfg.material ?? {});
 
   if ('color' in defaults && defaults.color) uniforms.diffuse.value = defaults.color;
   if ('roughness' in defaults && defaults.roughness !== undefined) uniforms.roughness.value = defaults.roughness;
@@ -66,7 +66,15 @@ function extendMaterial<T extends THREE.Material = THREE.Material>(
 }
 
 const CanvasWrapper: FC<{ children: ReactNode }> = ({ children }) => (
-  <Canvas dpr={[1, 2]} frameloop="always" className="w-full h-full relative">
+  <Canvas 
+    dpr={[1, 2]} 
+    frameloop="always" 
+    className="w-full h-full relative"
+    gl={{
+      outputColorSpace: THREE.SRGBColorSpace,
+      toneMapping: THREE.NoToneMapping,
+    }}
+  >
     {children}
   </Canvas>
 );
@@ -166,20 +174,18 @@ interface BeamsProps {
   scale?: number;
   rotation?: number;
   backgroundImage?: string;
-  backgroundOpacity?: number;
 }
 
 const Beams: FC<BeamsProps> = ({
   beamWidth = 2,
   beamHeight = 15,
   beamNumber = 12,
-  lightColor = '#ffffff',
+  lightColor = '#',
   speed = 2,
   noiseIntensity = 1.75,
   scale = 0.2,
   rotation = 0,
-  backgroundImage = 'bg.jpg',
-  backgroundOpacity = 1
+  backgroundImage = 'bg.jpg'
 }) => {
   const meshRef = useRef<THREE.Mesh<THREE.BufferGeometry, THREE.ShaderMaterial>>(null!);
 
@@ -242,7 +248,7 @@ const Beams: FC<BeamsProps> = ({
 
   return (
     <CanvasWrapper>
-      <BackgroundScene imageUrl={backgroundImage} opacity={backgroundOpacity} />
+      <BackgroundScene imageUrl={backgroundImage} />
       <group rotation={[0, 0, degToRad(rotation)]}>
         <PlaneNoise ref={meshRef} material={beamMaterial} count={beamNumber} width={beamWidth} height={beamHeight} />
         <DirLight color={lightColor} position={[0, 3, 10]} />
@@ -359,63 +365,51 @@ const DirLight: FC<{ position: [number, number, number]; color: string }> = ({ p
   return <directionalLight ref={dir} color={color} intensity={1} position={position} />;
 };
 
-const BackgroundScene: FC<{ imageUrl: string; opacity?: number }> = ({ imageUrl, opacity = 0.4 }) => {
-  const { scene } = useThree();
+const BackgroundScene: FC<{ imageUrl: string }> = ({ imageUrl }) => {
+  const { scene, camera, size } = useThree();
   const texture = useTexture(imageUrl);
 
   useEffect(() => {
     if (!texture) return;
 
-    // Create shader material with gradient overlay
-    const gradientMaterial = new THREE.ShaderMaterial({
-      uniforms: {
-        tDiffuse: { value: texture } as THREE.IUniform<THREE.Texture>,
-        opacity: { value: opacity } as THREE.IUniform<number>,
-      },
-      vertexShader: `
-        varying vec2 vUv;
-        void main() {
-          vUv = uv;
-          gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
-        }
-      `,
-      fragmentShader: `
-        uniform sampler2D tDiffuse;
-        uniform float opacity;
-        varying vec2 vUv;
-        
-        void main() {
-          vec4 texColor = texture2D(tDiffuse, vUv);
-          
-          // Create gradient overlay from top to bottom
-          float gradientFactor = smoothstep(0.0, 1.0, vUv.y);
-          vec3 gradientColor = mix(
-            vec3(0.05, 0.0, 0.15),  // Dark purple at top
-            vec3(0.0, 0.0, 0.0),     // Black at bottom
-            gradientFactor
-          );
-          
-          // Blend texture with gradient
-          vec3 finalColor = mix(gradientColor, texColor.rgb, opacity * 0.5);
-          
-          gl_FragColor = vec4(finalColor, 1.0);
-        }
-      `,
-      side: THREE.BackSide,
+    // Configure texture properties for full color vibrancy
+    // Clone texture to avoid mutating hook return value
+    const textureClone = texture.clone();
+    textureClone.colorSpace = THREE.SRGBColorSpace;
+    textureClone.flipY = false;
+
+    const material = new THREE.MeshBasicMaterial({
+      map: textureClone,
+      side: THREE.DoubleSide,
       depthWrite: false,
+      // Ensure full opacity and no color tinting
+      opacity: 1,
+      transparent: false,
+      // Remove any color multiplication to show full texture colors
+      color: new THREE.Color(0xffffff),
     });
 
-    // Create sphere geometry for background
-    const geometry = new THREE.SphereGeometry(500, 60, 40);
-    const backgroundMesh = new THREE.Mesh<THREE.SphereGeometry, THREE.ShaderMaterial>(geometry, gradientMaterial);
+    // Calculate plane size based on camera FOV and distance
+    // Camera is at z=20, plane is at z=-10, so distance is 30
+    const distance = 30;
+    const fov = (camera as THREE.PerspectiveCamera).fov * (Math.PI / 180);
+    const height = 2 * Math.tan(fov / 2) * distance;
+    const aspect = size.width / size.height;
+    const width = height * aspect;
+
+    // Use plane geometry with aspect ratio matching the viewport
+    const geometry = new THREE.PlaneGeometry(width, height);
+    const backgroundMesh = new THREE.Mesh<THREE.PlaneGeometry, THREE.MeshBasicMaterial>(geometry, material);
+    backgroundMesh.position.z = -10;
     scene.add(backgroundMesh);
 
     return () => {
       scene.remove(backgroundMesh);
       geometry.dispose();
-      gradientMaterial.dispose();
+      material.dispose();
+      textureClone.dispose();
     };
-  }, [scene, texture, opacity]);
+  }, [scene, texture, camera, size]);
 
   return null;
 };

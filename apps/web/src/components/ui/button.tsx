@@ -71,7 +71,7 @@ function Button({
       <span className="relative z-10 text-foreground/90 group-hover:text-white transition-colors duration-300">
         {children}
       </span>
-      <div className="absolute inset-0 border border-foreground/20 group-hover:border-transparent transition-all duration-300" />
+      <div className="absolute inset-0 border group-hover:border-transparent transition-all duration-300" />
       <div className="absolute inset-0 bg-gradient-to-r from-[var(--gradient-purple)] via-[var(--gradient-magenta)] to-[var(--gradient-pink)] opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-[length:200%_100%] group-hover:animate-[gradient-shift_3s_ease_infinite]" />
     </Comp>
   );
