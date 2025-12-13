@@ -64,14 +64,16 @@ export function StorefrontPreview() {
             <CardDescription>{t("storefront.description")}</CardDescription>
           </div>
           <div className="flex gap-2">
-            <Button variant="outline" size="sm">
-              <Edit className="mr-2 h-4 w-4" />
-              {t("storefront.editProducts")}
+            <Button variant="outline" size="sm" asChild className="group">
+              <Link href="/admin/products" className="[&>span]:group-hover:bg-clip-text [&>span]:group-hover:text-transparent [&>span]:group-hover:bg-gradient-to-r [&>span]:group-hover:from-[var(--gradient-purple)] [&>span]:group-hover:via-[var(--gradient-magenta)] [&>span]:group-hover:to-[var(--gradient-pink)]">
+                <Edit className="h-4 w-4" />
+                <span>{t("storefront.editProducts")}</span>
+              </Link>
             </Button>
-            <Button variant="default" size="sm" asChild>
-              <Link href="/">
-                <ExternalLink className="mr-2 h-4 w-4" />
-                {t("storefront.visitLivePage")}
+            <Button variant="default" size="sm" asChild className="group">
+              <Link href="/" className="[&>span]:group-hover:bg-clip-text [&>span]:group-hover:text-transparent [&>span]:group-hover:bg-gradient-to-r [&>span]:group-hover:from-[var(--gradient-purple)] [&>span]:group-hover:via-[var(--gradient-magenta)] [&>span]:group-hover:to-[var(--gradient-pink)]">
+                <ExternalLink className="h-4 w-4" />
+                <span>{t("storefront.visitLivePage")}</span>
               </Link>
             </Button>
           </div>
@@ -126,8 +128,12 @@ export function StorefrontPreview() {
                       ? t("storefront.available")
                       : t("storefront.lowStock")}
                   </div>
-                  <button className="opacity-0 group-hover:opacity-100 translate-y-2 group-hover:translate-y-0 transition-all duration-300 px-3 py-1.5 bg-background text-foreground text-xs font-medium rounded hover:bg-muted">
-                    Select
+                  <button className="group/btn relative inline-flex items-center justify-center opacity-0 group-hover:opacity-100 translate-y-2 group-hover:translate-y-0 transition-all duration-300 px-3 py-1.5 text-xs font-light tracking-wide uppercase overflow-hidden rounded">
+                    <span className="relative z-10 text-white transition-colors duration-300">
+                      Select
+                    </span>
+                    <div className="absolute inset-0 border border-transparent transition-all duration-300" />
+                    <div className="absolute inset-0 bg-gradient-to-r from-[var(--gradient-purple)] via-[var(--gradient-magenta)] to-[var(--gradient-pink)] opacity-100 bg-[length:200%_100%] animate-[gradient-shift_3s_ease_infinite]" />
                   </button>
                 </div>
               </div>
@@ -150,8 +156,12 @@ export function StorefrontPreview() {
                   <div className="aspect-square bg-card rounded border border-border mb-3 flex items-center justify-center relative overflow-hidden">
                     <Icon className="h-8 w-8 text-muted-foreground" />
                     <div className="absolute inset-0 bg-background/60 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity backdrop-blur-sm">
-                      <button className="bg-background text-foreground p-2 rounded-full hover:scale-105 transition-transform">
-                        <Plus className="h-4 w-4" />
+                      <button className="group/btn relative inline-flex items-center justify-center p-2 rounded-full overflow-hidden hover:scale-105 transition-transform">
+                        <span className="relative z-10 text-white transition-colors duration-300">
+                          <Plus className="h-4 w-4" />
+                        </span>
+                        <div className="absolute inset-0 border border-transparent rounded-full transition-all duration-300" />
+                        <div className="absolute inset-0 bg-gradient-to-r from-[var(--gradient-purple)] via-[var(--gradient-magenta)] to-[var(--gradient-pink)] opacity-100 bg-[length:200%_100%] animate-[gradient-shift_3s_ease_infinite] rounded-full" />
                       </button>
                     </div>
                   </div>
