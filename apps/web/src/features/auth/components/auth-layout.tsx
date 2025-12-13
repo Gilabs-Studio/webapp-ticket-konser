@@ -1,7 +1,7 @@
 "use client";
 
 import type { ReactNode } from "react";
-import Image from "next/image";
+import Beams from "@/features/landing/components/Beams";
 
 interface AuthLayoutProps {
   readonly children: ReactNode;
@@ -9,46 +9,27 @@ interface AuthLayoutProps {
 
 export function AuthLayout({ children }: AuthLayoutProps) {
   return (
-    <div className="flex min-h-screen">
-      {/* Left Side - Full Image (2/3) */}
-      <div className="hidden lg:block lg:w-2/3 p-6">
-        <div className="relative h-full w-full overflow-hidden rounded-3xl shadow-2xl">
-          <Image
-            src="/login.webp"
-            alt="Medico CRM Platform"
-            fill
-            className="object-cover"
-            priority
-          />
-        </div>
+    <section className="dark relative w-full min-h-screen overflow-hidden bg-background">
+      {/* Beams Background */}
+      <div className="absolute inset-0 z-0">
+        <Beams
+          beamWidth={3}
+          beamHeight={30}
+          beamNumber={20}
+          lightColor="#F4B342"
+          speed={2}
+          noiseIntensity={1.75}
+          scale={0.2}
+          rotation={30}
+        />
       </div>
 
-      {/* Right Side - Form (1/3) */}
-      <div className="flex w-full items-center justify-center p-8 lg:w-1/3">
-        <div className="w-full max-w-md space-y-8">
-          {/* Mobile Logo */}
-          <div className="mb-8 flex items-center justify-center gap-3 lg:hidden">
-            <div className="flex size-10 aspect-square items-center justify-center rounded-xl shadow-lg overflow-hidden">
-              <Image
-                src="/logo.webp"
-                alt="Medico"
-                width={40}
-                height={40}
-                className="object-contain"
-              />
-            </div>
-            <div className="flex flex-col gap-0.5 leading-none">
-              <span className="text-xl font-bold text-primary">Medico</span>
-              <span className="text-xs text-muted-foreground">
-                CRM Platform
-              </span>
-            </div>
-          </div>
-
-          {/* Form Content */}
+      {/* Content */}
+      <div className="relative z-10 flex items-center justify-center min-h-screen px-4 py-12">
+        <div className="w-full max-w-md">
           {children}
         </div>
       </div>
-    </div>
+    </section>
   );
 }

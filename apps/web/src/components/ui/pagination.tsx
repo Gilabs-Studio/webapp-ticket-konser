@@ -55,7 +55,7 @@ function PaginationLink({
       data-slot="pagination-link"
       data-active={isActive}
       className={cn(
-        "relative inline-flex items-center justify-center rounded-md text-sm font-medium transition-all duration-200",
+        "relative inline-flex items-center justify-center text-sm font-light tracking-wide uppercase",
         "h-9 min-w-9 px-3",
         "hover:bg-accent hover:text-accent-foreground",
         "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
@@ -78,7 +78,7 @@ function PaginationPrevious({
     <PaginationLink
       aria-label="Go to previous page"
       className={cn(
-        "gap-1.5 px-3 sm:px-4 h-9 rounded-md border border-input bg-background hover:bg-accent hover:text-accent-foreground transition-all duration-200",
+        "gap-1.5 px-3 sm:px-4 h-9 border border-input bg-background hover:bg-accent hover:text-accent-foreground",
         className,
       )}
       {...props}
@@ -97,7 +97,7 @@ function PaginationNext({
     <PaginationLink
       aria-label="Go to next page"
       className={cn(
-        "gap-1.5 px-3 sm:px-4 h-9 rounded-md border border-input bg-background hover:bg-accent hover:text-accent-foreground transition-all duration-200",
+        "gap-1.5 px-3 sm:px-4 h-9 border border-input bg-background hover:bg-accent hover:text-accent-foreground",
         className,
       )}
       {...props}
@@ -116,7 +116,7 @@ function PaginationFirst({
     <PaginationLink
       aria-label="Go to first page"
       className={cn(
-        "h-9 w-9 p-0 rounded-md border border-input bg-background hover:bg-accent hover:text-accent-foreground transition-all duration-200",
+        "h-9 w-9 p-0 border border-input bg-background hover:bg-accent hover:text-accent-foreground",
         className,
       )}
       {...props}
@@ -134,7 +134,7 @@ function PaginationLast({
     <PaginationLink
       aria-label="Go to last page"
       className={cn(
-        "h-9 w-9 p-0 rounded-md border border-input bg-background hover:bg-accent hover:text-accent-foreground transition-all duration-200",
+        "h-9 w-9 p-0 border border-input bg-background hover:bg-accent hover:text-accent-foreground",
         className,
       )}
       {...props}

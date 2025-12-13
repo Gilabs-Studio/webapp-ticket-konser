@@ -1,9 +1,10 @@
 {
   "notFound": {
     "label": "404",
-    "title": "Page Not Found",
-    "description": "The page you are looking for does not exist or has been moved.",
-    "backHome": "Back to Login"
+    "headline": "This Page Missed the Stage.",
+    "subtext": "Looks like the link you're looking for didn't make it to the lineup.",
+    "cta": "Let's get you back to the main stage.",
+    "backHome": "Back to Main Stage"
   },
   "auth": {
     "login": {
@@ -18,6 +19,168 @@
       "submit": "Sign In",
       "submitting": "Signing in...",
       "rateLimitMessage": "Too many login attempts. Please try again in {countdown}."
+    }
+  },
+  "admin": {
+    "menu": {
+      "dashboard": "Overview",
+      "users": "Users",
+      "events": "Events",
+      "tickets": "Tickets",
+      "merchandise": "Merchandise",
+      "attendees": "Attendees",
+      "orders": "Orders",
+      "analytics": "Analytics",
+      "settings": "Settings",
+      "management": "MANAGEMENT"
+    },
+    "logout": "Logout"
+  },
+  "common": {
+    "orderHistory": "Order History",
+    "profile": "Profile",
+    "logout": "Logout",
+    "dashboard": "Dashboard",
+    "scan": "Scan Ticket"
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "description": "Monitor sales, check-ins, and ticket quotas",
+    "filters": {
+      "reset": "Reset"
+    },
+    "error": {
+      "loading": "Failed to load data"
+    },
+    "sales": {
+      "title": "Sales Overview",
+      "description": "Monitor revenue and order statistics",
+      "totalRevenue": "Total Revenue",
+      "totalOrders": "Total Orders",
+      "paidOrders": "Paid Orders",
+      "unpaidOrders": "Unpaid Orders",
+      "failedOrders": "Failed Orders",
+      "canceledOrders": "Canceled Orders",
+      "refundedOrders": "Refunded Orders"
+    },
+    "checkIns": {
+      "title": "Check-in Overview",
+      "description": "Monitor check-in statistics",
+      "totalCheckIns": "Total Check-ins",
+      "checkedIn": "Checked In",
+      "notCheckedIn": "Not Checked In",
+      "checkInRate": "Check-in Rate"
+    },
+    "quota": {
+      "title": "Ticket Quota",
+      "description": "Monitor ticket availability and utilization",
+      "totalQuota": "Total Quota",
+      "sold": "Sold",
+      "remaining": "Remaining",
+      "utilizationRate": "Utilization Rate",
+      "overallUtilization": "Overall Utilization",
+      "byTier": "By Tier",
+      "noData": "No quota data available"
+    },
+    "gates": {
+      "title": "Gate Activity",
+      "description": "Monitor gate check-in activity",
+      "active": "Active",
+      "inactive": "Inactive",
+      "totalCheckIns": "Total Check-ins",
+      "lastCheckIn": "Last Check-in",
+      "noData": "No gate data available"
+    },
+    "buyers": {
+      "title": "Top Buyers",
+      "description": "List of buyers with most orders",
+      "name": "Name",
+      "email": "Email",
+      "totalOrders": "Total Orders",
+      "totalSpent": "Total Spent",
+      "lastOrder": "Last Order",
+      "noData": "No buyer data available",
+      "showing": "Showing {count} of {total} buyers"
+    },
+    "stats": {
+      "totalRevenue": "Total Revenue",
+      "ticketsIssued": "Tickets Issued",
+      "merchSales": "Merch Sales"
+    },
+    "storefront": {
+      "title": "Storefront Preview",
+      "description": "Preview of your live storefront",
+      "tickets": "TICKETS",
+      "officialMerchandise": "OFFICIAL MERCHANDISE",
+      "available": "Available",
+      "lowStock": "Low Stock",
+      "editProducts": "Edit Products",
+      "visitLivePage": "Visit Live Page"
+    },
+    "recentSales": {
+      "title": "Recent Sales",
+      "description": "Latest transactions",
+      "viewAll": "View All",
+      "noData": "No recent sales",
+      "liveUpdates": "Live updates active"
+    },
+    "quickActions": {
+      "title": "Quick Actions",
+      "description": "Manage your event quickly",
+      "pauseTicketSales": "Pause Ticket Sales",
+      "pauseTicketSalesDesc": "Temporarily stop ticket sales",
+      "discountMode": "Discount Mode (-10%)",
+      "discountModeDesc": "Apply 10% discount to all tickets",
+      "exportReport": "Export Report"
+    }
+  },
+  "tickets": {
+    "title": "Ticket Management",
+    "createType": "Create Type",
+    "orders": {
+      "recent": "Recent Orders",
+      "viewAll": "View All",
+      "empty": "No orders available",
+      "orderId": "Order ID",
+      "customer": "Customer",
+      "tickets": "Tickets",
+      "status": "Status",
+      "total": "Total",
+      "statusLabels": {
+        "completed": "Completed",
+        "pending": "Pending",
+        "failed": "Failed",
+        "canceled": "Canceled",
+        "refunded": "Refunded"
+      }
+    }
+  },
+  "settings": {
+    "title": "Event Settings",
+    "tabs": {
+      "general": "General",
+      "team": "Team Members",
+      "billing": "Billing",
+      "notifications": "Notifications"
+    },
+    "eventDetails": {
+      "title": "Event Details",
+      "description": "Basic information about your event.",
+      "eventName": "Event Name",
+      "date": "Date",
+      "capacity": "Capacity",
+      "urlSlug": "URL Slug",
+      "urlPrefix": "nexus.event/"
+    },
+    "dangerZone": {
+      "title": "Danger Zone",
+      "description": "Irreversible actions for this event.",
+      "cancelEvent": "Cancel Event"
+    },
+    "actions": {
+      "cancel": "Cancel",
+      "saveChanges": "Save Changes",
+      "saving": "Saving..."
     }
   }
 }
