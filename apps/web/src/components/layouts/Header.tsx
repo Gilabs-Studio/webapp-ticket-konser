@@ -9,7 +9,7 @@ import { ThemeToggleButton } from "@/components/ui/theme-toggle";
 import { LanguageToggleButton } from "@/components/ui/language-toggle";
 
 interface HeaderProps {
-  locale: string;
+  readonly locale: string;
 }
 
 export default function Header({ locale }: HeaderProps) {
@@ -32,12 +32,11 @@ export default function Header({ locale }: HeaderProps) {
     { label: "About Us", href: "#about" },
   ];
 
-  // Check if user is guest (not admin or staff)
-  // Guest role code: "guest"
-  // Admin role code: "admin" or "super_admin"
-  // Staff role code: "staff_ticket" or "gate_staff"
-  const isGuest = isAuthenticated && user && 
-    !["admin", "super_admin", "staff_ticket", "gate_staff"].includes(user.role?.toLowerCase() ?? "");
+  // Determine user role for menu customization
+  const userRole = user?.role?.toLowerCase() ?? "";
+  const isAdmin = ["admin", "super_admin"].includes(userRole);
+  const isStaff = ["staff_ticket", "gate_staff"].includes(userRole);
+  const isGuest = Boolean(isAuthenticated && user && !isAdmin && !isStaff);
 
   return (
     <header
@@ -63,8 +62,12 @@ export default function Header({ locale }: HeaderProps) {
           <div className="flex items-center gap-3">
             <LanguageToggleButton />
             <ThemeToggleButton />
-            {isAuthenticated && isGuest ? (
-              <UserMenu showHistory />
+            {isAuthenticated && user ? (
+              <UserMenu 
+                showHistory={isGuest}
+                isAdmin={isAdmin}
+                isStaff={isStaff}
+              />
             ) : (
               <Button asChild variant="outline" className="text-sm font-light tracking-wide uppercase border-foreground/30 text-foreground hover:border-foreground/50 hover:bg-foreground/10 bg-background/50">
                 <Link href={`/login`}>Login</Link>

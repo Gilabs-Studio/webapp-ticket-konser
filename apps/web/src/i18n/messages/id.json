@@ -39,7 +39,9 @@
   "common": {
     "orderHistory": "Riwayat Pesanan",
     "profile": "Profil",
-    "logout": "Keluar"
+    "logout": "Keluar",
+    "dashboard": "Dashboard",
+    "scan": "Pindai Tiket"
   },
   "dashboard": {
     "title": "Dashboard",

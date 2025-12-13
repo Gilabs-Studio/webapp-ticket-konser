@@ -39,7 +39,9 @@
   "common": {
     "orderHistory": "Order History",
     "profile": "Profile",
-    "logout": "Logout"
+    "logout": "Logout",
+    "dashboard": "Dashboard",
+    "scan": "Scan Ticket"
   },
   "dashboard": {
     "title": "Dashboard",
