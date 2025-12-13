@@ -30,6 +30,11 @@ const nextConfig: NextConfig = {
   },
 
   poweredByHeader: false,
+  
+  // Fix HMR issues with route resolution
+  experimental: {
+    serverComponentsHmrCache: true,
+  },
 };
 
 export default withNextIntl(nextConfig);
