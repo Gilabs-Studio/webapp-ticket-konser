@@ -36,7 +36,7 @@ export default async function LocaleLayout({
         >
           <ReactQueryProvider>
             <AppLayout>{children}</AppLayout>
-            <Toaster position="top-right" richColors />
+            <Toaster position="top-right" richColors offset={80} />
           </ReactQueryProvider>
         </ThemeProvider>
       </ErrorBoundary>
