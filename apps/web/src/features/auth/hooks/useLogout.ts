@@ -1,30 +1,37 @@
 "use client";
 
 import { useCallback } from "react";
-import { useRouter } from "next/navigation";
-import { useMutation } from "@tanstack/react-query";
+import { useRouter } from "@/i18n/routing";
 import { useAuthStore } from "../stores/useAuthStore";
 import { authService } from "../services/authService";
+import { deleteCookie } from "@/lib/cookie";
 
 export function useLogout() {
   const router = useRouter();
-  const clearAuth = useAuthStore((state) => state.clearAuth);
+  const { setUser, setToken } = useAuthStore();
 
-  const handleSuccess = useCallback(() => {
-    clearAuth();
-    router.push("/login");
-  }, [router, clearAuth]);
-
-  const handleError = useCallback(() => {
-    clearAuth();
-    router.push("/login");
-  }, [router, clearAuth]);
-
-  return useMutation({
-    mutationFn: async () => {
+  const handleLogout = useCallback(async () => {
+    try {
       await authService.logout();
-    },
-    onSuccess: handleSuccess,
-    onError: handleError,
-  });
+    } catch (error) {
+      // Ignore logout errors
+    } finally {
+      if (typeof window !== "undefined") {
+        localStorage.removeItem("token");
+        localStorage.removeItem("refreshToken");
+        // Remove cookie
+        deleteCookie("token");
+      }
+      setUser(null);
+      setToken(null);
+      useAuthStore.setState({
+        refreshToken: null,
+        isAuthenticated: false,
+        error: null,
+      });
+      router.push("/login");
+    }
+  }, [router, setUser, setToken]);
+
+  return handleLogout;
 }

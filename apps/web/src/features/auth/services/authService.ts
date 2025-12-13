@@ -1,30 +1,19 @@
 import apiClient from "@/lib/api-client";
-import type {
-  LoginRequest,
-  RefreshTokenRequest,
-  LoginResponseData,
-  ApiResponse,
-} from "../types";
+import type { LoginRequest, LoginResponse } from "../types";
 
 export const authService = {
-  async login(credentials: LoginRequest): Promise<ApiResponse<LoginResponseData>> {
-    const response = await apiClient.post<ApiResponse<LoginResponseData>>(
+  async login(credentials: LoginRequest): Promise<LoginResponse> {
+    const response = await apiClient.post<LoginResponse>(
       "/auth/login",
-      credentials
+      credentials,
     );
     return response.data;
   },
 
-  async refreshToken(
-    refreshToken: string
-  ): Promise<ApiResponse<LoginResponseData>> {
-    const request: RefreshTokenRequest = {
+  async refreshToken(refreshToken: string): Promise<LoginResponse> {
+    const response = await apiClient.post<LoginResponse>("/auth/refresh", {
       refresh_token: refreshToken,
-    };
-    const response = await apiClient.post<ApiResponse<LoginResponseData>>(
-      "/auth/refresh",
-      request
-    );
+    });
     return response.data;
   },
 

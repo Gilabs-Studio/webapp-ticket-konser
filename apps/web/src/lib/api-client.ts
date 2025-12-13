@@ -1,14 +1,25 @@
-import axios, { AxiosInstance, AxiosError, InternalAxiosRequestConfig } from "axios";
+import axios, {
+  AxiosInstance,
+  AxiosError,
+  InternalAxiosRequestConfig,
+} from "axios";
 import { toast } from "sonner";
+import { setSecureCookie } from "./cookie";
+import { formatError } from "./i18n/error-messages";
+import { useRateLimitStore } from "./stores/useRateLimitStore";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080";
+
+// Flag to track if we've validated rate limit state after app load
+// This helps validate if rate limit state is still valid after API restart
+let rateLimitValidated = false;
 
 export const apiClient: AxiosInstance = axios.create({
   baseURL: `${API_BASE_URL}/api/v1`,
   headers: {
     "Content-Type": "application/json",
   },
-  timeout: 10000,
+  timeout: 10000, // 10 seconds timeout
 });
 
 // Flag to prevent multiple refresh attempts
@@ -18,9 +29,12 @@ const failedQueue: Array<{
   reject: (error?: unknown) => void;
 }> = [];
 
-const processQueue = (error: AxiosError | null, token: string | null = null) => {
+const processQueue = (
+  error: AxiosError | null,
+  token: string | null = null,
+) => {
   const queue = [...failedQueue];
-  failedQueue.splice(0, failedQueue.length);
+  failedQueue.splice(0, failedQueue.length); // Clear array
   queue.forEach((prom) => {
     if (error) {
       prom.reject(error);
@@ -33,15 +47,23 @@ const processQueue = (error: AxiosError | null, token: string | null = null) => 
 // Request interceptor untuk menambahkan token
 apiClient.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
-    const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
+    const token =
+      typeof window !== "undefined" ? localStorage.getItem("token") : null;
     if (token && config.headers) {
       config.headers.Authorization = `Bearer ${token}`;
     }
+
+    // Mark this request as first request after app load for rate limit validation
+    // This helps validate if rate limit state is still valid after API restart
+    if (typeof window !== "undefined" && !(config as any)._rateLimitValidated) {
+      (config as any)._rateLimitValidated = true;
+    }
+
     return config;
   },
   (error: AxiosError) => {
     return Promise.reject(error);
-  }
+  },
 );
 
 interface ErrorDetails {
@@ -65,117 +87,203 @@ interface ApiErrorResponse {
 
 // Response interceptor untuk handle errors
 apiClient.interceptors.response.use(
-  (response) => response,
+  (response) => {
+    // Clear rate limit reset time on successful response
+    // This ensures that if API restarts and rate limit state is reset,
+    // frontend will also clear the countdown
+    // Only keep reset time if we're actually rate limited (429 error)
+    const status = response.status;
+    if (status !== 429) {
+      // Request succeeded - ALWAYS clear any existing rate limit state
+      // This handles the case where API restarts and rate limit is reset
+      // If backend rate limit was reset, successful request means we're no longer rate limited
+      // This is important because backend uses in-memory rate limiting that resets on restart
+      const currentResetTime = useRateLimitStore.getState().resetTime;
+      if (currentResetTime) {
+        // Clear reset time if we have one
+        // This validates that backend rate limit state matches frontend state
+        useRateLimitStore.getState().clearResetTime();
+        // Mark as validated after first successful request
+        rateLimitValidated = true;
+      }
+    }
+    return response;
+  },
   async (error: AxiosError<ApiErrorResponse>) => {
+    // Network error (tidak terhubung ke server) - lebih jelas dan awam
     if (!error.response) {
-      if (error.code === "ECONNABORTED" || error.message === "Network Error") {
-        toast.error("Cannot connect to server", {
-          description: "Please ensure the backend server is running",
+      if (error.code === "ECONNABORTED") {
+        const msg = formatError("network", "timeout");
+        toast.error(msg.title, {
+          description: msg.description,
         });
-      } else if (error.code === "ERR_NETWORK") {
-        toast.error("Connection failed", {
-          description: "Unable to connect to backend. Please check your internet connection or ensure the server is running.",
+      } else if (
+        error.code === "ERR_NETWORK" ||
+        error.message === "Network Error"
+      ) {
+        const msg = formatError("network", "connectionFailed");
+        toast.error(msg.title, {
+          description: msg.description,
         });
       } else {
-        toast.error("An error occurred", {
-          description: error.message || "Failed to complete request",
+        const msg = formatError("network", "generic");
+        toast.error(msg.title, {
+          description: msg.description,
         });
       }
       return Promise.reject(error);
     }
 
+    // HTTP error responses
     const status = error.response.status;
     const errorData = error.response.data;
 
     if (!errorData || !errorData.error) {
-      toast.error("An error occurred", {
-        description: "Unexpected error format",
+      const msg = formatError("backend", "invalidFormat");
+      toast.error(msg.title, {
+        description: msg.description,
       });
       return Promise.reject(error);
     }
 
     const errorCode = errorData.error.code;
-    const errorMessage = errorData.error.message;
     const errorDetails = errorData.error.details;
     const fieldErrors = errorData.error.field_errors;
 
+    // Handle specific error codes
     if (errorCode === "RESOURCE_ALREADY_EXISTS" || errorCode === "CONFLICT") {
-      if (errorDetails?.field === "email" && errorDetails?.resource === "user") {
-        toast.error("Email already exists", {
-          description: `The email "${errorDetails.value}" is already registered. Please use a different email.`,
+      // Handle duplicate email or other resource conflicts - lebih jelas dan awam
+      if (
+        errorDetails?.field === "email" &&
+        errorDetails?.resource === "user"
+      ) {
+        const msg = formatError("backend", "emailExists", {
+          email: String(errorDetails.value || ""),
+        });
+        toast.error(msg.title, {
+          description: msg.description,
         });
       } else if (errorDetails?.field && errorDetails?.resource) {
-        toast.error("Resource already exists", {
-          description: `The ${errorDetails.field} "${errorDetails.value}" already exists for this ${errorDetails.resource}.`,
+        const msg = formatError("backend", "resourceExists", {
+          field: errorDetails.field,
+          value: String(errorDetails.value || ""),
+        });
+        toast.error(msg.title, {
+          description: msg.description,
         });
       } else {
-        toast.error("Conflict", {
-          description: errorMessage || "Resource already exists",
+        const msg = formatError("backend", "conflict");
+        toast.error(msg.title, {
+          description: msg.description,
         });
       }
       return Promise.reject(error);
     }
 
+    // Handle INTERNAL_SERVER_ERROR with details (e.g., duplicate email from database constraint)
     if (errorCode === "INTERNAL_SERVER_ERROR" && errorDetails) {
       if (errorDetails.field === "email" && errorDetails.resource === "user") {
-        toast.error("Email already exists", {
-          description: `The email "${errorDetails.value}" is already registered. Please use a different email.`,
+        const msg = formatError("backend", "emailExists", {
+          email: String(errorDetails.value || ""),
+        });
+        toast.error(msg.title, {
+          description: msg.description,
         });
         return Promise.reject(error);
       }
+      // Other internal errors with details
       if (errorDetails.field && errorDetails.resource) {
-        toast.error("Validation error", {
-          description: `The ${errorDetails.field} "${errorDetails.value}" is invalid or already exists for this ${errorDetails.resource}.`,
+        const msg = formatError("backend", "resourceExists", {
+          field: errorDetails.field,
+          value: String(errorDetails.value || ""),
+        });
+        toast.error(msg.title, {
+          description: msg.description,
         });
         return Promise.reject(error);
       }
     }
 
-    if (errorCode === "VALIDATION_ERROR" && fieldErrors && fieldErrors.length > 0) {
+    // Handle validation errors
+    if (
+      errorCode === "VALIDATION_ERROR" &&
+      fieldErrors &&
+      fieldErrors.length > 0
+    ) {
       const firstError = fieldErrors[0];
-      toast.error("Validation error", {
-        description: `${firstError.field}: ${firstError.message}`,
+      const msg = formatError("backend", "fieldError", {
+        field: firstError.field,
+        message: firstError.message,
+      });
+      toast.error(msg.title, {
+        description: msg.description,
       });
       return Promise.reject(error);
     }
 
+    // Handle HTTP status codes
     if (status === 401) {
-      const originalRequest = error.config as InternalAxiosRequestConfig & { _retry?: boolean };
+      const originalRequest = error.config as InternalAxiosRequestConfig & {
+        _retry?: boolean;
+      };
+      const requestUrl = originalRequest?.url || "";
 
-      if (originalRequest?._retry || originalRequest?.url?.includes("/auth/refresh")) {
+      // Skip token refresh for authentication endpoints (login, refresh)
+      // These endpoints return 401 for invalid credentials, not expired session
+      if (
+        requestUrl.includes("/auth/login") ||
+        requestUrl.includes("/auth/refresh")
+      ) {
+        // For login/refresh endpoints, 401 means invalid credentials
+        // Don't try to refresh token, don't show toast, just reject the error
+        // Error message will be handled by the login form component
+        return Promise.reject(error);
+      }
+
+      // Skip refresh if this is already a retry
+      if (originalRequest?._retry) {
+        // Refresh failed or already retried, logout user
         if (typeof window !== "undefined") {
           localStorage.removeItem("token");
           localStorage.removeItem("refreshToken");
-          toast.error("Session expired", {
-            description: "Please login again",
+          const msg = formatError("backend", "unauthorized");
+          toast.error(msg.title, {
+            description: msg.description,
           });
           setTimeout(() => {
-            window.location.href = "/login";
+            window.location.href = "/";
           }, 1000);
         }
         return Promise.reject(error);
       }
 
+      // Try to refresh token
       if (!isRefreshing) {
         isRefreshing = true;
-        const refreshToken = typeof window !== "undefined" ? localStorage.getItem("refreshToken") : null;
+        const refreshToken =
+          typeof window !== "undefined"
+            ? localStorage.getItem("refreshToken")
+            : null;
 
         if (!refreshToken) {
+          // No refresh token, logout
           isRefreshing = false;
           if (typeof window !== "undefined") {
             localStorage.removeItem("token");
             localStorage.removeItem("refreshToken");
-            toast.error("Session expired", {
-              description: "Please login again",
+            const msg = formatError("backend", "unauthorized");
+            toast.error(msg.title, {
+              description: msg.description,
             });
             setTimeout(() => {
-              window.location.href = "/login";
+              window.location.href = "/";
             }, 1000);
           }
           processQueue(error, null);
           return Promise.reject(error);
         }
 
+        // Create separate axios instance for refresh to avoid circular dependency
         const refreshClient = axios.create({
           baseURL: `${API_BASE_URL}/api/v1`,
           headers: {
@@ -184,6 +292,7 @@ apiClient.interceptors.response.use(
           timeout: 10000,
         });
 
+        // Call refresh token endpoint directly
         return refreshClient
           .post<{
             success: boolean;
@@ -211,13 +320,23 @@ apiClient.interceptors.response.use(
               if (typeof window !== "undefined") {
                 localStorage.setItem("token", token);
                 localStorage.setItem("refreshToken", refresh_token);
-                document.cookie = `token=${token}; path=/; max-age=${7 * 24 * 60 * 60}; SameSite=Lax`;
+                // Update secure cookie
+                setSecureCookie("token", token);
               }
 
-              import("@/features/auth/stores/useAuthStore").then(({ useAuthStore }) => {
-                useAuthStore.getState().setAuth(user, token, refresh_token);
-              });
+              // Update auth store with user data and tokens
+              import("@/features/auth/stores/useAuthStore").then(
+                ({ useAuthStore }) => {
+                  useAuthStore.getState().setToken(token);
+                  useAuthStore.getState().setUser(user);
+                  useAuthStore.setState({
+                    refreshToken: refresh_token,
+                    isAuthenticated: true,
+                  });
+                },
+              );
 
+              // Update original request with new token
               if (originalRequest?.headers) {
                 originalRequest.headers.Authorization = `Bearer ${token}`;
               }
@@ -226,27 +345,31 @@ apiClient.interceptors.response.use(
               processQueue(null, token);
               isRefreshing = false;
 
+              // Retry original request
               return apiClient(originalRequest);
             } else {
               throw new Error("Refresh token failed");
             }
           })
           .catch((refreshError) => {
+            // Refresh failed, logout user
             isRefreshing = false;
             if (typeof window !== "undefined") {
               localStorage.removeItem("token");
               localStorage.removeItem("refreshToken");
-              toast.error("Session expired", {
-                description: "Please login again",
+              const msg = formatError("backend", "unauthorized");
+              toast.error(msg.title, {
+                description: msg.description,
               });
               setTimeout(() => {
-                window.location.href = "/login";
+                window.location.href = "/";
               }, 1000);
             }
             processQueue(refreshError as AxiosError, null);
             return Promise.reject(refreshError);
           });
       } else {
+        // Already refreshing, queue this request
         return new Promise((resolve, reject) => {
           failedQueue.push({ resolve, reject });
         })
@@ -262,34 +385,123 @@ apiClient.interceptors.response.use(
           });
       }
     } else if (status === 403) {
-      toast.error("Access denied", {
-        description: errorMessage || "You do not have permission to perform this action",
+      const msg = formatError("backend", "forbidden");
+      toast.error(msg.title, {
+        description: msg.description,
       });
     } else if (status === 404) {
-      const isMutation = error.config?.method && ["post", "put", "patch", "delete"].includes(error.config.method.toLowerCase());
+      // Only show 404 toast for mutations, not queries (to avoid showing on page refresh)
+      const isMutation =
+        error.config?.method &&
+        ["post", "put", "patch", "delete"].includes(
+          error.config.method.toLowerCase(),
+        );
       if (isMutation) {
-        toast.error("Not found", {
-          description: errorMessage || "The requested resource was not found",
+        const msg = formatError("backend", "notFound");
+        toast.error(msg.title, {
+          description: msg.description,
         });
       }
     } else if (status === 409) {
-      toast.error("Conflict", {
-        description: errorMessage || "Resource conflict occurred",
+      // Conflict - already handled above but keep as fallback
+      const msg = formatError("backend", "conflict");
+      toast.error(msg.title, {
+        description: msg.description,
       });
+    } else if (status === 503) {
+      const msg = formatError("backend", "serviceUnavailable");
+      toast.error(msg.title, {
+        description: msg.description,
+      });
+    } else if (status === 429) {
+      // Extract rate limit reset time from response headers
+      // Axios normalizes headers to lowercase, but check both cases for safety
+      const headers = error.response?.headers || {};
+      const resetHeader =
+        headers["x-ratelimit-reset"] || headers["X-RateLimit-Reset"];
+
+      if (resetHeader) {
+        const resetTimeValue =
+          typeof resetHeader === "string"
+            ? parseInt(resetHeader, 10)
+            : typeof resetHeader === "number"
+              ? resetHeader
+              : null;
+
+        if (
+          resetTimeValue !== null &&
+          !isNaN(resetTimeValue) &&
+          resetTimeValue > 0
+        ) {
+          // Store reset time for countdown display
+          // The useRateLimitCountdown hook will show toast with countdown
+          useRateLimitStore.getState().setResetTime(resetTimeValue);
+
+          // Debug: Log in development
+          if (process.env.NODE_ENV === "development") {
+            console.log(
+              "Rate limit detected - Reset time:",
+              resetTimeValue,
+              "Headers:",
+              Object.keys(headers),
+            );
+          }
+        }
+      } else {
+        // Debug: Log if header not found
+        if (process.env.NODE_ENV === "development") {
+          console.warn(
+            "Rate limit header not found. Available headers:",
+            Object.keys(headers),
+          );
+        }
+      }
+
+      // Override error message to prevent default axios message
+      // The useRateLimitCountdown hook will show toast with countdown
+      // Set a custom error message that will be shown in form
+      const rateLimitMessage =
+        errorData?.error?.message ||
+        "Too many login attempts. Please wait before trying again.";
+
+      // Override the error message to prevent "Request failed with status code 429"
+      // Create new error object to ensure message is properly set
+      const customError = { ...error } as AxiosError<ApiErrorResponse>;
+      customError.message = rateLimitMessage;
+
+      if (customError.response?.data) {
+        if (!customError.response.data.error) {
+          customError.response.data.error = {
+            code: "RATE_LIMIT_EXCEEDED",
+            message: rateLimitMessage,
+          };
+        } else {
+          customError.response.data.error.message = rateLimitMessage;
+        }
+      }
+
+      // Don't show generic toast here - useRateLimitCountdown hook will show countdown toast
+      // Just reject the error so it can be handled by the component
+      return Promise.reject(customError);
     } else if (status >= 500) {
-      toast.error("Server error", {
-        description: errorMessage || "An error occurred on the server",
+      const msg = formatError("backend", "serverError");
+      toast.error(msg.title, {
+        description: msg.description,
       });
     } else {
-      toast.error("Request failed", {
-        description: errorMessage || "An error occurred",
-      });
+      // Other 4xx errors
+      // Skip toast for login endpoint - error will be shown in form
+      const requestUrl = error.config?.url || "";
+      if (!requestUrl.includes("/auth/login")) {
+        const msg = formatError("backend", "unexpectedError");
+        toast.error(msg.title, {
+          description: msg.description,
+        });
+      }
     }
 
     return Promise.reject(error);
-  }
+  },
 );
 
 export default apiClient;
-
-

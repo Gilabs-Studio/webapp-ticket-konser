@@ -1,0 +1,23 @@
+{
+  "notFound": {
+    "label": "404",
+    "title": "Halaman Tidak Ditemukan",
+    "description": "Halaman yang Anda cari tidak ada atau telah dipindahkan.",
+    "backHome": "Kembali ke Login"
+  },
+  "auth": {
+    "login": {
+      "title": "Selamat Datang Kembali",
+      "description": "Masuk ke akun Anda untuk melanjutkan",
+      "emailLabel": "Email",
+      "emailPlaceholder": "Masukkan email Anda",
+      "passwordLabel": "Kata Sandi",
+      "passwordPlaceholder": "Masukkan kata sandi Anda",
+      "forgotPassword": "Lupa kata sandi?",
+      "rememberMe": "Ingat saya",
+      "submit": "Masuk",
+      "submitting": "Masuk...",
+      "rateLimitMessage": "Terlalu banyak percobaan login. Silakan coba lagi dalam {countdown}."
+    }
+  }
+}
