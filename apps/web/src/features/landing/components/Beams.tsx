@@ -2,11 +2,11 @@ import { forwardRef, useImperativeHandle, useEffect, useRef, useMemo, FC, ReactN
 
 import * as THREE from 'three';
 
-import { Canvas, useFrame } from '@react-three/fiber';
-import { PerspectiveCamera } from '@react-three/drei';
+import { Canvas, useFrame, useThree } from '@react-three/fiber';
+import { PerspectiveCamera, useTexture } from '@react-three/drei';
 import { degToRad } from 'three/src/math/MathUtils.js';
 
-type UniformValue = THREE.IUniform<unknown> | unknown;
+type UniformValue = THREE.IUniform | number | string | boolean | THREE.Color | THREE.Texture;
 
 interface ExtendMaterialConfig {
   header: string;
@@ -18,39 +18,29 @@ interface ExtendMaterialConfig {
   fragment?: Record<string, string>;
 }
 
-type ShaderWithDefines = THREE.ShaderLibShader & {
-  defines?: Record<string, string | number | boolean>;
-};
-
 function extendMaterial<T extends THREE.Material = THREE.Material>(
   BaseMaterial: new (params?: THREE.MaterialParameters) => T,
   cfg: ExtendMaterialConfig
 ): THREE.ShaderMaterial {
-  const physical = THREE.ShaderLib.physical as ShaderWithDefines;
+  const physical = THREE.ShaderLib.physical;
   const { vertexShader: baseVert, fragmentShader: baseFrag, uniforms: baseUniforms } = physical;
-  const baseDefines = physical.defines ?? {};
+  const baseDefines = 'defines' in physical && physical.defines ? physical.defines : {};
 
   const uniforms: Record<string, THREE.IUniform> = THREE.UniformsUtils.clone(baseUniforms);
 
-  const defaults = new BaseMaterial(cfg.material || {}) as T & {
-    color?: THREE.Color;
-    roughness?: number;
-    metalness?: number;
-    envMap?: THREE.Texture;
-    envMapIntensity?: number;
-  };
+  const defaults = new BaseMaterial(cfg.material || {});
 
-  if (defaults.color) uniforms.diffuse.value = defaults.color;
-  if ('roughness' in defaults) uniforms.roughness.value = defaults.roughness;
-  if ('metalness' in defaults) uniforms.metalness.value = defaults.metalness;
-  if ('envMap' in defaults) uniforms.envMap.value = defaults.envMap;
-  if ('envMapIntensity' in defaults) uniforms.envMapIntensity.value = defaults.envMapIntensity;
+  if ('color' in defaults && defaults.color) uniforms.diffuse.value = defaults.color;
+  if ('roughness' in defaults && defaults.roughness !== undefined) uniforms.roughness.value = defaults.roughness;
+  if ('metalness' in defaults && defaults.metalness !== undefined) uniforms.metalness.value = defaults.metalness;
+  if ('envMap' in defaults && defaults.envMap) uniforms.envMap.value = defaults.envMap;
+  if ('envMapIntensity' in defaults && defaults.envMapIntensity !== undefined) uniforms.envMapIntensity.value = defaults.envMapIntensity;
 
   Object.entries(cfg.uniforms ?? {}).forEach(([key, u]) => {
     uniforms[key] =
       u !== null && typeof u === 'object' && 'value' in u
-        ? (u as THREE.IUniform<unknown>)
-        : ({ value: u } as THREE.IUniform<unknown>);
+        ? (u as THREE.IUniform)
+        : ({ value: u } as THREE.IUniform);
   });
 
   let vert = `${cfg.header}\n${cfg.vertexHeader ?? ''}\n${baseVert}`;
@@ -83,9 +73,9 @@ const CanvasWrapper: FC<{ children: ReactNode }> = ({ children }) => (
 
 const hexToNormalizedRGB = (hex: string): [number, number, number] => {
   const clean = hex.replace('#', '');
-  const r = parseInt(clean.substring(0, 2), 16);
-  const g = parseInt(clean.substring(2, 4), 16);
-  const b = parseInt(clean.substring(4, 6), 16);
+  const r = Number.parseInt(clean.substring(0, 2), 16);
+  const g = Number.parseInt(clean.substring(2, 4), 16);
+  const b = Number.parseInt(clean.substring(4, 6), 16);
   return [r / 255, g / 255, b / 255];
 };
 
@@ -175,6 +165,8 @@ interface BeamsProps {
   noiseIntensity?: number;
   scale?: number;
   rotation?: number;
+  backgroundImage?: string;
+  backgroundOpacity?: number;
 }
 
 const Beams: FC<BeamsProps> = ({
@@ -185,7 +177,9 @@ const Beams: FC<BeamsProps> = ({
   speed = 2,
   noiseIntensity = 1.75,
   scale = 0.2,
-  rotation = 0
+  rotation = 0,
+  backgroundImage = 'bg.jpg',
+  backgroundOpacity = 1
 }) => {
   const meshRef = useRef<THREE.Mesh<THREE.BufferGeometry, THREE.ShaderMaterial>>(null!);
 
@@ -233,14 +227,14 @@ const Beams: FC<BeamsProps> = ({
         },
         material: { fog: true },
         uniforms: {
-          diffuse: new THREE.Color(...hexToNormalizedRGB('#000000')),
-          time: { shared: true, mixed: true, linked: true, value: 0 },
-          roughness: 0.3,
-          metalness: 0.3,
-          uSpeed: { shared: true, mixed: true, linked: true, value: speed },
-          envMapIntensity: 10,
-          uNoiseIntensity: noiseIntensity,
-          uScale: scale
+          diffuse: { value: new THREE.Color(...hexToNormalizedRGB('#000000')) },
+          time: { value: 0 },
+          roughness: { value: 0.3 },
+          metalness: { value: 0.3 },
+          uSpeed: { value: speed },
+          envMapIntensity: { value: 10 },
+          uNoiseIntensity: { value: noiseIntensity },
+          uScale: { value: scale }
         }
       }),
     [speed, noiseIntensity, scale]
@@ -248,12 +242,12 @@ const Beams: FC<BeamsProps> = ({
 
   return (
     <CanvasWrapper>
+      <BackgroundScene imageUrl={backgroundImage} opacity={backgroundOpacity} />
       <group rotation={[0, 0, degToRad(rotation)]}>
         <PlaneNoise ref={meshRef} material={beamMaterial} count={beamNumber} width={beamWidth} height={beamHeight} />
         <DirLight color={lightColor} position={[0, 3, 10]} />
       </group>
       <ambientLight intensity={1} />
-      <color attach="background" args={['#000000']} />
       <PerspectiveCamera makeDefault position={[0, 0, 20]} fov={30} />
     </CanvasWrapper>
   );
@@ -352,21 +346,78 @@ const DirLight: FC<{ position: [number, number, number]; color: string }> = ({ p
   const dir = useRef<THREE.DirectionalLight>(null!);
   useEffect(() => {
     if (!dir.current) return;
-    const cam = dir.current.shadow.camera as THREE.Camera & {
-      top: number;
-      bottom: number;
-      left: number;
-      right: number;
-      far: number;
-    };
-    cam.top = 24;
-    cam.bottom = -24;
-    cam.left = -24;
-    cam.right = 24;
-    cam.far = 64;
+    const cam = dir.current.shadow.camera;
+    if (cam instanceof THREE.OrthographicCamera) {
+      cam.top = 24;
+      cam.bottom = -24;
+      cam.left = -24;
+      cam.right = 24;
+      cam.far = 64;
+    }
     dir.current.shadow.bias = -0.004;
   }, []);
   return <directionalLight ref={dir} color={color} intensity={1} position={position} />;
+};
+
+const BackgroundScene: FC<{ imageUrl: string; opacity?: number }> = ({ imageUrl, opacity = 0.4 }) => {
+  const { scene } = useThree();
+  const texture = useTexture(imageUrl);
+
+  useEffect(() => {
+    if (!texture) return;
+
+    // Create shader material with gradient overlay
+    const gradientMaterial = new THREE.ShaderMaterial({
+      uniforms: {
+        tDiffuse: { value: texture } as THREE.IUniform<THREE.Texture>,
+        opacity: { value: opacity } as THREE.IUniform<number>,
+      },
+      vertexShader: `
+        varying vec2 vUv;
+        void main() {
+          vUv = uv;
+          gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+        }
+      `,
+      fragmentShader: `
+        uniform sampler2D tDiffuse;
+        uniform float opacity;
+        varying vec2 vUv;
+        
+        void main() {
+          vec4 texColor = texture2D(tDiffuse, vUv);
+          
+          // Create gradient overlay from top to bottom
+          float gradientFactor = smoothstep(0.0, 1.0, vUv.y);
+          vec3 gradientColor = mix(
+            vec3(0.05, 0.0, 0.15),  // Dark purple at top
+            vec3(0.0, 0.0, 0.0),     // Black at bottom
+            gradientFactor
+          );
+          
+          // Blend texture with gradient
+          vec3 finalColor = mix(gradientColor, texColor.rgb, opacity * 0.5);
+          
+          gl_FragColor = vec4(finalColor, 1.0);
+        }
+      `,
+      side: THREE.BackSide,
+      depthWrite: false,
+    });
+
+    // Create sphere geometry for background
+    const geometry = new THREE.SphereGeometry(500, 60, 40);
+    const backgroundMesh = new THREE.Mesh<THREE.SphereGeometry, THREE.ShaderMaterial>(geometry, gradientMaterial);
+    scene.add(backgroundMesh);
+
+    return () => {
+      scene.remove(backgroundMesh);
+      geometry.dispose();
+      gradientMaterial.dispose();
+    };
+  }, [scene, texture, opacity]);
+
+  return null;
 };
 
 export default Beams;
