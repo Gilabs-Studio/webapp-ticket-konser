@@ -1,10 +1,8 @@
 "use client";
 
-import { Card, CardContent } from "@/components/ui/card";
-import { DollarSign, Ticket, Shirt } from "lucide-react";
+import { DollarSign, Ticket, Shirt, TrendingUp } from "lucide-react";
 import { useSalesOverview } from "../hooks/useDashboard";
 import { Skeleton } from "@/components/ui/skeleton";
-import { TrendingUp } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 interface AdminStatsProps {
@@ -21,13 +19,11 @@ export function AdminStats({ filters }: AdminStatsProps) {
 
   if (isLoading) {
     return (
-      <div className="grid gap-4 md:grid-cols-3">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {[1, 2, 3].map((i) => (
-          <Card key={i}>
-            <CardContent className="p-6">
-              <Skeleton className="h-24 w-full" />
-            </CardContent>
-          </Card>
+          <div key={i} className="p-5 rounded-xl border border-border bg-card/30">
+            <Skeleton className="h-24 w-full" />
+          </div>
         ))}
       </div>
     );
@@ -48,7 +44,7 @@ export function AdminStats({ filters }: AdminStatsProps) {
     : 0;
 
   // Mock merch sales (will be replaced with actual data when API is available)
-  const merchSales = 32150.0;
+  const merchSales = 32150;
   const merchSalesFormatted = new Intl.NumberFormat("en-US", {
     style: "currency",
     currency: "USD",
@@ -62,62 +58,63 @@ export function AdminStats({ filters }: AdminStatsProps) {
       value: sales.total_revenue_formatted,
       icon: DollarSign,
       trend: sales.change_percent,
-      color: "text-blue-600",
     },
     {
       label: t("stats.ticketsIssued"),
       value: ticketsIssued.toLocaleString("en-US"),
       icon: Ticket,
       additional: `${ticketsSoldPercent}% Sold`,
-      color: "text-purple-600",
     },
     {
       label: t("stats.merchSales"),
       value: merchSalesFormatted,
       icon: Shirt,
       trend: merchChangePercent,
-      color: "text-green-600",
     },
   ];
 
   return (
-    <div className="grid gap-4 md:grid-cols-3">
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
       {stats.map((stat) => {
         const Icon = stat.icon;
         const isPositive = (stat.trend ?? 0) >= 0;
+        const hasTrend = stat.trend !== undefined && stat.trend !== 0;
+        
         return (
-          <Card key={stat.label}>
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div className="flex flex-col gap-2">
-                  <p className="text-sm font-medium text-muted-foreground">
-                    {stat.label}
-                  </p>
-                  <div className="flex items-baseline gap-2">
-                    <p className="text-3xl font-bold">{stat.value}</p>
-                    {stat.trend !== undefined && stat.trend !== 0 && (
-                      <div
-                        className={`flex items-center gap-1 text-sm ${
-                          isPositive ? "text-green-600" : "text-red-600"
-                        }`}
-                      >
-                        <TrendingUp className="h-4 w-4" />
-                        <span>{Math.abs(stat.trend).toFixed(1)}%</span>
-                      </div>
-                    )}
-                  </div>
-                  {stat.additional && (
-                    <p className="text-xs text-muted-foreground">
-                      {stat.additional}
-                    </p>
-                  )}
-                </div>
-                <div className={`rounded-lg bg-muted p-3 ${stat.color}`}>
-                  <Icon className="h-6 w-6" />
-                </div>
+          <div
+            key={stat.label}
+            className="p-5 rounded-xl border border-border bg-card/30 hover:border-ring transition-colors group"
+          >
+            <div className="flex justify-between items-start mb-4">
+              <div className="p-2 bg-card rounded-lg border border-border group-hover:border-ring text-foreground">
+                <Icon className="h-[18px] w-[18px]" />
               </div>
-            </CardContent>
-          </Card>
+              {(() => {
+                if (hasTrend) {
+                  return (
+                    <span className={`text-xs font-medium flex items-center gap-1 ${
+                      isPositive ? "text-emerald-500" : "text-red-500"
+                    }`}>
+                      {isPositive ? "+" : ""}{stat.trend?.toFixed(1)}%{" "}
+                      <TrendingUp className="h-3 w-3" />
+                    </span>
+                  );
+                }
+                if (stat.additional) {
+                  return (
+                    <span className="text-xs font-medium text-foreground/60">
+                      {stat.additional}
+                    </span>
+                  );
+                }
+                return null;
+              })()}
+            </div>
+            <div className="text-2xl font-medium tracking-tight text-foreground mb-1">
+              {stat.value}
+            </div>
+            <div className="text-xs text-muted-foreground">{stat.label}</div>
+          </div>
         );
       })}
     </div>
