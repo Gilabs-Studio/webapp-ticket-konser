@@ -1,6 +1,6 @@
-# CRM Healthcare Web
+# WebApp Ticketing Web
 
-Frontend application untuk CRM Healthcare/Pharmaceutical Platform menggunakan Next.js 16.
+Frontend application untuk WebApp Ticketing Platform (Harry Potter Museum Exhibition) menggunakan Next.js 16.
 
 ## Tech Stack
 
@@ -25,19 +25,16 @@ Frontend application untuk CRM Healthcare/Pharmaceutical Platform menggunakan Ne
 ### Installation
 
 1. Install dependencies:
-
 ```bash
 pnpm install
 ```
 
 2. Copy environment variables:
-
 ```bash
 cp .env.example .env
 ```
 
 3. Update `.env` dengan konfigurasi yang sesuai:
-
 ```env
 NEXT_PUBLIC_API_URL=http://localhost:8080
 ```
