@@ -41,14 +41,14 @@ export function useLogin() {
           isAuthenticated: true,
           error: null,
         });
-        // Redirect berdasarkan role
+        // Redirect berdasarkan role code
         const userRole = user.role?.toLowerCase() ?? "";
         if (userRole === "admin" || userRole === "super_admin") {
           router.push("/admin/dashboard");
         } else if (userRole === "staff_ticket" || userRole === "gate_staff") {
           router.push("/staff/ticket");
         } else {
-          // Guest atau role lain - redirect ke landing page
+          // Guest atau role lain - redirect ke landing page (tidak ada dashboard untuk guest)
           router.push("/");
         }
       }

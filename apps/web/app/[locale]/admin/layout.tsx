@@ -18,14 +18,13 @@ import { Link, usePathname } from "@/i18n/routing";
 import {
   LayoutDashboard,
   Users,
-  Calendar,
   Ticket,
   ShoppingCart,
   Settings,
   BarChart3,
   ChevronDown,
+  LogOut,
 } from "lucide-react";
-import { Separator } from "@/components/ui/separator";
 import { useTranslations } from "next-intl";
 import { UserMenu } from "@/components/user-menu";
 import { ThemeToggleButton } from "@/components/ui/theme-toggle";
@@ -40,7 +39,6 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useLogout } from "@/features/auth/hooks/useLogout";
-import { LogOut } from "lucide-react";
 import { Breadcrumb } from "@/components/breadcrumb";
 
 interface AdminLayoutProps {
@@ -155,46 +153,49 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
             </SidebarMenu>
           </SidebarGroup>
         </SidebarContent>
-        <SidebarFooter>
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <button className="flex w-full items-center gap-2 rounded-md px-2 py-2 hover:bg-accent focus:outline-none focus:ring-2 focus:ring-ring">
-                <Avatar className="h-8 w-8">
-                  <AvatarImage src={user?.avatar_url} alt={user?.name ?? "User"} />
-                  <AvatarFallback>{initials}</AvatarFallback>
-                </Avatar>
-                <div className="flex flex-1 flex-col items-start text-left text-sm">
-                  <span className="font-medium">{user?.name ?? "User"}</span>
-                  <span className="text-xs text-muted-foreground">
-                    {user?.email ?? ""}
-                  </span>
-                </div>
-                <ChevronDown className="h-4 w-4 text-muted-foreground" />
-              </button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-56">
-              <DropdownMenuLabel>
-                <div className="flex flex-col space-y-1">
-                  <p className="text-sm font-medium leading-none">
-                    {user?.name ?? "User"}
-                  </p>
-                  <p className="text-xs leading-none text-muted-foreground">
-                    {user?.email ?? ""}
-                  </p>
-                </div>
-              </DropdownMenuLabel>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={handleLogout} className="text-destructive">
-                <LogOut className="mr-2 h-4 w-4" />
-                <span>{t("logout")}</span>
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </SidebarFooter>
+        {user && (
+          <SidebarFooter>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button className="flex w-full items-center gap-2 rounded-md px-2 py-2 hover:bg-accent focus:outline-none focus:ring-2 focus:ring-ring">
+                  <Avatar className="h-8 w-8">
+                    <AvatarImage src={user.avatar_url} alt={user.name ?? "User"} />
+                    <AvatarFallback>{initials}</AvatarFallback>
+                  </Avatar>
+                  <div className="flex flex-1 flex-col items-start text-left text-sm">
+                    <span className="font-medium">{user.name ?? "User"}</span>
+                    <span className="text-xs text-muted-foreground">
+                      {user.email ?? ""}
+                    </span>
+                  </div>
+                  <ChevronDown className="h-4 w-4 text-muted-foreground" />
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-56">
+                <DropdownMenuLabel>
+                  <div className="flex flex-col space-y-1">
+                    <p className="text-sm font-medium leading-none">
+                      {user.name ?? "User"}
+                    </p>
+                    <p className="text-xs leading-none text-muted-foreground">
+                      {user.email ?? ""}
+                    </p>
+                  </div>
+                </DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={handleLogout} className="text-destructive">
+                  <LogOut className="mr-2 h-4 w-4" />
+                  <span>{t("logout")}</span>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </SidebarFooter>
+        )}
       </Sidebar>
       <SidebarInset>
         <header className="flex h-16 shrink-0 items-center justify-between gap-4 border-b bg-background px-6">
           <div className="flex items-center gap-4 flex-1">
+            <SidebarTrigger className="-ml-1" />
             {/* Breadcrumb */}
             <div className="flex-1">
               <Breadcrumb />

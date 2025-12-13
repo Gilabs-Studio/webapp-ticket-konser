@@ -32,6 +32,9 @@ export default function Header({ locale }: HeaderProps) {
   ];
 
   // Check if user is guest (not admin or staff)
+  // Guest role code: "guest"
+  // Admin role code: "admin" or "super_admin"
+  // Staff role code: "staff_ticket" or "gate_staff"
   const isGuest = isAuthenticated && user && 
     !["admin", "super_admin", "staff_ticket", "gate_staff"].includes(user.role?.toLowerCase() ?? "");
 
