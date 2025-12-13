@@ -4,6 +4,8 @@ import { Download, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { MerchandiseProductCard } from "./MerchandiseProductCard";
 import { MerchandiseProduct } from "../types";
+import { motion } from "framer-motion";
+import { StaggerContainer } from "@/components/motion";
 
 interface MerchandiseInventoryProps {
   readonly products?: readonly MerchandiseProduct[];
@@ -45,8 +47,18 @@ export function MerchandiseInventory({
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex justify-between items-center">
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.3, ease: [0.4, 0, 0.2, 1] }}
+      className="space-y-6"
+    >
+      <motion.div
+        initial={{ opacity: 0, y: -10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3, delay: 0.1 }}
+        className="flex justify-between items-center"
+      >
         <h2 className="text-lg font-medium text-foreground tracking-tight">
           Merchandise Inventory
         </h2>
@@ -70,9 +82,14 @@ export function MerchandiseInventory({
             Add Product
           </Button>
         </div>
-      </div>
+      </motion.div>
       {products.length === 0 ? (
-        <div className="border border-border bg-card/30 rounded-lg p-8 text-center">
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.3, delay: 0.2 }}
+          className="border border-border bg-card/30 rounded-lg p-8 text-center"
+        >
           <p className="text-sm text-muted-foreground mb-4">
             No products found. Create one to get started.
           </p>
@@ -80,9 +97,9 @@ export function MerchandiseInventory({
             <Plus className="h-4 w-4" />
             Add Product
           </Button>
-        </div>
+        </motion.div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <StaggerContainer className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {products.map((product) => (
             <MerchandiseProductCard
               key={product.id}
@@ -90,8 +107,8 @@ export function MerchandiseInventory({
               onClick={onProductClick}
             />
           ))}
-        </div>
+        </StaggerContainer>
       )}
-    </div>
+    </motion.div>
   );
 }

@@ -12,7 +12,7 @@ const AttendeeList = dynamic(
   },
 );
 
-export default function AttendeesPage() {
+export default function AttendancePage() {
   return (
     <PageMotion className="p-6">
       <Suspense fallback={null}>

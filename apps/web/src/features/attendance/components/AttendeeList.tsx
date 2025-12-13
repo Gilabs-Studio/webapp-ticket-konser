@@ -18,6 +18,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useAttendees } from "../hooks/useAttendees";
 import type { Attendee, AttendeeFilters } from "../types";
 import { Skeleton } from "@/components/ui/skeleton";
+import { motion } from "framer-motion";
 
 interface AttendeeListProps {
   readonly filters?: AttendeeFilters;
@@ -164,9 +165,19 @@ export function AttendeeList({ filters }: AttendeeListProps) {
   }
 
   return (
-    <div className="space-y-6">
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.3, ease: [0.4, 0, 0.2, 1] }}
+      className="space-y-6"
+    >
       {/* Header */}
-      <div className="flex justify-between items-center">
+      <motion.div
+        initial={{ opacity: 0, y: -10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3, delay: 0.1 }}
+        className="flex justify-between items-center"
+      >
         <h2 className="text-lg font-medium tracking-tight">Attendee List</h2>
         <div className="flex gap-2">
           <Button variant="outline" size="sm" className="text-xs">
@@ -182,7 +193,7 @@ export function AttendeeList({ filters }: AttendeeListProps) {
             Export List
           </Button>
         </div>
-      </div>
+      </motion.div>
 
       {/* Table Container */}
       <div className="border border-border bg-card/20 dark:bg-card/10 rounded-xl overflow-hidden">
@@ -228,10 +239,13 @@ export function AttendeeList({ filters }: AttendeeListProps) {
                 </TableCell>
               </TableRow>
             ) : (
-              attendees.map((attendee) => (
+              attendees.map((attendee, index) => (
                 <TableRow
                   key={attendee.id}
                   className="hover:bg-muted/5 dark:hover:bg-muted/10 group transition-colors"
+                  style={{
+                    animation: `fadeInSlide 0.3s ease-out ${index * 0.05}s both`,
+                  }}
                 >
                   <TableCell className="px-6 py-4">
                     <Checkbox className="rounded" />
@@ -329,6 +343,6 @@ export function AttendeeList({ filters }: AttendeeListProps) {
           </div>
         )}
       </div>
-    </div>
+    </motion.div>
   );
 }

@@ -3,6 +3,7 @@
 import { TicketCard } from "./TicketCard";
 import { type TicketType } from "../types";
 import { Skeleton } from "@/components/ui/skeleton";
+import { StaggerContainer } from "@/components/motion";
 
 interface TicketListProps {
   readonly tickets?: TicketType[];
@@ -38,7 +39,7 @@ export function TicketList({ tickets, isLoading, onEdit, onMore }: TicketListPro
   }
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+    <StaggerContainer className="grid grid-cols-1 md:grid-cols-3 gap-6">
       {ticketList.map((ticket) => (
         <TicketCard
           key={ticket.id}
@@ -47,6 +48,6 @@ export function TicketList({ tickets, isLoading, onEdit, onMore }: TicketListPro
           onMore={onMore}
         />
       ))}
-    </div>
+    </StaggerContainer>
   );
 }
