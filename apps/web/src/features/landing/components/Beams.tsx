@@ -1,4 +1,4 @@
-import { forwardRef, useImperativeHandle, useEffect, useRef, useMemo, FC, ReactNode, Suspense, Component } from 'react';
+import React, { forwardRef, useImperativeHandle, useEffect, useRef, useMemo, FC, ReactNode, Suspense, Component } from 'react';
 
 import * as THREE from 'three';
 
@@ -176,7 +176,7 @@ interface BeamsProps {
   backgroundImage?: string;
 }
 
-const Beams: FC<BeamsProps> = ({
+const Beams: FC<BeamsProps> = React.memo(({
   beamWidth = 2,
   beamHeight = 15,
   beamNumber = 12,
@@ -259,7 +259,9 @@ const Beams: FC<BeamsProps> = ({
       <PerspectiveCamera makeDefault position={[0, 0, 20]} fov={30} />
     </CanvasWrapper>
   );
-};
+});
+
+Beams.displayName = 'Beams';
 
 function createStackedPlanesBufferGeometry(
   n: number,

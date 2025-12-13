@@ -28,6 +28,7 @@ import {
 import { useTranslations } from "next-intl";
 import { UserMenu } from "@/components/user-menu";
 import { ThemeToggleButton } from "@/components/ui/theme-toggle";
+import { LanguageToggleButton } from "@/components/ui/language-toggle";
 import { useAuthStore } from "@/features/auth/stores/useAuthStore";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
@@ -223,6 +224,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
                 />
               </svg>
             </button>
+            <LanguageToggleButton />
             <ThemeToggleButton />
             <UserMenu />
           </div>
