@@ -40,6 +40,11 @@ export function categorizeMenus(menus: Menu[]): {
     // Only include active menus
     if (!menu.is_active) continue;
 
+    // Skip scanner and check-ins menus (these are accessed via profile dropdown, not sidebar)
+    if (menu.code === "scanner" || menu.code === "check-ins") {
+      continue;
+    }
+
     // Categorize based on menu code
     if (
       menu.code === "dashboard" ||

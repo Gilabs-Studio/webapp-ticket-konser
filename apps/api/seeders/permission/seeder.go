@@ -60,6 +60,10 @@ func Seed() error {
 		{Code: "role.create", Name: "Create Role", Resource: "role", Action: "create"},
 		{Code: "role.update", Name: "Update Role", Resource: "role", Action: "update"},
 		{Code: "role.delete", Name: "Delete Role", Resource: "role", Action: "delete"},
+
+		// Check-in permissions
+		{Code: "checkin.read", Name: "Read Check-in", Resource: "checkin", Action: "read"},
+		{Code: "checkin.create", Name: "Create Check-in", Resource: "checkin", Action: "create"},
 	}
 
 	createdCount := 0

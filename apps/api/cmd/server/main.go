@@ -6,6 +6,7 @@ import (
 	"time"
 
 	authhandler "github.com/gilabs/webapp-ticket-konser/api/internal/api/handlers/auth"
+	checkinhandler "github.com/gilabs/webapp-ticket-konser/api/internal/api/handlers/checkin"
 	eventhandler "github.com/gilabs/webapp-ticket-konser/api/internal/api/handlers/event"
 	menuhandler "github.com/gilabs/webapp-ticket-konser/api/internal/api/handlers/menu"
 	orderhandler "github.com/gilabs/webapp-ticket-konser/api/internal/api/handlers/order"
@@ -16,6 +17,7 @@ import (
 	userhandler "github.com/gilabs/webapp-ticket-konser/api/internal/api/handlers/user"
 	"github.com/gilabs/webapp-ticket-konser/api/internal/api/middleware"
 	authroutes "github.com/gilabs/webapp-ticket-konser/api/internal/api/routes/auth"
+	checkinroutes "github.com/gilabs/webapp-ticket-konser/api/internal/api/routes/checkin"
 	eventroutes "github.com/gilabs/webapp-ticket-konser/api/internal/api/routes/event"
 	menuroutes "github.com/gilabs/webapp-ticket-konser/api/internal/api/routes/menu"
 	orderroutes "github.com/gilabs/webapp-ticket-konser/api/internal/api/routes/order"
@@ -28,23 +30,26 @@ import (
 	"github.com/gilabs/webapp-ticket-konser/api/internal/database"
 	"github.com/gilabs/webapp-ticket-konser/api/internal/repository/interfaces/role"
 	authrepo "github.com/gilabs/webapp-ticket-konser/api/internal/repository/postgres/auth"
+	checkinrepo "github.com/gilabs/webapp-ticket-konser/api/internal/repository/postgres/checkin"
 	eventrepo "github.com/gilabs/webapp-ticket-konser/api/internal/repository/postgres/event"
 	menurepo "github.com/gilabs/webapp-ticket-konser/api/internal/repository/postgres/menu"
 	orderrepo "github.com/gilabs/webapp-ticket-konser/api/internal/repository/postgres/order"
+	orderitemrepo "github.com/gilabs/webapp-ticket-konser/api/internal/repository/postgres/order_item"
+	permissionrepo "github.com/gilabs/webapp-ticket-konser/api/internal/repository/postgres/permission"
+	rolerepo "github.com/gilabs/webapp-ticket-konser/api/internal/repository/postgres/role"
 	schedulerepo "github.com/gilabs/webapp-ticket-konser/api/internal/repository/postgres/schedule"
 	ticketcategoryrepo "github.com/gilabs/webapp-ticket-konser/api/internal/repository/postgres/ticket_category"
 	userrepo "github.com/gilabs/webapp-ticket-konser/api/internal/repository/postgres/user"
-	permissionrepo "github.com/gilabs/webapp-ticket-konser/api/internal/repository/postgres/permission"
-	rolerepo "github.com/gilabs/webapp-ticket-konser/api/internal/repository/postgres/role"
 	authservice "github.com/gilabs/webapp-ticket-konser/api/internal/service/auth"
+	checkinservice "github.com/gilabs/webapp-ticket-konser/api/internal/service/checkin"
 	eventservice "github.com/gilabs/webapp-ticket-konser/api/internal/service/event"
 	menuservice "github.com/gilabs/webapp-ticket-konser/api/internal/service/menu"
 	orderservice "github.com/gilabs/webapp-ticket-konser/api/internal/service/order"
+	permissionservice "github.com/gilabs/webapp-ticket-konser/api/internal/service/permission"
+	roleservice "github.com/gilabs/webapp-ticket-konser/api/internal/service/role"
 	scheduleservice "github.com/gilabs/webapp-ticket-konser/api/internal/service/schedule"
 	ticketcategoryservice "github.com/gilabs/webapp-ticket-konser/api/internal/service/ticket_category"
 	userservice "github.com/gilabs/webapp-ticket-konser/api/internal/service/user"
-	permissionservice "github.com/gilabs/webapp-ticket-konser/api/internal/service/permission"
-	roleservice "github.com/gilabs/webapp-ticket-konser/api/internal/service/role"
 	"github.com/gilabs/webapp-ticket-konser/api/pkg/jwt"
 	"github.com/gilabs/webapp-ticket-konser/api/pkg/logger"
 	"github.com/gilabs/webapp-ticket-konser/api/pkg/response"
@@ -93,6 +98,8 @@ func main() {
 	ticketCategoryRepo := ticketcategoryrepo.NewRepository(database.DB)
 	scheduleRepo := schedulerepo.NewRepository(database.DB)
 	orderRepo := orderrepo.NewRepository(database.DB)
+	orderItemRepo := orderitemrepo.NewRepository(database.DB)
+	checkInRepo := checkinrepo.NewRepository(database.DB)
 	userRepo := userrepo.NewRepository(database.DB)
 
 	// Setup services
@@ -104,6 +111,7 @@ func main() {
 	ticketCategoryService := ticketcategoryservice.NewService(ticketCategoryRepo)
 	scheduleService := scheduleservice.NewService(scheduleRepo)
 	orderService := orderservice.NewService(orderRepo)
+	checkInService := checkinservice.NewService(checkInRepo, orderItemRepo)
 	userService := userservice.NewService(userRepo, roleRepo)
 
 	// Setup handlers
@@ -115,6 +123,7 @@ func main() {
 	ticketCategoryHandler := ticketcategoryhandler.NewHandler(ticketCategoryService)
 	scheduleHandler := schedulehandler.NewHandler(scheduleService)
 	orderHandler := orderhandler.NewHandler(orderService)
+	checkInHandler := checkinhandler.NewHandler(checkInService)
 	userHandler := userhandler.NewHandler(userService)
 
 	// Setup router
@@ -128,6 +137,7 @@ func main() {
 		ticketCategoryHandler,
 		scheduleHandler,
 		orderHandler,
+		checkInHandler,
 		userHandler,
 		roleRepo,
 	)
@@ -150,6 +160,7 @@ func setupRouter(
 	ticketCategoryHandler *ticketcategoryhandler.Handler,
 	scheduleHandler *schedulehandler.Handler,
 	orderHandler *orderhandler.Handler,
+	checkInHandler *checkinhandler.Handler,
 	userHandler *userhandler.Handler,
 	roleRepo role.Repository,
 ) *gin.Engine {
@@ -206,6 +217,9 @@ func setupRouter(
 
 		// Order routes
 		orderroutes.SetupRoutes(v1, orderHandler, roleRepo, jwtManager)
+
+		// Check-in routes
+		checkinroutes.SetupRoutes(v1, checkInHandler, roleRepo, jwtManager)
 
 		// User routes
 		userroutes.SetupRoutes(v1, userHandler, roleRepo, jwtManager)

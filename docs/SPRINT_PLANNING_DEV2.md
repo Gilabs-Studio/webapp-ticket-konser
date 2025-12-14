@@ -99,38 +99,38 @@ Developer 2 bertanggung jawab untuk:
 
 **Backend Tasks**:
 
-- [ ] Create check-in model dan migration
-- [ ] Create check-in repository interface dan implementation
-- [ ] Create check-in service
-- [ ] Implement QR code validation API (`POST /api/v1/check-in/validate`)
-- [ ] Implement check-in API (`POST /api/v1/check-in`)
-- [ ] Implement one-scan validation (QR hanya bisa dipakai 1 kali)
-- [ ] Implement duplicate detection (anti-fraud)
-- [ ] Implement check-in history API (`GET /api/v1/check-ins`)
-- [ ] Add gate assignment logic
-- [ ] Add check-in timestamp dan location tracking
-- [ ] Add validation (ticket status, already used, invalid QR)
-- [ ] Add rate limiting untuk check-in endpoint
+- [x] Create check-in model dan migration
+- [x] Create check-in repository interface dan implementation
+- [x] Create check-in service
+- [x] Implement QR code validation API (`POST /api/v1/check-in/validate`)
+- [x] Implement check-in API (`POST /api/v1/check-in`)
+- [x] Implement one-scan validation (QR hanya bisa dipakai 1 kali)
+- [x] Implement duplicate detection (anti-fraud)
+- [x] Implement check-in history API (`GET /api/v1/check-ins`)
+- [x] Add gate assignment logic
+- [x] Add check-in timestamp dan location tracking
+- [x] Add validation (ticket status, already used, invalid QR)
+- [x] Add rate limiting untuk check-in endpoint
 
 **Frontend Tasks**:
 
-- [ ] Create check-in types (`types/check-in.d.ts`)
-- [ ] Create check-in service (`checkInService`)
-- [ ] Create scanner page (`/scanner`)
-- [ ] Create QR code scanner component (`QRCodeScanner`) - menggunakan web camera API
-- [ ] Create scanner mode UI (mobile-friendly, fullscreen)
-- [ ] Create check-in result component (`CheckInResult`)
-- [ ] Create check-in history page (`/check-ins`)
-- [ ] Create check-in history component (`CheckInHistory`)
-- [ ] Add camera permission handling
-- [ ] Add scanner feedback (sound, vibration jika bisa)
-- [ ] Add error handling untuk invalid QR
-- [ ] Add success/error animations
-- [ ] Optimize untuk mobile web (responsive, touch-friendly)
+- [x] Create check-in types (`types/check-in.d.ts`)
+- [x] Create check-in service (`checkInService`)
+- [x] Create scanner page (`/scanner`)
+- [x] Create QR code scanner component (`QRCodeScanner`) - menggunakan web camera API (NOTE: requires html5-qrcode library)
+- [x] Create scanner mode UI (mobile-friendly, fullscreen)
+- [x] Create check-in result component (`CheckInResult`)
+- [x] Create check-in history page (`/check-ins`)
+- [x] Create check-in history component (`CheckInHistory`)
+- [x] Add camera permission handling
+- [x] Add scanner feedback (sound, vibration jika bisa)
+- [x] Add error handling untuk invalid QR
+- [x] Add success/error animations
+- [x] Optimize untuk mobile web (responsive, touch-friendly)
 
 **Postman Collection**:
 
-- [ ] Add check-in APIs ke Postman collection
+- [x] Add check-in APIs ke Postman collection
 
 **Acceptance Criteria**:
 
@@ -481,7 +481,7 @@ Developer 2 bertanggung jawab untuk:
 | Sprint   | Goal                          | Duration | Status                           | Notes                                    |
 | -------- | ----------------------------- | -------- | -------------------------------- | ---------------------------------------- |
 | Sprint 0 | Foundation & Setup            | 1-2 days | ✅ Completed                     | -                                        |
-| Sprint 1 | Check-in Scanner (Mobile-Web) | 5-6 days | ⏳ Pending                       | Belum dikerjakan                         |
+| Sprint 1 | Check-in Scanner (Mobile-Web) | 5-6 days | ✅ Completed                     | Backend ✅, Frontend ✅, Postman ✅, Rate Limiting ✅ |
 | Sprint 2 | Real-time Check-in Status     | 4-5 days | ⏳ Pending                       | Belum dikerjakan                         |
 | Sprint 3 | Gate Assignment & Management  | 4-5 days | ⏳ Pending                       | Belum dikerjakan                         |
 | Sprint 4 | Admin Dashboard Monitoring    | 4-5 days | ⏳ Frontend (60%) / Backend (0%) | Frontend: Components ✅, Backend APIs ❌ |

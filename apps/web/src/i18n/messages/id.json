@@ -41,7 +41,9 @@
     "profile": "Profil",
     "logout": "Keluar",
     "dashboard": "Dashboard",
-    "scan": "Pindai Tiket"
+    "scan": "Pindai Tiket",
+    "scanner": "Scanner",
+    "checkIns": "Check-ins"
   },
   "dashboard": {
     "title": "Dashboard",

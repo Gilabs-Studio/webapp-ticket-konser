@@ -1,7 +1,7 @@
 {
   "info": {
     "name": "WebApp Ticketing API",
-    "description": "API collection untuk WebApp Ticketing Konser Platform - RBAC, Menu Management, Event Management, Ticket Category Management, Schedule Management (dengan rundown jadwal), Order Management, User Management, Role Management, dan Permission Management. Sistem mendukung multiple events.",
+    "description": "API collection untuk WebApp Ticketing Konser Platform - RBAC, Menu Management, Event Management, Ticket Category Management, Schedule Management (dengan rundown jadwal), Order Management, Check-in Management, User Management, Role Management, dan Permission Management. Sistem mendukung multiple events.",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
     "_exporter_id": "webapp-ticketing"
   },
@@ -1095,6 +1095,232 @@
       ]
     },
     {
+      "name": "Check-in Management",
+      "item": [
+        {
+          "name": "Validate QR Code",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"qr_code\": \"QR-abc123xyz\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/check-in/validate",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "check-in", "validate"]
+            },
+            "description": "Validate QR code sebelum check-in. Endpoint ini memeriksa apakah QR code valid, ticket sudah dibayar, dan belum pernah digunakan. Requires authentication (any authenticated user)."
+          },
+          "response": []
+        },
+        {
+          "name": "Check-in",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"qr_code\": \"QR-abc123xyz\",\n  \"gate_id\": \"gate-uuid-here\",\n  \"location\": \"Gate A - Main Entrance\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/check-in",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "check-in"]
+            },
+            "description": "Perform check-in operation. Endpoint ini akan validasi QR code, cek duplicate, dan melakukan check-in. Requires authentication (any authenticated user)."
+          },
+          "response": []
+        },
+        {
+          "name": "List Check-ins (Admin)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/check-ins?page=1&per_page=20",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "check-ins"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1",
+                  "description": "Page number (default: 1)"
+                },
+                {
+                  "key": "per_page",
+                  "value": "20",
+                  "description": "Items per page (default: 20, max: 100)"
+                },
+                {
+                  "key": "order_item_id",
+                  "value": "",
+                  "description": "Filter by order item ID",
+                  "disabled": true
+                },
+                {
+                  "key": "gate_id",
+                  "value": "",
+                  "description": "Filter by gate ID",
+                  "disabled": true
+                },
+                {
+                  "key": "staff_id",
+                  "value": "",
+                  "description": "Filter by staff ID",
+                  "disabled": true
+                },
+                {
+                  "key": "status",
+                  "value": "",
+                  "description": "Filter by status: SUCCESS, FAILED, DUPLICATE",
+                  "disabled": true
+                },
+                {
+                  "key": "start_date",
+                  "value": "",
+                  "description": "Filter by start date (ISO 8601 format)",
+                  "disabled": true
+                },
+                {
+                  "key": "end_date",
+                  "value": "",
+                  "description": "Filter by end date (ISO 8601 format)",
+                  "disabled": true
+                }
+              ]
+            },
+            "description": "Get semua check-ins dengan pagination dan filters (admin only, requires checkin.read permission)"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Check-in by ID (Admin)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/check-ins/:id",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "check-ins", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "check-in-uuid-here"
+                }
+              ]
+            },
+            "description": "Get check-in by ID (admin only, requires checkin.read permission)"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Check-ins by QR Code (Admin)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/check-ins/qr/:qr_code",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "check-ins", "qr", ":qr_code"],
+              "variable": [
+                {
+                  "key": "qr_code",
+                  "value": "QR-abc123xyz"
+                }
+              ]
+            },
+            "description": "Get check-ins by QR code (admin only, requires checkin.read permission)"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Check-ins by Order Item ID (Admin)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/check-ins/order-item/:order_item_id",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "check-ins", "order-item", ":order_item_id"],
+              "variable": [
+                {
+                  "key": "order_item_id",
+                  "value": "order-item-uuid-here"
+                }
+              ]
+            },
+            "description": "Get check-ins by order item ID (admin only, requires checkin.read permission)"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Check-ins by Gate ID (Admin)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/check-ins/gate/:gate_id",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "check-ins", "gate", ":gate_id"],
+              "variable": [
+                {
+                  "key": "gate_id",
+                  "value": "gate-uuid-here"
+                }
+              ]
+            },
+            "description": "Get check-ins by gate ID (admin only, requires checkin.read permission)"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
       "name": "User Management",
       "item": [
         {
@@ -1658,6 +1884,24 @@
       "value": "",
       "type": "string",
       "description": "Permission ID untuk testing"
+    },
+    {
+      "key": "qr_code",
+      "value": "",
+      "type": "string",
+      "description": "QR code untuk testing check-in. QR code dapat diambil dari order item setelah order dibuat dan ticket generated."
+    },
+    {
+      "key": "check_in_id",
+      "value": "",
+      "type": "string",
+      "description": "Check-in ID untuk testing"
+    },
+    {
+      "key": "gate_id",
+      "value": "",
+      "type": "string",
+      "description": "Gate ID untuk testing"
     }
   ]
 }

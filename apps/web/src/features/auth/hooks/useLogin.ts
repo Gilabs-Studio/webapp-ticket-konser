@@ -48,7 +48,8 @@ export function useLogin() {
           // Dashboard route moved from /admin/dashboard to /dashboard
           router.push("/dashboard");
         } else if (userRole === "staff_ticket" || userRole === "gate_staff") {
-          router.push("/staff/ticket");
+          // Staff redirect ke landing page, menu scanner dan check-ins ada di profile dropdown
+          router.push("/");
         } else {
           // Guest atau role lain - redirect ke landing page (tidak ada dashboard untuk guest)
           router.push("/");

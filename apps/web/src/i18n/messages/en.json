@@ -41,7 +41,9 @@
     "profile": "Profile",
     "logout": "Logout",
     "dashboard": "Dashboard",
-    "scan": "Scan Ticket"
+    "scan": "Scan Ticket",
+    "scanner": "Scanner",
+    "checkIns": "Check-ins"
   },
   "dashboard": {
     "title": "Dashboard",

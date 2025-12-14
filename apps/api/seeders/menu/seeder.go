@@ -60,6 +60,10 @@ func Seed() error {
 			PermissionCode: "menu.read",
 			IsActive:       true,
 		},
+		// Note: Scanner and Check-ins menus are NOT added here because:
+		// - Staff access these via profile dropdown (not sidebar)
+		// - Admin should not see these in sidebar (they have admin dashboard)
+		// - These are accessed via /scanner and /check-ins routes (not /staff/*)
 	}
 
 	createdCount := 0
