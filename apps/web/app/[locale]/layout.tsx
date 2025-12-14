@@ -7,7 +7,7 @@ import { ReactQueryProvider } from "@/lib/react-query";
 import { ErrorBoundary } from "@/components/error-boundary";
 import { ThemeProvider } from "@/components/providers/theme-provider";
 import { AppLayout } from "@/components/layouts/app-layout";
-import { Toaster } from "sonner";
+import { Toaster } from "@/components/ui/toast";
 import "../globals.css";
 
 export default async function LocaleLayout({
@@ -36,7 +36,13 @@ export default async function LocaleLayout({
         >
           <ReactQueryProvider>
             <AppLayout>{children}</AppLayout>
-            <Toaster position="top-right" richColors offset={80} />
+            <Toaster
+              position="top-right"
+              richColors
+              offset={80}
+              closeButton
+              duration={4000}
+            />
           </ReactQueryProvider>
         </ThemeProvider>
       </ErrorBoundary>
