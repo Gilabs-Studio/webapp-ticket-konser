@@ -105,6 +105,7 @@ Setiap developer memiliki sprint planning terpisah yang detail.
   - Buyer List Export (CSV/Excel) (Backend)
 
 **Note**: User Management, Role Management, Permission Management, Menu Management, dan Authentication telah dipindahkan ke Dev1.
+
 - **Sprint Planning**: [`SPRINT_PLANNING_DEV2.md`](./SPRINT_PLANNING_DEV2.md)
 
 ### Developer 3: Mobile App Developer
@@ -129,18 +130,18 @@ Setiap developer memiliki sprint planning terpisah yang detail.
 
 ### Master Timeline (65-70 Hari / ~9.3-10 Minggu)
 
-| Week | Developer 1 (Fullstack)               | Developer 2 (Fullstack)       | Developer 3 (Mobile App) |
-| ---- | ------------------------------------- | ----------------------------- | -------------------------- |
-| 1    | Foundation & Event Setup              | Foundation & User Management  | Foundation & Setup        |
-| 2    | Event Management                      | Access Control & Roles        | QR Code Scanner            |
+| Week | Developer 1 (Fullstack)               | Developer 2 (Fullstack)       | Developer 3 (Mobile App)         |
+| ---- | ------------------------------------- | ----------------------------- | -------------------------------- |
+| 1    | Foundation & Event Setup              | Foundation & User Management  | Foundation & Setup               |
+| 2    | Event Management                      | Access Control & Roles        | QR Code Scanner                  |
 | 3    | Ticket Category & Schedule Management | Check-in Scanner (Mobile-Web) | Check-in Validation & Processing |
-| 4-5  | Ticket Purchase Flow dengan Payment   | Real-time Check-in Status     | Check-in History          |
-| 5    | E-Ticket Generation & QR              | Gate Assignment & Management  | Profile & Settings       |
-| 6    | Order History                         | Admin Dashboard Monitoring    | Polish & Testing         |
-| 7    | Analytics Dashboard                   | Integration & Testing         | -                          |
-| 7-8  | Mobile APIs untuk Staff Gate          | -                             | Integration Testing       |
-| 8    | Integration & Testing                 | Polish & Final Testing        | -                          |
-| 9    | Polish & Final Testing                | -                             | -                          |
+| 4-5  | Ticket Purchase Flow dengan Payment   | Real-time Check-in Status     | Check-in History                 |
+| 5    | E-Ticket Generation & QR              | Gate Assignment & Management  | Profile & Settings               |
+| 6    | Order History                         | Admin Dashboard Monitoring    | Polish & Testing                 |
+| 7    | Analytics Dashboard                   | Integration & Testing         | -                                |
+| 7-8  | Mobile APIs untuk Staff Gate          | -                             | Integration Testing              |
+| 8    | Integration & Testing                 | Polish & Final Testing        | -                                |
+| 9    | Polish & Final Testing                | -                             | -                                |
 
 ---
 
@@ -189,7 +190,7 @@ Setiap developer memiliki sprint planning terpisah yang detail.
 - Sprint 1: Check-in Scanner (Mobile-Web) (5-6 days) - ⏳ **Pending**
 - Sprint 2: Real-time Check-in Status (4-5 days) - ⏳ **Pending**
 - Sprint 3: Gate Assignment & Management (4-5 days) - ⏳ **Pending**
-- Sprint 4: Admin Dashboard Monitoring (4-5 days) - ⏳ **Pending**
+- Sprint 4: Admin Dashboard Monitoring (4-5 days) - ⏳ **Frontend Partial** (Components ✅, Backend APIs ❌)
 - Sprint 5: Integration & Testing (3-4 days) - ⏳ **Pending**
 
 **Total**: 21-27 days (3-3.9 weeks)
@@ -199,7 +200,7 @@ Setiap developer memiliki sprint planning terpisah yang detail.
 - ⏳ Check-in Scanner System (⏳ Pending)
 - ⏳ Real-time Check-in Status (⏳ Pending)
 - ⏳ Gate Assignment & Management (⏳ Pending)
-- ⏳ Admin Dashboard Monitoring (⏳ Pending)
+- ⏳ Admin Dashboard Monitoring (⏳ Frontend Partial - Components ✅, Backend APIs ❌)
 - ⏳ Buyer List Export (CSV/Excel) (⏳ Pending)
 
 **Note**: User Management, Role Management, Permission Management, Menu Management, dan Authentication telah dipindahkan ke Dev1.

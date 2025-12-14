@@ -91,7 +91,7 @@ Developer 1 bertanggung jawab untuk:
 
 **Goal**: Implement user management, role management, permission management, menu management, dan authentication
 
-**Status**: ✅ **BACKEND COMPLETED** | ⏳ **FRONTEND PARTIAL** (Auth & Menu Completed, User/Role/Permission Pending)
+**Status**: ✅ **BACKEND COMPLETED** | ⏳ **FRONTEND PARTIAL** (Auth & Guards ✅, Menu ✅, User/Role/Permission Pages ❌)
 
 **Note**: Modul ini dipindahkan dari Dev2 karena sudah dikerjakan sebelumnya.
 
@@ -136,21 +136,26 @@ Developer 1 bertanggung jawab untuk:
 - [x] Add role/permission checking hooks
 - [x] Create menu list component (✅ Completed)
 - [x] Create authentication flow (Login, Logout) (✅ Completed)
-- [ ] Create user types (`types/user.d.ts`)
-- [ ] Create role types (`types/role.d.ts`)
-- [ ] Create permission types (`types/permission.d.ts`)
-- [ ] Create user service (`userService`)
-- [ ] Create role service (`roleService`)
-- [ ] Create permission service (`permissionService`)
-- [ ] Create user list page (`/admin/users`)
-- [ ] Create user form component (`UserForm`)
-- [ ] Create user detail page (`/admin/users/[id]`)
-- [ ] Create role list page (`/admin/roles`)
-- [ ] Create role form component (`RoleForm`)
-- [ ] Create permission assignment component (`PermissionAssignment`)
-- [ ] Add user search and filter
-- [ ] Add role-permission assignment UI
-- [ ] Create access denied page (`/access-denied`)
+- [x] Create auth guards (AuthGuard, RoleGuard, PermissionGuard) (✅ Completed)
+- [x] Create auth hooks (useLogin, useLogout, useAuthGuard) (✅ Completed)
+- [x] Create auth service (authService) (✅ Completed)
+- [x] Create auth store (useAuthStore) (✅ Completed)
+- [x] Create auth types (✅ Completed)
+- [ ] Create user types (`types/user.d.ts`) - **PENDING**
+- [ ] Create role types (`types/role.d.ts`) - **PENDING**
+- [ ] Create permission types (`types/permission.d.ts`) - **PENDING**
+- [ ] Create user service (`userService`) - **PENDING**
+- [ ] Create role service (`roleService`) - **PENDING**
+- [ ] Create permission service (`permissionService`) - **PENDING**
+- [ ] Create user list page (`/admin/users`) - **PENDING**
+- [ ] Create user form component (`UserForm`) - **PENDING**
+- [ ] Create user detail page (`/admin/users/[id]`) - **PENDING**
+- [ ] Create role list page (`/admin/roles`) - **PENDING**
+- [ ] Create role form component (`RoleForm`) - **PENDING**
+- [ ] Create permission assignment component (`PermissionAssignment`) - **PENDING**
+- [ ] Add user search and filter - **PENDING**
+- [ ] Add role-permission assignment UI - **PENDING**
+- [ ] Create access denied page (`/access-denied`) - **PENDING**
 
 **Postman Collection**:
 
@@ -201,7 +206,7 @@ Developer 1 bertanggung jawab untuk:
 
 **Goal**: Implement event management dengan CRUD lengkap
 
-**Status**: ✅ **BACKEND COMPLETED** | ⏳ **FRONTEND IN PROGRESS**
+**Status**: ✅ **BACKEND COMPLETED** | ⏳ **FRONTEND BARU DIMULAI** (Types partial, Pages & Service belum ada)
 
 **Backend Tasks**:
 
@@ -220,16 +225,16 @@ Developer 1 bertanggung jawab untuk:
 **Frontend Tasks**:
 
 - [x] Create event types (`types/event.d.ts`) - partial (ada di ticket/types, perlu tambah status field)
-- [ ] Create event service (`eventService`)
-- [ ] Create event list page (`/admin/events`)
-- [ ] Create event form component (`EventForm`)
-- [ ] Create event detail page (`/admin/events/[id]`)
-- [ ] Create public event list page (`/events`)
-- [ ] Create public event detail page (`/events/[id]`)
-- [ ] Add event search and filter
-- [ ] Add event status management UI (draft, published, closed)
-- [ ] Add banner image upload component (form-data, max 5MB, JPEG/PNG/WebP)
-- [ ] Add event status badge component
+- [ ] Create event service (`eventService`) - **PENDING**
+- [ ] Create event list page (`/admin/events`) - **PENDING**
+- [ ] Create event form component (`EventForm`) - **PENDING**
+- [ ] Create event detail page (`/admin/events/[id]`) - **PENDING**
+- [ ] Create public event list page (`/events`) - **PENDING**
+- [ ] Create public event detail page (`/events/[id]`) - **PENDING**
+- [ ] Add event search and filter - **PENDING**
+- [ ] Add event status management UI (draft, published, closed) - **PENDING**
+- [ ] Add banner image upload component (form-data, max 5MB, JPEG/PNG/WebP) - **PENDING**
+- [ ] Add event status badge component - **PENDING**
 
 **Postman Collection**:
 
@@ -263,7 +268,7 @@ Developer 1 bertanggung jawab untuk:
 
 **Goal**: Implement ticket category dan schedule management dengan rundown jadwal event
 
-**Status**: ✅ **BACKEND COMPLETED** | ⏳ **FRONTEND IN PROGRESS**
+**Status**: ✅ **BACKEND COMPLETED** | ⏳ **FRONTEND PARTIAL** (Types ✅, List Components ✅, Forms ❌)
 
 **Backend Tasks**:
 
@@ -287,25 +292,25 @@ Developer 1 bertanggung jawab untuk:
 
 **Frontend Tasks**:
 
-- [x] Create ticket category types (`types/ticket-category.d.ts`)
-- [x] Create schedule types (`types/schedule.d.ts`) - include artist_name dan rundown
-- [x] Create ticket category service (`ticketCategoryService`)
-- [x] Create schedule service (`scheduleService`)
-- [x] Create ticket category list page (`/admin/ticket-categories`) - components only
-- [ ] Create ticket category form component (`TicketCategoryForm`)
-- [x] Create schedule list page (`/admin/schedules`) - components only
-- [ ] Create schedule form component (`ScheduleForm`) - include artist_name dan rundown fields
-- [ ] Create rundown editor component (`RundownEditor`) - textarea dengan format support (newline untuk line breaks)
-- [ ] Create rundown display component (`RundownDisplay`) - untuk menampilkan rundown dengan formatting
-- [ ] Add ticket category management di event detail
-- [ ] Add schedule management di event detail
-- [ ] Add quota display dan management
-- [ ] Add remaining seat display
-- [ ] Add date picker untuk schedule
-- [ ] Add time picker untuk schedule
-- [ ] Add artist name input field
-- [ ] Add rundown preview di schedule detail
-- [ ] Display rundown di public schedule detail untuk guest
+- [x] Create ticket category types (`types/ticket-category.d.ts`) - ✅ Completed
+- [x] Create schedule types (`types/schedule.d.ts`) - include artist_name dan rundown - ✅ Completed
+- [x] Create ticket category service (`ticketCategoryService`) - ✅ Completed
+- [x] Create schedule service (`scheduleService`) - ✅ Completed
+- [x] Create ticket category list page (`/admin/ticket-categories`) - components only - ✅ Completed (ada di `/admin/tickets`)
+- [ ] Create ticket category form component (`TicketCategoryForm`) - **PENDING**
+- [x] Create schedule list page (`/admin/schedules`) - components only - ✅ Completed (ada di `/admin/tickets`)
+- [ ] Create schedule form component (`ScheduleForm`) - include artist_name dan rundown fields - **PENDING**
+- [ ] Create rundown editor component (`RundownEditor`) - textarea dengan format support (newline untuk line breaks) - **PENDING**
+- [ ] Create rundown display component (`RundownDisplay`) - untuk menampilkan rundown dengan formatting - **PENDING**
+- [ ] Add ticket category management di event detail - **PENDING**
+- [ ] Add schedule management di event detail - **PENDING**
+- [ ] Add quota display dan management - **PENDING**
+- [ ] Add remaining seat display - **PENDING**
+- [ ] Add date picker untuk schedule - **PENDING**
+- [ ] Add time picker untuk schedule - **PENDING**
+- [ ] Add artist name input field - **PENDING**
+- [ ] Add rundown preview di schedule detail - **PENDING**
+- [ ] Display rundown di public schedule detail untuk guest - **PENDING**
 
 **Postman Collection**:
 
@@ -344,7 +349,7 @@ Developer 1 bertanggung jawab untuk:
 
 **Goal**: Implement complete ticket purchase flow dengan payment integration (Midtrans QRIS)
 
-**Status**: ✅ **BACKEND COMPLETED (Admin APIs)** | ⏳ **FRONTEND IN PROGRESS** | ⏳ **GUEST APIs & PAYMENT PENDING**
+**Status**: ✅ **BACKEND COMPLETED (Admin APIs)** | ⏳ **FRONTEND BELUM DIMULAI** | ⏳ **GUEST APIs & PAYMENT PENDING**
 
 **Backend Tasks**:
 
@@ -380,8 +385,8 @@ Developer 1 bertanggung jawab untuk:
 - [ ] Create ticket selection component (`TicketSelection`)
 - [ ] Create order summary component (`OrderSummary`)
 - [ ] Create order form component (`OrderForm`)
-- [ ] Add buyer information form
-- [ ] **NEW**: Create payment page (`/orders/[id]/payment`)
+- [ ] Add buyer information form - **PENDING**
+- [ ] **NEW**: Create payment page (`/orders/[id]/payment`) - **PENDING**
 - [ ] **NEW**: Create Midtrans payment integration (Snap/QRIS)
 - [ ] **NEW**: Display QRIS barcode untuk payment
 - [ ] **NEW**: Add payment status polling (check payment status secara real-time)
@@ -718,19 +723,19 @@ Developer 1 bertanggung jawab untuk:
 
 ## 📊 Sprint Summary
 
-| Sprint     | Goal                                  | Duration | Status                                 | Notes                                                  |
-| ---------- | ------------------------------------- | -------- | -------------------------------------- | ------------------------------------------------------ |
-| Sprint 0   | Foundation & Event Setup              | 3-4 days | ✅ Completed                           | -                                                      |
-| Sprint 0.5 | User Management & Access Control      | 3-4 days | ✅ Backend (100%) / ⏳ Frontend (60%)  | Dipindahkan dari Dev2                                  |
-| Sprint 1   | Event Management                      | 4-5 days | ✅ Backend (100%) / ⏳ Frontend (10%)  | Frontend: types saja                                   |
-| Sprint 2   | Ticket Category & Schedule Management | 4-5 days | ✅ Backend (100%) / ⏳ Frontend (30%)  | Frontend: list components saja                         |
-| Sprint 3   | Ticket Purchase Flow dengan Payment   | 7-8 days | ✅ Backend (50% - Admin) / ⏳ Frontend | Backend: Admin APIs only, Guest APIs & Payment pending |
-| Sprint 4   | E-Ticket Generation & QR Code         | 4-5 days | ⏳ Pending                             | Belum dikerjakan                                       |
-| Sprint 5   | Order History                         | 3-4 days | ⏳ Pending                             | Belum dikerjakan (Email service dihapus)               |
-| Sprint 6   | Analytics Dashboard                   | 4-5 days | ⏳ Pending                             | Belum dikerjakan                                       |
-| Sprint 7   | Integration & Testing                 | 3-4 days | ⏳ Pending                             | Belum dikerjakan                                       |
+| Sprint     | Goal                                  | Duration | Status                                 | Notes                                                     |
+| ---------- | ------------------------------------- | -------- | -------------------------------------- | --------------------------------------------------------- |
+| Sprint 0   | Foundation & Event Setup              | 3-4 days | ✅ Completed                           | -                                                         |
+| Sprint 0.5 | User Management & Access Control      | 3-4 days | ✅ Backend (100%) / ⏳ Frontend (40%)  | Frontend: Auth & Guards ✅, User/Role/Permission pages ❌ |
+| Sprint 1   | Event Management                      | 4-5 days | ✅ Backend (100%) / ⏳ Frontend (5%)   | Frontend: types partial, pages & service ❌               |
+| Sprint 2   | Ticket Category & Schedule Management | 4-5 days | ✅ Backend (100%) / ⏳ Frontend (25%)  | Frontend: types ✅, list components ✅, forms ❌          |
+| Sprint 3   | Ticket Purchase Flow dengan Payment   | 7-8 days | ✅ Backend (50% - Admin) / ⏳ Frontend | Backend: Admin APIs only, Guest APIs & Payment pending    |
+| Sprint 4   | E-Ticket Generation & QR Code         | 4-5 days | ⏳ Pending                             | Belum dikerjakan                                          |
+| Sprint 5   | Order History                         | 3-4 days | ⏳ Pending                             | Belum dikerjakan (Email service dihapus)                  |
+| Sprint 6   | Analytics Dashboard                   | 4-5 days | ⏳ Pending                             | Belum dikerjakan                                          |
+| Sprint 7   | Integration & Testing                 | 3-4 days | ⏳ Pending                             | Belum dikerjakan                                          |
 
-**Total Estimated Time**: 35-43 days (5-6.1 weeks)
+**Total Estimated Time**: 39-48 days (5.6-6.9 weeks)
 
 **📋 Status Detail**: Lihat [IMPLEMENTATION_STATUS.md](./IMPLEMENTATION_STATUS.md) untuk detail lengkap setiap modul
 

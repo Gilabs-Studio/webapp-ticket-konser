@@ -252,6 +252,8 @@ Developer 2 bertanggung jawab untuk:
 
 **Goal**: Implement admin dashboard untuk monitoring penjualan dan check-in
 
+**Status**: ⏳ **FRONTEND PARTIAL** (Components ✅, Backend APIs ❌)
+
 **Backend Tasks**:
 
 - [ ] Create admin dashboard service
@@ -266,19 +268,23 @@ Developer 2 bertanggung jawab untuk:
 
 **Frontend Tasks**:
 
-- [ ] Create admin dashboard types (`types/admin-dashboard.d.ts`)
-- [ ] Create admin dashboard service (`adminDashboardService`)
-- [ ] Create admin dashboard page (`/admin/dashboard`)
-- [ ] Create sales monitoring component (`SalesMonitoring`)
-- [ ] Create check-in monitoring component (`CheckInMonitoring`)
-- [ ] Create ticket quota monitoring component (`QuotaMonitoring`)
-- [ ] Create gate activity component (`GateActivity`)
-- [ ] Create buyer list component (`BuyerList`)
-- [ ] Create buyer export component (`BuyerExport`)
-- [ ] Add date range picker
-- [ ] Add charts untuk monitoring (recharts atau similar)
-- [ ] Create dashboard widgets
-- [ ] Add real-time updates untuk dashboard
+- [x] Create admin dashboard types (`types/admin-dashboard.d.ts`) - ✅ Completed
+- [x] Create admin dashboard service (`adminDashboardService`) - ✅ Completed
+- [x] Create admin dashboard page (`/admin/dashboard`) - ✅ Completed
+- [x] Create sales monitoring component (`SalesMonitoring`) - ✅ Completed
+- [x] Create check-in monitoring component (`CheckInMonitoring`) - ✅ Completed
+- [x] Create ticket quota monitoring component (`QuotaMonitoring`) - ✅ Completed
+- [x] Create gate activity component (`GateActivity`) - ✅ Completed
+- [x] Create buyer list component (`BuyerList`) - ✅ Completed
+- [x] Create admin stats component (`AdminStats`) - ✅ Completed
+- [x] Create recent sales component (`RecentSales`) - ✅ Completed
+- [x] Create storefront preview component (`StorefrontPreview`) - ✅ Completed
+- [x] Create quick actions component (`QuickActions`) - ✅ Completed
+- [x] Create dashboard widgets - ✅ Completed
+- [ ] Create buyer export component (`BuyerExport`) - **PENDING** (perlu backend API dulu)
+- [ ] Add date range picker - **PENDING** (perlu backend API dulu)
+- [ ] Add charts untuk monitoring (recharts atau similar) - **PENDING** (perlu backend API dulu)
+- [ ] Add real-time updates untuk dashboard - **PENDING** (perlu backend API dulu)
 
 **Postman Collection**:
 
@@ -358,14 +364,14 @@ Developer 2 bertanggung jawab untuk:
 
 ## 📊 Sprint Summary
 
-| Sprint   | Goal                          | Duration | Status       | Notes            |
-| -------- | ----------------------------- | -------- | ------------ | ---------------- |
-| Sprint 0 | Foundation & Setup            | 1-2 days | ✅ Completed | -                |
-| Sprint 1 | Check-in Scanner (Mobile-Web) | 5-6 days | ⏳ Pending   | Belum dikerjakan |
-| Sprint 2 | Real-time Check-in Status     | 4-5 days | ⏳ Pending   | Belum dikerjakan |
-| Sprint 3 | Gate Assignment & Management  | 4-5 days | ⏳ Pending   | Belum dikerjakan |
-| Sprint 4 | Admin Dashboard Monitoring    | 4-5 days | ⏳ Pending   | Belum dikerjakan |
-| Sprint 5 | Integration & Testing         | 3-4 days | ⏳ Pending   | Belum dikerjakan |
+| Sprint   | Goal                          | Duration | Status                           | Notes                                    |
+| -------- | ----------------------------- | -------- | -------------------------------- | ---------------------------------------- |
+| Sprint 0 | Foundation & Setup            | 1-2 days | ✅ Completed                     | -                                        |
+| Sprint 1 | Check-in Scanner (Mobile-Web) | 5-6 days | ⏳ Pending                       | Belum dikerjakan                         |
+| Sprint 2 | Real-time Check-in Status     | 4-5 days | ⏳ Pending                       | Belum dikerjakan                         |
+| Sprint 3 | Gate Assignment & Management  | 4-5 days | ⏳ Pending                       | Belum dikerjakan                         |
+| Sprint 4 | Admin Dashboard Monitoring    | 4-5 days | ⏳ Frontend (60%) / Backend (0%) | Frontend: Components ✅, Backend APIs ❌ |
+| Sprint 5 | Integration & Testing         | 3-4 days | ⏳ Pending                       | Belum dikerjakan                         |
 
 **Total Estimated Time**: 21-27 days (3-3.9 weeks)
 
