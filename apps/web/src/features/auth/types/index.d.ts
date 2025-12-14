@@ -34,3 +34,39 @@ export interface AuthState {
   isLoading: boolean;
   error: string | null;
 }
+
+export interface Menu {
+  id: string;
+  parent_id: string | null;
+  code: string;
+  label: string;
+  icon: string;
+  path: string;
+  order_index: number;
+  permission_code: string;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface Permission {
+  id: string;
+  code: string;
+  name: string;
+  description: string;
+  resource: string;
+  action: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface MenusPermissionsResponse {
+  success: boolean;
+  data: {
+    menus: Menu[];
+    permissions: Permission[];
+  };
+  meta: Record<string, unknown>;
+  timestamp: string;
+  request_id: string;
+}

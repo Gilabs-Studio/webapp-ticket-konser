@@ -16,12 +16,7 @@ import {
 } from "@/components/ui/sidebar";
 import { Link, usePathname } from "@/i18n/routing";
 import {
-  LayoutDashboard,
-  Users,
   Ticket,
-  ShoppingCart,
-  Settings,
-  BarChart3,
   ChevronDown,
   LogOut,
 } from "lucide-react";
@@ -41,6 +36,9 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useLogout } from "@/features/auth/hooks/useLogout";
 import { Breadcrumb } from "@/components/breadcrumb";
+import { useMenus, categorizeMenus } from "@/features/auth/hooks/useMenus";
+import { getMenuIcon } from "@/lib/menu-icons";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface AdminLayoutProps {
   readonly children: React.ReactNode;
@@ -49,52 +47,117 @@ interface AdminLayoutProps {
 export default function AdminLayout({ children }: AdminLayoutProps) {
   const pathname = usePathname();
   const t = useTranslations("admin");
-  const { user } = useAuthStore();
+  const { user, isAuthenticated } = useAuthStore();
   const handleLogout = useLogout();
 
-  const overviewItems = [
-    {
-      title: t("menu.dashboard"),
-      url: "/admin/dashboard",
-      icon: LayoutDashboard,
-    },
-    {
-      title: t("menu.tickets"),
-      url: "/admin/tickets",
-      icon: Ticket,
-    },
-    {
-      title: t("menu.merchandise"),
-      url: "/admin/merchandise",
-      icon: ShoppingCart,
-    },
-    {
-      title: t("menu.attendees"),
-      url: "/admin/attendees",
-      icon: Users,
-    },
-  ];
+  // Fetch menus from API
+  const {
+    data: menusData,
+    isLoading: isLoadingMenus,
+    isError: isErrorMenus,
+  } = useMenus({
+    enabled: isAuthenticated,
+  });
 
-  const managementItems = [
-    {
-      title: t("menu.analytics"),
-      url: "/admin/analytics",
-      icon: BarChart3,
-    },
-    {
-      title: t("menu.settings"),
-      url: "/admin/settings",
-      icon: Settings,
-    },
-  ];
+  // Categorize menus into Overview and Management
+  const categorizedMenus = menusData
+    ? categorizeMenus(menusData.menus)
+    : { overview: [], management: [] };
+  const { overview, management } = categorizedMenus;
 
-  const initials =
-    user?.name
-      ?.split(" ")
-      .map((n) => n?.[0])
-      .join("")
-      .toUpperCase()
-      .slice(0, 2) ?? "A";
+  // Helper function to normalize menu path
+  const normalizeMenuPath = (path: string): string => {
+    if (path.startsWith("/")) {
+      return path;
+    }
+    return `/${path}`;
+  };
+
+  // Render sidebar content based on loading/error state
+  const renderSidebarContent = () => {
+    if (isLoadingMenus) {
+      return (
+        <div className="space-y-2">
+          <Skeleton className="h-10 w-full" />
+          <Skeleton className="h-10 w-full" />
+          <Skeleton className="h-10 w-full" />
+          <Skeleton className="h-10 w-full" />
+        </div>
+      );
+    }
+
+    if (isErrorMenus) {
+      return (
+        <div className="p-4 text-sm text-muted-foreground">
+          {t("menu.error")}
+        </div>
+      );
+    }
+
+    return (
+      <>
+        <SidebarMenu>
+          {overview.map((menu) => {
+            const normalizedPath = normalizeMenuPath(menu.path);
+            const isActive =
+              pathname === normalizedPath ||
+              pathname?.startsWith(`${normalizedPath}/`);
+            return (
+              <SidebarMenuItem key={menu.id}>
+                <SidebarMenuButton
+                  asChild
+                  isActive={isActive}
+                  tooltip={menu.label}
+                >
+                  <Link href={normalizedPath}>
+                    {getMenuIcon(menu.icon)}
+                    <span>{menu.label}</span>
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            );
+          })}
+        </SidebarMenu>
+        {management.length > 0 && (
+          <SidebarGroup>
+            <SidebarGroupLabel>{t("menu.management")}</SidebarGroupLabel>
+            <SidebarMenu>
+              {management.map((menu) => {
+                const normalizedPath = normalizeMenuPath(menu.path);
+                const isActive =
+                  pathname === normalizedPath ||
+                  pathname?.startsWith(`${normalizedPath}/`);
+                return (
+                  <SidebarMenuItem key={menu.id}>
+                    <SidebarMenuButton
+                      asChild
+                      isActive={isActive}
+                      tooltip={menu.label}
+                    >
+                      <Link href={normalizedPath}>
+                        {getMenuIcon(menu.icon)}
+                        <span>{menu.label}</span>
+                      </Link>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                );
+              })}
+            </SidebarMenu>
+          </SidebarGroup>
+        )}
+      </>
+    );
+  };
+
+  // Calculate user initials
+  const userInitials = user?.name
+    ? user.name
+        .split(" ")
+        .map((n) => n?.[0])
+        .join("")
+        .toUpperCase()
+        .slice(0, 2) || "A"
+    : "A";
 
   return (
     <SidebarProvider>
@@ -108,51 +171,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
           </div>
         </SidebarHeader>
         <SidebarContent className="p-4">
-          <SidebarMenu>
-            {overviewItems.map((item) => {
-              const Icon = item.icon;
-              const isActive =
-                pathname === item.url || pathname?.startsWith(item.url + "/");
-              return (
-                <SidebarMenuItem key={item.url}>
-                  <SidebarMenuButton
-                    asChild
-                    isActive={isActive}
-                    tooltip={item.title}
-                  >
-                    <Link href={item.url}>
-                      <Icon />
-                      <span>{item.title}</span>
-                    </Link>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              );
-            })}
-          </SidebarMenu>
-          <SidebarGroup>
-            <SidebarGroupLabel>{t("menu.management")}</SidebarGroupLabel>
-            <SidebarMenu>
-              {managementItems.map((item) => {
-                const Icon = item.icon;
-                const isActive =
-                  pathname === item.url || pathname?.startsWith(item.url + "/");
-                return (
-                  <SidebarMenuItem key={item.url}>
-                    <SidebarMenuButton
-                      asChild
-                      isActive={isActive}
-                      tooltip={item.title}
-                    >
-                      <Link href={item.url}>
-                        <Icon />
-                        <span>{item.title}</span>
-                      </Link>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                );
-              })}
-            </SidebarMenu>
-          </SidebarGroup>
+          {renderSidebarContent()}
         </SidebarContent>
         {user && (
           <SidebarFooter>
@@ -164,7 +183,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
                       src={user.avatar_url}
                       alt={user.name ?? "User"}
                     />
-                    <AvatarFallback>{initials}</AvatarFallback>
+                    <AvatarFallback>{userInitials}</AvatarFallback>
                   </Avatar>
                   <div className="flex flex-1 flex-col items-start text-left text-sm">
                     <span className="font-medium">{user.name ?? "User"}</span>

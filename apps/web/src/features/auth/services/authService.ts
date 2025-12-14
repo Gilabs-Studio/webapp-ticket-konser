@@ -1,5 +1,9 @@
 import apiClient from "@/lib/api-client";
-import type { LoginRequest, LoginResponse } from "../types";
+import type {
+  LoginRequest,
+  LoginResponse,
+  MenusPermissionsResponse,
+} from "../types";
 
 export const authService = {
   async login(credentials: LoginRequest): Promise<LoginResponse> {
@@ -19,5 +23,12 @@ export const authService = {
 
   async logout(): Promise<void> {
     await apiClient.post("/auth/logout");
+  },
+
+  async getMenusPermissions(): Promise<MenusPermissionsResponse> {
+    const response = await apiClient.get<MenusPermissionsResponse>(
+      "/auth/me/menus-permissions",
+    );
+    return response.data;
   },
 };
