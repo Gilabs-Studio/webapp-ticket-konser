@@ -16,6 +16,7 @@
  */
 
 import { useEffect, useRef, useState, useCallback } from "react";
+import { useTranslations } from "next-intl";
 import type { CheckInRequest } from "../types";
 import { useCheckIn, useValidateQRCode } from "../hooks/useCheckIn";
 import { CheckInResult } from "./CheckInResult";
@@ -38,6 +39,7 @@ export function QRCodeScanner({
   onScanSuccess,
   onScanError,
 }: QRCodeScannerProps) {
+  const t = useTranslations("checkin.scanner");
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
@@ -49,7 +51,7 @@ export function QRCodeScanner({
   const [checkInResult, setCheckInResult] = useState<{
     success: boolean;
     message: string;
-    checkIn?: unknown;
+    checkIn?: Record<string, unknown> | null;
   } | null>(null);
   const [manualQRCode, setManualQRCode] = useState("");
   const [isProcessing, setIsProcessing] = useState(false);
@@ -228,8 +230,8 @@ export function QRCodeScanner({
           if (checkInResult.success && checkInData?.success) {
             setCheckInResult({
               success: true,
-              message: checkInData.message || "Check-in berhasil",
-              checkIn: checkInData.check_in,
+              message: checkInData.message || t("result.success"),
+              checkIn: checkInData.check_in as Record<string, unknown> | null | undefined,
             });
 
             // Vibrate if available
@@ -247,7 +249,7 @@ export function QRCodeScanner({
             }, 2000);
           } else {
             // Check-in failed
-            const errorMessage = checkInData?.message || "Check-in gagal";
+            const errorMessage = checkInData?.message || t("result.failed");
             setCheckInResult({
               success: false,
               message: errorMessage,
@@ -263,7 +265,7 @@ export function QRCodeScanner({
           }
         } else {
           // Validation failed
-          const errorMessage = validationData?.message || "QR code tidak valid";
+          const errorMessage = validationData?.message || t("result.invalidQR");
           setCheckInResult({
             success: false,
             message: errorMessage,
@@ -279,7 +281,7 @@ export function QRCodeScanner({
         }
       } catch (error) {
         const errorMessage =
-          error instanceof Error ? error.message : "Terjadi kesalahan";
+          error instanceof Error ? error.message : t("result.error");
         setCheckInResult({
           success: false,
           message: errorMessage,
@@ -294,7 +296,7 @@ export function QRCodeScanner({
         }, 2000);
       }
     },
-    [gateId, location, validateQRCode, checkIn, onScanSuccess, onScanError, isProcessing, cleanupStream, resumeScanning],
+    [gateId, location, validateQRCode, checkIn, onScanSuccess, onScanError, isProcessing, cleanupStream, resumeScanning, t],
   );
 
   // Store cleanup function in ref to avoid stale closure
@@ -335,35 +337,35 @@ export function QRCodeScanner({
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Camera className="h-5 w-5" />
-            Camera Permission Required
+            {t("cameraPermission.title")}
           </CardTitle>
           <CardDescription>
-            Kami memerlukan akses kamera untuk scan QR code
+            {t("cameraPermission.description")}
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <Alert>
             <AlertCircle className="h-4 w-4" />
-            <AlertTitle>Permission Denied</AlertTitle>
+            <AlertTitle>{t("cameraPermission.denied")}</AlertTitle>
             <AlertDescription>
-              Silakan berikan izin akses kamera untuk menggunakan scanner.
+              {t("cameraPermission.deniedMessage")}
             </AlertDescription>
           </Alert>
           <Button onClick={requestPermission} className="w-full">
-            Request Camera Permission
+            {t("cameraPermission.requestButton")}
           </Button>
           
           {/* Manual QR Code Input as Fallback */}
           <div className="pt-4 border-t">
             <p className="text-sm text-muted-foreground mb-2">
-              Atau masukkan QR code secara manual:
+              {t("manualInput.label")}
             </p>
             <div className="flex gap-2">
               <Input
                 type="text"
                 value={manualQRCode}
                 onChange={(e) => setManualQRCode(e.target.value)}
-                placeholder="Masukkan QR code..."
+                placeholder={t("manualInput.placeholder")}
                 className="flex-1"
                 onKeyDown={(e) => {
                   if (e.key === "Enter" && !isProcessing) {
@@ -379,7 +381,7 @@ export function QRCodeScanner({
                 {validateQRCode.isPending || checkIn.isPending ? (
                   <Loader2 className="h-4 w-4 animate-spin" />
                 ) : (
-                  "Check-in"
+                  t("manualInput.button")
                 )}
               </Button>
             </div>
@@ -413,10 +415,10 @@ export function QRCodeScanner({
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Camera className="h-5 w-5" />
-            QR Code Scanner
+            {t("title")}
           </CardTitle>
           <CardDescription>
-            Arahkan kamera ke QR code pada tiket atau masukkan QR code secara manual
+            {t("description")}
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -448,7 +450,7 @@ export function QRCodeScanner({
                 <div className="text-white text-center space-y-4">
                   <Camera className="h-16 w-16 mx-auto opacity-50" />
                   <p className="text-sm opacity-75">
-                    {hasPermission ? "Kamera siap untuk scanning" : "Aktifkan kamera untuk scanning"}
+                    {hasPermission ? t("camera.ready") : t("camera.activate")}
                   </p>
                   {hasPermission && (
                     <Button
@@ -458,7 +460,7 @@ export function QRCodeScanner({
                       disabled={isProcessing}
                     >
                       <Camera className="mr-2 h-4 w-4" />
-                      Start Camera
+                      {t("camera.startButton")}
                     </Button>
                   )}
                 </div>
@@ -473,7 +475,7 @@ export function QRCodeScanner({
                   variant="destructive"
                   size="sm"
                 >
-                  Stop Scanning
+                  {t("camera.stopButton")}
                 </Button>
               </div>
             )}
@@ -482,14 +484,14 @@ export function QRCodeScanner({
           {/* Manual QR Code Input */}
           <div className="mt-4 pt-4 border-t">
             <p className="text-sm text-muted-foreground mb-2 font-medium">
-              Atau masukkan QR code secara manual:
+              {t("manualInput.label")}
             </p>
             <div className="flex gap-2">
               <Input
                 type="text"
                 value={manualQRCode}
                 onChange={(e) => setManualQRCode(e.target.value)}
-                placeholder="Masukkan QR code..."
+                placeholder={t("manualInput.placeholder")}
                 className="flex-1"
                 onKeyDown={(e) => {
                   if (e.key === "Enter" && !isProcessing) {
@@ -505,14 +507,14 @@ export function QRCodeScanner({
                 {validateQRCode.isPending || checkIn.isPending ? (
                   <Loader2 className="h-4 w-4 animate-spin" />
                 ) : (
-                  "Check-in"
+                  t("manualInput.button")
                 )}
               </Button>
             </div>
             {isProcessing && (
               <p className="text-xs text-muted-foreground mt-2 flex items-center gap-1">
                 <Loader2 className="h-3 w-3 animate-spin" />
-                Memproses check-in...
+                {t("manualInput.processing")}
               </p>
             )}
           </div>

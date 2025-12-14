@@ -1,4 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useTranslations } from "next-intl";
 import { checkInService } from "../services/checkInService";
 import type {
   CheckInFilters,
@@ -11,6 +12,8 @@ import { toast } from "sonner";
  * Hook untuk validasi QR code
  */
 export function useValidateQRCode() {
+  const t = useTranslations("checkin.validation");
+  
   return useMutation({
     mutationFn: (request: ValidateQRCodeRequest) =>
       checkInService.validateQRCode(request),
@@ -21,8 +24,8 @@ export function useValidateQRCode() {
     onError: (error: unknown) => {
       const err = error as { response?: { data?: { error?: { message?: string } } } };
       const message =
-        err.response?.data?.error?.message || "Gagal validasi QR code";
-      toast.error("Validasi Gagal", {
+        err.response?.data?.error?.message || t("failed");
+      toast.error(t("failed"), {
         description: message,
       });
     },
@@ -34,6 +37,7 @@ export function useValidateQRCode() {
  */
 export function useCheckIn() {
   const queryClient = useQueryClient();
+  const t = useTranslations("checkin.checkIn");
 
   return useMutation({
     mutationFn: (request: CheckInRequest) => checkInService.checkIn(request),
@@ -42,15 +46,15 @@ export function useCheckIn() {
       const checkInData = response.data;
       
       if (response.success && checkInData?.success) {
-        toast.success("Check-in Berhasil", {
-          description: checkInData.message || "Tiket berhasil di-check-in",
+        toast.success(t("success"), {
+          description: checkInData.message || t("successDescription"),
         });
         // Invalidate check-ins list to refresh data
         queryClient.invalidateQueries({ queryKey: ["check-ins"] });
       } else {
         // This should not happen if API returns success, but handle it anyway
-        const errorMessage = checkInData?.message || "Check-in gagal";
-        toast.error("Check-in Gagal", {
+        const errorMessage = checkInData?.message || t("failed");
+        toast.error(t("failed"), {
           description: errorMessage,
         });
       }
@@ -58,8 +62,8 @@ export function useCheckIn() {
     onError: (error: unknown) => {
       const err = error as { response?: { data?: { error?: { message?: string } } } };
       const message =
-        err.response?.data?.error?.message || "Terjadi kesalahan saat check-in";
-      toast.error("Check-in Gagal", {
+        err.response?.data?.error?.message || t("error");
+      toast.error(t("failed"), {
         description: message,
       });
     },

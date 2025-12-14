@@ -1,16 +1,18 @@
 "use client";
 
-import { CheckCircle2, XCircle, Loader2 } from "lucide-react";
+import { useTranslations } from "next-intl";
+import { CheckCircle2, XCircle } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { motion, AnimatePresence } from "framer-motion";
 
 interface CheckInResultProps {
   readonly success: boolean;
   readonly message: string;
-  readonly checkIn?: unknown;
+  readonly checkIn?: Record<string, unknown> | null;
 }
 
 export function CheckInResult({ success, message, checkIn }: CheckInResultProps) {
+  const t = useTranslations("checkin.scanner.result");
   return (
     <AnimatePresence>
       <motion.div
@@ -43,9 +45,9 @@ export function CheckInResult({ success, message, checkIn }: CheckInResultProps)
                 >
                   {message}
                 </p>
-                {checkIn && success && (
+                {checkIn != null && success && (
                   <p className="text-sm text-muted-foreground mt-1">
-                    Check-in berhasil dicatat
+                    {t("recorded")}
                   </p>
                 )}
               </div>

@@ -1,0 +1,72 @@
+{
+  "scanner": {
+    "title": "QR Code Scanner",
+    "description": "Arahkan kamera ke QR code pada tiket atau masukkan QR code secara manual",
+    "cameraPermission": {
+      "title": "Izin Kamera Diperlukan",
+      "description": "Kami memerlukan akses kamera untuk scan QR code",
+      "denied": "Izin Ditolak",
+      "deniedMessage": "Silakan berikan izin akses kamera untuk menggunakan scanner.",
+      "requestButton": "Minta Izin Kamera"
+    },
+    "manualInput": {
+      "label": "Atau masukkan QR code secara manual:",
+      "placeholder": "Masukkan QR code...",
+      "button": "Check-in",
+      "processing": "Memproses check-in..."
+    },
+    "camera": {
+      "ready": "Kamera siap untuk scanning",
+      "activate": "Aktifkan kamera untuk scanning",
+      "startButton": "Mulai Kamera",
+      "stopButton": "Hentikan Scanning",
+      "scanning": "Memindai..."
+    },
+    "result": {
+      "success": "Check-in berhasil",
+      "recorded": "Check-in berhasil dicatat",
+      "failed": "Check-in gagal",
+      "invalidQR": "QR code tidak valid",
+      "alreadyUsed": "QR code sudah pernah digunakan",
+      "notPaid": "Tiket belum dibayar",
+      "error": "Terjadi kesalahan"
+    }
+  },
+  "history": {
+    "title": "Riwayat Check-in",
+    "empty": "Tidak ada data check-in",
+    "loading": "Memuat data check-in...",
+    "error": "Gagal memuat data check-in",
+    "fields": {
+      "qrCode": "QR Code",
+      "user": "Pengguna",
+      "status": "Status",
+      "checkedInAt": "Waktu Check-in",
+      "gate": "Gerbang",
+      "location": "Lokasi",
+      "staff": "Staff",
+      "ticketTier": "Tier Tiket"
+    },
+    "status": {
+      "success": "Berhasil",
+      "failed": "Gagal",
+      "duplicate": "Duplikat"
+    },
+    "pagination": {
+      "showing": "Menampilkan {start} - {end} dari {total} check-in",
+      "page": "Halaman {current} dari {total}"
+    }
+  },
+  "validation": {
+    "failed": "Validasi Gagal",
+    "invalidQR": "QR code tidak valid",
+    "alreadyUsed": "QR code sudah pernah digunakan",
+    "notPaid": "Tiket belum dibayar"
+  },
+  "checkIn": {
+    "success": "Check-in Berhasil",
+    "successDescription": "Tiket berhasil di-check-in",
+    "failed": "Check-in Gagal",
+    "error": "Terjadi kesalahan saat check-in"
+  }
+}

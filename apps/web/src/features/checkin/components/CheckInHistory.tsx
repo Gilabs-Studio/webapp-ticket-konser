@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useCheckIns } from "../hooks/useCheckIn";
 import type { CheckInFilters } from "../types";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -14,6 +15,7 @@ interface CheckInHistoryProps {
 }
 
 export function CheckInHistory({ filters }: CheckInHistoryProps) {
+  const t = useTranslations("checkin.history");
   const { data, isLoading, isError, error } = useCheckIns(filters);
 
   if (isLoading) {
@@ -41,7 +43,7 @@ export function CheckInHistory({ filters }: CheckInHistoryProps) {
         <AlertDescription>
           {error instanceof Error
             ? error.message
-            : "Gagal memuat data check-in"}
+            : t("error")}
         </AlertDescription>
       </Alert>
     );
@@ -54,7 +56,7 @@ export function CheckInHistory({ filters }: CheckInHistoryProps) {
     return (
       <Card>
         <CardContent className="p-12 text-center">
-          <p className="text-muted-foreground">Tidak ada data check-in</p>
+          <p className="text-muted-foreground">{t("empty")}</p>
         </CardContent>
       </Card>
     );
@@ -68,10 +70,10 @@ export function CheckInHistory({ filters }: CheckInHistoryProps) {
             <div className="flex items-start justify-between">
               <div className="space-y-1">
                 <CardTitle className="text-lg">
-                  {checkIn.order_item?.order?.user?.name ?? "Unknown User"}
+                  {checkIn.order_item?.order?.user?.name ?? t("fields.user")}
                 </CardTitle>
                 <CardDescription>
-                  QR Code: {checkIn.qr_code}
+                  {t("fields.qrCode")}: {checkIn.qr_code}
                 </CardDescription>
               </div>
               <div className="flex items-center gap-2">
@@ -101,25 +103,25 @@ export function CheckInHistory({ filters }: CheckInHistoryProps) {
               </div>
               {checkIn.gate_id && (
                 <div>
-                  <span className="text-muted-foreground">Gate: </span>
+                  <span className="text-muted-foreground">{t("fields.gate")}: </span>
                   <span>{checkIn.gate_id}</span>
                 </div>
               )}
               {checkIn.location && (
                 <div>
-                  <span className="text-muted-foreground">Location: </span>
+                  <span className="text-muted-foreground">{t("fields.location")}: </span>
                   <span>{checkIn.location}</span>
                 </div>
               )}
               {checkIn.staff && (
                 <div>
-                  <span className="text-muted-foreground">Staff: </span>
+                  <span className="text-muted-foreground">{t("fields.staff")}: </span>
                   <span>{checkIn.staff.name}</span>
                 </div>
               )}
               {checkIn.order_item?.category && (
                 <div>
-                  <span className="text-muted-foreground">Ticket Tier: </span>
+                  <span className="text-muted-foreground">{t("fields.ticketTier")}: </span>
                   <span>{checkIn.order_item.category.name}</span>
                 </div>
               )}
@@ -131,12 +133,17 @@ export function CheckInHistory({ filters }: CheckInHistoryProps) {
       {pagination && (
         <div className="flex items-center justify-between text-sm text-muted-foreground">
           <div>
-            Menampilkan {((pagination.page - 1) * pagination.per_page) + 1} -{" "}
-            {Math.min(pagination.page * pagination.per_page, pagination.total)}{" "}
-            dari {pagination.total} check-in
+            {t("pagination.showing", {
+              start: ((pagination.page - 1) * pagination.per_page) + 1,
+              end: Math.min(pagination.page * pagination.per_page, pagination.total),
+              total: pagination.total,
+            })}
           </div>
           <div>
-            Halaman {pagination.page} dari {pagination.total_pages}
+            {t("pagination.page", {
+              current: pagination.page,
+              total: pagination.total_pages,
+            })}
           </div>
         </div>
       )}
