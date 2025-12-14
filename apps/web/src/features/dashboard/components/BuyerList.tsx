@@ -1,7 +1,13 @@
 "use client";
 
 import { useBuyerList } from "../hooks/useDashboard";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
   Table,
@@ -11,7 +17,13 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { AlertCircle, User, ShoppingBag, DollarSign, Calendar } from "lucide-react";
+import {
+  AlertCircle,
+  User,
+  ShoppingBag,
+  DollarSign,
+  Calendar,
+} from "lucide-react";
 import { useTranslations } from "next-intl";
 import { format } from "date-fns";
 
@@ -77,7 +89,9 @@ export function BuyerList({ filters, limit = 10 }: BuyerListProps) {
         <CardContent>
           <div className="flex flex-col items-center justify-center py-8 text-center">
             <User className="h-12 w-12 text-muted-foreground mb-4" />
-            <p className="text-sm text-muted-foreground">{t("buyers.noData")}</p>
+            <p className="text-sm text-muted-foreground">
+              {t("buyers.noData")}
+            </p>
           </div>
         </CardContent>
       </Card>
@@ -107,8 +121,12 @@ export function BuyerList({ filters, limit = 10 }: BuyerListProps) {
               <TableRow>
                 <TableHead>{t("buyers.name")}</TableHead>
                 <TableHead>{t("buyers.email")}</TableHead>
-                <TableHead className="text-right">{t("buyers.totalOrders")}</TableHead>
-                <TableHead className="text-right">{t("buyers.totalSpent")}</TableHead>
+                <TableHead className="text-right">
+                  {t("buyers.totalOrders")}
+                </TableHead>
+                <TableHead className="text-right">
+                  {t("buyers.totalSpent")}
+                </TableHead>
                 <TableHead>{t("buyers.lastOrder")}</TableHead>
               </TableRow>
             </TableHeader>

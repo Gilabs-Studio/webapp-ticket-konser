@@ -12,7 +12,9 @@ export function proxy(request: NextRequest) {
 
   // Extract locale from pathname (e.g., /en/admin/dashboard -> en)
   const pathSegments = pathname.split("/");
-  const locale = pathSegments.find((segment) => segment && ["en", "id"].includes(segment)) ?? "en";
+  const locale =
+    pathSegments.find((segment) => segment && ["en", "id"].includes(segment)) ??
+    "en";
   const pathWithoutLocale = pathname.replace(`/${locale}`, "") || "/";
 
   // If accessing root and already authenticated, redirect to default-locale home
@@ -32,7 +34,7 @@ export function proxy(request: NextRequest) {
 
     // Decode token to get role
     const role = getRoleFromToken(token);
-    
+
     // Only "admin" role can access admin routes
     if (role !== "admin") {
       // Redirect to landing page if not admin
@@ -52,7 +54,7 @@ export function proxy(request: NextRequest) {
 
     // Decode token to get role
     const role = getRoleFromToken(token);
-    
+
     // Only "staff_ticket" role can access staff routes
     if (role !== "staff_ticket") {
       // Redirect to landing page if not staff_ticket

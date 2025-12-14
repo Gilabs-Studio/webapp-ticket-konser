@@ -26,7 +26,7 @@ function base64Decode(base64: string): string {
   const normalized = base64.replaceAll("-", "+").replaceAll("_", "/");
   // Add padding if needed
   const padded = normalized + "=".repeat((4 - (normalized.length % 4)) % 4);
-  
+
   // Buffer is available in Next.js Edge Runtime
   return Buffer.from(padded, "base64").toString("utf-8");
 }

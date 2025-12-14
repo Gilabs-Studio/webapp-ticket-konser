@@ -18,7 +18,7 @@ interface HeroSectionProps {
 
 export default function HeroSection({ locale }: Readonly<HeroSectionProps>) {
   const targetDate = new Date("2025-12-31T00:00:00").getTime();
-  
+
   const [timeLeft, setTimeLeft] = useState<TimeLeft>({
     days: 0,
     hours: 0,
@@ -31,7 +31,7 @@ export default function HeroSection({ locale }: Readonly<HeroSectionProps>) {
   useEffect(() => {
     // Set mounted state in a separate microtask to avoid synchronous setState in effect
     const mountTimer = setTimeout(() => setMounted(true), 0);
-    
+
     const calculateTimeLeft = () => {
       const now = Date.now();
       const difference = targetDate - now;
@@ -39,7 +39,9 @@ export default function HeroSection({ locale }: Readonly<HeroSectionProps>) {
       if (difference > 0) {
         setTimeLeft({
           days: Math.floor(difference / (1000 * 60 * 60 * 24)),
-          hours: Math.floor((difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)),
+          hours: Math.floor(
+            (difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60),
+          ),
           minutes: Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60)),
           seconds: Math.floor((difference % (1000 * 60)) / 1000),
         });
@@ -126,7 +128,11 @@ export default function HeroSection({ locale }: Readonly<HeroSectionProps>) {
           <ShineBorder
             borderWidth={2}
             duration={14}
-            shineColor={["oklch(0.50 0.12 288)", "oklch(0.55 0.13 337)", "oklch(0.65 0.15 11)"]}
+            shineColor={[
+              "oklch(0.50 0.12 288)",
+              "oklch(0.55 0.13 337)",
+              "oklch(0.65 0.15 11)",
+            ]}
             className="rounded-xl"
           />
           <Button className="relative z-10">

@@ -41,7 +41,9 @@ export default function Header({ locale }: HeaderProps) {
   return (
     <header
       className={`dark fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-        scrolled ? "bg-background/80 backdrop-blur-md border-b border-foreground/10" : "bg-transparent"
+        scrolled
+          ? "bg-background/80 backdrop-blur-md border-b border-foreground/10"
+          : "bg-transparent"
       }`}
     >
       <nav className="container mx-auto px-6 py-6">
@@ -63,13 +65,17 @@ export default function Header({ locale }: HeaderProps) {
             <LanguageToggleButton />
             <ThemeToggleButton />
             {isAuthenticated && user ? (
-              <UserMenu 
+              <UserMenu
                 showHistory={isGuest}
                 isAdmin={isAdmin}
                 isStaff={isStaff}
               />
             ) : (
-              <Button asChild variant="outline" className="text-sm font-light tracking-wide uppercase border-foreground/30 text-foreground hover:border-foreground/50 hover:bg-foreground/10 bg-background/50">
+              <Button
+                asChild
+                variant="outline"
+                className="text-sm font-light tracking-wide uppercase border-foreground/30 text-foreground hover:border-foreground/50 hover:bg-foreground/10 bg-background/50"
+              >
                 <Link href={`/login`}>Login</Link>
               </Button>
             )}

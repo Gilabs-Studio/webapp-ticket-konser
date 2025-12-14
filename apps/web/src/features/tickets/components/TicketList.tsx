@@ -12,7 +12,12 @@ interface TicketListProps {
   readonly onMore?: (ticket: TicketType) => void;
 }
 
-export function TicketList({ tickets, isLoading, onEdit, onMore }: TicketListProps) {
+export function TicketList({
+  tickets,
+  isLoading,
+  onEdit,
+  onMore,
+}: TicketListProps) {
   if (isLoading) {
     return (
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">

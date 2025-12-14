@@ -11,7 +11,13 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useAuthStore } from "@/features/auth/stores/useAuthStore";
 import { useLogout } from "@/features/auth/hooks/useLogout";
-import { LogOut, User, ShoppingBag, LayoutDashboard, ScanLine } from "lucide-react";
+import {
+  LogOut,
+  User,
+  ShoppingBag,
+  LayoutDashboard,
+  ScanLine,
+} from "lucide-react";
 import { Link } from "@/i18n/routing";
 import { useTranslations } from "next-intl";
 
@@ -21,7 +27,11 @@ interface UserMenuProps {
   readonly isStaff?: boolean;
 }
 
-export function UserMenu({ showHistory = false, isAdmin = false, isStaff = false }: UserMenuProps) {
+export function UserMenu({
+  showHistory = false,
+  isAdmin = false,
+  isStaff = false,
+}: UserMenuProps) {
   const t = useTranslations("common");
   const { user } = useAuthStore();
   const handleLogout = useLogout();
@@ -30,12 +40,13 @@ export function UserMenu({ showHistory = false, isAdmin = false, isStaff = false
     return null;
   }
 
-  const initials = user.name
-    ?.split(" ")
-    .map((n) => n?.[0])
-    .join("")
-    .toUpperCase()
-    .slice(0, 2) ?? "U";
+  const initials =
+    user.name
+      ?.split(" ")
+      .map((n) => n?.[0])
+      .join("")
+      .toUpperCase()
+      .slice(0, 2) ?? "U";
 
   return (
     <DropdownMenu>
@@ -50,7 +61,9 @@ export function UserMenu({ showHistory = false, isAdmin = false, isStaff = false
       <DropdownMenuContent align="end" className="w-56">
         <DropdownMenuLabel>
           <div className="flex flex-col space-y-1">
-            <p className="text-sm font-medium leading-none">{user.name ?? "User"}</p>
+            <p className="text-sm font-medium leading-none">
+              {user.name ?? "User"}
+            </p>
             <p className="text-xs leading-none text-muted-foreground">
               {user.email ?? ""}
             </p>

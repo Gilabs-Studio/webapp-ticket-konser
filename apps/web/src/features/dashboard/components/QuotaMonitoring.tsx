@@ -1,7 +1,13 @@
 "use client";
 
 import { useQuotaOverview } from "../hooks/useDashboard";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Progress } from "@/components/ui/progress";
 import { AlertCircle, Package, ShoppingBag, TrendingUp } from "lucide-react";

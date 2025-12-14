@@ -57,7 +57,9 @@ export function MerchandiseProductCard({
       </div>
       <div className="flex justify-between items-start mb-2">
         <div>
-          <h3 className="text-sm font-medium text-foreground">{product.name}</h3>
+          <h3 className="text-sm font-medium text-foreground">
+            {product.name}
+          </h3>
           <p className="text-xs text-muted-foreground">
             {product.variant ?? product.description ?? ""}
           </p>
@@ -74,7 +76,9 @@ export function MerchandiseProductCard({
         <div className="w-full bg-muted h-1 rounded-full overflow-hidden">
           <div
             className={`${stockBarColorClass} h-full rounded-full transition-all`}
-            style={{ width: `${Math.max(0, Math.min(100, product.stockPercentage))}%` }}
+            style={{
+              width: `${Math.max(0, Math.min(100, product.stockPercentage))}%`,
+            }}
           />
         </div>
         <div className="text-[10px] text-muted-foreground text-right pt-1">

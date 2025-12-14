@@ -35,7 +35,7 @@ export function SettingsSidebar({
               "w-full text-left px-3 py-2 text-sm transition-colors rounded-md",
               isActive
                 ? "font-medium text-foreground bg-card"
-                : "text-muted-foreground hover:text-foreground"
+                : "text-muted-foreground hover:text-foreground",
             )}
           >
             {t(tab.labelKey)}

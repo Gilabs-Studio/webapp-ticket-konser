@@ -21,7 +21,10 @@ export function AdminStats({ filters }: AdminStatsProps) {
     return (
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {[1, 2, 3].map((i) => (
-          <div key={i} className="p-5 rounded-xl border border-border bg-card/30">
+          <div
+            key={i}
+            className="p-5 rounded-xl border border-border bg-card/30"
+          >
             <Skeleton className="h-24 w-full" />
           </div>
         ))}
@@ -39,9 +42,10 @@ export function AdminStats({ filters }: AdminStatsProps) {
 
   // Calculate tickets issued (using paid orders as proxy)
   const ticketsIssued = sales.paid_orders ?? 0;
-  const ticketsSoldPercent = sales.total_orders > 0 
-    ? Math.round((ticketsIssued / sales.total_orders) * 100) 
-    : 0;
+  const ticketsSoldPercent =
+    sales.total_orders > 0
+      ? Math.round((ticketsIssued / sales.total_orders) * 100)
+      : 0;
 
   // Mock merch sales (will be replaced with actual data when API is available)
   const merchSales = 32150;
@@ -79,7 +83,7 @@ export function AdminStats({ filters }: AdminStatsProps) {
         const Icon = stat.icon;
         const isPositive = (stat.trend ?? 0) >= 0;
         const hasTrend = stat.trend !== undefined && stat.trend !== 0;
-        
+
         return (
           <div
             key={stat.label}
@@ -92,10 +96,13 @@ export function AdminStats({ filters }: AdminStatsProps) {
               {(() => {
                 if (hasTrend) {
                   return (
-                    <span className={`text-xs font-medium flex items-center gap-1 ${
-                      isPositive ? "text-emerald-500" : "text-red-500"
-                    }`}>
-                      {isPositive ? "+" : ""}{stat.trend?.toFixed(1)}%{" "}
+                    <span
+                      className={`text-xs font-medium flex items-center gap-1 ${
+                        isPositive ? "text-emerald-500" : "text-red-500"
+                      }`}
+                    >
+                      {isPositive ? "+" : ""}
+                      {stat.trend?.toFixed(1)}%{" "}
                       <TrendingUp className="h-3 w-3" />
                     </span>
                   );

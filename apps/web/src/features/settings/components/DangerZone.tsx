@@ -18,9 +18,7 @@ export function DangerZone() {
         <h3 className="text-sm font-medium text-destructive mb-2">
           {t("title")}
         </h3>
-        <p className="text-xs text-muted-foreground mb-4">
-          {t("description")}
-        </p>
+        <p className="text-xs text-muted-foreground mb-4">{t("description")}</p>
         <Button
           type="button"
           variant="outline"

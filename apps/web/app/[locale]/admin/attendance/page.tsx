@@ -4,9 +4,9 @@ import { PageMotion } from "@/components/motion";
 
 const AttendeeList = dynamic(
   () =>
-    import("@/features/attendance/components/AttendeeList").then(
-      (mod) => ({ default: mod.AttendeeList }),
-    ),
+    import("@/features/attendance/components/AttendeeList").then((mod) => ({
+      default: mod.AttendeeList,
+    })),
   {
     loading: () => null, // Use route-level loading.tsx
   },

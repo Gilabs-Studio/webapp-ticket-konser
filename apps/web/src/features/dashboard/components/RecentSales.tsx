@@ -1,6 +1,12 @@
 "use client";
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Link } from "@/i18n/routing";
@@ -51,7 +57,9 @@ export function RecentSales({ filters, limit = 5 }: RecentSalesProps) {
     type: "VIP", // Mock - would come from order data
     amount: buyer.total_spent,
     timeAgo: buyer.last_order_date
-      ? formatDistanceToNow(new Date(buyer.last_order_date), { addSuffix: true })
+      ? formatDistanceToNow(new Date(buyer.last_order_date), {
+          addSuffix: true,
+        })
       : "N/A",
   }));
 

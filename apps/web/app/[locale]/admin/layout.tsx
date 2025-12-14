@@ -88,12 +88,13 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
     },
   ];
 
-  const initials = user?.name
-    ?.split(" ")
-    .map((n) => n?.[0])
-    .join("")
-    .toUpperCase()
-    .slice(0, 2) ?? "A";
+  const initials =
+    user?.name
+      ?.split(" ")
+      .map((n) => n?.[0])
+      .join("")
+      .toUpperCase()
+      .slice(0, 2) ?? "A";
 
   return (
     <SidebarProvider>
@@ -134,8 +135,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
               {managementItems.map((item) => {
                 const Icon = item.icon;
                 const isActive =
-                  pathname === item.url ||
-                  pathname?.startsWith(item.url + "/");
+                  pathname === item.url || pathname?.startsWith(item.url + "/");
                 return (
                   <SidebarMenuItem key={item.url}>
                     <SidebarMenuButton
@@ -160,7 +160,10 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
               <DropdownMenuTrigger asChild>
                 <button className="flex w-full items-center gap-2 rounded-md px-2 py-2 hover:bg-accent focus:outline-none focus:ring-2 focus:ring-ring">
                   <Avatar className="h-8 w-8">
-                    <AvatarImage src={user.avatar_url} alt={user.name ?? "User"} />
+                    <AvatarImage
+                      src={user.avatar_url}
+                      alt={user.name ?? "User"}
+                    />
                     <AvatarFallback>{initials}</AvatarFallback>
                   </Avatar>
                   <div className="flex flex-1 flex-col items-start text-left text-sm">
@@ -184,7 +187,10 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
                   </div>
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={handleLogout} className="text-destructive">
+                <DropdownMenuItem
+                  onClick={handleLogout}
+                  className="text-destructive"
+                >
                   <LogOut className="mr-2 h-4 w-4" />
                   <span>{t("logout")}</span>
                 </DropdownMenuItem>

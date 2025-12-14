@@ -90,9 +90,7 @@ export function RecentOrdersTable({
 
       {orderList.length === 0 ? (
         <div className="p-8 text-center">
-          <p className="text-sm text-muted-foreground">
-            {t("orders.empty")}
-          </p>
+          <p className="text-sm text-muted-foreground">{t("orders.empty")}</p>
         </div>
       ) : (
         <Table>
@@ -117,7 +115,8 @@ export function RecentOrdersTable({
           </TableHeader>
           <TableBody className="divide-y divide-border/50">
             {orderList.map((order) => {
-              const total = order.total_formatted ??
+              const total =
+                order.total_formatted ??
                 new Intl.NumberFormat("en-US", {
                   style: "currency",
                   currency: "USD",

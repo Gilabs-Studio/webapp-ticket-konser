@@ -1,9 +1,21 @@
 "use client";
 
 import { useCheckInOverview } from "../hooks/useDashboard";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { AlertCircle, CheckCircle2, XCircle, TrendingUp, TrendingDown } from "lucide-react";
+import {
+  AlertCircle,
+  CheckCircle2,
+  XCircle,
+  TrendingUp,
+  TrendingDown,
+} from "lucide-react";
 import { useTranslations } from "next-intl";
 
 interface CheckInMonitoringProps {
@@ -129,7 +141,9 @@ export function CheckInMonitoring({ filters }: CheckInMonitoringProps) {
                       ) : (
                         <TrendingDown className="h-3 w-3" />
                       )}
-                      <span>{Math.abs(checkIns.change_percent).toFixed(1)}%</span>
+                      <span>
+                        {Math.abs(checkIns.change_percent).toFixed(1)}%
+                      </span>
                     </div>
                   )}
               </div>

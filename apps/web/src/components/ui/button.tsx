@@ -9,16 +9,11 @@ const buttonVariants = cva(
   {
     variants: {
       variant: {
-        default:
-          "px-8 py-3 hover:scale-101 rounded-xl",
-        destructive:
-          "px-8 py-3 hover:scale-101 rounded-xl",
-        outline:
-          "px-8 py-3 hover:scale-101 rounded-xl",
-        secondary:
-          "px-8 py-3 hover:scale-101 rounded-xl",
-        ghost:
-          "hover:bg-foreground/5 rounded-xl",
+        default: "px-8 py-3 hover:scale-101 rounded-xl",
+        destructive: "px-8 py-3 hover:scale-101 rounded-xl",
+        outline: "px-8 py-3 hover:scale-101 rounded-xl",
+        secondary: "px-8 py-3 hover:scale-101 rounded-xl",
+        ghost: "hover:bg-foreground/5 rounded-xl",
         link: "text-foreground/70 hover:text-foreground underline-offset-4 hover:underline",
       },
       size: {

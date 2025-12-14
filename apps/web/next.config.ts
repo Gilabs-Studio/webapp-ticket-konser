@@ -15,7 +15,6 @@ const nextConfig: NextConfig = {
   },
   async headers() {
     return [
-    
       // static asset caching
       {
         source: "/:path*.(ico|png|jpg|jpeg|svg|gif|webp|woff|woff2|ttf|eot)",
@@ -30,7 +29,7 @@ const nextConfig: NextConfig = {
   },
 
   poweredByHeader: false,
-  
+
   // Fix HMR issues with route resolution
   experimental: {
     serverComponentsHmrCache: true,

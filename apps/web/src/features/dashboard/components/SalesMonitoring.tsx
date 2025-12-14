@@ -1,9 +1,25 @@
 "use client";
 
 import { useSalesOverview } from "../hooks/useDashboard";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { TrendingUp, TrendingDown, DollarSign, ShoppingCart, CheckCircle2, XCircle, AlertCircle, Ban, RotateCcw } from "lucide-react";
+import {
+  TrendingUp,
+  TrendingDown,
+  DollarSign,
+  ShoppingCart,
+  CheckCircle2,
+  XCircle,
+  AlertCircle,
+  Ban,
+  RotateCcw,
+} from "lucide-react";
 import { useTranslations } from "next-intl";
 
 interface SalesMonitoringProps {

@@ -13,9 +13,10 @@ interface TicketCardProps {
 }
 
 export function TicketCard({ ticket, onEdit, onMore }: TicketCardProps) {
-  const soldPercentage = ticket.total_quota > 0 
-    ? Math.round((ticket.sold / ticket.total_quota) * 100) 
-    : 0;
+  const soldPercentage =
+    ticket.total_quota > 0
+      ? Math.round((ticket.sold / ticket.total_quota) * 100)
+      : 0;
 
   const getStatusBadge = () => {
     switch (ticket.status) {
@@ -52,7 +53,8 @@ export function TicketCard({ ticket, onEdit, onMore }: TicketCardProps) {
     return "bg-white";
   };
 
-  const price = ticket.price_formatted ?? 
+  const price =
+    ticket.price_formatted ??
     new Intl.NumberFormat("en-US", {
       style: "currency",
       currency: "USD",
@@ -63,12 +65,10 @@ export function TicketCard({ ticket, onEdit, onMore }: TicketCardProps) {
     <div
       className={cn(
         "col-span-1 border border-border bg-card/40 rounded-xl p-5 relative group hover:border-ring transition-all",
-        ticket.status === "sold_out" && "opacity-75"
+        ticket.status === "sold_out" && "opacity-75",
       )}
     >
-      <div className="absolute top-0 right-0 p-2 z-10">
-        {getStatusBadge()}
-      </div>
+      <div className="absolute top-0 right-0 p-2 z-10">{getStatusBadge()}</div>
 
       <div className="mb-4">
         <h3 className="text-base font-medium text-foreground">{ticket.name}</h3>
@@ -85,7 +85,8 @@ export function TicketCard({ ticket, onEdit, onMore }: TicketCardProps) {
         <div className="flex justify-between text-xs">
           <span className="text-muted-foreground">Sold</span>
           <span className="text-foreground">
-            {ticket.sold.toLocaleString("en-US")} / {ticket.total_quota.toLocaleString("en-US")}
+            {ticket.sold.toLocaleString("en-US")} /{" "}
+            {ticket.total_quota.toLocaleString("en-US")}
           </span>
         </div>
         <div className="w-full bg-muted h-1.5 rounded-full overflow-hidden">
