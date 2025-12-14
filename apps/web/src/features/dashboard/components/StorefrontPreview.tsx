@@ -79,7 +79,7 @@ export function StorefrontPreview() {
           <div className="flex gap-2">
             <Button variant="outline" size="sm" asChild className="group">
               <Link
-                href="/admin/products"
+                href="/merchandise"
                 className="[&>span]:group-hover:bg-clip-text [&>span]:group-hover:text-transparent [&>span]:group-hover:bg-gradient-to-r [&>span]:group-hover:from-[var(--gradient-purple)] [&>span]:group-hover:via-[var(--gradient-magenta)] [&>span]:group-hover:to-[var(--gradient-pink)]"
               >
                 <Edit className="h-4 w-4" />

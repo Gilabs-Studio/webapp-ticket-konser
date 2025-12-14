@@ -28,6 +28,38 @@ Developer 2 bertanggung jawab untuk:
 4. ⏳ Admin Dashboard Monitoring (Fullstack)
 5. ⏳ Buyer List Export (CSV/Excel) (Backend)
 
+**Modul Frontend yang sudah dibuat (belum ada di sprint planning)**:
+
+1. ✅ **Ticket Management** (Frontend - Components & Types) - `/tickets`
+   - Components: TicketCard, TicketList, TicketManagement, RecentOrdersTable
+   - Types: Ticket types definitions
+   - Status: Frontend UI completed, Backend integration pending
+
+2. ✅ **Merchandise Management** (Frontend - Components & Types) - `/merchandise`
+   - Components: MerchandiseInventory, MerchandiseProductCard
+   - Types: Merchandise types definitions
+   - Status: Frontend UI completed, Backend APIs pending
+   - Note: Untuk event limited merchandise (merchandise khusus event)
+
+3. ✅ **Settings Management** (Frontend - Components, Hooks, Schemas & Types) - `/settings`
+   - Components: SettingsPage, SettingsSidebar, EventSettingsForm, DangerZone
+   - Hooks: useEventSettings
+   - Schemas: event-settings.schema.ts (Zod validation)
+   - Types: Settings types definitions
+   - Status: Frontend completed, Backend APIs pending
+
+4. ✅ **Attendance Management** (Frontend - Components, Hooks, Services & Types) - `/attendance`
+   - Components: AttendeeList
+   - Hooks: useAttendees
+   - Services: attendanceService
+   - Types: Attendance types definitions
+   - Status: Frontend completed, Backend APIs pending
+   - Note: Terkait dengan check-in dan attendee tracking
+
+5. ✅ **Attendees Management** (Frontend - Page) - `/attendees`
+   - Status: Page structure completed, Backend integration pending
+   - Note: Management page untuk attendees/participants
+
 **Note**: Modul User Management, Role Management, Permission Management, Menu Management, dan Authentication telah dipindahkan ke Dev1 karena sudah dikerjakan sebelumnya.
 
 **Parallel Development Strategy**:
@@ -254,6 +286,88 @@ Developer 2 bertanggung jawab untuk:
 
 **Status**: ⏳ **FRONTEND PARTIAL** (Components ✅, Backend APIs ❌)
 
+---
+
+### Sprint 4.5: Additional Frontend Modules (Week 6-7)
+
+**Goal**: Complete backend integration untuk frontend modules yang sudah dibuat
+
+**Status**: ⏳ **FRONTEND COMPLETED** / ⏳ **BACKEND PENDING**
+
+**Backend Tasks**:
+
+- [ ] **Ticket Management APIs**
+  - [ ] Implement ticket list API (`GET /api/v1/tickets`)
+  - [ ] Implement ticket detail API (`GET /api/v1/tickets/:id`)
+  - [ ] Implement ticket status update API (`PUT /api/v1/tickets/:id/status`)
+  - [ ] Implement recent orders API (`GET /api/v1/orders/recent`)
+
+- [ ] **Merchandise Management APIs**
+  - [ ] Create merchandise model dan migration
+  - [ ] Create merchandise repository interface dan implementation
+  - [ ] Create merchandise service
+  - [ ] Implement merchandise CRUD APIs (`GET /api/v1/merchandise`, `POST /api/v1/merchandise`, `PUT /api/v1/merchandise/:id`, `DELETE /api/v1/merchandise/:id`)
+  - [ ] Implement merchandise inventory API (`GET /api/v1/merchandise/inventory`)
+  - [ ] Add merchandise seeder (jika diperlukan)
+
+- [ ] **Settings Management APIs**
+  - [ ] Create settings model dan migration
+  - [ ] Create settings repository interface dan implementation
+  - [ ] Create settings service
+  - [ ] Implement event settings API (`GET /api/v1/settings/event`, `PUT /api/v1/settings/event`)
+  - [ ] Implement system settings API (`GET /api/v1/settings/system`, `PUT /api/v1/settings/system`)
+
+- [ ] **Attendance Management APIs**
+  - [ ] Create attendance model dan migration (jika berbeda dari check-in)
+  - [ ] Create attendance repository interface dan implementation
+  - [ ] Create attendance service
+  - [ ] Implement attendees list API (`GET /api/v1/attendees`)
+  - [ ] Implement attendance statistics API (`GET /api/v1/attendees/statistics`)
+  - [ ] Implement attendance export API (`GET /api/v1/attendees/export`)
+
+**Frontend Tasks** (Already Completed):
+
+- [x] Ticket Management components - ✅ Completed
+- [x] Merchandise Management components - ✅ Completed
+- [x] Settings Management components, hooks, schemas - ✅ Completed
+- [x] Attendance Management components, hooks, services - ✅ Completed
+- [ ] Integrate frontend dengan backend APIs - **PENDING** (perlu backend APIs dulu)
+
+**Postman Collection**:
+
+- [ ] Add ticket management APIs ke Postman collection
+- [ ] Add merchandise APIs ke Postman collection
+- [ ] Add settings APIs ke Postman collection
+- [ ] Add attendance APIs ke Postman collection
+
+**Menu & Permissions**:
+
+- [ ] Add Ticket Management menu to menu seeder
+- [ ] Add Merchandise Management menu to menu seeder
+- [ ] Add Settings menu to menu seeder
+- [ ] Add Attendance menu to menu seeder
+- [ ] Add corresponding permissions to permission seeder
+
+**Acceptance Criteria**:
+
+- ✅ Ticket Management APIs bekerja dengan baik
+- ✅ Merchandise Management APIs bekerja dengan baik
+- ✅ Settings Management APIs bekerja dengan baik
+- ✅ Attendance Management APIs bekerja dengan baik
+- ✅ Frontend terintegrasi dengan backend APIs
+- ✅ Postman collection updated
+
+**Testing** (Manual testing):
+
+- Test ticket management APIs (backend + frontend integration)
+- Test merchandise management APIs (backend + frontend integration)
+- Test settings APIs (backend + frontend integration)
+- Test attendance APIs (backend + frontend integration)
+
+**Estimated Time**: 5-7 days
+
+**Note**: Modul-modul ini sudah dibuat di frontend sebelumnya, sekarang perlu backend integration untuk melengkapi functionality.
+
 **Backend Tasks**:
 
 - [ ] Create admin dashboard service
@@ -371,9 +485,12 @@ Developer 2 bertanggung jawab untuk:
 | Sprint 2 | Real-time Check-in Status     | 4-5 days | ⏳ Pending                       | Belum dikerjakan                         |
 | Sprint 3 | Gate Assignment & Management  | 4-5 days | ⏳ Pending                       | Belum dikerjakan                         |
 | Sprint 4 | Admin Dashboard Monitoring    | 4-5 days | ⏳ Frontend (60%) / Backend (0%) | Frontend: Components ✅, Backend APIs ❌ |
+| Sprint 4.5 | Additional Frontend Modules | 5-7 days | ⏳ Frontend (100%) / Backend (0%) | Frontend: Completed ✅, Backend APIs ❌ |
 | Sprint 5 | Integration & Testing         | 3-4 days | ⏳ Pending                       | Belum dikerjakan                         |
 
-**Total Estimated Time**: 21-27 days (3-3.9 weeks)
+**Total Estimated Time**: 29-38 days (4.1-5.4 weeks)
+
+**Note**: Sprint 4.5 ditambahkan untuk melengkapi backend integration untuk modul-modul frontend yang sudah dibuat sebelumnya (Ticket Management, Merchandise, Settings, Attendance).
 
 **Note**: Sprint 0 dan Sprint 1 (User Management & Access Control) telah dipindahkan ke Dev1.
 

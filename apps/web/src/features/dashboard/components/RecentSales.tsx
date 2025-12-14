@@ -89,7 +89,7 @@ export function RecentSales({ filters, limit = 5 }: RecentSalesProps) {
             <CardDescription>{t("recentSales.description")}</CardDescription>
           </div>
           <Link
-            href="/admin/orders"
+            href="/tickets"
             className="text-sm text-primary hover:underline"
           >
             {t("recentSales.viewAll")}

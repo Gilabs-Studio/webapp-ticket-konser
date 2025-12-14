@@ -290,6 +290,60 @@ Menyediakan solusi ticketing yang komprehensif, mudah digunakan, dan mobile-firs
 - **FR-10.2.2**: Admin harus dapat resend ticket untuk buyer
 - **FR-10.2.3**: Sistem harus mengirim email dengan E-Ticket saat resend
 
+### 11. Ticket Management
+
+#### 11.1 Ticket List & Management
+- **FR-11.1.1**: Admin harus dapat melihat semua tickets dengan status (active, used, cancelled)
+- **FR-11.1.2**: Sistem harus menampilkan ticket detail (buyer info, tier, QR code, status)
+- **FR-11.1.3**: Sistem harus support ticket search dan filter (by status, by tier, by buyer)
+- **FR-11.1.4**: Sistem harus menampilkan recent orders untuk monitoring
+
+#### 11.2 Ticket Status Management
+- **FR-11.2.1**: Admin harus dapat update ticket status (active, cancelled)
+- **FR-11.2.2**: Sistem harus validasi status update (tidak bisa update used ticket)
+- **FR-11.2.3**: Sistem harus menampilkan ticket status history
+
+### 12. Merchandise Management (Event Limited)
+
+#### 12.1 Merchandise Inventory
+- **FR-12.1.1**: Admin harus dapat mengelola merchandise inventory untuk event
+- **FR-12.1.2**: Sistem harus menyimpan informasi merchandise (nama, harga, stock, gambar, deskripsi)
+- **FR-12.1.3**: Sistem harus support merchandise CRUD operations
+- **FR-12.1.4**: Sistem harus menampilkan merchandise inventory dengan stock tracking
+
+#### 12.2 Merchandise Display
+- **FR-12.2.1**: Sistem harus menampilkan merchandise dengan product cards
+- **FR-12.2.2**: Sistem harus support merchandise filtering dan search
+- **FR-12.2.3**: Sistem harus menampilkan merchandise availability (in stock, out of stock)
+
+**Note**: Merchandise management khusus untuk event limited merchandise (merchandise khusus event konser).
+
+### 13. Settings Management
+
+#### 13.1 Event Settings
+- **FR-13.1.1**: Admin harus dapat mengelola event settings (event name, date, location, description)
+- **FR-13.1.2**: Sistem harus support event settings update
+- **FR-13.1.3**: Sistem harus validasi event settings (date tidak boleh di masa lalu, dll)
+
+#### 13.2 System Settings
+- **FR-13.2.1**: Admin harus dapat mengelola system settings
+- **FR-13.2.2**: Sistem harus support settings validation dengan Zod schema
+- **FR-13.2.3**: Sistem harus menampilkan danger zone untuk critical settings
+
+### 14. Attendance Management
+
+#### 14.1 Attendee List
+- **FR-14.1.1**: Admin harus dapat melihat attendee list (semua yang sudah check-in)
+- **FR-14.1.2**: Sistem harus menampilkan attendee detail (nama, ticket tier, check-in time, gate)
+- **FR-14.1.3**: Sistem harus support attendee search dan filter
+
+#### 14.2 Attendance Statistics
+- **FR-14.2.1**: Sistem harus menampilkan attendance statistics (total, by gate, by tier)
+- **FR-14.2.2**: Sistem harus support attendance export (CSV/Excel)
+- **FR-14.2.3**: Sistem harus menampilkan attendance timeline
+
+**Note**: Attendance management terkait dengan check-in system dan attendee tracking.
+
 ---
 
 ## Non-Functional Requirements

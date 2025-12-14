@@ -15,7 +15,8 @@ export default function LoginPage() {
 
       // Redirect based on role
       if (userRole === "admin" || userRole === "super_admin") {
-        router.push("/admin/dashboard");
+        // Dashboard route moved from /admin/dashboard to /dashboard
+        router.push("/dashboard");
       } else if (userRole === "staff_ticket" || userRole === "gate_staff") {
         router.push("/staff/dashboard");
       } else {

@@ -73,7 +73,7 @@ export function UserMenu({
         {isAdmin && (
           <>
             <DropdownMenuItem asChild>
-              <Link href="/admin/dashboard" className="flex items-center">
+              <Link href="/dashboard" className="flex items-center">
                 <LayoutDashboard className="mr-2 h-4 w-4" />
                 <span>{t("dashboard") ?? "Dashboard"}</span>
               </Link>
