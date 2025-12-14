@@ -1,11 +1,17 @@
-import { redirect } from "next/navigation";
+import HeroSection from "@/features/landing/components/HeroSection";
+import Header from "@/components/layouts/Header";
 
-// Ketika user buka "/en" atau "/id", redirect ke "/[locale]/show"
-export default async function LocaleRootRedirect({
+export default async function LandingPage({
   params,
 }: {
   params: Promise<{ locale: string }>;
 }) {
   const { locale } = await params;
-  redirect(`/${locale}/show`);
+  
+  return (
+    <main className="min-h-screen">
+      <Header locale={locale} />
+      <HeroSection locale={locale} />
+    </main>
+  );
 }

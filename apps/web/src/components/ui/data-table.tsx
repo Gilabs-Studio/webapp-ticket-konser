@@ -104,13 +104,13 @@ export function DataTable<T extends { id: string }>({
   // Mobile card view
   if (isMobile) {
     return (
-      <div className="border rounded-lg">
+      <div className="border">
         {isLoading ? (
           <div className="p-4 space-y-3">
             {Array.from({ length: 5 }, (_, i) => (
               <Skeleton
                 key={`skeleton-card-${i}`}
-                className="h-32 w-full rounded-lg"
+                className="h-32 w-full"
               />
             ))}
           </div>
@@ -125,7 +125,7 @@ export function DataTable<T extends { id: string }>({
                 {data.map((row) => (
                   <div
                     key={row.id}
-                    className="p-4 hover:bg-muted/30 transition-colors border-b last:border-b-0"
+                    className="p-4 hover:bg-muted/30 border-b last:border-b-0"
                   >
                     <div className="space-y-2.5">
                       {columns.map((column, index) => {
@@ -257,7 +257,7 @@ export function DataTable<T extends { id: string }>({
 
   // Desktop table view
   return (
-    <div className="border rounded-lg">
+    <div className="border">
       {isLoading ? (
         <div className="p-4 space-y-3">
           {Array.from({ length: 5 }, (_, i) => (
