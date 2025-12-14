@@ -104,7 +104,9 @@ export function AttendeeList({ filters }: AttendeeListProps) {
 
   const handleExport = async () => {
     try {
-      const { attendanceService } = await import("../services/attendanceService");
+      const { attendanceService } = await import(
+        "../services/attendanceService"
+      );
       const blob = await attendanceService.exportAttendees({
         ...filters,
         search: searchQuery || undefined,
@@ -157,7 +159,9 @@ export function AttendeeList({ filters }: AttendeeListProps) {
             Failed to load attendees. Please try again.
           </p>
           {error instanceof Error && (
-            <p className="text-xs text-muted-foreground mt-2">{error.message}</p>
+            <p className="text-xs text-muted-foreground mt-2">
+              {error.message}
+            </p>
           )}
         </div>
       </div>
@@ -312,9 +316,13 @@ export function AttendeeList({ filters }: AttendeeListProps) {
         {pagination && (
           <div className="px-6 py-4 border-t border-border flex justify-between items-center text-xs text-muted-foreground">
             <span>
-              Showing {pagination.page * pagination.per_page - pagination.per_page + 1}-
-              {Math.min(pagination.page * pagination.per_page, pagination.total)} of{" "}
-              {pagination.total}
+              Showing{" "}
+              {pagination.page * pagination.per_page - pagination.per_page + 1}-
+              {Math.min(
+                pagination.page * pagination.per_page,
+                pagination.total,
+              )}{" "}
+              of {pagination.total}
             </span>
             <div className="flex gap-2">
               <Button

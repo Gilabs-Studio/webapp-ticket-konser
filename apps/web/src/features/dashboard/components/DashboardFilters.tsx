@@ -29,12 +29,7 @@ export function DashboardFilters({
           onDateChange={onDateRangeChange}
         />
         {hasActiveFilters && (
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={onReset}
-            className="h-9"
-          >
+          <Button variant="ghost" size="sm" onClick={onReset} className="h-9">
             <X className="h-4 w-4 mr-2" />
             {t("filters.reset")}
           </Button>

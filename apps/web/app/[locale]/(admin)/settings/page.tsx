@@ -2,21 +2,21 @@ import { Suspense } from "react";
 import dynamic from "next/dynamic";
 import { PageMotion } from "@/components/motion";
 
-const AttendeeList = dynamic(
+const SettingsPage = dynamic(
   () =>
-    import("@/features/attendance/components/AttendeeList").then(
-      (mod) => ({ default: mod.AttendeeList }),
-    ),
+    import("@/features/settings/components/SettingsPage").then((mod) => ({
+      default: mod.SettingsPage,
+    })),
   {
     loading: () => null, // Use route-level loading.tsx
   },
 );
 
-export default function AttendancePage() {
+export default function AdminSettingsPage() {
   return (
     <PageMotion className="p-6">
       <Suspense fallback={null}>
-        <AttendeeList />
+        <SettingsPage />
       </Suspense>
     </PageMotion>
   );

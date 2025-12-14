@@ -45,9 +45,12 @@ export const attendanceService = {
       params.append("status", filters.status);
     }
 
-    const response = await apiClient.get(`/admin/attendees/export?${params.toString()}`, {
-      responseType: "blob",
-    });
+    const response = await apiClient.get(
+      `/admin/attendees/export?${params.toString()}`,
+      {
+        responseType: "blob",
+      },
+    );
 
     return response.data;
   },

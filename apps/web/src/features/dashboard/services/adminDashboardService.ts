@@ -63,9 +63,7 @@ export const adminDashboardService = {
    * Get sales overview
    * Uses order API to calculate sales statistics
    */
-  async getSalesOverview(
-    filters?: DashboardFilters,
-  ): Promise<SalesOverview> {
+  async getSalesOverview(filters?: DashboardFilters): Promise<SalesOverview> {
     const params = new URLSearchParams();
     if (filters?.start_date) {
       params.append("start_date", filters.start_date);
@@ -217,7 +215,7 @@ export const adminDashboardService = {
           email: order.user.email ?? "",
           total_orders: 1,
           total_spent:
-            order.payment_status === "PAID" ? order.total_amount ?? 0 : 0,
+            order.payment_status === "PAID" ? (order.total_amount ?? 0) : 0,
           last_order_date: order.created_at,
         });
       }

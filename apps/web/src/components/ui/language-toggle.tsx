@@ -19,7 +19,7 @@ export function LanguageToggleButton({
 
   const toggleLanguage = () => {
     const newLocale = locale === "en" ? "id" : "en";
-    
+
     // Use startTransition to avoid flash screen
     if (typeof document !== "undefined" && document.startViewTransition) {
       document.startViewTransition(() => {

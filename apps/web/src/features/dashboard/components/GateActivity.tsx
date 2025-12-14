@@ -1,7 +1,13 @@
 "use client";
 
 import { useGateActivity } from "../hooks/useDashboard";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
 import { AlertCircle, DoorOpen, Clock } from "lucide-react";
@@ -96,7 +102,9 @@ export function GateActivity({ filters }: GateActivityProps) {
                 <Badge
                   variant={gate.status === "active" ? "default" : "secondary"}
                 >
-                  {gate.status === "active" ? t("gates.active") : t("gates.inactive")}
+                  {gate.status === "active"
+                    ? t("gates.active")
+                    : t("gates.inactive")}
                 </Badge>
               </div>
               <div className="space-y-2">

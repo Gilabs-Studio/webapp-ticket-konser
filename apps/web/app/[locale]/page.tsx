@@ -7,7 +7,7 @@ export default async function LandingPage({
   params: Promise<{ locale: string }>;
 }) {
   const { locale } = await params;
-  
+
   return (
     <main className="min-h-screen">
       <Header locale={locale} />

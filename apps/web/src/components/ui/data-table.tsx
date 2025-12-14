@@ -108,10 +108,7 @@ export function DataTable<T extends { id: string }>({
         {isLoading ? (
           <div className="p-4 space-y-3">
             {Array.from({ length: 5 }, (_, i) => (
-              <Skeleton
-                key={`skeleton-card-${i}`}
-                className="h-32 w-full"
-              />
+              <Skeleton key={`skeleton-card-${i}`} className="h-32 w-full" />
             ))}
           </div>
         ) : (

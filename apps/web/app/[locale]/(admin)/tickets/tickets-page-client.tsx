@@ -5,9 +5,9 @@ import { type TicketType, type Order } from "@/features/tickets/types";
 
 const TicketManagement = dynamic(
   () =>
-    import("@/features/tickets/components/TicketManagement").then(
-      (mod) => ({ default: mod.TicketManagement }),
-    ),
+    import("@/features/tickets/components/TicketManagement").then((mod) => ({
+      default: mod.TicketManagement,
+    })),
   {
     loading: () => null, // Use route-level loading.tsx
   },

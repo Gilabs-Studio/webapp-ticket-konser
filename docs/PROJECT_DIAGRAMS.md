@@ -72,9 +72,13 @@ graph LR
         GATE[Gate Assignment<br/>& Management]
     end
     
-    subgraph "Analytics"
+    subgraph "Analytics & Management"
         DASHBOARD[Admin Dashboard]
         ANALYTICS[Analytics<br/>& Reports]
+        TICKETS[Ticket Management]
+        MERCHANDISE[Merchandise<br/>Management]
+        SETTINGS[Settings<br/>Management]
+        ATTENDANCE[Attendance<br/>Management]
     end
     
     AUTH --> TIER
@@ -91,6 +95,11 @@ graph LR
     PURCHASE --> DASHBOARD
     CHECKIN --> DASHBOARD
     DASHBOARD --> ANALYTICS
+    PURCHASE --> TICKETS
+    EVENT --> MERCHANDISE
+    DASHBOARD --> SETTINGS
+    CHECKIN --> ATTENDANCE
+    TICKETS --> ATTENDANCE
     
     style AUTH fill:#ef4444
     style TIER fill:#3b82f6
@@ -98,6 +107,10 @@ graph LR
     style ETICKET fill:#f59e0b
     style SCANNER fill:#8b5cf6
     style DASHBOARD fill:#ec4899
+    style TICKETS fill:#06b6d4
+    style MERCHANDISE fill:#84cc16
+    style SETTINGS fill:#f97316
+    style ATTENDANCE fill:#a855f7
 ```
 
 ---
@@ -150,6 +163,22 @@ mindmap
       Check-in Monitoring
       Gate Activity
       Buyer List
+    Ticket Management
+      Ticket List
+      Ticket Status
+      Recent Orders
+    Merchandise Management
+      Product Inventory
+      Product Cards
+      Event Limited Items
+    Settings Management
+      Event Settings
+      System Settings
+      Danger Zone
+    Attendance Management
+      Attendee List
+      Attendance Tracking
+      Statistics
     Analytics
       Sales Overview
       Peak Hours
@@ -171,6 +200,10 @@ mindmap
 | **Sales Monitoring** | ❌ | ❌ | ✅ View | ✅ Full | ✅ Full |
 | **Analytics** | ❌ | ❌ | ✅ View | ✅ Full | ✅ Full |
 | **Buyer List** | ❌ | ❌ | ✅ Export | ✅ Full | ✅ Full |
+| **Ticket Management** | ❌ | ❌ | ✅ View | ✅ Full | ✅ Full |
+| **Merchandise Management** | ❌ | ❌ | ❌ | ✅ Full | ✅ Full |
+| **Settings Management** | ❌ | ❌ | ❌ | ✅ Full | ✅ Full |
+| **Attendance Management** | ❌ | ✅ View | ✅ View | ✅ Full | ✅ Full |
 | **User Management** | ❌ | ❌ | ❌ | ✅ Full | ✅ Full |
 
 ---

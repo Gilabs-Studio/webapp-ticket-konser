@@ -11,7 +11,12 @@ export interface TicketType {
   readonly status: TicketStatus;
 }
 
-export type OrderStatus = "completed" | "pending" | "failed" | "canceled" | "refunded";
+export type OrderStatus =
+  | "completed"
+  | "pending"
+  | "failed"
+  | "canceled"
+  | "refunded";
 
 export interface Order {
   readonly id: string;

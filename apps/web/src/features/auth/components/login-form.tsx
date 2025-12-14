@@ -146,7 +146,10 @@ export function LoginForm() {
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
               <FieldGroup className="space-y-4">
                 <Field className="space-y-2">
-                  <FieldLabel htmlFor="email" className="text-sm font-light text-foreground/70">
+                  <FieldLabel
+                    htmlFor="email"
+                    className="text-sm font-light text-foreground/70"
+                  >
                     {t("emailLabel")}
                   </FieldLabel>
                   <Input
@@ -159,13 +162,18 @@ export function LoginForm() {
                     className="h-11 font-light bg-background/50 border-foreground/10"
                   />
                   {errors.email && (
-                    <FieldError className="text-xs font-light">{errors.email.message}</FieldError>
+                    <FieldError className="text-xs font-light">
+                      {errors.email.message}
+                    </FieldError>
                   )}
                 </Field>
 
                 <Field className="space-y-2">
                   <div className="flex items-center justify-between">
-                    <FieldLabel htmlFor="password" className="text-sm font-light text-foreground/70">
+                    <FieldLabel
+                      htmlFor="password"
+                      className="text-sm font-light text-foreground/70"
+                    >
                       {t("passwordLabel")}
                     </FieldLabel>
                     <button
@@ -202,7 +210,9 @@ export function LoginForm() {
                     </button>
                   </div>
                   {errors.password && (
-                    <FieldError className="text-xs font-light">{errors.password.message}</FieldError>
+                    <FieldError className="text-xs font-light">
+                      {errors.password.message}
+                    </FieldError>
                   )}
                 </Field>
 
@@ -220,7 +230,9 @@ export function LoginForm() {
 
                 {errors.root && (
                   <Field>
-                    <FieldError className="text-xs font-light">{errors.root.message}</FieldError>
+                    <FieldError className="text-xs font-light">
+                      {errors.root.message}
+                    </FieldError>
                   </Field>
                 )}
 

@@ -202,6 +202,10 @@ Setiap developer memiliki sprint planning terpisah yang detail.
 - ⏳ Gate Assignment & Management (⏳ Pending)
 - ⏳ Admin Dashboard Monitoring (⏳ Frontend Partial - Components ✅, Backend APIs ❌)
 - ⏳ Buyer List Export (CSV/Excel) (⏳ Pending)
+- ✅ **Ticket Management** (✅ Frontend Completed - Components & Types ✅, Backend APIs ⏳ Pending)
+- ✅ **Merchandise Management** (✅ Frontend Completed - Components & Types ✅, Backend APIs ⏳ Pending)
+- ✅ **Settings Management** (✅ Frontend Completed - Components, Hooks, Schemas ✅, Backend APIs ⏳ Pending)
+- ✅ **Attendance Management** (✅ Frontend Completed - Components, Hooks, Services ✅, Backend APIs ⏳ Pending)
 
 **Note**: User Management, Role Management, Permission Management, Menu Management, dan Authentication telah dipindahkan ke Dev1.
 

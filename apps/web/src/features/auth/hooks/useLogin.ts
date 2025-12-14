@@ -28,9 +28,10 @@ export function useLogin() {
       });
       if (response.success && response.data) {
         const { user, token, refresh_token } = response.data;
+        // Check if running in browser environment
         if (typeof window !== "undefined") {
-          localStorage.setItem("token", token);
-          localStorage.setItem("refreshToken", refresh_token);
+          window.localStorage.setItem("token", token);
+          window.localStorage.setItem("refreshToken", refresh_token);
           // Set secure cookie for WebSocket and middleware
           setSecureCookie("token", token);
         }
@@ -44,7 +45,8 @@ export function useLogin() {
         // Redirect berdasarkan role code
         const userRole = user.role?.toLowerCase() ?? "";
         if (userRole === "admin" || userRole === "super_admin") {
-          router.push("/admin/dashboard");
+          // Dashboard route moved from /admin/dashboard to /dashboard
+          router.push("/dashboard");
         } else if (userRole === "staff_ticket" || userRole === "gate_staff") {
           router.push("/staff/ticket");
         } else {

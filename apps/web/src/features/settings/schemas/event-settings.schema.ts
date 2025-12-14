@@ -7,7 +7,10 @@ export const eventSettingsSchema = z.object({
   urlSlug: z
     .string()
     .min(1, "URL slug is required")
-    .regex(/^[a-z0-9-]+$/, "URL slug can only contain lowercase letters, numbers, and hyphens"),
+    .regex(
+      /^[a-z0-9-]+$/,
+      "URL slug can only contain lowercase letters, numbers, and hyphens",
+    ),
 });
 
 export type EventSettingsFormData = z.infer<typeof eventSettingsSchema>;

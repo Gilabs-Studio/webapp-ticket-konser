@@ -4,9 +4,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import type { EventSettingsFormData } from "../schemas/event-settings.schema";
 
 // TODO: Replace with actual API service when backend is ready
-async function updateEventSettings(
-  data: EventSettingsFormData
-): Promise<void> {
+async function updateEventSettings(data: EventSettingsFormData): Promise<void> {
   // Mock API call
   return new Promise((resolve) => {
     setTimeout(() => {

@@ -12,7 +12,9 @@ export function proxy(request: NextRequest) {
 
   // Extract locale from pathname (e.g., /en/admin/dashboard -> en)
   const pathSegments = pathname.split("/");
-  const locale = pathSegments.find((segment) => segment && ["en", "id"].includes(segment)) ?? "en";
+  const locale =
+    pathSegments.find((segment) => segment && ["en", "id"].includes(segment)) ??
+    "en";
   const pathWithoutLocale = pathname.replace(`/${locale}`, "") || "/";
 
   // If accessing root and already authenticated, redirect to default-locale home
@@ -21,7 +23,43 @@ export function proxy(request: NextRequest) {
     return NextResponse.redirect(new URL(target, request.url));
   }
 
-  // Check if accessing admin routes
+  // Protected admin routes (moved from /admin/* to root level)
+  const protectedAdminRoutes = [
+    "/dashboard",
+    "/tickets",
+    "/settings",
+    "/merchandise",
+    "/attendance",
+    "/attendees",
+    "/events",
+    "/users",
+  ];
+
+  // Check if accessing protected admin routes
+  const isProtectedRoute = protectedAdminRoutes.some((route) =>
+    pathWithoutLocale.startsWith(route),
+  );
+
+  if (isProtectedRoute) {
+    if (!token) {
+      // No token, redirect to login
+      const loginUrl = new URL(`/${locale}/login`, request.url);
+      loginUrl.searchParams.set("redirect", pathname);
+      return NextResponse.redirect(loginUrl);
+    }
+
+    // Decode token to get role
+    const role = getRoleFromToken(token);
+
+    // Only "admin" or "super_admin" role can access protected routes
+    if (role !== "admin" && role !== "super_admin") {
+      // Redirect to landing page if not admin
+      const homeUrl = new URL(`/${locale}`, request.url);
+      return NextResponse.redirect(homeUrl);
+    }
+  }
+
+  // Legacy admin routes (still support for backward compatibility)
   if (pathWithoutLocale.startsWith("/admin")) {
     if (!token) {
       // No token, redirect to login
@@ -32,7 +70,7 @@ export function proxy(request: NextRequest) {
 
     // Decode token to get role
     const role = getRoleFromToken(token);
-    
+
     // Only "admin" role can access admin routes
     if (role !== "admin") {
       // Redirect to landing page if not admin
@@ -52,7 +90,7 @@ export function proxy(request: NextRequest) {
 
     // Decode token to get role
     const role = getRoleFromToken(token);
-    
+
     // Only "staff_ticket" role can access staff routes
     if (role !== "staff_ticket") {
       // Redirect to landing page if not staff_ticket

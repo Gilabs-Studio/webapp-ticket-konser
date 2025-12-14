@@ -1,8 +1,21 @@
 "use client";
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Edit, ExternalLink, ShoppingBag, Coffee, Plus, Shirt } from "lucide-react";
+import {
+  Edit,
+  ExternalLink,
+  ShoppingBag,
+  Coffee,
+  Plus,
+  Shirt,
+} from "lucide-react";
 import { Link } from "@/i18n/routing";
 import { useTranslations } from "next-intl";
 
@@ -32,26 +45,26 @@ export function StorefrontPreview() {
   ];
 
   const merchandise = [
-    { 
+    {
       id: "merch-1",
-      icon: Shirt, 
+      icon: Shirt,
       label: "Event Hoodie",
       sizes: "S, M, L, XL",
-      price: "$55"
+      price: "$55",
     },
-    { 
+    {
       id: "merch-2",
-      icon: ShoppingBag, 
+      icon: ShoppingBag,
       label: "Tote Bag",
       sizes: "Canvas",
-      price: "$25"
+      price: "$25",
     },
-    { 
+    {
       id: "merch-3",
-      icon: Coffee, 
+      icon: Coffee,
       label: "Tumbler",
       sizes: "Matte Black",
-      price: "$30"
+      price: "$30",
     },
   ];
 
@@ -65,13 +78,19 @@ export function StorefrontPreview() {
           </div>
           <div className="flex gap-2">
             <Button variant="outline" size="sm" asChild className="group">
-              <Link href="/admin/products" className="[&>span]:group-hover:bg-clip-text [&>span]:group-hover:text-transparent [&>span]:group-hover:bg-gradient-to-r [&>span]:group-hover:from-[var(--gradient-purple)] [&>span]:group-hover:via-[var(--gradient-magenta)] [&>span]:group-hover:to-[var(--gradient-pink)]">
+              <Link
+                href="/merchandise"
+                className="[&>span]:group-hover:bg-clip-text [&>span]:group-hover:text-transparent [&>span]:group-hover:bg-gradient-to-r [&>span]:group-hover:from-[var(--gradient-purple)] [&>span]:group-hover:via-[var(--gradient-magenta)] [&>span]:group-hover:to-[var(--gradient-pink)]"
+              >
                 <Edit className="h-4 w-4" />
                 <span>{t("storefront.editProducts")}</span>
               </Link>
             </Button>
             <Button variant="default" size="sm" asChild className="group">
-              <Link href="/" className="[&>span]:group-hover:bg-clip-text [&>span]:group-hover:text-transparent [&>span]:group-hover:bg-gradient-to-r [&>span]:group-hover:from-[var(--gradient-purple)] [&>span]:group-hover:via-[var(--gradient-magenta)] [&>span]:group-hover:to-[var(--gradient-pink)]">
+              <Link
+                href="/"
+                className="[&>span]:group-hover:bg-clip-text [&>span]:group-hover:text-transparent [&>span]:group-hover:bg-gradient-to-r [&>span]:group-hover:from-[var(--gradient-purple)] [&>span]:group-hover:via-[var(--gradient-magenta)] [&>span]:group-hover:to-[var(--gradient-pink)]"
+              >
                 <ExternalLink className="h-4 w-4" />
                 <span>{t("storefront.visitLivePage")}</span>
               </Link>
@@ -84,31 +103,41 @@ export function StorefrontPreview() {
           <div className="text-xs font-medium uppercase tracking-wider text-muted-foreground mb-2">
             {t("storefront.tickets")}
           </div>
-          
+
           {tickets.map((ticket) => (
             <div
               key={ticket.id}
               className="group relative flex flex-col sm:flex-row bg-card/50 border border-border hover:border-ring rounded-xl overflow-hidden transition-all duration-300"
             >
               <div className="w-full sm:w-32 bg-card flex flex-col items-center justify-center p-4 border-b sm:border-b-0 sm:border-r border-border group-hover:border-ring border-dashed">
-                <span className="text-xs font-medium text-muted-foreground">{ticket.date}</span>
+                <span className="text-xs font-medium text-muted-foreground">
+                  {ticket.date}
+                </span>
                 <span className="text-xl font-bold text-foreground tracking-tight">
                   {ticket.label || ticket.time}
                 </span>
               </div>
-              
+
               <div className="flex-1 p-5 flex flex-col justify-between">
                 <div className="flex justify-between items-start">
                   <div>
-                    <h3 className="text-base font-medium text-foreground">{ticket.type}</h3>
-                    <p className="text-xs text-muted-foreground mt-1">{ticket.description}</p>
+                    <h3 className="text-base font-medium text-foreground">
+                      {ticket.type}
+                    </h3>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      {ticket.description}
+                    </p>
                   </div>
                   <div className="text-right">
-                    <span className="block text-base font-medium text-foreground">{ticket.price}</span>
-                    <span className="block text-[10px] text-muted-foreground">Inc. VAT</span>
+                    <span className="block text-base font-medium text-foreground">
+                      {ticket.price}
+                    </span>
+                    <span className="block text-[10px] text-muted-foreground">
+                      Inc. VAT
+                    </span>
                   </div>
                 </div>
-                
+
                 <div className="mt-4 flex items-center justify-between">
                   <div
                     className={`flex items-center gap-2 text-[10px] ${
@@ -167,10 +196,16 @@ export function StorefrontPreview() {
                   </div>
                   <div className="flex justify-between items-start">
                     <div>
-                      <div className="text-sm text-foreground font-medium">{item.label}</div>
-                      <div className="text-xs text-muted-foreground">{item.sizes}</div>
+                      <div className="text-sm text-foreground font-medium">
+                        {item.label}
+                      </div>
+                      <div className="text-xs text-muted-foreground">
+                        {item.sizes}
+                      </div>
                     </div>
-                    <div className="text-sm font-medium text-muted-foreground">{item.price}</div>
+                    <div className="text-sm font-medium text-muted-foreground">
+                      {item.price}
+                    </div>
                   </div>
                 </div>
               );
