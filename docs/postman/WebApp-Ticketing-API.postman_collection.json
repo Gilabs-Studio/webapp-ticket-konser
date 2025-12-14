@@ -1321,6 +1321,156 @@
       ]
     },
     {
+      "name": "Attendee Management",
+      "item": [
+        {
+          "name": "List Attendees (Admin)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/admin/attendees?page=1&per_page=20",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "admin", "attendees"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1",
+                  "description": "Page number (default: 1)"
+                },
+                {
+                  "key": "per_page",
+                  "value": "20",
+                  "description": "Items per page (default: 20, max: 100)"
+                },
+                {
+                  "key": "search",
+                  "value": "",
+                  "description": "Search by name, email, or QR code",
+                  "disabled": true
+                },
+                {
+                  "key": "ticket_tier",
+                  "value": "",
+                  "description": "Filter by ticket tier: VIP, General, Premium, Standard",
+                  "disabled": true
+                },
+                {
+                  "key": "status",
+                  "value": "",
+                  "description": "Filter by status: registered, checked_in, cancelled",
+                  "disabled": true
+                },
+                {
+                  "key": "start_date",
+                  "value": "",
+                  "description": "Filter by start date (ISO 8601 format)",
+                  "disabled": true
+                },
+                {
+                  "key": "end_date",
+                  "value": "",
+                  "description": "Filter by end date (ISO 8601 format)",
+                  "disabled": true
+                }
+              ]
+            },
+            "description": "Get semua attendees dengan pagination dan filters (admin only, requires attendee.read permission)"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Attendee Statistics (Admin)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/admin/attendees/statistics",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "admin", "attendees", "statistics"],
+              "query": [
+                {
+                  "key": "start_date",
+                  "value": "",
+                  "description": "Filter by start date (ISO 8601 format)",
+                  "disabled": true
+                },
+                {
+                  "key": "end_date",
+                  "value": "",
+                  "description": "Filter by end date (ISO 8601 format)",
+                  "disabled": true
+                }
+              ]
+            },
+            "description": "Get attendee statistics (admin only, requires attendee.read permission)"
+          },
+          "response": []
+        },
+        {
+          "name": "Export Attendees (Admin)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/admin/attendees/export",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "admin", "attendees", "export"],
+              "query": [
+                {
+                  "key": "search",
+                  "value": "",
+                  "description": "Search by name, email, or QR code",
+                  "disabled": true
+                },
+                {
+                  "key": "ticket_tier",
+                  "value": "",
+                  "description": "Filter by ticket tier: VIP, General, Premium, Standard",
+                  "disabled": true
+                },
+                {
+                  "key": "status",
+                  "value": "",
+                  "description": "Filter by status: registered, checked_in, cancelled",
+                  "disabled": true
+                },
+                {
+                  "key": "start_date",
+                  "value": "",
+                  "description": "Filter by start date (ISO 8601 format)",
+                  "disabled": true
+                },
+                {
+                  "key": "end_date",
+                  "value": "",
+                  "description": "Filter by end date (ISO 8601 format)",
+                  "disabled": true
+                }
+              ]
+            },
+            "description": "Export attendees to CSV (admin only, requires attendee.export permission)"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
       "name": "User Management",
       "item": [
         {

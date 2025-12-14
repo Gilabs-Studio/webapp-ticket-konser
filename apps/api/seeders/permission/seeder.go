@@ -64,6 +64,10 @@ func Seed() error {
 		// Check-in permissions
 		{Code: "checkin.read", Name: "Read Check-in", Resource: "checkin", Action: "read"},
 		{Code: "checkin.create", Name: "Create Check-in", Resource: "checkin", Action: "create"},
+
+		// Attendee permissions
+		{Code: "attendee.read", Name: "Read Attendee", Resource: "attendee", Action: "read"},
+		{Code: "attendee.export", Name: "Export Attendee", Resource: "attendee", Action: "export"},
 	}
 
 	createdCount := 0

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Search, Filter, MoreVertical } from "lucide-react";
+import { Search, Filter, MoreVertical, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -15,6 +15,19 @@ import {
 import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Label } from "@/components/ui/label";
 import { useAttendees } from "../hooks/useAttendees";
 import type { Attendee, AttendeeFilters } from "../types";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -86,20 +99,49 @@ function getTicketTierBadgeVariant(
 export function AttendeeList({ filters }: AttendeeListProps) {
   const [searchQuery, setSearchQuery] = useState(filters?.search ?? "");
   const [currentPage, setCurrentPage] = useState(filters?.page ?? 1);
+  const [ticketTierFilter, setTicketTierFilter] = useState<
+    Attendee["ticket_tier"] | "all"
+  >(filters?.ticket_tier ?? "all");
+  const [statusFilter, setStatusFilter] = useState<
+    Attendee["status"] | "all"
+  >(filters?.status ?? "all");
 
-  const { data, isLoading, isError, error } = useAttendees({
-    ...filters,
+  const activeFilters: AttendeeFilters = {
     search: searchQuery || undefined,
+    ticket_tier:
+      ticketTierFilter !== "all" ? ticketTierFilter : undefined,
+    status: statusFilter !== "all" ? statusFilter : undefined,
     page: currentPage,
     per_page: 10,
-  });
+  };
+
+  const { data, isLoading, isError, error } = useAttendees(activeFilters);
 
   const attendees = data?.data ?? [];
   const pagination = data?.meta?.pagination;
 
+  const hasActiveFilters =
+    ticketTierFilter !== "all" || statusFilter !== "all";
+
   const handleSearch = (value: string) => {
     setSearchQuery(value);
     setCurrentPage(1); // Reset to first page on search
+  };
+
+  const handleTicketTierChange = (value: string) => {
+    setTicketTierFilter(value as Attendee["ticket_tier"] | "all");
+    setCurrentPage(1);
+  };
+
+  const handleStatusChange = (value: string) => {
+    setStatusFilter(value as Attendee["status"] | "all");
+    setCurrentPage(1);
+  };
+
+  const handleResetFilters = () => {
+    setTicketTierFilter("all");
+    setStatusFilter("all");
+    setCurrentPage(1);
   };
 
   const handleExport = async () => {
@@ -108,8 +150,10 @@ export function AttendeeList({ filters }: AttendeeListProps) {
         "../services/attendanceService"
       );
       const blob = await attendanceService.exportAttendees({
-        ...filters,
         search: searchQuery || undefined,
+        ticket_tier:
+          ticketTierFilter !== "all" ? ticketTierFilter : undefined,
+        status: statusFilter !== "all" ? statusFilter : undefined,
       });
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement("a");
@@ -184,14 +228,88 @@ export function AttendeeList({ filters }: AttendeeListProps) {
       >
         <h2 className="text-lg font-medium tracking-tight">Attendee List</h2>
         <div className="flex gap-2">
-          <Button variant="outline" size="sm" className="text-xs">
-            <Filter className="h-3.5 w-3.5 mr-2" />
-            Filter
-          </Button>
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button variant="outline" size="sm" className="text-xs">
+                <Filter className="h-3.5 w-3.5 mr-2" />
+                Filter
+                {hasActiveFilters && (
+                  <Badge
+                    variant="default"
+                    className="ml-2 h-4 w-4 rounded-full p-0 flex items-center justify-center text-[8px]"
+                  >
+                    {(ticketTierFilter !== "all" ? 1 : 0) +
+                      (statusFilter !== "all" ? 1 : 0)}
+                  </Badge>
+                )}
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-80" align="end">
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <h4 className="font-medium text-sm">Filters</h4>
+                  {hasActiveFilters && (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="h-7 text-xs"
+                      onClick={handleResetFilters}
+                    >
+                      <X className="h-3 w-3 mr-1" />
+                      Reset
+                    </Button>
+                  )}
+                </div>
+
+                <div className="space-y-3">
+                  <div className="space-y-2">
+                    <Label htmlFor="ticket-tier" className="text-xs">
+                      Ticket Tier
+                    </Label>
+                    <Select
+                      value={ticketTierFilter}
+                      onValueChange={handleTicketTierChange}
+                    >
+                      <SelectTrigger id="ticket-tier" size="sm">
+                        <SelectValue placeholder="All Ticket Tiers" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">All Ticket Tiers</SelectItem>
+                        <SelectItem value="VIP">VIP</SelectItem>
+                        <SelectItem value="Premium">Premium</SelectItem>
+                        <SelectItem value="General">General</SelectItem>
+                        <SelectItem value="Standard">Standard</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="status" className="text-xs">
+                      Status
+                    </Label>
+                    <Select
+                      value={statusFilter}
+                      onValueChange={handleStatusChange}
+                    >
+                      <SelectTrigger id="status" size="sm">
+                        <SelectValue placeholder="All Status" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">All Status</SelectItem>
+                        <SelectItem value="registered">Registered</SelectItem>
+                        <SelectItem value="checked_in">Checked In</SelectItem>
+                        <SelectItem value="cancelled">Cancelled</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+              </div>
+            </PopoverContent>
+          </Popover>
           <Button
             variant="default"
             size="sm"
-            className="text-xs bg-foreground text-background hover:bg-foreground/90"
+            className="text-xs"
             onClick={handleExport}
           >
             Export List

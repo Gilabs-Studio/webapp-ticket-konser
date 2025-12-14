@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"time"
 
+	attendeehandler "github.com/gilabs/webapp-ticket-konser/api/internal/api/handlers/attendee"
 	authhandler "github.com/gilabs/webapp-ticket-konser/api/internal/api/handlers/auth"
 	checkinhandler "github.com/gilabs/webapp-ticket-konser/api/internal/api/handlers/checkin"
 	eventhandler "github.com/gilabs/webapp-ticket-konser/api/internal/api/handlers/event"
@@ -16,6 +17,7 @@ import (
 	ticketcategoryhandler "github.com/gilabs/webapp-ticket-konser/api/internal/api/handlers/ticket_category"
 	userhandler "github.com/gilabs/webapp-ticket-konser/api/internal/api/handlers/user"
 	"github.com/gilabs/webapp-ticket-konser/api/internal/api/middleware"
+	attendeeroutes "github.com/gilabs/webapp-ticket-konser/api/internal/api/routes/attendee"
 	authroutes "github.com/gilabs/webapp-ticket-konser/api/internal/api/routes/auth"
 	checkinroutes "github.com/gilabs/webapp-ticket-konser/api/internal/api/routes/checkin"
 	eventroutes "github.com/gilabs/webapp-ticket-konser/api/internal/api/routes/event"
@@ -29,6 +31,7 @@ import (
 	"github.com/gilabs/webapp-ticket-konser/api/internal/config"
 	"github.com/gilabs/webapp-ticket-konser/api/internal/database"
 	"github.com/gilabs/webapp-ticket-konser/api/internal/repository/interfaces/role"
+	attendeerepo "github.com/gilabs/webapp-ticket-konser/api/internal/repository/postgres/attendee"
 	authrepo "github.com/gilabs/webapp-ticket-konser/api/internal/repository/postgres/auth"
 	checkinrepo "github.com/gilabs/webapp-ticket-konser/api/internal/repository/postgres/checkin"
 	eventrepo "github.com/gilabs/webapp-ticket-konser/api/internal/repository/postgres/event"
@@ -40,6 +43,7 @@ import (
 	schedulerepo "github.com/gilabs/webapp-ticket-konser/api/internal/repository/postgres/schedule"
 	ticketcategoryrepo "github.com/gilabs/webapp-ticket-konser/api/internal/repository/postgres/ticket_category"
 	userrepo "github.com/gilabs/webapp-ticket-konser/api/internal/repository/postgres/user"
+	attendeeservice "github.com/gilabs/webapp-ticket-konser/api/internal/service/attendee"
 	authservice "github.com/gilabs/webapp-ticket-konser/api/internal/service/auth"
 	checkinservice "github.com/gilabs/webapp-ticket-konser/api/internal/service/checkin"
 	eventservice "github.com/gilabs/webapp-ticket-konser/api/internal/service/event"
@@ -91,6 +95,7 @@ func main() {
 
 	// Setup repositories
 	authRepo := authrepo.NewRepository(database.DB)
+	attendeeRepo := attendeerepo.NewRepository(database.DB)
 	roleRepo := rolerepo.NewRepository(database.DB)
 	permissionRepo := permissionrepo.NewRepository(database.DB)
 	menuRepo := menurepo.NewRepository(database.DB)
@@ -105,6 +110,7 @@ func main() {
 	// Setup services
 	menuService := menuservice.NewService(menuRepo, roleRepo)
 	authService := authservice.NewService(authRepo, roleRepo, menuService, jwtManager)
+	attendeeService := attendeeservice.NewService(attendeeRepo)
 	permissionService := permissionservice.NewService(permissionRepo)
 	roleService := roleservice.NewService(roleRepo, permissionRepo)
 	eventService := eventservice.NewService(eventRepo)
@@ -116,6 +122,7 @@ func main() {
 
 	// Setup handlers
 	authHandler := authhandler.NewHandler(authService)
+	attendeeHandler := attendeehandler.NewHandler(attendeeService)
 	permissionHandler := permissionhandler.NewHandler(permissionService)
 	roleHandler := rolehandler.NewHandler(roleService)
 	menuHandler := menuhandler.NewHandler(menuService)
@@ -130,6 +137,7 @@ func main() {
 	router := setupRouter(
 		jwtManager,
 		authHandler,
+		attendeeHandler,
 		permissionHandler,
 		roleHandler,
 		menuHandler,
@@ -153,6 +161,7 @@ func main() {
 func setupRouter(
 	jwtManager *jwt.JWTManager,
 	authHandler *authhandler.Handler,
+	attendeeHandler *attendeehandler.Handler,
 	permissionHandler *permissionhandler.Handler,
 	roleHandler *rolehandler.Handler,
 	menuHandler *menuhandler.Handler,
@@ -202,6 +211,9 @@ func setupRouter(
 
 		// Auth routes
 		authroutes.SetupRoutes(v1, authHandler, jwtManager)
+
+		// Attendee routes
+		attendeeroutes.SetupRoutes(v1, attendeeHandler, roleRepo, jwtManager)
 
 		// Menu routes
 		menuroutes.SetupRoutes(v1, menuHandler, roleRepo, jwtManager)
