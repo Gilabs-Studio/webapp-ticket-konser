@@ -69,6 +69,15 @@ func Seed() error {
 			PermissionCode: "attendee.read",
 			IsActive:       true,
 		},
+		{
+			Code:           "gate-management",
+			Label:          "Gate Management",
+			Icon:           "door-open",
+			Path:           "/gates",
+			OrderIndex:     7,
+			PermissionCode: "gate.read",
+			IsActive:       true,
+		},
 		// Note: Scanner and Check-ins menus are NOT added here because:
 		// - Staff access these via profile dropdown (not sidebar)
 		// - Admin should not see these in sidebar (they have admin dashboard)

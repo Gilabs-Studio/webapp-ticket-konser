@@ -1321,6 +1321,261 @@
       ]
     },
     {
+      "name": "Gate Management",
+      "item": [
+        {
+          "name": "List Gates (Admin)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/gates?page=1&per_page=20",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "gates"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1",
+                  "description": "Page number (default: 1)"
+                },
+                {
+                  "key": "per_page",
+                  "value": "20",
+                  "description": "Items per page (default: 20, max: 100)"
+                },
+                {
+                  "key": "status",
+                  "value": "",
+                  "description": "Filter by status: ACTIVE, INACTIVE",
+                  "disabled": true
+                },
+                {
+                  "key": "is_vip",
+                  "value": "",
+                  "description": "Filter by VIP status: true, false",
+                  "disabled": true
+                },
+                {
+                  "key": "search",
+                  "value": "",
+                  "description": "Search by name, code, or location",
+                  "disabled": true
+                }
+              ]
+            },
+            "description": "Get semua gates dengan pagination dan filters (admin only, requires gate.read permission)"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Gate by ID (Admin)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/gates/:id",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "gates", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "gate-uuid-here"
+                }
+              ]
+            },
+            "description": "Get gate by ID (admin only, requires gate.read permission)"
+          },
+          "response": []
+        },
+        {
+          "name": "Create Gate (Admin)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"code\": \"GATE-A\",\n  \"name\": \"Gate A\",\n  \"location\": \"Main Entrance - North Side\",\n  \"description\": \"Main entrance gate for regular ticket holders\",\n  \"is_vip\": false,\n  \"status\": \"ACTIVE\",\n  \"capacity\": 0\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/gates",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "gates"]
+            },
+            "description": "Create a new gate (admin only, requires gate.create permission)"
+          },
+          "response": []
+        },
+        {
+          "name": "Update Gate (Admin)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Gate A Updated\",\n  \"location\": \"Main Entrance - North Side Updated\",\n  \"status\": \"ACTIVE\",\n  \"capacity\": 1000\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/gates/:id",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "gates", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "gate-uuid-here"
+                }
+              ]
+            },
+            "description": "Update a gate (admin only, requires gate.update permission)"
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Gate (Admin)",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/gates/:id",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "gates", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "gate-uuid-here"
+                }
+              ]
+            },
+            "description": "Delete a gate (admin only, requires gate.delete permission)"
+          },
+          "response": []
+        },
+        {
+          "name": "Assign Ticket to Gate (Admin)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"order_item_id\": \"order-item-uuid-here\",\n  \"gate_id\": \"gate-uuid-here\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/gates/:id/assign-ticket",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "gates", ":id", "assign-ticket"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "gate-uuid-here"
+                }
+              ]
+            },
+            "description": "Assign a ticket to a specific gate (admin only, requires gate.update permission). Validates VIP priority entry system."
+          },
+          "response": []
+        },
+        {
+          "name": "Gate Check-in",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"qr_code\": \"QR-abc123xyz\",\n  \"location\": \"Gate A - Main Entrance\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/gates/:id/check-in",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "gates", ":id", "check-in"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "gate-uuid-here"
+                }
+              ]
+            },
+            "description": "Perform check-in at a specific gate. Validates gate status, capacity, and VIP priority entry system. Requires authentication (any authenticated user)."
+          },
+          "response": []
+        },
+        {
+          "name": "Get Gate Statistics (Admin)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/gates/:id/statistics",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "gates", ":id", "statistics"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "gate-uuid-here"
+                }
+              ]
+            },
+            "description": "Get gate statistics including total check-ins, today check-ins, VIP check-ins, and regular check-ins (admin only, requires gate.read permission)"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
       "name": "Attendee Management",
       "item": [
         {

@@ -9,6 +9,7 @@ import (
 	authhandler "github.com/gilabs/webapp-ticket-konser/api/internal/api/handlers/auth"
 	checkinhandler "github.com/gilabs/webapp-ticket-konser/api/internal/api/handlers/checkin"
 	eventhandler "github.com/gilabs/webapp-ticket-konser/api/internal/api/handlers/event"
+	gatehandler "github.com/gilabs/webapp-ticket-konser/api/internal/api/handlers/gate"
 	menuhandler "github.com/gilabs/webapp-ticket-konser/api/internal/api/handlers/menu"
 	orderhandler "github.com/gilabs/webapp-ticket-konser/api/internal/api/handlers/order"
 	permissionhandler "github.com/gilabs/webapp-ticket-konser/api/internal/api/handlers/permission"
@@ -21,6 +22,7 @@ import (
 	authroutes "github.com/gilabs/webapp-ticket-konser/api/internal/api/routes/auth"
 	checkinroutes "github.com/gilabs/webapp-ticket-konser/api/internal/api/routes/checkin"
 	eventroutes "github.com/gilabs/webapp-ticket-konser/api/internal/api/routes/event"
+	gateroutes "github.com/gilabs/webapp-ticket-konser/api/internal/api/routes/gate"
 	menuroutes "github.com/gilabs/webapp-ticket-konser/api/internal/api/routes/menu"
 	orderroutes "github.com/gilabs/webapp-ticket-konser/api/internal/api/routes/order"
 	permissionroutes "github.com/gilabs/webapp-ticket-konser/api/internal/api/routes/permission"
@@ -35,6 +37,7 @@ import (
 	authrepo "github.com/gilabs/webapp-ticket-konser/api/internal/repository/postgres/auth"
 	checkinrepo "github.com/gilabs/webapp-ticket-konser/api/internal/repository/postgres/checkin"
 	eventrepo "github.com/gilabs/webapp-ticket-konser/api/internal/repository/postgres/event"
+	gaterepo "github.com/gilabs/webapp-ticket-konser/api/internal/repository/postgres/gate"
 	menurepo "github.com/gilabs/webapp-ticket-konser/api/internal/repository/postgres/menu"
 	orderrepo "github.com/gilabs/webapp-ticket-konser/api/internal/repository/postgres/order"
 	orderitemrepo "github.com/gilabs/webapp-ticket-konser/api/internal/repository/postgres/order_item"
@@ -47,6 +50,7 @@ import (
 	authservice "github.com/gilabs/webapp-ticket-konser/api/internal/service/auth"
 	checkinservice "github.com/gilabs/webapp-ticket-konser/api/internal/service/checkin"
 	eventservice "github.com/gilabs/webapp-ticket-konser/api/internal/service/event"
+	gateservice "github.com/gilabs/webapp-ticket-konser/api/internal/service/gate"
 	menuservice "github.com/gilabs/webapp-ticket-konser/api/internal/service/menu"
 	orderservice "github.com/gilabs/webapp-ticket-konser/api/internal/service/order"
 	permissionservice "github.com/gilabs/webapp-ticket-konser/api/internal/service/permission"
@@ -105,6 +109,7 @@ func main() {
 	orderRepo := orderrepo.NewRepository(database.DB)
 	orderItemRepo := orderitemrepo.NewRepository(database.DB)
 	checkInRepo := checkinrepo.NewRepository(database.DB)
+	gateRepo := gaterepo.NewRepository(database.DB)
 	userRepo := userrepo.NewRepository(database.DB)
 
 	// Setup services
@@ -118,6 +123,7 @@ func main() {
 	scheduleService := scheduleservice.NewService(scheduleRepo)
 	orderService := orderservice.NewService(orderRepo)
 	checkInService := checkinservice.NewService(checkInRepo, orderItemRepo)
+	gateService := gateservice.NewService(gateRepo, orderItemRepo, checkInRepo, checkInService)
 	userService := userservice.NewService(userRepo, roleRepo)
 
 	// Setup handlers
@@ -131,6 +137,7 @@ func main() {
 	scheduleHandler := schedulehandler.NewHandler(scheduleService)
 	orderHandler := orderhandler.NewHandler(orderService)
 	checkInHandler := checkinhandler.NewHandler(checkInService)
+	gateHandler := gatehandler.NewHandler(gateService)
 	userHandler := userhandler.NewHandler(userService)
 
 	// Setup router
@@ -146,6 +153,7 @@ func main() {
 		scheduleHandler,
 		orderHandler,
 		checkInHandler,
+		gateHandler,
 		userHandler,
 		roleRepo,
 	)
@@ -170,6 +178,7 @@ func setupRouter(
 	scheduleHandler *schedulehandler.Handler,
 	orderHandler *orderhandler.Handler,
 	checkInHandler *checkinhandler.Handler,
+	gateHandler *gatehandler.Handler,
 	userHandler *userhandler.Handler,
 	roleRepo role.Repository,
 ) *gin.Engine {
@@ -232,6 +241,9 @@ func setupRouter(
 
 		// Check-in routes
 		checkinroutes.SetupRoutes(v1, checkInHandler, roleRepo, jwtManager)
+
+		// Gate routes
+		gateroutes.SetupRoutes(v1, gateHandler, roleRepo, jwtManager)
 
 		// User routes
 		userroutes.SetupRoutes(v1, userHandler, roleRepo, jwtManager)

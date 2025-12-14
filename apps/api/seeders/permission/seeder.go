@@ -68,6 +68,12 @@ func Seed() error {
 		// Attendee permissions
 		{Code: "attendee.read", Name: "Read Attendee", Resource: "attendee", Action: "read"},
 		{Code: "attendee.export", Name: "Export Attendee", Resource: "attendee", Action: "export"},
+
+		// Gate permissions
+		{Code: "gate.create", Name: "Create Gate", Resource: "gate", Action: "create"},
+		{Code: "gate.read", Name: "Read Gate", Resource: "gate", Action: "read"},
+		{Code: "gate.update", Name: "Update Gate", Resource: "gate", Action: "update"},
+		{Code: "gate.delete", Name: "Delete Gate", Resource: "gate", Action: "delete"},
 	}
 
 	createdCount := 0

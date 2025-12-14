@@ -9,6 +9,7 @@ import (
 	"github.com/gilabs/webapp-ticket-konser/api/internal/config"
 	"github.com/gilabs/webapp-ticket-konser/api/internal/domain/checkin"
 	"github.com/gilabs/webapp-ticket-konser/api/internal/domain/event"
+	"github.com/gilabs/webapp-ticket-konser/api/internal/domain/gate"
 	"github.com/gilabs/webapp-ticket-konser/api/internal/domain/menu"
 	"github.com/gilabs/webapp-ticket-konser/api/internal/domain/order"
 	orderitem "github.com/gilabs/webapp-ticket-konser/api/internal/domain/order_item"
@@ -79,6 +80,7 @@ func AutoMigrate() error {
 		&order.Order{},
 		&orderitem.OrderItem{},
 		&checkin.CheckIn{},
+		&gate.Gate{},
 	)
 	if err != nil {
 		return fmt.Errorf("failed to run migrations: %w", err)
