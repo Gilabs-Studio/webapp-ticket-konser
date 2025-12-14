@@ -30,7 +30,7 @@ export default async function LocaleLayout({
       <ErrorBoundary>
         <ThemeProvider
           attribute="class"
-          defaultTheme="light"
+          defaultTheme="dark"
           enableSystem
           disableTransitionOnChange
         >

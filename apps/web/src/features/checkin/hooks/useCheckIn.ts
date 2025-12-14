@@ -14,6 +14,10 @@ export function useValidateQRCode() {
   return useMutation({
     mutationFn: (request: ValidateQRCodeRequest) =>
       checkInService.validateQRCode(request),
+    onSuccess: (response) => {
+      // Don't show success toast for validation - it's just a check
+      // Only show error if validation fails
+    },
     onError: (error: unknown) => {
       const err = error as { response?: { data?: { error?: { message?: string } } } };
       const message =
@@ -34,15 +38,18 @@ export function useCheckIn() {
   return useMutation({
     mutationFn: (request: CheckInRequest) => checkInService.checkIn(request),
     onSuccess: (response) => {
-      if (response.success && response.data.success) {
+      // API response structure: {success: true, data: CheckInResultResponse, ...}
+      const checkInData = response.data;
+      
+      if (response.success && checkInData?.success) {
         toast.success("Check-in Berhasil", {
-          description: response.data.message || "Tiket berhasil di-check-in",
+          description: checkInData.message || "Tiket berhasil di-check-in",
         });
         // Invalidate check-ins list to refresh data
         queryClient.invalidateQueries({ queryKey: ["check-ins"] });
       } else {
-        const errorMessage =
-          response.data.message || "Check-in gagal";
+        // This should not happen if API returns success, but handle it anyway
+        const errorMessage = checkInData?.message || "Check-in gagal";
         toast.error("Check-in Gagal", {
           description: errorMessage,
         });
