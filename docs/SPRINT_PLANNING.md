@@ -24,10 +24,11 @@
 
 ## Overview
 
-Dokumen ini adalah **master planning** untuk development Ticketing Konser Platform dengan **2 developers**:
+Dokumen ini adalah **master planning** untuk development Ticketing Konser Platform dengan **3 developers**:
 
 - **Developer 1**: Fullstack Developer (Go Backend + Next.js Frontend)
 - **Developer 2**: Fullstack Developer (Go Backend + Next.js Frontend)
+- **Developer 3**: Mobile App Developer (Flutter/React Native)
 
 Setiap developer memiliki sprint planning terpisah yang detail.
 
@@ -46,7 +47,7 @@ Setiap developer memiliki sprint planning terpisah yang detail.
 - Admin Dashboard untuk Monitoring Penjualan
 - Access Control Roles (Admin, Staff Gate, Guest)
 - Gate Assignment (Gate A/B/C scanning separation)
-- Order History & Resend Ticket Function
+- Order History Function
 - Analytics Penjualan
 - Mobile-friendly User Experience
 
@@ -59,7 +60,7 @@ Setiap developer memiliki sprint planning terpisah yang detail.
 - **Styling (Web)**: Tailwind CSS v4
 - **UI Components (Web)**: shadcn/ui v4
 - **QR Code Generation**: Library Go/JavaScript
-- **Email Service**: SMTP (basic) atau service sederhana
+- **Email Service**: Tidak digunakan - E-ticket langsung ditampilkan di halaman setelah pembayaran
 
 ---
 
@@ -74,13 +75,17 @@ Setiap developer memiliki sprint planning terpisah yang detail.
   - Database design dan migration
   - Update Postman collection
 - **Modul yang ditugaskan**:
+  - User Management & Access Control (Fullstack) - **Dipindahkan dari Dev2**
+  - Role Management (Fullstack) - **Dipindahkan dari Dev2**
+  - Permission Management (Fullstack) - **Dipindahkan dari Dev2**
+  - Menu Management (Fullstack) - **Dipindahkan dari Dev2**
+  - Authentication (Fullstack) - **Dipindahkan dari Dev2**
   - Event Management (Fullstack)
   - Ticket Category Management (Fullstack)
   - Schedule Management (Fullstack)
   - Ticket Purchase Flow (Frontend + Backend Integration)
   - E-Ticket Generation & QR Code (Fullstack)
-  - Email Service Integration (Backend)
-  - Order History & Resend Ticket (Fullstack)
+  - Order History (Fullstack)
   - Analytics Dashboard (Fullstack)
 - **Sprint Planning**: [`SPRINT_PLANNING_DEV1.md`](./SPRINT_PLANNING_DEV1.md)
 
@@ -93,31 +98,49 @@ Setiap developer memiliki sprint planning terpisah yang detail.
   - Database design dan migration
   - Update Postman collection
 - **Modul yang ditugaskan**:
-  - User Management & Access Control (Fullstack)
   - Check-in Scanner System (Fullstack - Mobile-Web)
   - Real-time Check-in Status (Fullstack)
   - Gate Assignment & Management (Fullstack)
   - Admin Dashboard Monitoring (Fullstack)
   - Buyer List Export (CSV/Excel) (Backend)
+
+**Note**: User Management, Role Management, Permission Management, Menu Management, dan Authentication telah dipindahkan ke Dev1.
 - **Sprint Planning**: [`SPRINT_PLANNING_DEV2.md`](./SPRINT_PLANNING_DEV2.md)
+
+### Developer 3: Mobile App Developer
+
+- **Focus**: Mobile app development (Flutter/React Native)
+- **Responsibilities**:
+  - Develop mobile app untuk Staff Gate
+  - QR Code Scanner dengan camera
+  - Check-in Process
+  - Check-in History
+- **Modul yang ditugaskan**:
+  - Mobile App Authentication
+  - QR Code Scanner
+  - Check-in Validation & Processing
+  - Check-in History
+  - Profile & Settings
+- **Sprint Planning**: [`SPRINT_PLANNING_DEV3.md`](./SPRINT_PLANNING_DEV3.md)
 
 ---
 
 ## Sprint Overview
 
-### Master Timeline (65 Hari / ~9.3 Minggu)
+### Master Timeline (65-70 Hari / ~9.3-10 Minggu)
 
-| Week | Developer 1 (Fullstack)               | Developer 2 (Fullstack)       |
-| ---- | ------------------------------------- | ----------------------------- |
-| 1    | Foundation & Event Setup              | Foundation & User Management  |
-| 2    | Event Management                      | Access Control & Roles        |
-| 3    | Ticket Category & Schedule Management | Check-in Scanner (Mobile-Web) |
-| 4    | Ticket Purchase Flow (Basic)          | Real-time Check-in Status     |
-| 5    | E-Ticket Generation & QR              | Gate Assignment & Management  |
-| 6    | Email Service & Order History         | Admin Dashboard Monitoring    |
-| 7    | Analytics Dashboard                   | Integration & Testing         |
-| 8    | Integration & Testing                 | Polish & Final Testing        |
-| 9    | Polish & Final Testing                | -                             |
+| Week | Developer 1 (Fullstack)               | Developer 2 (Fullstack)       | Developer 3 (Mobile App) |
+| ---- | ------------------------------------- | ----------------------------- | -------------------------- |
+| 1    | Foundation & Event Setup              | Foundation & User Management  | Foundation & Setup        |
+| 2    | Event Management                      | Access Control & Roles        | QR Code Scanner            |
+| 3    | Ticket Category & Schedule Management | Check-in Scanner (Mobile-Web) | Check-in Validation & Processing |
+| 4-5  | Ticket Purchase Flow dengan Payment   | Real-time Check-in Status     | Check-in History          |
+| 5    | E-Ticket Generation & QR              | Gate Assignment & Management  | Profile & Settings       |
+| 6    | Order History                         | Admin Dashboard Monitoring    | Polish & Testing         |
+| 7    | Analytics Dashboard                   | Integration & Testing         | -                          |
+| 7-8  | Mobile APIs untuk Staff Gate          | -                             | Integration Testing       |
+| 8    | Integration & Testing                 | Polish & Final Testing        | -                          |
+| 9    | Polish & Final Testing                | -                             | -                          |
 
 ---
 
@@ -130,25 +153,30 @@ Setiap developer memiliki sprint planning terpisah yang detail.
 **Sprint Summary**:
 
 - Sprint 0: Foundation & Event Setup (3-4 days) - ✅ **Completed**
+- Sprint 0.5: User Management & Access Control (3-4 days) - ✅ **Backend Completed** / ⏳ **Frontend Partial** (Auth & Menu Completed) - **Dipindahkan dari Dev2**
 - Sprint 1: Event Management (4-5 days) - ✅ **Backend Completed** / ⏳ **Frontend In Progress**
 - Sprint 2: Ticket Category & Schedule Management (4-5 days) - ✅ **Backend Completed** / ⏳ **Frontend In Progress**
-- Sprint 3: Ticket Purchase Flow (Basic) (5-6 days) - ✅ **Backend (Admin APIs) Completed** / ⏳ **Guest APIs & Frontend Pending**
+- Sprint 3: Ticket Purchase Flow dengan Payment (7-8 days) - ✅ **Backend (Admin APIs) Completed** / ⏳ **Guest APIs, Payment & Frontend Pending**
 - Sprint 4: E-Ticket Generation & QR Code (4-5 days) - ⏳ **Pending**
-- Sprint 5: Email Service & Order History (4-5 days) - ⏳ **Pending**
+- Sprint 5: Order History (3-4 days) - ⏳ **Pending** (Email service dihapus)
 - Sprint 6: Analytics Dashboard (4-5 days) - ⏳ **Pending**
 - Sprint 7: Integration & Testing (3-4 days) - ⏳ **Pending**
 
-**Total**: 32-39 days (4.6-5.6 weeks)
+**Total**: 35-43 days (5-6.1 weeks)
 
 **Modul yang dikerjakan**:
 
+- ✅ User Management & Access Control (✅ Backend / ⏳ Frontend - Auth & Menu Completed) - **Dipindahkan dari Dev2**
+- ✅ Role Management (✅ Backend / ⏳ Frontend) - **Dipindahkan dari Dev2**
+- ✅ Permission Management (✅ Backend / ⏳ Frontend) - **Dipindahkan dari Dev2**
+- ✅ Menu Management (✅ Backend / ✅ Frontend) - **Dipindahkan dari Dev2**
+- ✅ Authentication (✅ Backend / ✅ Frontend) - **Dipindahkan dari Dev2**
 - ✅ Event Management (✅ Backend / ⏳ Frontend)
 - ✅ Ticket Category Management (✅ Backend / ⏳ Frontend - Components only)
 - ✅ Schedule Management (✅ Backend / ⏳ Frontend - Components only)
-- ⏳ Ticket Purchase Flow (✅ Backend Admin APIs / ⏳ Guest APIs & Frontend)
+- ⏳ Ticket Purchase Flow (✅ Backend Admin APIs / ⏳ Guest APIs, Payment Integration & Frontend)
 - ⏳ E-Ticket Generation & QR Code (⏳ Pending)
-- ⏳ Email Service Integration (⏳ Pending)
-- ⏳ Order History & Resend Ticket (⏳ Pending)
+- ⏳ Order History (⏳ Pending)
 - ⏳ Analytics Dashboard (⏳ Pending)
 
 ### Developer 2: Fullstack Developer
@@ -157,28 +185,24 @@ Setiap developer memiliki sprint planning terpisah yang detail.
 
 **Sprint Summary**:
 
-- Sprint 0: Foundation & User Management (3-4 days) - ✅ **Backend Completed** / ⏳ **Frontend In Progress**
-- Sprint 1: Access Control & Roles (3-4 days) - ✅ **Completed**
-- Sprint 2: Check-in Scanner (Mobile-Web) (5-6 days) - ⏳ **Pending**
-- Sprint 3: Real-time Check-in Status (4-5 days) - ⏳ **Pending**
-- Sprint 4: Gate Assignment & Management (4-5 days) - ⏳ **Pending**
-- Sprint 5: Admin Dashboard Monitoring (4-5 days) - ⏳ **Pending**
-- Sprint 6: Integration & Testing (3-4 days) - ⏳ **Pending**
+- Sprint 0: Foundation & Setup (1-2 days) - ✅ **Completed**
+- Sprint 1: Check-in Scanner (Mobile-Web) (5-6 days) - ⏳ **Pending**
+- Sprint 2: Real-time Check-in Status (4-5 days) - ⏳ **Pending**
+- Sprint 3: Gate Assignment & Management (4-5 days) - ⏳ **Pending**
+- Sprint 4: Admin Dashboard Monitoring (4-5 days) - ⏳ **Pending**
+- Sprint 5: Integration & Testing (3-4 days) - ⏳ **Pending**
 
-**Total**: 26-33 days (3.7-4.7 weeks)
+**Total**: 21-27 days (3-3.9 weeks)
 
 **Modul yang dikerjakan**:
 
-- ✅ User Management & Access Control (✅ Backend / ⏳ Frontend)
-- ✅ Role Management (✅ Backend / ⏳ Frontend)
-- ✅ Permission Management (✅ Backend / ⏳ Frontend)
-- ✅ Menu Management (✅ Backend / ✅ Frontend - Menu List)
-- ✅ Authentication (✅ Backend / ✅ Frontend - Login, Logout, Guards)
 - ⏳ Check-in Scanner System (⏳ Pending)
 - ⏳ Real-time Check-in Status (⏳ Pending)
 - ⏳ Gate Assignment & Management (⏳ Pending)
 - ⏳ Admin Dashboard Monitoring (⏳ Pending)
 - ⏳ Buyer List Export (CSV/Excel) (⏳ Pending)
+
+**Note**: User Management, Role Management, Permission Management, Menu Management, dan Authentication telah dipindahkan ke Dev1.
 
 ---
 
@@ -244,7 +268,7 @@ Setiap developer memiliki sprint planning terpisah yang detail.
 
 **Week 4**: Purchase & Check-in
 
-- Developer 1: Ticket Purchase Flow (Basic)
+- Developer 1: Ticket Purchase Flow dengan Payment
 - Developer 2: Real-time Check-in Status
 
 **Week 5**: Ticket Generation & Gate
@@ -252,9 +276,9 @@ Setiap developer memiliki sprint planning terpisah yang detail.
 - Developer 1: E-Ticket Generation & QR Code
 - Developer 2: Gate Assignment & Management
 
-**Week 6**: Services & Monitoring
+**Week 6**: Order History & Monitoring
 
-- Developer 1: Email Service & Order History
+- Developer 1: Order History
 - Developer 2: Admin Dashboard Monitoring
 
 **Week 7**: Analytics & Integration
@@ -278,8 +302,9 @@ Setiap developer memiliki sprint planning terpisah yang detail.
 
 > **Note**: Detail sprint untuk setiap developer ada di file terpisah:
 >
-> - [`SPRINT_PLANNING_DEV1.md`](./SPRINT_PLANNING_DEV1.md) - Developer 1 (8 sprints)
-> - [`SPRINT_PLANNING_DEV2.md`](./SPRINT_PLANNING_DEV2.md) - Developer 2 (7 sprints)
+> - [`SPRINT_PLANNING_DEV1.md`](./SPRINT_PLANNING_DEV1.md) - Developer 1 (9 sprints)
+> - [`SPRINT_PLANNING_DEV2.md`](./SPRINT_PLANNING_DEV2.md) - Developer 2 (6 sprints)
+> - [`SPRINT_PLANNING_DEV3.md`](./SPRINT_PLANNING_DEV3.md) - Developer 3 (6 sprints)
 
 ---
 
@@ -347,10 +372,11 @@ Dev1:                 Dev2:
 
 ## Estimated Timeline
 
-- **Total Duration**: 65 hari (~9.3 minggu)
-- **Team Size**: 2 developers
-  - Developer 1 (Fullstack): 32-39 days (4.6-5.6 weeks)
-  - Developer 2 (Fullstack): 26-33 days (3.7-4.7 weeks)
+- **Total Duration**: 65-70 hari (~9.3-10 minggu)
+- **Team Size**: 3 developers
+  - Developer 1 (Fullstack): 38-47 days (5.4-6.7 weeks)
+  - Developer 2 (Fullstack): 21-27 days (3-3.9 weeks)
+  - Developer 3 (Mobile App): 19-25 days (2.7-3.6 weeks)
 
 ---
 
@@ -371,6 +397,7 @@ Dev1:                 Dev2:
 
 - [`SPRINT_PLANNING_DEV1.md`](./SPRINT_PLANNING_DEV1.md) - Developer 1
 - [`SPRINT_PLANNING_DEV2.md`](./SPRINT_PLANNING_DEV2.md) - Developer 2
+- [`SPRINT_PLANNING_DEV3.md`](./SPRINT_PLANNING_DEV3.md) - Developer 3
 
 ---
 

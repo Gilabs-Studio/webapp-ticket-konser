@@ -8,6 +8,8 @@
 **Status**: Active  
 **Last Updated**: 2025-01-XX
 
+> **📋 Lihat [IMPLEMENTATION_STATUS.md](./IMPLEMENTATION_STATUS.md) untuk status implementasi aktual**
+
 ---
 
 ## 📋 Overview
@@ -22,14 +24,19 @@ Developer 1 bertanggung jawab untuk:
 
 **Modul yang ditugaskan ke Dev1**:
 
-1. ✅ Event Management (Fullstack)
-2. ✅ Ticket Category Management (Fullstack)
-3. ✅ Schedule Management (Fullstack)
-4. ✅ Ticket Purchase Flow (Frontend + Backend Integration)
-5. ✅ E-Ticket Generation & QR Code (Fullstack)
-6. ✅ Email Service Integration (Backend)
-7. ✅ Order History & Resend Ticket (Fullstack)
-8. ✅ Analytics Dashboard (Fullstack)
+1. ✅ User Management & Access Control (Fullstack) - **Dipindahkan dari Dev2**
+2. ✅ Role Management (Fullstack) - **Dipindahkan dari Dev2**
+3. ✅ Permission Management (Fullstack) - **Dipindahkan dari Dev2**
+4. ✅ Menu Management (Fullstack) - **Dipindahkan dari Dev2**
+5. ✅ Authentication (Fullstack) - **Dipindahkan dari Dev2**
+6. ✅ Event Management (Fullstack)
+7. ✅ Ticket Category Management (Fullstack)
+8. ✅ Schedule Management (Fullstack)
+9. ✅ Ticket Purchase Flow (Frontend + Backend Integration)
+10. ✅ E-Ticket Generation & QR Code (Fullstack)
+11. ✅ Order History (Fullstack)
+12. ✅ Analytics Dashboard (Fullstack)
+13. ✅ Mobile APIs untuk Staff Gate (Backend) - **Untuk Mobile App (Dev3)**
 
 **Parallel Development Strategy**:
 
@@ -77,6 +84,116 @@ Developer 1 bertanggung jawab untuk:
 - Test basic setup
 
 **Estimated Time**: 3-4 days
+
+---
+
+### Sprint 0.5: User Management & Access Control (Dipindahkan dari Dev2) (Week 1-2)
+
+**Goal**: Implement user management, role management, permission management, menu management, dan authentication
+
+**Status**: ✅ **BACKEND COMPLETED** | ⏳ **FRONTEND PARTIAL** (Auth & Menu Completed, User/Role/Permission Pending)
+
+**Note**: Modul ini dipindahkan dari Dev2 karena sudah dikerjakan sebelumnya.
+
+**Backend Tasks** (✅ **COMPLETED**):
+
+- [x] Review authentication flow (login, token refresh)
+- [x] Create user model dan migration
+- [x] Create role model dan migration
+- [x] Create permission model dan migration
+- [x] Create user repository interface dan implementation
+- [x] Create role repository interface dan implementation
+- [x] Create permission repository interface dan implementation
+- [x] Create user service
+- [x] Create role service
+- [x] Create permission service
+- [x] Create menu service
+- [x] Implement user CRUD APIs (`GET /api/v1/admin/users`, `POST /api/v1/admin/users`, `PUT /api/v1/admin/users/:id`, `DELETE /api/v1/admin/users/:id`)
+- [x] Implement role CRUD APIs (`GET /api/v1/admin/roles`, `POST /api/v1/admin/roles`, `PUT /api/v1/admin/roles/:id`, `DELETE /api/v1/admin/roles/:id`)
+- [x] Implement permission CRUD APIs (`GET /api/v1/admin/permissions`, `POST /api/v1/admin/permissions`, `PUT /api/v1/admin/permissions/:id`, `DELETE /api/v1/admin/permissions/:id`)
+- [x] Implement role-permission assignment APIs (`PUT /api/v1/admin/roles/:id/permissions`)
+- [x] Implement user-role assignment APIs
+- [x] Implement menu APIs (`GET /api/v1/admin/menus`, `GET /api/v1/auth/me/menus-permissions`)
+- [x] Create middleware untuk role-based access control
+- [x] Create middleware untuk permission-based access control
+- [x] Implement route protection berdasarkan role
+- [x] Implement route protection berdasarkan permission
+- [x] Implement user context middleware (untuk get current user)
+- [x] Add validation
+- [x] Add role seeder (Super Admin, Finance, Gate Staff)
+- [x] Add permission seeder untuk ticketing system
+- [x] Add menu seeder
+
+**Frontend Tasks** (⏳ **PARTIAL**):
+
+- [x] Create auth guard component (`AuthGuard`)
+- [x] Create role guard component (`RoleGuard`)
+- [x] Create permission guard component (`PermissionGuard`)
+- [x] Implement route protection di Next.js
+- [x] Add role-based menu visibility
+- [x] Add permission-based button visibility
+- [x] Add user context provider
+- [x] Add role/permission checking hooks
+- [x] Create menu list component (✅ Completed)
+- [x] Create authentication flow (Login, Logout) (✅ Completed)
+- [ ] Create user types (`types/user.d.ts`)
+- [ ] Create role types (`types/role.d.ts`)
+- [ ] Create permission types (`types/permission.d.ts`)
+- [ ] Create user service (`userService`)
+- [ ] Create role service (`roleService`)
+- [ ] Create permission service (`permissionService`)
+- [ ] Create user list page (`/admin/users`)
+- [ ] Create user form component (`UserForm`)
+- [ ] Create user detail page (`/admin/users/[id]`)
+- [ ] Create role list page (`/admin/roles`)
+- [ ] Create role form component (`RoleForm`)
+- [ ] Create permission assignment component (`PermissionAssignment`)
+- [ ] Add user search and filter
+- [ ] Add role-permission assignment UI
+- [ ] Create access denied page (`/access-denied`)
+
+**Postman Collection**:
+
+- [x] Add user APIs ke Postman collection
+- [x] Add role APIs ke Postman collection
+- [x] Add permission APIs ke Postman collection
+- [x] Add menu APIs ke Postman collection
+- [x] Update Postman collection dengan auth headers untuk protected endpoints
+
+**Acceptance Criteria**:
+
+- ✅ User CRUD APIs bekerja dengan baik
+- ✅ Role CRUD APIs bekerja dengan baik
+- ✅ Permission CRUD APIs bekerja dengan baik
+- ✅ Role-permission assignment bekerja
+- ✅ User-role assignment bekerja
+- ✅ Menu APIs bekerja dengan baik
+- ✅ Access control middleware bekerja dengan baik
+- ✅ Route protection berdasarkan role bekerja
+- ✅ Route protection berdasarkan permission bekerja
+- ✅ Frontend route protection bekerja
+- ✅ Role-based menu visibility bekerja
+- ✅ Permission-based button visibility bekerja
+- ✅ Authentication flow bekerja (Login, Logout)
+- ⏳ Frontend user/role/permission management (pending)
+- ⏳ Admin dapat manage users, roles, dan permissions (pending frontend)
+- ✅ Postman collection updated
+
+**Testing** (Manual testing):
+
+- Test user CRUD (backend)
+- Test role CRUD (backend)
+- Test permission CRUD (backend)
+- Test role-permission assignment (backend)
+- Test user-role assignment (backend)
+- Test access control dengan berbagai roles
+- Test access control dengan berbagai permissions
+- Test frontend route protection
+- Test menu visibility berdasarkan role
+- Test button visibility berdasarkan permission
+- Test authentication flow
+
+**Estimated Time**: 3-4 days (Backend sudah completed, Frontend perlu 2-3 hari untuk user/role/permission management)
 
 ---
 
@@ -223,11 +340,11 @@ Developer 1 bertanggung jawab untuk:
 
 ---
 
-### Sprint 3: Ticket Purchase Flow (Basic) (Week 4)
+### Sprint 3: Ticket Purchase Flow dengan Payment Integration (Week 4-5)
 
-**Goal**: Implement basic ticket purchase flow (tanpa payment integration)
+**Goal**: Implement complete ticket purchase flow dengan payment integration (Midtrans QRIS)
 
-**Status**: ✅ **BACKEND COMPLETED (Admin APIs)** | ⏳ **FRONTEND IN PROGRESS** | ⏳ **GUEST APIs PENDING**
+**Status**: ✅ **BACKEND COMPLETED (Admin APIs)** | ⏳ **FRONTEND IN PROGRESS** | ⏳ **GUEST APIs & PAYMENT PENDING**
 
 **Backend Tasks**:
 
@@ -244,6 +361,14 @@ Developer 1 bertanggung jawab untuk:
 - [ ] Add remaining seat decrement saat order dibuat
 - [x] Add order status management (UNPAID, PAID, FAILED, CANCELED, REFUNDED)
 - [ ] Add validation (quota check, category availability, schedule availability)
+- [ ] **NEW**: Setup Midtrans SDK/Client (Go library)
+- [ ] **NEW**: Implement Midtrans payment initiation API (`POST /api/v1/orders/:id/payment`) - Create Midtrans transaction
+- [ ] **NEW**: Implement Midtrans webhook handler (`POST /api/v1/payments/webhook`) - Handle payment status update dari Midtrans
+- [ ] **NEW**: Implement payment status check API (`GET /api/v1/orders/:id/payment-status`) - Check payment status
+- [ ] **NEW**: Add QRIS payment method support (via Midtrans)
+- [ ] **NEW**: Add payment callback handling (success/failure)
+- [ ] **NEW**: Add auto quota restore jika payment failed/timeout
+- [ ] **NEW**: Add payment expiration handling
 - [x] Add order seeder untuk testing
 
 **Frontend Tasks**:
@@ -256,16 +381,24 @@ Developer 1 bertanggung jawab untuk:
 - [ ] Create order summary component (`OrderSummary`)
 - [ ] Create order form component (`OrderForm`)
 - [ ] Add buyer information form
+- [ ] **NEW**: Create payment page (`/orders/[id]/payment`)
+- [ ] **NEW**: Create Midtrans payment integration (Snap/QRIS)
+- [ ] **NEW**: Display QRIS barcode untuk payment
+- [ ] **NEW**: Add payment status polling (check payment status secara real-time)
+- [ ] **NEW**: Create payment success page (`/orders/[id]/success`)
+- [ ] **NEW**: Create payment failure page (`/orders/[id]/failed`)
+- [ ] **NEW**: Add payment timeout handling
 - [ ] Add order confirmation page
 - [ ] Add order status display
 - [ ] Create my orders page (`/orders`) - untuk guest
-- [ ] Create order detail page (`/orders/[id]`) - untuk guest
+- [ ] Create order detail page (`/orders/[id]`) - untuk guest (include payment status)
 - [ ] Create admin order list page (`/admin/orders`)
 - [ ] Create admin order detail page (`/admin/orders/[id]`)
 
 **Postman Collection**:
 
 - [x] Add order APIs ke Postman collection (Admin APIs sudah ada)
+- [ ] Add payment APIs ke Postman collection
 
 **Acceptance Criteria**:
 
@@ -275,6 +408,11 @@ Developer 1 bertanggung jawab untuk:
 - ✅ User dapat select ticket tier dan quantity
 - ✅ Order validation bekerja (quota, availability)
 - ✅ Order status management bekerja
+- ✅ **Midtrans payment integration bekerja (QRIS)**
+- ✅ **QRIS barcode ditampilkan untuk payment**
+- ✅ **Payment webhook handler bekerja**
+- ✅ **Payment status update otomatis setelah pembayaran**
+- ✅ **Auto quota restore jika payment failed**
 - ✅ UI/UX mobile-friendly untuk pembeli
 - ✅ Postman collection updated
 
@@ -283,9 +421,15 @@ Developer 1 bertanggung jawab untuk:
 - Test order creation (backend + frontend)
 - Test quota decrement
 - Test order validation
+- **Test Midtrans payment initiation**
+- **Test QRIS payment flow**
+- **Test payment webhook handling**
+- **Test payment status update**
+- **Test payment timeout handling**
+- **Test auto quota restore jika payment failed**
 - Test mobile-friendly UI
 
-**Estimated Time**: 5-6 days
+**Estimated Time**: 7-8 days (ditambah 2 hari untuk payment integration)
 
 ---
 
@@ -339,64 +483,63 @@ Developer 1 bertanggung jawab untuk:
 - Test QR code generation dan uniqueness
 - Test E-Ticket display
 - Test ticket download
+- **Test QR code scan untuk check-in (menggunakan mobile app atau scanner)**
+- **Test check-in validation dengan QR code dari E-ticket**
+- **Test check-in flow end-to-end (dari purchase → payment → E-ticket → scan QR → check-in)**
+- **Test QR code scan untuk check-in (menggunakan mobile app atau scanner)**
+- **Test check-in validation dengan QR code dari E-ticket**
+- **Test check-in flow end-to-end (dari purchase → payment → E-ticket → scan QR → check-in)**
 
 **Estimated Time**: 4-5 days
 
 ---
 
-### Sprint 5: Email Service & Order History (Week 6)
+### Sprint 5: Order History (Week 6)
 
-**Goal**: Implement email service untuk confirmation dan E-ticket delivery, plus order history
+**Goal**: Implement order history untuk user melihat history pembelian mereka
+
+**Note**: Email service dihapus - E-ticket langsung ditampilkan di halaman setelah pembayaran sukses.
 
 **Backend Tasks**:
 
-- [ ] Setup email service (SMTP atau service sederhana)
-- [ ] Create email template service
-- [ ] Implement email confirmation API (`POST /api/v1/orders/:id/send-confirmation`)
-- [ ] Implement E-ticket email delivery API (`POST /api/v1/orders/:id/send-tickets`)
-- [ ] Implement resend ticket API (`POST /api/v1/tickets/:id/resend`)
-- [ ] Add email template untuk order confirmation
-- [ ] Add email template untuk E-ticket delivery
-- [ ] Add email queue system (basic, bisa sync untuk MVP)
-- [ ] Implement order history API (`GET /api/v1/orders/history`)
-- [ ] Add order search dan filter
+- [ ] Implement order history API (`GET /api/v1/orders/history`) - untuk guest (my orders)
+- [ ] Implement order history API (`GET /api/v1/admin/orders`) - untuk admin (sudah ada, mungkin perlu enhancement)
+- [ ] Add order search dan filter (by date, status, event, schedule)
 - [ ] Add pagination untuk order history
+- [ ] Add order detail API dengan tickets (`GET /api/v1/orders/:id`) - include tickets list
 
 **Frontend Tasks**:
 
-- [ ] Create email service types (`types/email.d.ts`)
-- [ ] Create email service (`emailService`)
-- [ ] Create order history page (`/orders/history`)
+- [ ] Create order history page (`/orders/history`) - untuk guest
 - [ ] Create order history component (`OrderHistory`)
+- [ ] Create my orders page (`/orders`) - untuk guest
+- [ ] Create order detail page (`/orders/[id]`) - untuk guest (include tickets list)
 - [ ] Add order search dan filter UI
-- [ ] Add resend ticket button di order detail
-- [ ] Add email status indicator
-- [ ] Create email template preview component
+- [ ] Add order status display
+- [ ] Add order date range filter
+- [ ] Display E-ticket di order detail (dengan QR code)
 
 **Postman Collection**:
 
-- [ ] Add email APIs ke Postman collection
+- [ ] Add order history APIs ke Postman collection
 
 **Acceptance Criteria**:
 
-- ✅ Email service bekerja dengan baik
-- ✅ Order confirmation email terkirim
-- ✅ E-ticket email delivery bekerja
-- ✅ Resend ticket functionality bekerja
 - ✅ Order history APIs bekerja dengan baik
-- ✅ Frontend menampilkan order history
+- ✅ Frontend menampilkan order history untuk guest
+- ✅ Frontend menampilkan order detail dengan tickets
 - ✅ Search dan filter bekerja optimal
+- ✅ E-ticket dapat dilihat langsung di order detail (tanpa email)
 - ✅ Postman collection updated
 
 **Testing** (Manual testing):
 
-- Test email confirmation (backend)
-- Test E-ticket email delivery (backend)
-- Test resend ticket (backend + frontend)
 - Test order history (backend + frontend)
-- Test email templates
+- Test order detail dengan tickets (backend + frontend)
+- Test search dan filter
+- Test E-ticket display di order detail
 
-**Estimated Time**: 4-5 days
+**Estimated Time**: 3-4 days
 
 ---
 
@@ -459,14 +602,80 @@ Developer 1 bertanggung jawab untuk:
 
 ---
 
+### Sprint 6.5: Mobile APIs untuk Staff Gate (Week 7-8)
+
+**Goal**: Implement mobile APIs untuk mobile app (Dev3)
+
+**Status**: ⏳ **PENDING**
+
+**Note**: API ini diperlukan untuk mobile app yang dikembangkan oleh Dev3.
+
+**Backend Tasks**:
+
+- [ ] Create mobile check-in model dan migration (jika belum ada dari Dev2)
+- [ ] Create mobile check-in repository interface dan implementation
+- [ ] Create mobile check-in service
+- [ ] Implement mobile gate info API (`GET /api/v1/mobile/gate-info`) - Get gate info untuk current user (staff gate)
+- [ ] Implement mobile check-in validate API (`POST /api/v1/mobile/check-in/validate`) - Validate QR code sebelum check-in
+- [ ] Implement mobile check-in API (`POST /api/v1/mobile/check-in`) - Process check-in dari mobile app
+- [ ] Implement mobile check-in statistics API (`GET /api/v1/mobile/check-in/statistics`) - Get today's check-in statistics
+- [ ] Implement mobile check-in history API (`GET /api/v1/mobile/check-in/history`) - Get check-in history dengan filters (date, status, gate, tier)
+- [ ] Implement mobile check-in detail API (`GET /api/v1/mobile/check-in/:id`) - Get check-in detail
+- [ ] Add mobile-specific response format (optimized untuk mobile)
+- [ ] Add mobile error handling (mobile-friendly error messages)
+- [ ] Add rate limiting untuk mobile endpoints
+- [ ] Add validation untuk mobile requests
+
+**Postman Collection**:
+
+- [ ] Add mobile APIs ke Postman collection
+
+**Acceptance Criteria**:
+
+- ✅ Mobile gate info API bekerja dengan baik
+- ✅ Mobile check-in validate API bekerja dengan baik
+- ✅ Mobile check-in API bekerja dengan baik
+- ✅ Mobile check-in statistics API bekerja dengan baik
+- ✅ Mobile check-in history API bekerja dengan baik (filters, pagination)
+- ✅ Mobile check-in detail API bekerja dengan baik
+- ✅ Mobile response format optimized untuk mobile app
+- ✅ Mobile error handling comprehensive
+- ✅ Rate limiting bekerja
+- ✅ Postman collection updated
+
+**Testing** (Manual testing):
+
+- Test mobile gate info API
+- Test mobile check-in validate API
+- Test mobile check-in API
+- Test mobile check-in statistics API
+- Test mobile check-in history API (dengan filters)
+- Test mobile check-in detail API
+- **Test scan QR code dari E-ticket untuk check-in (end-to-end testing)**
+- **Test check-in validation dengan berbagai skenario:**
+  - Valid QR code (PAID status)
+  - Already used QR code (CHECKED-IN status)
+  - Invalid QR code
+  - Expired ticket
+  - Wrong gate assignment
+  - VIP priority entry
+- Test rate limiting
+- Test error handling
+
+**Estimated Time**: 3-4 days
+
+---
+
 ### Sprint 7: Integration & Testing (Week 8-9)
 
-**Goal**: Integration dengan modul Dev2 dan final testing
+**Goal**: Integration dengan modul Dev2, Dev3 dan final testing
 
 **Tasks**:
 
 - [ ] Coordinate dengan Developer 2 untuk integration
+- [ ] Coordinate dengan Developer 3 untuk mobile app integration
 - [ ] Test integration antara modul Dev1 dan Dev2
+- [ ] Test integration antara modul Dev1 dan Dev3 (mobile app)
 - [ ] Fix integration issues
 - [ ] End-to-end testing
 - [ ] Performance testing
@@ -480,6 +689,7 @@ Developer 1 bertanggung jawab untuk:
 - [x] Order data untuk Admin Dashboard (Dev2) - ✅ Ready (Admin Order APIs sudah ada)
 - [ ] Check-in data untuk Analytics (Dev1) - Pending (Check-in belum diimplementasikan)
 - [x] Event data untuk Admin Dashboard (Dev2) - ✅ Ready (Event APIs sudah ada)
+- [ ] Mobile Check-in APIs (Dev1) → Mobile App (Dev3) - Pending (Mobile APIs belum diimplementasikan)
 
 **Acceptance Criteria**:
 
@@ -491,6 +701,14 @@ Developer 1 bertanggung jawab untuk:
 **Testing**:
 
 - End-to-end testing
+- **End-to-end ticket purchase flow testing:**
+  - Event selection → Schedule selection → Ticket selection → Order creation
+  - Payment flow (Midtrans QRIS) → Payment success → E-ticket generation
+  - E-ticket display → QR code generation
+  - **Scan QR code untuk check-in (menggunakan mobile app Dev3)**
+  - **Check-in validation → Check-in success**
+  - **Check-in history**
+- Mobile app integration testing
 - Performance testing
 - Security testing
 
@@ -500,18 +718,21 @@ Developer 1 bertanggung jawab untuk:
 
 ## 📊 Sprint Summary
 
-| Sprint   | Goal                                  | Duration | Status                                 |
-| -------- | ------------------------------------- | -------- | -------------------------------------- |
-| Sprint 0 | Foundation & Event Setup              | 3-4 days | ✅ Completed                           |
-| Sprint 1 | Event Management                      | 4-5 days | ✅ Backend (100%) / ⏳ Frontend (10%)  |
-| Sprint 2 | Ticket Category & Schedule Management | 4-5 days | ✅ Backend (100%) / ⏳ Frontend (30%)  |
-| Sprint 3 | Ticket Purchase Flow (Basic)          | 5-6 days | ✅ Backend (50% - Admin APIs) / ⏳ ... |
-| Sprint 4 | E-Ticket Generation & QR Code         | 4-5 days | ⏳ Pending                             |
-| Sprint 5 | Email Service & Order History         | 4-5 days | ⏳ Pending                             |
-| Sprint 6 | Analytics Dashboard                   | 4-5 days | ⏳ Pending                             |
-| Sprint 7 | Integration & Testing                 | 3-4 days | ⏳ Pending                             |
+| Sprint     | Goal                                  | Duration | Status                                 | Notes                                                  |
+| ---------- | ------------------------------------- | -------- | -------------------------------------- | ------------------------------------------------------ |
+| Sprint 0   | Foundation & Event Setup              | 3-4 days | ✅ Completed                           | -                                                      |
+| Sprint 0.5 | User Management & Access Control      | 3-4 days | ✅ Backend (100%) / ⏳ Frontend (60%)  | Dipindahkan dari Dev2                                  |
+| Sprint 1   | Event Management                      | 4-5 days | ✅ Backend (100%) / ⏳ Frontend (10%)  | Frontend: types saja                                   |
+| Sprint 2   | Ticket Category & Schedule Management | 4-5 days | ✅ Backend (100%) / ⏳ Frontend (30%)  | Frontend: list components saja                         |
+| Sprint 3   | Ticket Purchase Flow dengan Payment   | 7-8 days | ✅ Backend (50% - Admin) / ⏳ Frontend | Backend: Admin APIs only, Guest APIs & Payment pending |
+| Sprint 4   | E-Ticket Generation & QR Code         | 4-5 days | ⏳ Pending                             | Belum dikerjakan                                       |
+| Sprint 5   | Order History                         | 3-4 days | ⏳ Pending                             | Belum dikerjakan (Email service dihapus)               |
+| Sprint 6   | Analytics Dashboard                   | 4-5 days | ⏳ Pending                             | Belum dikerjakan                                       |
+| Sprint 7   | Integration & Testing                 | 3-4 days | ⏳ Pending                             | Belum dikerjakan                                       |
 
-**Total Estimated Time**: 32-39 days (4.6-5.6 weeks)
+**Total Estimated Time**: 35-43 days (5-6.1 weeks)
+
+**📋 Status Detail**: Lihat [IMPLEMENTATION_STATUS.md](./IMPLEMENTATION_STATUS.md) untuk detail lengkap setiap modul
 
 ---
 

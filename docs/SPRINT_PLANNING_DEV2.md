@@ -22,12 +22,13 @@ Developer 2 bertanggung jawab untuk:
 
 **Modul yang ditugaskan ke Dev2**:
 
-1. ✅ User Management & Access Control (Fullstack)
-2. ✅ Check-in Scanner System (Fullstack - Mobile-Web)
-3. ✅ Real-time Check-in Status (Fullstack)
-4. ✅ Gate Assignment & Management (Fullstack)
-5. ✅ Admin Dashboard Monitoring (Fullstack)
-6. ✅ Buyer List Export (CSV/Excel) (Backend)
+1. ⏳ Check-in Scanner System (Fullstack - Mobile-Web)
+2. ⏳ Real-time Check-in Status (Fullstack)
+3. ⏳ Gate Assignment & Management (Fullstack)
+4. ⏳ Admin Dashboard Monitoring (Fullstack)
+5. ⏳ Buyer List Export (CSV/Excel) (Backend)
+
+**Note**: Modul User Management, Role Management, Permission Management, Menu Management, dan Authentication telah dipindahkan ke Dev1 karena sudah dikerjakan sebelumnya.
 
 **Parallel Development Strategy**:
 
@@ -40,139 +41,27 @@ Developer 2 bertanggung jawab untuk:
 
 ## 🎯 Sprint Details
 
-### Sprint 0: Foundation & User Management (Week 1)
+> **Note**: Sprint 0 dan Sprint 1 (User Management & Access Control) telah dipindahkan ke Dev1 karena sudah dikerjakan sebelumnya. Sprint dimulai dari Check-in Scanner.
 
-**Goal**: Setup foundation dan user management dengan access control
+### Sprint 0: Foundation & Setup (Week 1)
 
-**Status**: ✅ **BACKEND COMPLETED** | ⏳ **FRONTEND IN PROGRESS**
+**Goal**: Setup foundation dan review modul yang akan dikerjakan
 
-**Backend Tasks**:
+**Status**: ✅ **COMPLETED**
 
-- [x] Review authentication flow (login, token refresh)
-- [x] Create user model dan migration (jika belum ada)
-- [x] Create role model dan migration
-- [x] Create permission model dan migration
-- [x] Create user repository interface dan implementation
-- [x] Create role repository interface dan implementation
-- [x] Create permission repository interface dan implementation
-- [x] Create user service
-- [x] Create role service
-- [x] Create permission service
-- [x] Implement user CRUD APIs (`GET /api/v1/admin/users`, `POST /api/v1/admin/users`, `PUT /api/v1/admin/users/:id`, `DELETE /api/v1/admin/users/:id`)
-- [x] Implement role CRUD APIs (`GET /api/v1/admin/roles`, `POST /api/v1/admin/roles`, `PUT /api/v1/admin/roles/:id`, `DELETE /api/v1/admin/roles/:id`)
-- [x] Implement permission CRUD APIs (`GET /api/v1/admin/permissions`, `POST /api/v1/admin/permissions`, `PUT /api/v1/admin/permissions/:id`, `DELETE /api/v1/admin/permissions/:id`)
-- [x] Implement role-permission assignment APIs
-- [x] Implement user-role assignment APIs
-- [x] Add validation
-- [x] Add role seeder (Super Admin, Finance, Gate Staff)
-- [x] Add permission seeder untuk ticketing system
+**Tasks**:
 
-**Frontend Tasks**:
+- [x] Review project structure
+- [x] Review authentication flow (sudah ada dari Dev1)
+- [x] Review database schema
+- [x] Setup basic routing
+- [x] Review API standards
 
-- [ ] Create user types (`types/user.d.ts`)
-- [ ] Create role types (`types/role.d.ts`)
-- [ ] Create permission types (`types/permission.d.ts`)
-- [ ] Create user service (`userService`)
-- [ ] Create role service (`roleService`)
-- [ ] Create permission service (`permissionService`)
-- [ ] Create user list page (`/admin/users`)
-- [ ] Create user form component (`UserForm`)
-- [ ] Create user detail page (`/admin/users/[id]`)
-- [ ] Create role list page (`/admin/roles`)
-- [ ] Create role form component (`RoleForm`)
-- [ ] Create permission assignment component (`PermissionAssignment`)
-- [ ] Add user search and filter
-- [ ] Add role-permission assignment UI
-
-**Postman Collection**:
-
-- [x] Add user APIs ke Postman collection
-- [x] Add role APIs ke Postman collection
-- [x] Add permission APIs ke Postman collection
-
-**Acceptance Criteria**:
-
-- ✅ User CRUD APIs bekerja dengan baik
-- ✅ Role CRUD APIs bekerja dengan baik
-- ✅ Permission CRUD APIs bekerja dengan baik
-- ✅ Role-permission assignment bekerja
-- ✅ User-role assignment bekerja
-- ✅ Frontend terintegrasi dengan backend APIs
-- ✅ Admin dapat manage users, roles, dan permissions
-- ✅ Form validation comprehensive
-- ✅ UI/UX modern dan intuitive
-- ✅ Postman collection updated
-
-**Testing** (Manual testing):
-
-- Test user CRUD (backend + frontend)
-- Test role CRUD (backend + frontend)
-- Test permission CRUD (backend + frontend)
-- Test role-permission assignment
-- Test user-role assignment
-
-**Estimated Time**: 3-4 days
+**Estimated Time**: 1-2 days
 
 ---
 
-### Sprint 1: Access Control & Roles (Week 2)
-
-**Goal**: Implement access control dengan role-based permissions
-
-**Status**: ✅ **BACKEND COMPLETED** | ✅ **FRONTEND COMPLETED**
-
-**Backend Tasks**:
-
-- [x] Create middleware untuk role-based access control
-- [x] Create middleware untuk permission-based access control
-- [x] Implement route protection berdasarkan role
-- [x] Implement route protection berdasarkan permission
-- [x] Add role checking untuk ticketing endpoints
-- [x] Add permission checking untuk ticketing endpoints
-- [x] Implement user context middleware (untuk get current user)
-- [ ] Add audit logging untuk access control
-- [x] Test semua protected endpoints
-
-**Frontend Tasks**:
-
-- [x] Create auth guard component (`AuthGuard`)
-- [x] Create role guard component (`RoleGuard`)
-- [x] Create permission guard component (`PermissionGuard`)
-- [x] Implement route protection di Next.js
-- [x] Add role-based menu visibility
-- [x] Add permission-based button visibility
-- [ ] Create access denied page (`/access-denied`)
-- [x] Add user context provider
-- [x] Add role/permission checking hooks
-
-**Postman Collection**:
-
-- [x] Update Postman collection dengan auth headers untuk protected endpoints
-
-**Acceptance Criteria**:
-
-- ✅ Access control middleware bekerja dengan baik
-- ✅ Route protection berdasarkan role bekerja
-- ✅ Route protection berdasarkan permission bekerja
-- ✅ Frontend route protection bekerja
-- ✅ Role-based menu visibility bekerja
-- ✅ Permission-based button visibility bekerja
-- ✅ Access denied page ditampilkan untuk unauthorized access
-- ✅ Postman collection updated dengan auth
-
-**Testing** (Manual testing):
-
-- Test access control dengan berbagai roles
-- Test access control dengan berbagai permissions
-- Test frontend route protection
-- Test menu visibility berdasarkan role
-- Test button visibility berdasarkan permission
-
-**Estimated Time**: 3-4 days
-
----
-
-### Sprint 2: Check-in Scanner (Mobile-Web) (Week 3)
+### Sprint 1: Check-in Scanner (Mobile-Web) (Week 2-3)
 
 **Goal**: Implement check-in scanner system untuk mobile-web
 
@@ -238,7 +127,7 @@ Developer 2 bertanggung jawab untuk:
 
 ---
 
-### Sprint 3: Real-time Check-in Status (Week 4)
+### Sprint 2: Real-time Check-in Status (Week 4)
 
 **Goal**: Implement real-time check-in status dashboard
 
@@ -296,7 +185,7 @@ Developer 2 bertanggung jawab untuk:
 
 ---
 
-### Sprint 4: Gate Assignment & Management (Week 5)
+### Sprint 3: Gate Assignment & Management (Week 5)
 
 **Goal**: Implement gate assignment dan management system
 
@@ -359,7 +248,7 @@ Developer 2 bertanggung jawab untuk:
 
 ---
 
-### Sprint 5: Admin Dashboard Monitoring (Week 6)
+### Sprint 4: Admin Dashboard Monitoring (Week 6)
 
 **Goal**: Implement admin dashboard untuk monitoring penjualan dan check-in
 
@@ -428,7 +317,7 @@ Developer 2 bertanggung jawab untuk:
 
 ---
 
-### Sprint 6: Integration & Testing (Week 7-8)
+### Sprint 5: Integration & Testing (Week 7-8)
 
 **Goal**: Integration dengan modul Dev1 dan final testing
 
@@ -469,17 +358,20 @@ Developer 2 bertanggung jawab untuk:
 
 ## 📊 Sprint Summary
 
-| Sprint   | Goal                          | Duration | Status                   |
-| -------- | ----------------------------- | -------- | ------------------------ |
-| Sprint 0 | Foundation & User Management  | 3-4 days | ✅ Backend / ⏳ Frontend |
-| Sprint 1 | Access Control & Roles        | 3-4 days | ✅ Completed             |
-| Sprint 2 | Check-in Scanner (Mobile-Web) | 5-6 days | ⏳ Pending               |
-| Sprint 3 | Real-time Check-in Status     | 4-5 days | ⏳ Pending               |
-| Sprint 4 | Gate Assignment & Management  | 4-5 days | ⏳ Pending               |
-| Sprint 5 | Admin Dashboard Monitoring    | 4-5 days | ⏳ Pending               |
-| Sprint 6 | Integration & Testing         | 3-4 days | ⏳ Pending               |
+| Sprint   | Goal                          | Duration | Status       | Notes            |
+| -------- | ----------------------------- | -------- | ------------ | ---------------- |
+| Sprint 0 | Foundation & Setup            | 1-2 days | ✅ Completed | -                |
+| Sprint 1 | Check-in Scanner (Mobile-Web) | 5-6 days | ⏳ Pending   | Belum dikerjakan |
+| Sprint 2 | Real-time Check-in Status     | 4-5 days | ⏳ Pending   | Belum dikerjakan |
+| Sprint 3 | Gate Assignment & Management  | 4-5 days | ⏳ Pending   | Belum dikerjakan |
+| Sprint 4 | Admin Dashboard Monitoring    | 4-5 days | ⏳ Pending   | Belum dikerjakan |
+| Sprint 5 | Integration & Testing         | 3-4 days | ⏳ Pending   | Belum dikerjakan |
 
-**Total Estimated Time**: 26-33 days (3.7-4.7 weeks)
+**Total Estimated Time**: 21-27 days (3-3.9 weeks)
+
+**Note**: Sprint 0 dan Sprint 1 (User Management & Access Control) telah dipindahkan ke Dev1.
+
+**📋 Status Detail**: Lihat [IMPLEMENTATION_STATUS.md](./IMPLEMENTATION_STATUS.md) untuk detail lengkap setiap modul
 
 ---
 
