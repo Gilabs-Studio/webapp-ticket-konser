@@ -131,7 +131,7 @@ export function GateDetail({ gateId }: GateDetailProps) {
             Capacity
           </span>
           <span className="text-xs font-medium">
-            {gate.capacity === 0 ? "Unlimited" : gate.capacity.toLocaleString()}
+            {gate.capacity === 0 ? "Unlimited" : gate.capacity.toLocaleString("id-ID")}
           </span>
         </div>
 

@@ -8,6 +8,7 @@ import type {
 } from "../schemas/merchandise.schema";
 import { toast } from "sonner";
 import { useTranslations } from "next-intl";
+import { formatCurrency } from "@/lib/utils";
 
 export function useMerchandise(filters?: {
   page?: number;
@@ -63,11 +64,7 @@ export function useCreateMerchandise() {
         name: data.name,
         description: data.description,
         price: data.price,
-        priceFormatted: new Intl.NumberFormat("id-ID", {
-          style: "currency",
-          currency: "IDR",
-          minimumFractionDigits: 0,
-        }).format(data.price),
+        priceFormatted: formatCurrency(data.price),
         stock: data.stock,
         variant: data.variant,
         iconName: data.icon_name ?? "Package",

@@ -14,6 +14,7 @@ import { useRecentSales } from "../hooks/useDashboard";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useTranslations } from "next-intl";
 import { formatDistanceToNow } from "date-fns";
+import { formatCurrency } from "@/lib/utils";
 
 interface RecentSalesProps {
   readonly filters?: {
@@ -67,14 +68,6 @@ export function RecentSales({ filters, limit = 5 }: RecentSalesProps) {
       .join("")
       .toUpperCase()
       .slice(0, 2);
-  };
-
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat("id-ID", {
-      style: "currency",
-      currency: "IDR",
-      minimumFractionDigits: 0,
-    }).format(amount);
   };
 
   const getStatusColor = (status: string) => {

@@ -20,6 +20,7 @@ import { useEventSettings } from "@/features/settings/hooks/useEventSettings";
 import { format } from "date-fns";
 import { Skeleton } from "@/components/ui/skeleton";
 import { type TicketType } from "@/features/tickets/types";
+import { formatCurrency } from "@/lib/utils";
 
 interface DisplayedTicket {
   id: string;
@@ -60,7 +61,7 @@ export function StorefrontPreview() {
     type: ticket.name,
     description: ticket.description || `Quota: ${ticket.total_quota} pax`,
     status: ticket.status, // Use the status from backend
-    price: ticket.price_formatted ?? new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR", minimumFractionDigits: 0 }).format(ticket.price),
+    price: formatCurrency(ticket.price),
   }));
 
   return (

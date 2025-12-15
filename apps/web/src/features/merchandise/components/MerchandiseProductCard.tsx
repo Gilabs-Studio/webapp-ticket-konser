@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { MoreHorizontal, Edit, Trash2, Eye } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { formatCurrency } from "@/lib/utils";
 
 type StockStatus = "healthy" | "low" | "out";
 
@@ -141,7 +142,7 @@ export function MerchandiseProductCard({
             </p>
           </div>
           <span className="text-sm font-medium text-foreground">
-            {product.priceFormatted}
+            {product.priceFormatted || formatCurrency(product.price)}
           </span>
         </div>
         <div className="space-y-1">
