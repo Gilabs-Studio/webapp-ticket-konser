@@ -57,7 +57,7 @@ func Seed() error {
 			Icon:           "settings",
 			Path:           "/settings",
 			OrderIndex:     5,
-			PermissionCode: "menu.read",
+			PermissionCode: "settings.read",
 			IsActive:       true,
 		},
 		{
@@ -76,6 +76,15 @@ func Seed() error {
 			Path:           "/gates",
 			OrderIndex:     7,
 			PermissionCode: "gate.read",
+			IsActive:       true,
+		},
+		{
+			Code:           "merchandise-management",
+			Label:          "Merchandise Management",
+			Icon:           "shirt",
+			Path:           "/merchandise",
+			OrderIndex:     8,
+			PermissionCode: "merchandise.read",
 			IsActive:       true,
 		},
 		// Note: Scanner and Check-ins menus are NOT added here because:
