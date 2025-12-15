@@ -26,10 +26,14 @@ export function useMenus(options?: UseMenusOptions) {
  */
 export function categorizeMenus(menus: Menu[]): {
   overview: Menu[];
-  management: Menu[];
+  event_operations: Menu[];
+  manage_people: Menu[];
+  system: Menu[];
 } {
   const overview: Menu[] = [];
-  const management: Menu[] = [];
+  const event_operations: Menu[] = [];
+  const manage_people: Menu[] = [];
+  const system: Menu[] = [];
 
   // Sort menus by order_index
   const sortedMenus = [...menus].sort(
@@ -46,22 +50,27 @@ export function categorizeMenus(menus: Menu[]): {
     }
 
     // Categorize based on menu code
-    if (
-      menu.code === "dashboard" ||
-      menu.code === "event-management" ||
-      menu.code === "ticket-management"
-    ) {
+    if (menu.code === "dashboard") {
       overview.push(menu);
     } else if (
-      menu.code === "user-management" ||
-      menu.code === "settings"
+      menu.code === "event-management" ||
+      menu.code === "ticket-management" ||
+      menu.code === "gate-management" ||
+      menu.code === "merchandise-management"
     ) {
-      management.push(menu);
+      event_operations.push(menu);
+    } else if (
+      menu.code === "user-management" ||
+      menu.code === "attendees"
+    ) {
+      manage_people.push(menu);
+    } else if (menu.code === "settings") {
+      system.push(menu);
     } else {
       // Default to overview for unknown menu codes
       overview.push(menu);
     }
   }
 
-  return { overview, management };
+  return { overview, event_operations, manage_people, system };
 }
