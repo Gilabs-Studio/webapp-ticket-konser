@@ -60,6 +60,33 @@ func Seed() error {
 		{Code: "role.create", Name: "Create Role", Resource: "role", Action: "create"},
 		{Code: "role.update", Name: "Update Role", Resource: "role", Action: "update"},
 		{Code: "role.delete", Name: "Delete Role", Resource: "role", Action: "delete"},
+
+		// Check-in permissions
+		{Code: "checkin.read", Name: "Read Check-in", Resource: "checkin", Action: "read"},
+		{Code: "checkin.create", Name: "Create Check-in", Resource: "checkin", Action: "create"},
+
+		// Attendee permissions
+		{Code: "attendee.read", Name: "Read Attendee", Resource: "attendee", Action: "read"},
+		{Code: "attendee.export", Name: "Export Attendee", Resource: "attendee", Action: "export"},
+
+		// Gate permissions
+		{Code: "gate.create", Name: "Create Gate", Resource: "gate", Action: "create"},
+		{Code: "gate.read", Name: "Read Gate", Resource: "gate", Action: "read"},
+		{Code: "gate.update", Name: "Update Gate", Resource: "gate", Action: "update"},
+		{Code: "gate.delete", Name: "Delete Gate", Resource: "gate", Action: "delete"},
+
+		// Merchandise permissions
+		{Code: "merchandise.create", Name: "Create Merchandise", Resource: "merchandise", Action: "create"},
+		{Code: "merchandise.read", Name: "Read Merchandise", Resource: "merchandise", Action: "read"},
+		{Code: "merchandise.update", Name: "Update Merchandise", Resource: "merchandise", Action: "update"},
+		{Code: "merchandise.delete", Name: "Delete Merchandise", Resource: "merchandise", Action: "delete"},
+
+		// Settings permissions
+		{Code: "settings.read", Name: "Read Settings", Resource: "settings", Action: "read"},
+		{Code: "settings.update", Name: "Update Settings", Resource: "settings", Action: "update"},
+
+		// Dashboard permissions
+		{Code: "dashboard.read", Name: "Read Dashboard", Resource: "dashboard", Action: "read"},
 	}
 
 	createdCount := 0

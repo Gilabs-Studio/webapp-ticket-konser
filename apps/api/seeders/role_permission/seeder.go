@@ -50,9 +50,16 @@ func Seed() error {
 	}
 	log.Printf("[Role Permission Seeder] Admin role: Assigned %d new permissions, Skipped %d existing permissions", assignedCount, skippedCount)
 
-	// Staff ticket gets only ticket permissions
-	ticketPermissions := []string{"ticket.create", "ticket.read", "ticket.update", "ticket.delete"}
-	for _, permCode := range ticketPermissions {
+	// Staff ticket gets ticket and check-in permissions
+	staffTicketPermissions := []string{
+		"ticket.create",
+		"ticket.read",
+		"ticket.update",
+		"ticket.delete",
+		"checkin.read",
+		"checkin.create",
+	}
+	for _, permCode := range staffTicketPermissions {
 		var p permission.Permission
 		if err := database.DB.Where("code = ?", permCode).First(&p).Error; err != nil {
 			continue

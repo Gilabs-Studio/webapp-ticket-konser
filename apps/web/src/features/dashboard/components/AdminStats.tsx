@@ -1,6 +1,6 @@
 "use client";
 
-import { DollarSign, Ticket, Shirt, TrendingUp } from "lucide-react";
+import { DollarSign, Ticket, TrendingUp } from "lucide-react";
 import { useSalesOverview } from "../hooks/useDashboard";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useTranslations } from "next-intl";
@@ -34,7 +34,7 @@ export function AdminStats({ filters }: AdminStatsProps) {
 
   const sales = data ?? {
     total_revenue: 0,
-    total_revenue_formatted: "$0.00",
+    total_revenue_formatted: "Rp 0",
     total_orders: 0,
     paid_orders: 0,
     change_percent: 0,
@@ -47,14 +47,14 @@ export function AdminStats({ filters }: AdminStatsProps) {
       ? Math.round((ticketsIssued / sales.total_orders) * 100)
       : 0;
 
-  // Mock merch sales (will be replaced with actual data when API is available)
-  const merchSales = 32150;
-  const merchSalesFormatted = new Intl.NumberFormat("en-US", {
+  // Calculate Average Order Value (AOV)
+  const aov = sales.paid_orders > 0 ? sales.total_revenue / sales.paid_orders : 0;
+  const aovFormatted = new Intl.NumberFormat("id-ID", {
     style: "currency",
-    currency: "USD",
-    minimumFractionDigits: 2,
-  }).format(merchSales);
-  const merchChangePercent = 4.2;
+    currency: "IDR",
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
+  }).format(aov);
 
   const stats = [
     {
@@ -65,15 +65,15 @@ export function AdminStats({ filters }: AdminStatsProps) {
     },
     {
       label: t("stats.ticketsIssued"),
-      value: ticketsIssued.toLocaleString("en-US"),
+      value: ticketsIssued.toLocaleString("id-ID"),
       icon: Ticket,
       additional: `${ticketsSoldPercent}% Sold`,
     },
     {
-      label: t("stats.merchSales"),
-      value: merchSalesFormatted,
-      icon: Shirt,
-      trend: merchChangePercent,
+      label: "Average Order Value", // TODO: Add to translations
+      value: aovFormatted,
+      icon: TrendingUp,
+      // trend: 0, 
     },
   ];
 

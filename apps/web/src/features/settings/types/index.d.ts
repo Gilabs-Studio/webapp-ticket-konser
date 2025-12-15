@@ -6,3 +6,5 @@ export interface EventSettings {
 }
 
 export type SettingsTab = "general" | "team" | "billing" | "notifications";
+
+

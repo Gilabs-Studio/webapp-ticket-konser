@@ -1,0 +1,72 @@
+{
+  "scanner": {
+    "title": "QR Code Scanner",
+    "description": "Point camera at QR code on ticket or enter QR code manually",
+    "cameraPermission": {
+      "title": "Camera Permission Required",
+      "description": "We need camera access to scan QR code",
+      "denied": "Permission Denied",
+      "deniedMessage": "Please grant camera access to use the scanner.",
+      "requestButton": "Request Camera Permission"
+    },
+    "manualInput": {
+      "label": "Or enter QR code manually:",
+      "placeholder": "Enter QR code...",
+      "button": "Check-in",
+      "processing": "Processing check-in..."
+    },
+    "camera": {
+      "ready": "Camera ready for scanning",
+      "activate": "Activate camera for scanning",
+      "startButton": "Start Camera",
+      "stopButton": "Stop Scanning",
+      "scanning": "Scanning..."
+    },
+    "result": {
+      "success": "Check-in successful",
+      "recorded": "Check-in successfully recorded",
+      "failed": "Check-in failed",
+      "invalidQR": "Invalid QR code",
+      "alreadyUsed": "QR code already used",
+      "notPaid": "Ticket not paid",
+      "error": "An error occurred"
+    }
+  },
+  "history": {
+    "title": "Check-in History",
+    "empty": "No check-in data",
+    "loading": "Loading check-in data...",
+    "error": "Failed to load check-in data",
+    "fields": {
+      "qrCode": "QR Code",
+      "user": "User",
+      "status": "Status",
+      "checkedInAt": "Checked In At",
+      "gate": "Gate",
+      "location": "Location",
+      "staff": "Staff",
+      "ticketTier": "Ticket Tier"
+    },
+    "status": {
+      "success": "Success",
+      "failed": "Failed",
+      "duplicate": "Duplicate"
+    },
+    "pagination": {
+      "showing": "Showing {start} - {end} of {total} check-ins",
+      "page": "Page {current} of {total}"
+    }
+  },
+  "validation": {
+    "failed": "Validation Failed",
+    "invalidQR": "Invalid QR code",
+    "alreadyUsed": "QR code already used",
+    "notPaid": "Ticket not paid"
+  },
+  "checkIn": {
+    "success": "Check-in Successful",
+    "successDescription": "Ticket successfully checked in",
+    "failed": "Check-in Failed",
+    "error": "An error occurred during check-in"
+  }
+}

@@ -57,9 +57,40 @@ func Seed() error {
 			Icon:           "settings",
 			Path:           "/settings",
 			OrderIndex:     5,
-			PermissionCode: "menu.read",
+			PermissionCode: "settings.read",
 			IsActive:       true,
 		},
+		{
+			Code:           "attendees",
+			Label:          "Attendees",
+			Icon:           "users",
+			Path:           "/attendees",
+			OrderIndex:     6,
+			PermissionCode: "attendee.read",
+			IsActive:       true,
+		},
+		{
+			Code:           "gate-management",
+			Label:          "Gate Management",
+			Icon:           "door-open",
+			Path:           "/gates",
+			OrderIndex:     7,
+			PermissionCode: "gate.read",
+			IsActive:       true,
+		},
+		{
+			Code:           "merchandise-management",
+			Label:          "Merchandise Management",
+			Icon:           "shirt",
+			Path:           "/merchandise",
+			OrderIndex:     8,
+			PermissionCode: "merchandise.read",
+			IsActive:       true,
+		},
+		// Note: Scanner and Check-ins menus are NOT added here because:
+		// - Staff access these via profile dropdown (not sidebar)
+		// - Admin should not see these in sidebar (they have admin dashboard)
+		// - These are accessed via /scanner and /check-ins routes (not /staff/*)
 	}
 
 	createdCount := 0

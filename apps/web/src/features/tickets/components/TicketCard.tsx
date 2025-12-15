@@ -2,17 +2,31 @@
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { MoreHorizontal, Edit } from "lucide-react";
+import { MoreHorizontal, Edit, Trash2, Eye } from "lucide-react";
 import { type TicketType } from "../types";
 import { cn } from "@/lib/utils";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 interface TicketCardProps {
   readonly ticket: TicketType;
   readonly onEdit?: (ticket: TicketType) => void;
   readonly onMore?: (ticket: TicketType) => void;
+  readonly onDelete?: (id: string) => void;
+  readonly onView?: (ticket: TicketType) => void;
 }
 
-export function TicketCard({ ticket, onEdit, onMore }: TicketCardProps) {
+export function TicketCard({
+  ticket,
+  onEdit,
+  onMore,
+  onDelete,
+  onView,
+}: TicketCardProps) {
   const soldPercentage =
     ticket.total_quota > 0
       ? Math.round((ticket.sold / ticket.total_quota) * 100)
@@ -102,19 +116,51 @@ export function TicketCard({ ticket, onEdit, onMore }: TicketCardProps) {
           variant="outline"
           size="sm"
           className="flex-1 text-xs"
-          onClick={() => onEdit?.(ticket)}
+          onClick={() => {
+            if (ticket.status === "sold_out" && onView) {
+              onView(ticket);
+            } else {
+              onEdit?.(ticket);
+            }
+          }}
         >
           <Edit className="h-3.5 w-3.5" />
           {ticket.status === "sold_out" ? "Details" : "Edit"}
         </Button>
-        <Button
-          variant="ghost"
-          size="icon"
-          className="h-8 w-8 text-muted-foreground hover:text-foreground hover:border-border"
-          onClick={() => onMore?.(ticket)}
-        >
-          <MoreHorizontal className="h-3.5 w-3.5" />
-        </Button>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-8 w-8 text-muted-foreground hover:text-foreground hover:border-border"
+            >
+              <MoreHorizontal className="h-3.5 w-3.5" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            {onView && (
+              <DropdownMenuItem onClick={() => onView(ticket)}>
+                <Eye className="h-3.5 w-3.5 mr-2" />
+                View Details
+              </DropdownMenuItem>
+            )}
+            {onEdit && ticket.status !== "sold_out" && (
+              <DropdownMenuItem onClick={() => onEdit(ticket)}>
+                <Edit className="h-3.5 w-3.5 mr-2" />
+                Edit
+              </DropdownMenuItem>
+            )}
+            {onDelete && ticket.status !== "sold_out" && (
+              <DropdownMenuItem
+                onClick={() => onDelete(ticket.id)}
+                className="text-destructive"
+              >
+                <Trash2 className="h-3.5 w-3.5 mr-2" />
+                Delete
+              </DropdownMenuItem>
+            )}
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
     </div>
   );

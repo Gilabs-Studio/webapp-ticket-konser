@@ -11,62 +11,57 @@ import { Button } from "@/components/ui/button";
 import {
   Edit,
   ExternalLink,
-  ShoppingBag,
-  Coffee,
-  Plus,
-  Shirt,
+  ArrowUpRight,
 } from "lucide-react";
 import { Link } from "@/i18n/routing";
 import { useTranslations } from "next-intl";
+import { useTickets } from "@/features/tickets/hooks/useTickets";
+import { useEventSettings } from "@/features/settings/hooks/useEventSettings";
+import { format } from "date-fns";
+import { Skeleton } from "@/components/ui/skeleton";
+import { type TicketType } from "@/features/tickets/types";
+
+interface DisplayedTicket {
+  id: string;
+  date: string;
+  time: string;
+  type: string;
+  description: string;
+  status: TicketType["status"];
+  price: string;
+}
 
 export function StorefrontPreview() {
   const t = useTranslations("dashboard");
+  const { data: ticketsData, isLoading: isLoadingTickets } = useTickets({ per_page: 3 });
+  const { data: eventSettings } = useEventSettings();
 
-  // Mock ticket data - will be replaced with actual API data
-  const tickets = [
-    {
-      id: "ticket-1",
-      date: "JUN 24",
-      time: "14:00",
-      type: "General Admission",
-      description: "Access to main stage and exhibition hall.",
-      status: "available",
-      price: "$149",
-    },
-    {
-      id: "ticket-2",
-      date: "JUN 24",
-      label: "VIP",
-      type: "VIP Pass",
-      description: "Backstage access, exclusive lounge & merch pack.",
-      status: "low_stock",
-      price: "$399",
-    },
-  ];
+  const isLoading = isLoadingTickets;
 
-  const merchandise = [
-    {
-      id: "merch-1",
-      icon: Shirt,
-      label: "Event Hoodie",
-      sizes: "S, M, L, XL",
-      price: "$55",
-    },
-    {
-      id: "merch-2",
-      icon: ShoppingBag,
-      label: "Tote Bag",
-      sizes: "Canvas",
-      price: "$25",
-    },
-    {
-      id: "merch-3",
-      icon: Coffee,
-      label: "Tumbler",
-      sizes: "Matte Black",
-      price: "$30",
-    },
-  ];
+  if (isLoading) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle>{t("storefront.title")}</CardTitle>
+          <CardDescription>{t("storefront.description")}</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-6">
+          <Skeleton className="h-[200px] w-full" />
+        </CardContent>
+      </Card>
+    );
+  }
+
+  // Use the tickets directly from the API response which includes `status`
+  const displayedTickets: DisplayedTicket[] = (ticketsData?.data ?? []).slice(0, 3).map((ticket: TicketType) => ({
+    id: ticket.id,
+    date: eventSettings?.eventDate ? format(new Date(eventSettings.eventDate), "MMM dd") : "TBA",
+    time: eventSettings?.eventDate ? format(new Date(eventSettings.eventDate), "HH:mm") : "TBA",
+    type: ticket.name,
+    description: ticket.description || `Quota: ${ticket.total_quota} pax`,
+    status: ticket.status, // Use the status from backend
+    price: ticket.price_formatted ?? new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR", minimumFractionDigits: 0 }).format(ticket.price),
+  }));
 
   return (
     <Card>
@@ -79,8 +74,8 @@ export function StorefrontPreview() {
           <div className="flex gap-2">
             <Button variant="outline" size="sm" asChild className="group">
               <Link
-                href="/merchandise"
-                className="[&>span]:group-hover:bg-clip-text [&>span]:group-hover:text-transparent [&>span]:group-hover:bg-gradient-to-r [&>span]:group-hover:from-[var(--gradient-purple)] [&>span]:group-hover:via-[var(--gradient-magenta)] [&>span]:group-hover:to-[var(--gradient-pink)]"
+                href="/admin/merchandise"
+                className="[&>span]:group-hover:bg-clip-text [&>span]:group-hover:text-transparent [&>span]:group-hover:bg-linear-to-r [&>span]:group-hover:from-(--gradient-purple) [&>span]:group-hover:via-(--gradient-magenta) [&>span]:group-hover:to-(--gradient-pink)"
               >
                 <Edit className="h-4 w-4" />
                 <span>{t("storefront.editProducts")}</span>
@@ -89,7 +84,7 @@ export function StorefrontPreview() {
             <Button variant="default" size="sm" asChild className="group">
               <Link
                 href="/"
-                className="[&>span]:group-hover:bg-clip-text [&>span]:group-hover:text-transparent [&>span]:group-hover:bg-gradient-to-r [&>span]:group-hover:from-[var(--gradient-purple)] [&>span]:group-hover:via-[var(--gradient-magenta)] [&>span]:group-hover:to-[var(--gradient-pink)]"
+                className="[&>span]:group-hover:bg-clip-text [&>span]:group-hover:text-transparent [&>span]:group-hover:bg-linear-to-r [&>span]:group-hover:from-(--gradient-purple) [&>span]:group-hover:via-(--gradient-magenta) [&>span]:group-hover:to-(--gradient-pink)"
               >
                 <ExternalLink className="h-4 w-4" />
                 <span>{t("storefront.visitLivePage")}</span>
@@ -99,117 +94,73 @@ export function StorefrontPreview() {
         </div>
       </CardHeader>
       <CardContent className="space-y-6">
-        <div className="space-y-3">
-          <div className="text-xs font-medium uppercase tracking-wider text-muted-foreground mb-2">
-            {t("storefront.tickets")}
-          </div>
-
-          {tickets.map((ticket) => (
-            <div
-              key={ticket.id}
-              className="group relative flex flex-col sm:flex-row bg-card/50 border border-border hover:border-ring rounded-xl overflow-hidden transition-all duration-300"
+        {/* Ticket Tiers Preview */}
+        <div className="space-y-4">
+          <div className="flex items-center justify-between">
+            <h3 className="text-sm font-medium text-foreground">
+              {t("storefront.ticketTiers")}
+            </h3>
+            <Link 
+              href="/admin/tickets" 
+              className="text-xs font-medium text-primary hover:underline flex items-center gap-1"
             >
-              <div className="w-full sm:w-32 bg-card flex flex-col items-center justify-center p-4 border-b sm:border-b-0 sm:border-r border-border group-hover:border-ring border-dashed">
-                <span className="text-xs font-medium text-muted-foreground">
-                  {ticket.date}
-                </span>
-                <span className="text-xl font-bold text-foreground tracking-tight">
-                  {ticket.label || ticket.time}
-                </span>
-              </div>
+              View More <ArrowUpRight className="h-3 w-3" />
+            </Link>
+          </div>
+          <div className="grid gap-3">
+            {displayedTickets.map((ticket) => (
+              <div
+                key={ticket.id}
+                className="group relative overflow-hidden rounded-lg border bg-card/50 p-3 hover:bg-card transition-all duration-300 hover:shadow-md hover:border-primary/20"
+              >
+                <div className="flex items-center justify-between gap-4">
+                  {/* Left: Date & Time */}
+                  <div className="flex-none w-16 text-center border-r pr-4">
+                    <div className="text-sm font-bold text-foreground">
+                      {ticket.date}
+                    </div>
+                    <div className="text-xs text-muted-foreground">
+                      {ticket.time}
+                    </div>
+                  </div>
 
-              <div className="flex-1 p-5 flex flex-col justify-between">
-                <div className="flex justify-between items-start">
-                  <div>
-                    <h3 className="text-base font-medium text-foreground">
-                      {ticket.type}
-                    </h3>
-                    <p className="text-xs text-muted-foreground mt-1">
+                  {/* Middle: Info */}
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 mb-0.5">
+                      <h4 className="font-semibold text-sm truncate">
+                        {ticket.type}
+                      </h4>
+                      {ticket.status === "low_stock" && (
+                        <span className="inline-flex items-center rounded-full border border-amber-500/30 bg-amber-500/10 px-1.5 py-0.5 text-[10px] font-medium text-amber-500">
+                          {t("storefront.lowStock")}
+                        </span>
+                      )}
+                       {ticket.status === "sold_out" && (
+                        <span className="inline-flex items-center rounded-full border border-red-500/30 bg-red-500/10 px-1.5 py-0.5 text-[10px] font-medium text-red-500">
+                          Sold Out
+                        </span>
+                      )}
+                    </div>
+                    <p className="text-xs text-muted-foreground truncate">
                       {ticket.description}
                     </p>
                   </div>
-                  <div className="text-right">
-                    <span className="block text-base font-medium text-foreground">
-                      {ticket.price}
-                    </span>
-                    <span className="block text-[10px] text-muted-foreground">
-                      Inc. VAT
-                    </span>
-                  </div>
-                </div>
 
-                <div className="mt-4 flex items-center justify-between">
-                  <div
-                    className={`flex items-center gap-2 text-[10px] ${
-                      ticket.status === "available"
-                        ? "text-emerald-400"
-                        : "text-orange-400"
-                    }`}
-                  >
-                    <span
-                      className={`w-2 h-2 rounded-full ${
-                        ticket.status === "available"
-                          ? "bg-emerald-500"
-                          : "bg-orange-500"
-                      }`}
-                    />
-                    {ticket.status === "available"
-                      ? t("storefront.available")
-                      : t("storefront.lowStock")}
+                  {/* Right: Price */}
+                  <div className="text-right">
+                    <div className="font-bold text-sm text-primary">
+                      {ticket.price}
+                    </div>
                   </div>
-                  <button className="group/btn relative inline-flex items-center justify-center opacity-0 group-hover:opacity-100 translate-y-2 group-hover:translate-y-0 transition-all duration-300 px-3 py-1.5 text-xs font-light tracking-wide uppercase overflow-hidden rounded-xl">
-                    <span className="relative z-10 text-white transition-colors duration-300">
-                      Select
-                    </span>
-                    <div className="absolute inset-0 border border-transparent transition-all duration-300 rounded-xl" />
-                    <div className="absolute inset-0 bg-gradient-to-r from-[var(--gradient-purple)] via-[var(--gradient-magenta)] to-[var(--gradient-pink)] opacity-100 bg-[length:200%_100%] animate-[gradient-shift_3s_ease_infinite] rounded-xl" />
-                  </button>
                 </div>
               </div>
-            </div>
-          ))}
-        </div>
-
-        <div>
-          <div className="text-xs font-medium uppercase tracking-wider text-muted-foreground mb-4 mt-8">
-            {t("storefront.officialMerchandise")}
-          </div>
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-            {merchandise.map((item) => {
-              const Icon = item.icon;
-              return (
-                <div
-                  key={item.id}
-                  className="group border border-border bg-card/30 rounded-xl p-3 hover:border-ring transition-all"
-                >
-                  <div className="aspect-square bg-card rounded-xl border border-border mb-3 flex items-center justify-center relative overflow-hidden">
-                    <Icon className="h-8 w-8 text-muted-foreground" />
-                    <div className="absolute inset-0 bg-background/60 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity backdrop-blur-sm">
-                      <button className="group/btn relative inline-flex items-center justify-center p-2 rounded-full overflow-hidden hover:scale-105 transition-transform">
-                        <span className="relative z-10 text-white transition-colors duration-300">
-                          <Plus className="h-4 w-4" />
-                        </span>
-                        <div className="absolute inset-0 border border-transparent rounded-full transition-all duration-300" />
-                        <div className="absolute inset-0 bg-gradient-to-r from-[var(--gradient-purple)] via-[var(--gradient-magenta)] to-[var(--gradient-pink)] opacity-100 bg-[length:200%_100%] animate-[gradient-shift_3s_ease_infinite] rounded-full" />
-                      </button>
-                    </div>
-                  </div>
-                  <div className="flex justify-between items-start">
-                    <div>
-                      <div className="text-sm text-foreground font-medium">
-                        {item.label}
-                      </div>
-                      <div className="text-xs text-muted-foreground">
-                        {item.sizes}
-                      </div>
-                    </div>
-                    <div className="text-sm font-medium text-muted-foreground">
-                      {item.price}
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
+            ))}
+            
+            {displayedTickets.length === 0 && (
+              <div className="text-center py-8 text-sm text-muted-foreground border border-dashed rounded-lg">
+                No tickets available
+              </div>
+            )}
           </div>
         </div>
       </CardContent>

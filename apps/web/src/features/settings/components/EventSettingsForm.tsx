@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useTranslations } from "next-intl";
@@ -23,24 +24,35 @@ export function EventSettingsForm({
   onCancel,
 }: EventSettingsFormProps) {
   const t = useTranslations("settings");
-  const { mutate: saveSettings, isPending } = useEventSettings();
+  const { data, isLoading: isLoadingData, updateSettings, isUpdating } = useEventSettings();
 
   const {
     register,
     handleSubmit,
     formState: { errors },
+    reset,
   } = useForm<EventSettingsFormData>({
     resolver: zodResolver(eventSettingsSchema),
-    defaultValues: defaultValues ?? {
+    defaultValues: defaultValues ?? data ?? {
       eventName: "",
-      date: "",
-      capacity: 0,
-      urlSlug: "",
+      eventDate: "",
+      location: "",
+      description: "",
+      bannerImage: "",
+      contactEmail: "",
+      contactPhone: "",
     },
   });
 
-  const onSubmit = (data: EventSettingsFormData) => {
-    saveSettings(data);
+  // Update form when data loads
+  useEffect(() => {
+    if (data && !isLoadingData) {
+      reset(data);
+    }
+  }, [data, isLoadingData, reset]);
+
+  const onSubmit = (formData: EventSettingsFormData) => {
+    updateSettings(formData);
   };
 
   return (
@@ -77,76 +89,134 @@ export function EventSettingsForm({
                 )}
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label
-                    htmlFor="date"
-                    className="block text-xs font-medium text-muted-foreground mb-1.5"
-                  >
-                    {t("eventDetails.date")}
-                  </label>
-                  <Input
-                    id="date"
-                    type="date"
-                    {...register("date")}
-                    className={errors.date ? "border-destructive" : ""}
-                  />
-                  {errors.date && (
-                    <p className="text-xs text-destructive mt-1">
-                      {errors.date.message}
-                    </p>
-                  )}
-                </div>
-
-                <div>
-                  <label
-                    htmlFor="capacity"
-                    className="block text-xs font-medium text-muted-foreground mb-1.5"
-                  >
-                    {t("eventDetails.capacity")}
-                  </label>
-                  <Input
-                    id="capacity"
-                    type="number"
-                    placeholder="2500"
-                    {...register("capacity", { valueAsNumber: true })}
-                    className={errors.capacity ? "border-destructive" : ""}
-                  />
-                  {errors.capacity && (
-                    <p className="text-xs text-destructive mt-1">
-                      {errors.capacity.message}
-                    </p>
-                  )}
-                </div>
+              <div>
+                <label
+                  htmlFor="eventDate"
+                  className="block text-xs font-medium text-muted-foreground mb-1.5"
+                >
+                  {t("eventDetails.date")}
+                </label>
+                <Input
+                  id="eventDate"
+                  type="date"
+                  {...register("eventDate")}
+                  className={errors.eventDate ? "border-destructive" : ""}
+                />
+                {errors.eventDate && (
+                  <p className="text-xs text-destructive mt-1">
+                    {errors.eventDate.message}
+                  </p>
+                )}
               </div>
 
               <div>
                 <label
-                  htmlFor="urlSlug"
+                  htmlFor="location"
                   className="block text-xs font-medium text-muted-foreground mb-1.5"
                 >
-                  {t("eventDetails.urlSlug")}
+                  {t("eventDetails.location")}
                 </label>
-                <div className="flex">
-                  <span className="inline-flex items-center px-3 rounded-l-md border border-r-0 border-input bg-muted text-muted-foreground text-xs">
-                    {t("eventDetails.urlPrefix")}
-                  </span>
-                  <Input
-                    id="urlSlug"
-                    type="text"
-                    placeholder="summer-summit-24"
-                    className={cn(
-                      "flex-1 rounded-l-none",
-                      errors.urlSlug ? "border-destructive" : "",
-                    )}
-                    {...register("urlSlug")}
-                  />
-                </div>
-                {errors.urlSlug && (
+                <Input
+                  id="location"
+                  type="text"
+                  placeholder="Jakarta Convention Center"
+                  {...register("location")}
+                  className={errors.location ? "border-destructive" : ""}
+                />
+                {errors.location && (
                   <p className="text-xs text-destructive mt-1">
-                    {errors.urlSlug.message}
+                    {errors.location.message}
                   </p>
                 )}
+              </div>
+
+              <div>
+                <label
+                  htmlFor="description"
+                  className="block text-xs font-medium text-muted-foreground mb-1.5"
+                >
+                  {t("eventDetails.description")}
+                </label>
+                <textarea
+                  id="description"
+                  rows={3}
+                  placeholder="Event description"
+                  {...register("description")}
+                  className={cn(
+                    "flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50",
+                    errors.description ? "border-destructive" : "",
+                  )}
+                />
+                {errors.description && (
+                  <p className="text-xs text-destructive mt-1">
+                    {errors.description.message}
+                  </p>
+                )}
+              </div>
+
+              <div>
+                <label
+                  htmlFor="bannerImage"
+                  className="block text-xs font-medium text-muted-foreground mb-1.5"
+                >
+                  {t("eventDetails.bannerImage")}
+                </label>
+                <Input
+                  id="bannerImage"
+                  type="url"
+                  placeholder="https://example.com/banner.jpg"
+                  {...register("bannerImage")}
+                  className={errors.bannerImage ? "border-destructive" : ""}
+                />
+                {errors.bannerImage && (
+                  <p className="text-xs text-destructive mt-1">
+                    {errors.bannerImage.message}
+                  </p>
+                )}
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label
+                    htmlFor="contactEmail"
+                    className="block text-xs font-medium text-muted-foreground mb-1.5"
+                  >
+                    {t("eventDetails.contactEmail")}
+                  </label>
+                  <Input
+                    id="contactEmail"
+                    type="email"
+                    placeholder="info@example.com"
+                    {...register("contactEmail")}
+                    className={errors.contactEmail ? "border-destructive" : ""}
+                  />
+                  {errors.contactEmail && (
+                    <p className="text-xs text-destructive mt-1">
+                      {errors.contactEmail.message}
+                    </p>
+                  )}
+                </div>
+
+                <div>
+                  <label
+                    htmlFor="contactPhone"
+                    className="block text-xs font-medium text-muted-foreground mb-1.5"
+                  >
+                    {t("eventDetails.contactPhone")}
+                  </label>
+                  <Input
+                    id="contactPhone"
+                    type="tel"
+                    placeholder="+62-21-12345678"
+                    {...register("contactPhone")}
+                    className={errors.contactPhone ? "border-destructive" : ""}
+                  />
+                  {errors.contactPhone && (
+                    <p className="text-xs text-destructive mt-1">
+                      {errors.contactPhone.message}
+                    </p>
+                  )}
+                </div>
               </div>
             </div>
           </div>
@@ -158,14 +228,14 @@ export function EventSettingsForm({
               type="button"
               variant="ghost"
               onClick={onCancel}
-              disabled={isPending}
+              disabled={isUpdating || isLoadingData}
               size="sm"
             >
               {t("actions.cancel")}
             </Button>
           )}
-          <Button type="submit" disabled={isPending} size="sm">
-            {isPending ? t("actions.saving") : t("actions.saveChanges")}
+          <Button type="submit" disabled={isUpdating || isLoadingData} size="sm">
+            {isUpdating ? t("actions.saving") : t("actions.saveChanges")}
           </Button>
         </CardFooter>
       </Card>

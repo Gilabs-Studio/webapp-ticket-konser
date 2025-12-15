@@ -153,4 +153,24 @@ func (s *Service) Delete(id string) error {
 	return s.repo.Delete(id)
 }
 
+// GetRecentOrders returns recent orders (for dashboard)
+func (s *Service) GetRecentOrders(limit int) ([]*order.OrderResponse, error) {
+	if limit <= 0 || limit > 50 {
+		limit = 10
+	}
+
+	filters := make(map[string]interface{})
+	orders, _, err := s.repo.List(1, limit, filters)
+	if err != nil {
+		return nil, err
+	}
+
+	responses := make([]*order.OrderResponse, len(orders))
+	for i, o := range orders {
+		responses[i] = o.ToOrderResponse()
+	}
+
+	return responses, nil
+}
+
 

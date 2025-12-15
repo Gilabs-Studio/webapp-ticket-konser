@@ -40,14 +40,7 @@ export function SettingsPage() {
         >
           {activeTab === "general" && (
             <>
-              <EventSettingsForm
-                defaultValues={{
-                  eventName: "Summer Summit 2024",
-                  date: "",
-                  capacity: 2500,
-                  urlSlug: "summer-summit-24",
-                }}
-              />
+              <EventSettingsForm />
               <DangerZone />
             </>
           )}

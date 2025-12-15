@@ -59,11 +59,17 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
     enabled: isAuthenticated,
   });
 
-  // Categorize menus into Overview and Management
+  // Categorize menus into Overview, Event Operations, People, and System
   const categorizedMenus = menusData
     ? categorizeMenus(menusData.menus)
-    : { overview: [], management: [] };
-  const { overview, management } = categorizedMenus;
+    : {
+        overview: [],
+        event_operations: [],
+        manage_people: [],
+        system: [],
+      };
+  const { overview, event_operations, manage_people, system } =
+    categorizedMenus;
 
   // Helper function to normalize menu path
   const normalizeMenuPath = (path: string): string => {
@@ -71,6 +77,19 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
       return path;
     }
     return `/${path}`;
+  };
+
+  // Label mapping for shorter sidebar names
+  const menuLabelMap: Record<string, string> = {
+    "Event Management": "Events",
+    "Ticket Management": "Tickets",
+    "Gate Management": "Gates",
+    "Merchandise Management": "Merchandise",
+    "User Management": "Users",
+  };
+
+  const getLabel = (label: string): string => {
+    return menuLabelMap[label] || label;
   };
 
   // Render sidebar content based on loading/error state
@@ -107,22 +126,25 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
                 <SidebarMenuButton
                   asChild
                   isActive={isActive}
-                  tooltip={menu.label}
+                  tooltip={getLabel(menu.label)}
                 >
                   <Link href={normalizedPath}>
                     {getMenuIcon(menu.icon)}
-                    <span>{menu.label}</span>
+                    <span>{getLabel(menu.label)}</span>
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
             );
           })}
         </SidebarMenu>
-        {management.length > 0 && (
+
+        {event_operations.length > 0 && (
           <SidebarGroup>
-            <SidebarGroupLabel>{t("menu.management")}</SidebarGroupLabel>
+            <SidebarGroupLabel className="text-xs uppercase text-muted-foreground/70 font-bold tracking-wider mb-2 mt-4 ml-2">
+              Event Control
+            </SidebarGroupLabel>
             <SidebarMenu>
-              {management.map((menu) => {
+              {event_operations.map((menu) => {
                 const normalizedPath = normalizeMenuPath(menu.path);
                 const isActive =
                   pathname === normalizedPath ||
@@ -132,11 +154,71 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
                     <SidebarMenuButton
                       asChild
                       isActive={isActive}
-                      tooltip={menu.label}
+                      tooltip={getLabel(menu.label)}
                     >
                       <Link href={normalizedPath}>
                         {getMenuIcon(menu.icon)}
-                        <span>{menu.label}</span>
+                        <span>{getLabel(menu.label)}</span>
+                      </Link>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                );
+              })}
+            </SidebarMenu>
+          </SidebarGroup>
+        )}
+
+        {manage_people.length > 0 && (
+          <SidebarGroup>
+            <SidebarGroupLabel className="text-xs uppercase text-muted-foreground/70 font-bold tracking-wider mb-2 mt-4 ml-2">
+              People
+            </SidebarGroupLabel>
+            <SidebarMenu>
+              {manage_people.map((menu) => {
+                const normalizedPath = normalizeMenuPath(menu.path);
+                const isActive =
+                  pathname === normalizedPath ||
+                  pathname?.startsWith(`${normalizedPath}/`);
+                return (
+                  <SidebarMenuItem key={menu.id}>
+                    <SidebarMenuButton
+                      asChild
+                      isActive={isActive}
+                      tooltip={getLabel(menu.label)}
+                    >
+                      <Link href={normalizedPath}>
+                        {getMenuIcon(menu.icon)}
+                        <span>{getLabel(menu.label)}</span>
+                      </Link>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                );
+              })}
+            </SidebarMenu>
+          </SidebarGroup>
+        )}
+
+        {system.length > 0 && (
+          <SidebarGroup>
+            <SidebarGroupLabel className="text-xs uppercase text-muted-foreground/70 font-bold tracking-wider mb-2 mt-4 ml-2">
+              System
+            </SidebarGroupLabel>
+            <SidebarMenu>
+              {system.map((menu) => {
+                const normalizedPath = normalizeMenuPath(menu.path);
+                const isActive =
+                  pathname === normalizedPath ||
+                  pathname?.startsWith(`${normalizedPath}/`);
+                return (
+                  <SidebarMenuItem key={menu.id}>
+                    <SidebarMenuButton
+                      asChild
+                      isActive={isActive}
+                      tooltip={getLabel(menu.label)}
+                    >
+                      <Link href={normalizedPath}>
+                        {getMenuIcon(menu.icon)}
+                        <span>{getLabel(menu.label)}</span>
                       </Link>
                     </SidebarMenuButton>
                   </SidebarMenuItem>

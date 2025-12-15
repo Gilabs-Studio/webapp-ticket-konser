@@ -41,7 +41,9 @@
     "profile": "Profil",
     "logout": "Keluar",
     "dashboard": "Dashboard",
-    "scan": "Pindai Tiket"
+    "scan": "Pindai Tiket",
+    "scanner": "Scanner",
+    "checkIns": "Check-ins"
   },
   "dashboard": {
     "title": "Dashboard",
@@ -137,6 +139,12 @@
   "tickets": {
     "title": "Manajemen Tiket",
     "createType": "Buat Tipe",
+    "createSuccess": "Kategori tiket berhasil dibuat",
+    "updateSuccess": "Kategori tiket berhasil diperbarui",
+    "deleteSuccess": "Kategori tiket berhasil dihapus",
+    "createError": "Gagal membuat kategori tiket. Silakan coba lagi.",
+    "updateError": "Gagal memperbarui kategori tiket. Silakan coba lagi.",
+    "deleteError": "Gagal menghapus kategori tiket. Silakan coba lagi.",
     "orders": {
       "recent": "Pesanan Terkini",
       "viewAll": "Lihat Semua",
@@ -167,10 +175,12 @@
       "title": "Detail Acara",
       "description": "Informasi dasar tentang acara Anda.",
       "eventName": "Nama Acara",
-      "date": "Tanggal",
-      "capacity": "Kapasitas",
-      "urlSlug": "URL Slug",
-      "urlPrefix": "nexus.event/"
+      "date": "Tanggal Acara",
+      "location": "Lokasi",
+      "description": "Deskripsi",
+      "bannerImage": "URL Gambar Banner",
+      "contactEmail": "Email Kontak",
+      "contactPhone": "Nomor Telepon Kontak"
     },
     "dangerZone": {
       "title": "Zona Bahaya",
@@ -181,6 +191,20 @@
       "cancel": "Batal",
       "saveChanges": "Simpan Perubahan",
       "saving": "Menyimpan..."
-    }
+    },
+    "updateSuccess": "Pengaturan berhasil diperbarui",
+    "updateError": "Gagal memperbarui pengaturan. Silakan coba lagi."
+  },
+  "merchandise": {
+    "title": "Inventori Merchandise",
+    "addProduct": "Tambah Produk",
+    "exportCSV": "Ekspor CSV",
+    "empty": "Tidak ada produk ditemukan. Buat satu untuk memulai.",
+    "createSuccess": "Merchandise berhasil dibuat",
+    "updateSuccess": "Merchandise berhasil diperbarui",
+    "deleteSuccess": "Merchandise berhasil dihapus",
+    "createError": "Gagal membuat merchandise. Silakan coba lagi.",
+    "updateError": "Gagal memperbarui merchandise. Silakan coba lagi.",
+    "deleteError": "Gagal menghapus merchandise. Silakan coba lagi."
   }
 }

@@ -18,7 +18,8 @@ export default function LoginPage() {
         // Dashboard route moved from /admin/dashboard to /dashboard
         router.push("/dashboard");
       } else if (userRole === "staff_ticket" || userRole === "gate_staff") {
-        router.push("/staff/dashboard");
+        // Staff redirect ke landing page, menu scanner dan check-ins ada di profile dropdown
+        router.push("/");
       } else {
         // Guest or other roles - redirect to landing page (no dashboard for guest)
         router.push("/");

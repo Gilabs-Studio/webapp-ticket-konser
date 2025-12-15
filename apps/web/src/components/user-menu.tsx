@@ -17,6 +17,7 @@ import {
   ShoppingBag,
   LayoutDashboard,
   ScanLine,
+  CheckCircle2,
 } from "lucide-react";
 import { Link } from "@/i18n/routing";
 import { useTranslations } from "next-intl";
@@ -84,15 +85,15 @@ export function UserMenu({
         {isStaff && (
           <>
             <DropdownMenuItem asChild>
-              <Link href="/staff/scan" className="flex items-center">
+              <Link href="/scanner" className="flex items-center">
                 <ScanLine className="mr-2 h-4 w-4" />
-                <span>{t("scan") ?? "Scan Ticket"}</span>
+                <span>{t("scanner") ?? "Scanner"}</span>
               </Link>
             </DropdownMenuItem>
             <DropdownMenuItem asChild>
-              <Link href="/staff/dashboard" className="flex items-center">
-                <LayoutDashboard className="mr-2 h-4 w-4" />
-                <span>{t("dashboard") ?? "Dashboard"}</span>
+              <Link href="/check-ins" className="flex items-center">
+                <CheckCircle2 className="mr-2 h-4 w-4" />
+                <span>{t("checkIns") ?? "Check-ins"}</span>
               </Link>
             </DropdownMenuItem>
             <DropdownMenuSeparator />

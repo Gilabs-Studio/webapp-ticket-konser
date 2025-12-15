@@ -9,6 +9,7 @@ export interface MerchandiseProduct {
   readonly stockPercentage: number;
   readonly variant?: string;
   readonly iconName: string;
+  readonly imageUrl?: string;
 }
 
 export interface MerchandiseInventory {
