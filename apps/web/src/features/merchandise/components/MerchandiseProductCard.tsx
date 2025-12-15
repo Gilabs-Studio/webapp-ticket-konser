@@ -117,6 +117,7 @@ export function MerchandiseProductCard({
       >
         <div className="aspect-square bg-muted rounded-xl border border-border mb-4 flex items-center justify-center relative overflow-hidden">
           <SafeImage
+            key={product.imageUrl} // Force re-render when imageUrl changes
             src={product.imageUrl}
             alt={product.name ?? "Product image"}
             fill

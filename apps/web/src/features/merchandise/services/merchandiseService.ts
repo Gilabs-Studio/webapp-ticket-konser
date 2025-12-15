@@ -1,6 +1,27 @@
 import apiClient from "@/lib/api-client";
 import type { MerchandiseProduct, MerchandiseInventory } from "../types";
 
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080";
+
+/**
+ * Helper function to convert relative image URL to full URL
+ */
+function getFullImageUrl(imageUrl?: string | null): string | undefined {
+  if (!imageUrl) return undefined;
+  
+  // If already a full URL (http/https), return as is
+  if (imageUrl.startsWith("http://") || imageUrl.startsWith("https://")) {
+    return imageUrl;
+  }
+  
+  // If relative path, prepend API base URL
+  if (imageUrl.startsWith("/")) {
+    return `${API_BASE_URL}${imageUrl}`;
+  }
+  
+  return imageUrl;
+}
+
 // API Response types
 interface MerchandiseResponse {
   id: string;
@@ -90,7 +111,7 @@ export const merchandiseService = {
         stockPercentage: m.stock_percentage,
         variant: m.variant,
         iconName: m.icon_name ?? "Package",
-        imageUrl: m.image_url,
+        imageUrl: getFullImageUrl(m.image_url),
       }),
     );
 
@@ -122,7 +143,7 @@ export const merchandiseService = {
       stockPercentage: response.data.data.stock_percentage,
       variant: response.data.data.variant,
       iconName: response.data.data.icon_name ?? "Package",
-      imageUrl: response.data.data.image_url,
+      imageUrl: getFullImageUrl(response.data.data.image_url),
     };
 
     return {
@@ -166,7 +187,7 @@ export const merchandiseService = {
       stockPercentage: response.data.data.stock_percentage,
       variant: response.data.data.variant,
       iconName: response.data.data.icon_name ?? "Package",
-      imageUrl: response.data.data.image_url,
+      imageUrl: getFullImageUrl(response.data.data.image_url),
     };
 
     return {
@@ -209,7 +230,7 @@ export const merchandiseService = {
       stockPercentage: response.data.data.stock_percentage,
       variant: response.data.data.variant,
       iconName: response.data.data.icon_name ?? "Package",
-      imageUrl: response.data.data.image_url,
+      imageUrl: getFullImageUrl(response.data.data.image_url),
     };
 
     return {
@@ -256,12 +277,52 @@ export const merchandiseService = {
         stockPercentage: p.stock_percentage,
         variant: p.variant,
         iconName: p.icon_name ?? "Package",
+        imageUrl: getFullImageUrl(p.image_url),
       })),
     };
 
     return {
       success: response.data.success,
       data: inventory,
+      meta: response.data.meta,
+      timestamp: response.data.timestamp,
+      request_id: response.data.request_id,
+    };
+  },
+
+  /**
+   * Upload merchandise image
+   */
+  async uploadMerchandiseImage(
+    id: string,
+    imageFile: File,
+  ): Promise<ApiResponse<MerchandiseProduct>> {
+    const formData = new FormData();
+    formData.append("image", imageFile);
+
+    // Don't set Content-Type manually - axios will set it with boundary automatically
+    const response = await apiClient.post<ApiResponse<MerchandiseResponse>>(
+      `/merchandise/${id}/image`,
+      formData,
+    );
+
+    const product: MerchandiseProduct = {
+      id: response.data.data.id,
+      name: response.data.data.name,
+      description: response.data.data.description,
+      price: response.data.data.price,
+      priceFormatted: response.data.data.price_formatted,
+      stock: response.data.data.stock,
+      stockStatus: response.data.data.stock_status,
+      stockPercentage: response.data.data.stock_percentage,
+      variant: response.data.data.variant,
+      iconName: response.data.data.icon_name ?? "Package",
+      imageUrl: getFullImageUrl(response.data.data.image_url),
+    };
+
+    return {
+      success: response.data.success,
+      data: product,
       meta: response.data.meta,
       timestamp: response.data.timestamp,
       request_id: response.data.request_id,

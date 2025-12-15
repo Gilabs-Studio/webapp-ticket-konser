@@ -200,3 +200,30 @@ func (s *Service) GetInventory(eventID string) (*merchandise.InventoryResponse, 
 		Products:       products,
 	}, nil
 }
+
+// UpdateImageURL updates merchandise image URL
+func (s *Service) UpdateImageURL(id string, imageURL string) (*merchandise.MerchandiseResponse, error) {
+	// Find merchandise
+	m, err := s.repo.FindByID(id)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, ErrMerchandiseNotFound
+		}
+		return nil, err
+	}
+
+	// Update image URL
+	m.ImageURL = imageURL
+
+	if err := s.repo.Update(m); err != nil {
+		return nil, err
+	}
+
+	// Reload
+	updatedMerchandise, err := s.repo.FindByID(m.ID)
+	if err != nil {
+		return nil, err
+	}
+
+	return updatedMerchandise.ToMerchandiseResponse(), nil
+}

@@ -3,6 +3,11 @@ import axios, {
   AxiosError,
   InternalAxiosRequestConfig,
 } from "axios";
+
+// Extended config interface for custom properties
+interface ExtendedAxiosRequestConfig extends InternalAxiosRequestConfig {
+  _rateLimitValidated?: boolean;
+}
 import { toast } from "sonner";
 import { setSecureCookie } from "./cookie";
 import { formatError } from "./i18n/error-messages";
@@ -53,10 +58,16 @@ apiClient.interceptors.request.use(
       config.headers.Authorization = `Bearer ${token}`;
     }
 
+    // Remove Content-Type header for FormData - axios will set it with boundary automatically
+    if (config.data instanceof FormData && config.headers) {
+      delete config.headers["Content-Type"];
+    }
+
     // Mark this request as first request after app load for rate limit validation
     // This helps validate if rate limit state is still valid after API restart
-    if (typeof window !== "undefined" && !(config as any)._rateLimitValidated) {
-      (config as any)._rateLimitValidated = true;
+    const extendedConfig = config as ExtendedAxiosRequestConfig;
+    if (typeof window !== "undefined" && !extendedConfig._rateLimitValidated) {
+      extendedConfig._rateLimitValidated = true;
     }
 
     return config;
