@@ -50,3 +50,12 @@ export function useBuyerList(filters?: DashboardFilters) {
     staleTime: 30000,
   });
 }
+
+export function useRecentSales(limit = 5) {
+  return useQuery({
+    queryKey: ["dashboard", "recent-sales", limit],
+    queryFn: () => adminDashboardService.getRecentSales(limit),
+    staleTime: 30000,
+  });
+}
+

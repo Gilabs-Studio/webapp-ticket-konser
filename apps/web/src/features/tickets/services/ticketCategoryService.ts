@@ -43,6 +43,16 @@ export const ticketCategoryService = {
   },
 
   /**
+   * Get all ticket categories
+   */
+  async getTicketCategories(): Promise<ApiResponse<TicketCategoryResponse[]>> {
+    const response = await apiClient.get<ApiResponse<TicketCategoryResponse[]>>(
+      "/admin/ticket-categories",
+    );
+    return response.data;
+  },
+
+  /**
    * Create ticket category
    */
   async createTicketCategory(

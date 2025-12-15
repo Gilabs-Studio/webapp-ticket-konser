@@ -10,6 +10,7 @@ interface EventSettingsResponse {
   banner_image: string;
   contact_email: string;
   contact_phone: string;
+  is_sales_paused: boolean;
 }
 
 interface SystemSettingsResponse {
@@ -44,6 +45,7 @@ export const settingsService = {
       bannerImage: response.data.data.banner_image ?? "",
       contactEmail: response.data.data.contact_email ?? "",
       contactPhone: response.data.data.contact_phone ?? "",
+      isSalesPaused: response.data.data.is_sales_paused ?? false,
     };
 
     return {
@@ -71,6 +73,7 @@ export const settingsService = {
         banner_image: data.bannerImage,
         contact_email: data.contactEmail,
         contact_phone: data.contactPhone,
+        is_sales_paused: data.isSalesPaused,
       },
     );
 
@@ -82,6 +85,7 @@ export const settingsService = {
       bannerImage: response.data.data.banner_image ?? "",
       contactEmail: response.data.data.contact_email ?? "",
       contactPhone: response.data.data.contact_phone ?? "",
+      isSalesPaused: response.data.data.is_sales_paused ?? false,
     };
 
     return {

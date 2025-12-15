@@ -18,6 +18,14 @@ export function useTicketCategory(id: string) {
   });
 }
 
+export function useTicketCategories() {
+  return useQuery({
+    queryKey: ["ticket-categories"],
+    queryFn: () => ticketCategoryService.getTicketCategories(),
+    staleTime: 30000,
+  });
+}
+
 export function useCreateTicketCategory() {
   const queryClient = useQueryClient();
   const t = useTranslations("tickets");

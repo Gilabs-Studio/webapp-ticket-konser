@@ -300,7 +300,7 @@ Developer 2 bertanggung jawab untuk:
 
 **Goal**: Implement admin dashboard untuk monitoring penjualan dan check-in
 
-**Status**: ⏳ **FRONTEND PARTIAL** (Components ✅, Backend APIs ❌)
+**Status**: ✅ **COMPLETED** (Components ✅, Backend APIs ✅, Integration ✅)
 
 ---
 
@@ -308,30 +308,38 @@ Developer 2 bertanggung jawab untuk:
 
 **Goal**: Complete backend integration untuk frontend modules yang sudah dibuat
 
-**Status**: ⏳ **FRONTEND COMPLETED** / ⏳ **BACKEND PENDING**
+**Status**: ✅ **COMPLETED** (Frontend ✅, Backend ✅, Integration ✅)
 
 **Backend Tasks**:
 
-- [ ] **Ticket Management APIs**
-  - [ ] Implement ticket list API (`GET /api/v1/tickets`)
-  - [ ] Implement ticket detail API (`GET /api/v1/tickets/:id`)
-  - [ ] Implement ticket status update API (`PUT /api/v1/tickets/:id/status`)
-  - [ ] Implement recent orders API (`GET /api/v1/orders/recent`)
+- [x] **Ticket Management APIs**
+  - [x] Implement ticket list API (`GET /api/v1/tickets`)
+  - [x] Implement ticket detail API (`GET /api/v1/tickets/:id`)
+  - [x] Implement recent orders API (`GET /api/v1/admin/orders/recent`)
+  - [x] Note: Ticket status update akan dihandle via ticket category API
 
-- [ ] **Merchandise Management APIs**
-  - [ ] Create merchandise model dan migration
-  - [ ] Create merchandise repository interface dan implementation
-  - [ ] Create merchandise service
-  - [ ] Implement merchandise CRUD APIs (`GET /api/v1/merchandise`, `POST /api/v1/merchandise`, `PUT /api/v1/merchandise/:id`, `DELETE /api/v1/merchandise/:id`)
-  - [ ] Implement merchandise inventory API (`GET /api/v1/merchandise/inventory`)
-  - [ ] Add merchandise seeder (jika diperlukan)
+- [x] **Merchandise Management APIs**
+  - [x] Create merchandise model dan migration
+  - [x] Create merchandise repository interface dan implementation
+  - [x] Create merchandise service
+  - [x] Implement merchandise CRUD APIs (`GET /api/v1/merchandise`, `POST /api/v1/merchandise`, `PUT /api/v1/merchandise/:id`, `DELETE /api/v1/merchandise/:id`)
+  - [x] Implement merchandise inventory API (`GET /api/v1/merchandise/inventory`)
+  - [x] Add merchandise seeder dengan relasi event
 
-- [ ] **Settings Management APIs**
-  - [ ] Create settings model dan migration
-  - [ ] Create settings repository interface dan implementation
-  - [ ] Create settings service
-  - [ ] Implement event settings API (`GET /api/v1/settings/event`, `PUT /api/v1/settings/event`)
-  - [ ] Implement system settings API (`GET /api/v1/settings/system`, `PUT /api/v1/settings/system`)
+- [x] **Settings Management APIs**
+  - [x] Create settings model dan migration
+  - [x] Create settings repository interface dan implementation
+  - [x] Create settings service
+  - [x] Implement event settings API (`GET /api/v1/settings/event`, `PUT /api/v1/settings/event`)
+  - [x] Implement system settings API (`GET /api/v1/settings/system`, `PUT /api/v1/settings/system`)
+
+- [x] **Admin Dashboard APIs**
+  - [x] Implement dashboard overview API (`GET /api/v1/admin/dashboard`)
+  - [x] Implement sales overview API (`GET /api/v1/admin/dashboard/sales`)
+  - [x] Implement check-in overview API (`GET /api/v1/admin/dashboard/check-ins`)
+  - [x] Implement quota overview API (`GET /api/v1/admin/dashboard/quota`)
+  - [x] Implement gate activity API (`GET /api/v1/admin/dashboard/gates`)
+  - [x] Implement buyer list API (`GET /api/v1/admin/buyers`)
 
 - [x] **Attendance Management APIs**
   - [x] Create attendance model dan migration (jika berbeda dari check-in)
@@ -347,31 +355,40 @@ Developer 2 bertanggung jawab untuk:
 - [x] Merchandise Management components - ✅ Completed
 - [x] Settings Management components, hooks, schemas - ✅ Completed
 - [x] Attendance Management components, hooks, services - ✅ Completed
-- [ ] Integrate frontend dengan backend APIs - **PENDING** (perlu backend APIs dulu)
+- [x] Integrate frontend dengan backend APIs - ✅ **COMPLETED**
+  - [x] Ticket Management service dan hooks
+  - [x] Merchandise Management service dan hooks
+  - [x] Settings Management service dan hooks
+  - [x] Dashboard service updated dengan backend APIs
 
 **Postman Collection**:
 
-- [ ] Add ticket management APIs ke Postman collection
-- [ ] Add merchandise APIs ke Postman collection
-- [ ] Add settings APIs ke Postman collection
+- [x] Add ticket management APIs ke Postman collection
+- [x] Add merchandise APIs ke Postman collection
+- [x] Add settings APIs ke Postman collection
+- [x] Add dashboard APIs ke Postman collection
 - [x] Add attendance APIs ke Postman collection
 
 **Menu & Permissions**:
 
-- [ ] Add Ticket Management menu to menu seeder
-- [ ] Add Merchandise Management menu to menu seeder
-- [ ] Add Settings menu to menu seeder
+- [x] Add Ticket Management menu to menu seeder (already exists)
+- [x] Add Merchandise Management menu to menu seeder
+- [x] Add Settings menu to menu seeder (permission updated)
+- [x] Add Dashboard menu to menu seeder (already exists)
 - [x] Add Attendance menu to menu seeder
-- [x] Add corresponding permissions to permission seeder
+- [x] Add corresponding permissions to permission seeder (ticket, merchandise, settings, dashboard)
 
 **Acceptance Criteria**:
 
-- ✅ Ticket Management APIs bekerja dengan baik
-- ✅ Merchandise Management APIs bekerja dengan baik
-- ✅ Settings Management APIs bekerja dengan baik
-- ✅ Attendance Management APIs bekerja dengan baik (COMPLETED)
-- ✅ Frontend terintegrasi dengan backend APIs (COMPLETED)
-- ✅ Postman collection updated (COMPLETED)
+- ✅ Ticket Management APIs bekerja dengan baik - **COMPLETED**
+- ✅ Merchandise Management APIs bekerja dengan baik - **COMPLETED**
+- ✅ Settings Management APIs bekerja dengan baik - **COMPLETED**
+- ✅ Admin Dashboard APIs bekerja dengan baik - **COMPLETED**
+- ✅ Attendance Management APIs bekerja dengan baik - **COMPLETED**
+- ✅ Frontend terintegrasi dengan backend APIs - **COMPLETED**
+- ✅ Postman collection updated - **COMPLETED**
+- ✅ Menu dan permissions seeded - **COMPLETED**
+- ✅ Merchandise seeder dengan relasi event - **COMPLETED**
 
 **Testing** (Manual testing):
 

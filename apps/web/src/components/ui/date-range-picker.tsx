@@ -104,7 +104,7 @@ export function DateRangePicker({
     to: endOfYear(subYears(today, 1)),
   };
 
-  const [month, setMonth] = useState(today);
+  const [month, setMonth] = useState<Date | undefined>(today);
   const [open, setOpen] = useState(false);
 
   const handlePresetClick = (range: DateRange) => {
@@ -214,7 +214,7 @@ export function DateRangePicker({
             <Calendar
               mode="range"
               selected={dateRange}
-              onSelect={(newDate) => {
+              onSelect={(newDate: any) => {
                 if (newDate) {
                   // Normalize dates to avoid timezone issues
                   const normalizedRange: DateRange = {

@@ -1,12 +1,14 @@
 package order
 
 import (
-	"github.com/gin-gonic/gin"
-	"github.com/go-playground/validator/v10"
+	"strconv"
+
 	"github.com/gilabs/webapp-ticket-konser/api/internal/domain/order"
 	orderservice "github.com/gilabs/webapp-ticket-konser/api/internal/service/order"
 	"github.com/gilabs/webapp-ticket-konser/api/pkg/errors"
 	"github.com/gilabs/webapp-ticket-konser/api/pkg/response"
+	"github.com/gin-gonic/gin"
+	"github.com/go-playground/validator/v10"
 )
 
 type Handler struct {
@@ -151,6 +153,25 @@ func (h *Handler) Delete(c *gin.Context) {
 	}
 
 	response.SuccessResponseNoContent(c)
+}
+
+// GetRecentOrders gets recent orders
+// GET /api/v1/admin/orders/recent
+func (h *Handler) GetRecentOrders(c *gin.Context) {
+	limitStr := c.DefaultQuery("limit", "10")
+	limit := 10
+	if l, err := strconv.Atoi(limitStr); err == nil && l > 0 && l <= 50 {
+		limit = l
+	}
+
+	orders, err := h.orderService.GetRecentOrders(limit)
+	if err != nil {
+		errors.InternalServerErrorResponse(c, "")
+		return
+	}
+
+	meta := &response.Meta{}
+	response.SuccessResponse(c, orders, meta)
 }
 
 

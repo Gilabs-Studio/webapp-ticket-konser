@@ -10,7 +10,7 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Link } from "@/i18n/routing";
-import { useBuyerList } from "../hooks/useDashboard";
+import { useRecentSales } from "../hooks/useDashboard";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useTranslations } from "next-intl";
 import { formatDistanceToNow } from "date-fns";
@@ -26,7 +26,7 @@ interface RecentSalesProps {
 
 export function RecentSales({ filters, limit = 5 }: RecentSalesProps) {
   const t = useTranslations("dashboard");
-  const { data, isLoading } = useBuyerList(filters);
+  const { data: orders, isLoading } = useRecentSales(limit);
 
   if (isLoading) {
     return (
@@ -46,18 +46,15 @@ export function RecentSales({ filters, limit = 5 }: RecentSalesProps) {
     );
   }
 
-  const buyers = data?.data ?? [];
-
-  // Transform buyer data to recent sales format
-  // In real implementation, this would come from a recent sales API
-  const recentSales = buyers.slice(0, limit).map((buyer) => ({
-    id: buyer.user_id,
-    customer: buyer.name,
-    email: buyer.email,
-    type: "VIP", // Mock - would come from order data
-    amount: buyer.total_spent,
-    timeAgo: buyer.last_order_date
-      ? formatDistanceToNow(new Date(buyer.last_order_date), {
+  // Transform order data to recent sales format
+  const recentSales = (orders ?? []).map((order) => ({
+    id: order.id,
+    customer: order.user?.name ?? "Guest",
+    email: order.user?.email ?? "-",
+    type: order.payment_status, 
+    amount: order.total_amount,
+    timeAgo: order.created_at
+      ? formatDistanceToNow(new Date(order.created_at), {
           addSuffix: true,
         })
       : "N/A",
@@ -73,11 +70,25 @@ export function RecentSales({ filters, limit = 5 }: RecentSalesProps) {
   };
 
   const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat("en-US", {
+    return new Intl.NumberFormat("id-ID", {
       style: "currency",
-      currency: "USD",
+      currency: "IDR",
       minimumFractionDigits: 0,
     }).format(amount);
+  };
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case "PAID":
+        return "text-green-600 bg-green-100";
+      case "UNPAID":
+        return "text-yellow-600 bg-yellow-100";
+      case "FAILED":
+      case "CANCELED":
+        return "text-red-600 bg-red-100";
+      default:
+        return "text-gray-600 bg-gray-100";
+    }
   };
 
   return (
@@ -89,7 +100,7 @@ export function RecentSales({ filters, limit = 5 }: RecentSalesProps) {
             <CardDescription>{t("recentSales.description")}</CardDescription>
           </div>
           <Link
-            href="/tickets"
+            href="/admin/orders"
             className="text-sm text-primary hover:underline"
           >
             {t("recentSales.viewAll")}
@@ -123,9 +134,11 @@ export function RecentSales({ filters, limit = 5 }: RecentSalesProps) {
                     </div>
                   </div>
                   <div className="flex items-center gap-3">
-                    <Badge variant="outline">{sale.type}</Badge>
-                    <span className="font-semibold text-green-600">
-                      +{formatCurrency(sale.amount)}
+                    <Badge variant="outline" className={getStatusColor(sale.type)}>
+                      {sale.type}
+                    </Badge>
+                    <span className="font-semibold text-foreground">
+                      {formatCurrency(sale.amount)}
                     </span>
                   </div>
                 </div>
