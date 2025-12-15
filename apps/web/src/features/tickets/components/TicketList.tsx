@@ -3,13 +3,14 @@
 import { TicketCard } from "./TicketCard";
 import { type TicketType } from "../types";
 import { Skeleton } from "@/components/ui/skeleton";
-import { StaggerContainer } from "@/components/motion";
 
 interface TicketListProps {
   readonly tickets?: TicketType[];
   readonly isLoading?: boolean;
   readonly onEdit?: (ticket: TicketType) => void;
   readonly onMore?: (ticket: TicketType) => void;
+  readonly onDelete?: (id: string) => void;
+  readonly onView?: (ticket: TicketType) => void;
 }
 
 export function TicketList({
@@ -17,6 +18,8 @@ export function TicketList({
   isLoading,
   onEdit,
   onMore,
+  onDelete,
+  onView,
 }: TicketListProps) {
   if (isLoading) {
     return (
@@ -43,16 +46,19 @@ export function TicketList({
     );
   }
 
+  // No motion animation for instant UI updates on create/update/delete
   return (
-    <StaggerContainer className="grid grid-cols-1 md:grid-cols-3 gap-6">
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
       {ticketList.map((ticket) => (
         <TicketCard
           key={ticket.id}
           ticket={ticket}
           onEdit={onEdit}
           onMore={onMore}
+          onDelete={onDelete}
+          onView={onView}
         />
       ))}
-    </StaggerContainer>
+    </div>
   );
 }

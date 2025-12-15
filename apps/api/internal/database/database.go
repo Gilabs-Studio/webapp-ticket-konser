@@ -11,11 +11,13 @@ import (
 	"github.com/gilabs/webapp-ticket-konser/api/internal/domain/event"
 	"github.com/gilabs/webapp-ticket-konser/api/internal/domain/gate"
 	"github.com/gilabs/webapp-ticket-konser/api/internal/domain/menu"
+	"github.com/gilabs/webapp-ticket-konser/api/internal/domain/merchandise"
 	"github.com/gilabs/webapp-ticket-konser/api/internal/domain/order"
 	orderitem "github.com/gilabs/webapp-ticket-konser/api/internal/domain/order_item"
 	"github.com/gilabs/webapp-ticket-konser/api/internal/domain/permission"
 	"github.com/gilabs/webapp-ticket-konser/api/internal/domain/role"
 	"github.com/gilabs/webapp-ticket-konser/api/internal/domain/schedule"
+	"github.com/gilabs/webapp-ticket-konser/api/internal/domain/settings"
 	ticketcategory "github.com/gilabs/webapp-ticket-konser/api/internal/domain/ticket_category"
 	"github.com/gilabs/webapp-ticket-konser/api/internal/domain/user"
 	"gorm.io/driver/postgres"
@@ -81,6 +83,8 @@ func AutoMigrate() error {
 		&orderitem.OrderItem{},
 		&checkin.CheckIn{},
 		&gate.Gate{},
+		&merchandise.Merchandise{},
+		&settings.Settings{},
 	)
 	if err != nil {
 		return fmt.Errorf("failed to run migrations: %w", err)

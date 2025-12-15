@@ -139,6 +139,12 @@
   "tickets": {
     "title": "Ticket Management",
     "createType": "Create Type",
+    "createSuccess": "Ticket category created successfully",
+    "updateSuccess": "Ticket category updated successfully",
+    "deleteSuccess": "Ticket category deleted successfully",
+    "createError": "Failed to create ticket category. Please try again.",
+    "updateError": "Failed to update ticket category. Please try again.",
+    "deleteError": "Failed to delete ticket category. Please try again.",
     "orders": {
       "recent": "Recent Orders",
       "viewAll": "View All",
@@ -169,10 +175,12 @@
       "title": "Event Details",
       "description": "Basic information about your event.",
       "eventName": "Event Name",
-      "date": "Date",
-      "capacity": "Capacity",
-      "urlSlug": "URL Slug",
-      "urlPrefix": "nexus.event/"
+      "date": "Event Date",
+      "location": "Location",
+      "description": "Description",
+      "bannerImage": "Banner Image URL",
+      "contactEmail": "Contact Email",
+      "contactPhone": "Contact Phone"
     },
     "dangerZone": {
       "title": "Danger Zone",
@@ -183,6 +191,20 @@
       "cancel": "Cancel",
       "saveChanges": "Save Changes",
       "saving": "Saving..."
-    }
+    },
+    "updateSuccess": "Settings updated successfully",
+    "updateError": "Failed to update settings. Please try again."
+  },
+  "merchandise": {
+    "title": "Merchandise Inventory",
+    "addProduct": "Add Product",
+    "exportCSV": "Export CSV",
+    "empty": "No products found. Create one to get started.",
+    "createSuccess": "Merchandise created successfully",
+    "updateSuccess": "Merchandise updated successfully",
+    "deleteSuccess": "Merchandise deleted successfully",
+    "createError": "Failed to create merchandise. Please try again.",
+    "updateError": "Failed to update merchandise. Please try again.",
+    "deleteError": "Failed to delete merchandise. Please try again."
   }
 }

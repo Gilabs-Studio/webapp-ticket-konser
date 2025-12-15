@@ -1726,6 +1726,608 @@
       ]
     },
     {
+      "name": "Ticket Management",
+      "item": [
+        {
+          "name": "List Tickets",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/tickets?page=1&per_page=20",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "tickets"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1",
+                  "description": "Page number (default: 1)"
+                },
+                {
+                  "key": "per_page",
+                  "value": "20",
+                  "description": "Items per page (default: 20, max: 100)"
+                },
+                {
+                  "key": "status",
+                  "value": "",
+                  "description": "Filter by status: active, low_stock, sold_out, inactive",
+                  "disabled": true
+                },
+                {
+                  "key": "event_id",
+                  "value": "",
+                  "description": "Filter by event ID",
+                  "disabled": true
+                }
+              ]
+            },
+            "description": "Get all tickets with sales information (admin only, requires ticket.read permission)"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Ticket by ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/tickets/:id",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "tickets", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "ticket-category-uuid-here"
+                }
+              ]
+            },
+            "description": "Get ticket by ID (admin only, requires ticket.read permission)"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Recent Orders",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/admin/orders/recent?limit=10",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "admin", "orders", "recent"],
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "10",
+                  "description": "Number of recent orders to return (default: 10, max: 50)"
+                }
+              ]
+            },
+            "description": "Get recent orders for ticket management dashboard (admin only, requires order.read permission)"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Merchandise Management",
+      "item": [
+        {
+          "name": "List Merchandise",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/merchandise?page=1&per_page=20",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "merchandise"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1",
+                  "description": "Page number (default: 1)"
+                },
+                {
+                  "key": "per_page",
+                  "value": "20",
+                  "description": "Items per page (default: 20, max: 100)"
+                },
+                {
+                  "key": "event_id",
+                  "value": "",
+                  "description": "Filter by event ID",
+                  "disabled": true
+                },
+                {
+                  "key": "status",
+                  "value": "",
+                  "description": "Filter by status: active, inactive",
+                  "disabled": true
+                },
+                {
+                  "key": "search",
+                  "value": "",
+                  "description": "Search by name or description",
+                  "disabled": true
+                }
+              ]
+            },
+            "description": "Get all merchandise with pagination and filters (admin only, requires merchandise.read permission)"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Merchandise by ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/merchandise/:id",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "merchandise", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "merchandise-uuid-here"
+                }
+              ]
+            },
+            "description": "Get merchandise by ID (admin only, requires merchandise.read permission)"
+          },
+          "response": []
+        },
+        {
+          "name": "Create Merchandise",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"event_id\": \"{{event_id}}\",\n  \"name\": \"Event Hoodie\",\n  \"description\": \"Comfortable hoodie with event logo\",\n  \"price\": 550000,\n  \"stock\": 142,\n  \"variant\": \"Black / Cotton\",\n  \"image_url\": \"https://example.com/merchandise/hoodie.jpg\",\n  \"icon_name\": \"Shirt\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/merchandise",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "merchandise"]
+            },
+            "description": "Create merchandise (admin only, requires merchandise.create permission)"
+          },
+          "response": []
+        },
+        {
+          "name": "Update Merchandise",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Event Hoodie Updated\",\n  \"price\": 600000,\n  \"stock\": 100,\n  \"status\": \"active\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/merchandise/:id",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "merchandise", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "merchandise-uuid-here"
+                }
+              ]
+            },
+            "description": "Update merchandise (admin only, requires merchandise.update permission)"
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Merchandise",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/merchandise/:id",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "merchandise", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "merchandise-uuid-here"
+                }
+              ]
+            },
+            "description": "Delete merchandise (admin only, requires merchandise.delete permission)"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Merchandise Inventory",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/merchandise/inventory?event_id={{event_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "merchandise", "inventory"],
+              "query": [
+                {
+                  "key": "event_id",
+                  "value": "{{event_id}}",
+                  "description": "Filter by event ID",
+                  "disabled": true
+                }
+              ]
+            },
+            "description": "Get merchandise inventory summary (admin only, requires merchandise.read permission)"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Settings Management",
+      "item": [
+        {
+          "name": "Get Event Settings",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/settings/event",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "settings", "event"]
+            },
+            "description": "Get event settings (admin only, requires settings.read permission)"
+          },
+          "response": []
+        },
+        {
+          "name": "Update Event Settings",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"event_name\": \"Harry Potter Museum Exhibition\",\n  \"event_date\": \"2025-06-01\",\n  \"location\": \"Jakarta Convention Center\",\n  \"description\": \"Pameran interaktif yang membawa Anda ke dunia sihir Harry Potter\",\n  \"banner_image\": \"https://example.com/banners/harry-potter.jpg\",\n  \"contact_email\": \"info@harrypotterexhibition.com\",\n  \"contact_phone\": \"+62-21-12345678\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/settings/event",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "settings", "event"]
+            },
+            "description": "Update event settings (admin only, requires settings.update permission)"
+          },
+          "response": []
+        },
+        {
+          "name": "Get System Settings",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/settings/system",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "settings", "system"]
+            },
+            "description": "Get system settings (admin only, requires settings.read permission)"
+          },
+          "response": []
+        },
+        {
+          "name": "Update System Settings",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"site_name\": \"Ticketing Konser Platform\",\n  \"site_description\": \"Platform untuk manajemen tiket konser\",\n  \"maintenance_mode\": false,\n  \"max_upload_size\": 5242880\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/settings/system",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "settings", "system"]
+            },
+            "description": "Update system settings (admin only, requires settings.update permission)"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Admin Dashboard",
+      "item": [
+        {
+          "name": "Get Dashboard Overview",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/admin/dashboard?start_date=&end_date=&event_id=",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "admin", "dashboard"],
+              "query": [
+                {
+                  "key": "start_date",
+                  "value": "",
+                  "description": "Filter by start date (ISO 8601 format)",
+                  "disabled": true
+                },
+                {
+                  "key": "end_date",
+                  "value": "",
+                  "description": "Filter by end date (ISO 8601 format)",
+                  "disabled": true
+                },
+                {
+                  "key": "event_id",
+                  "value": "",
+                  "description": "Filter by event ID",
+                  "disabled": true
+                }
+              ]
+            },
+            "description": "Get complete dashboard overview including sales, check-ins, quota, gates, and buyers (admin only, requires dashboard.read permission)"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Sales Overview",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/admin/dashboard/sales?start_date=&end_date=&event_id=",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "admin", "dashboard", "sales"],
+              "query": [
+                {
+                  "key": "start_date",
+                  "value": "",
+                  "description": "Filter by start date (ISO 8601 format)",
+                  "disabled": true
+                },
+                {
+                  "key": "end_date",
+                  "value": "",
+                  "description": "Filter by end date (ISO 8601 format)",
+                  "disabled": true
+                },
+                {
+                  "key": "event_id",
+                  "value": "",
+                  "description": "Filter by event ID",
+                  "disabled": true
+                }
+              ]
+            },
+            "description": "Get sales overview statistics (admin only, requires dashboard.read permission)"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Check-in Overview",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/admin/dashboard/check-ins?start_date=&end_date=&event_id=",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "admin", "dashboard", "check-ins"],
+              "query": [
+                {
+                  "key": "start_date",
+                  "value": "",
+                  "description": "Filter by start date (ISO 8601 format)",
+                  "disabled": true
+                },
+                {
+                  "key": "end_date",
+                  "value": "",
+                  "description": "Filter by end date (ISO 8601 format)",
+                  "disabled": true
+                },
+                {
+                  "key": "event_id",
+                  "value": "",
+                  "description": "Filter by event ID",
+                  "disabled": true
+                }
+              ]
+            },
+            "description": "Get check-in overview statistics (admin only, requires dashboard.read permission)"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Quota Overview",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/admin/dashboard/quota?event_id=",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "admin", "dashboard", "quota"],
+              "query": [
+                {
+                  "key": "event_id",
+                  "value": "",
+                  "description": "Filter by event ID",
+                  "disabled": true
+                }
+              ]
+            },
+            "description": "Get ticket quota overview statistics (admin only, requires dashboard.read permission)"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Gate Activity",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/admin/dashboard/gates?gate_id=",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "admin", "dashboard", "gates"],
+              "query": [
+                {
+                  "key": "gate_id",
+                  "value": "",
+                  "description": "Filter by gate ID",
+                  "disabled": true
+                }
+              ]
+            },
+            "description": "Get gate activity statistics (admin only, requires dashboard.read permission)"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Buyer List",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/admin/buyers?start_date=&end_date=&event_id=",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "admin", "buyers"],
+              "query": [
+                {
+                  "key": "start_date",
+                  "value": "",
+                  "description": "Filter by start date (ISO 8601 format)",
+                  "disabled": true
+                },
+                {
+                  "key": "end_date",
+                  "value": "",
+                  "description": "Filter by end date (ISO 8601 format)",
+                  "disabled": true
+                },
+                {
+                  "key": "event_id",
+                  "value": "",
+                  "description": "Filter by event ID",
+                  "disabled": true
+                }
+              ]
+            },
+            "description": "Get buyer list with statistics (admin only, requires dashboard.read permission)"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
       "name": "User Management",
       "item": [
         {
@@ -2307,6 +2909,18 @@
       "value": "",
       "type": "string",
       "description": "Gate ID untuk testing"
+    },
+    {
+      "key": "merchandise_id",
+      "value": "",
+      "type": "string",
+      "description": "Merchandise ID untuk testing"
+    },
+    {
+      "key": "ticket_id",
+      "value": "",
+      "type": "string",
+      "description": "Ticket ID untuk testing"
     }
   ]
 }
