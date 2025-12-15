@@ -218,3 +218,18 @@ func (s *Service) UpdateSystemSettings(req *settings.UpdateSystemSettingsRequest
 	// Return updated settings
 	return s.GetSystemSettings()
 }
+
+// GetEventDate gets event date for countdown (public endpoint)
+func (s *Service) GetEventDate() (*settings.EventDateResponse, error) {
+	setting, err := s.repo.FindByKey("event_date")
+	if err != nil {
+		// Return default date if not found
+		return &settings.EventDateResponse{
+			EventDate: "2025-12-31T00:00:00+07:00",
+		}, nil
+	}
+
+	return &settings.EventDateResponse{
+		EventDate: setting.Value,
+	}, nil
+}

@@ -14,6 +14,9 @@ func SetupRoutes(
 	roleRepo role.Repository,
 	jwtManager *jwt.JWTManager,
 ) {
+	// Public settings routes (for countdown)
+	router.GET("/settings/event-date", settingsHandler.GetEventDate) // Get event date (public)
+
 	// Settings routes (admin only)
 	settingsRoutes := router.Group("/settings")
 	settingsRoutes.Use(middleware.AuthMiddleware(jwtManager))

@@ -100,3 +100,8 @@ type UpdateSystemSettingsRequest struct {
 	MaintenanceMode *bool   `json:"maintenance_mode" binding:"omitempty"`
 	MaxUploadSize   *int    `json:"max_upload_size" binding:"omitempty,min=1"`
 }
+
+// EventDateResponse represents event date response for countdown
+type EventDateResponse struct {
+	EventDate string `json:"event_date"`
+}

@@ -90,3 +90,16 @@ func (h *Handler) UpdateSystemSettings(c *gin.Context) {
 	meta := &response.Meta{}
 	response.SuccessResponse(c, systemSettings, meta)
 }
+
+// GetEventDate gets event date for countdown (public endpoint)
+// GET /api/v1/settings/event-date
+func (h *Handler) GetEventDate(c *gin.Context) {
+	eventDate, err := h.settingsService.GetEventDate()
+	if err != nil {
+		errors.InternalServerErrorResponse(c, "")
+		return
+	}
+
+	meta := &response.Meta{}
+	response.SuccessResponse(c, eventDate, meta)
+}

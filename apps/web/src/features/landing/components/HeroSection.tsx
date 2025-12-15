@@ -1,9 +1,10 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import Beams from "./Beams";
 import { Button } from "../../../components/ui/button";
 import { ShineBorder } from "../../../components/ui/shine-border";
+import { useEventDate } from "@/features/settings/hooks/useEventDate";
 
 interface TimeLeft {
   days: number;
@@ -17,7 +18,25 @@ interface HeroSectionProps {
 }
 
 export default function HeroSection({ locale }: Readonly<HeroSectionProps>) {
-  const targetDate = new Date("2025-12-31T00:00:00").getTime();
+  const { data: eventDate, isLoading, isError } = useEventDate();
+  
+  // Default date fallback
+  const defaultDate = "2025-12-31T00:00:00+07:00";
+  const targetDateString = eventDate ?? defaultDate;
+  
+  // Parse target date with timezone handling
+  const targetDate = useMemo(() => {
+    try {
+      const date = new Date(targetDateString);
+      // If date is invalid, use default
+      if (isNaN(date.getTime())) {
+        return new Date(defaultDate).getTime();
+      }
+      return date.getTime();
+    } catch {
+      return new Date(defaultDate).getTime();
+    }
+  }, [targetDateString]);
 
   const [timeLeft, setTimeLeft] = useState<TimeLeft>({
     days: 0,
@@ -45,6 +64,14 @@ export default function HeroSection({ locale }: Readonly<HeroSectionProps>) {
           minutes: Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60)),
           seconds: Math.floor((difference % (1000 * 60)) / 1000),
         });
+      } else {
+        // Event has passed
+        setTimeLeft({
+          days: 0,
+          hours: 0,
+          minutes: 0,
+          seconds: 0,
+        });
       }
     };
 
@@ -57,7 +84,7 @@ export default function HeroSection({ locale }: Readonly<HeroSectionProps>) {
     };
   }, [targetDate]);
 
-  if (!mounted) {
+  if (!mounted || isLoading) {
     return null;
   }
 
