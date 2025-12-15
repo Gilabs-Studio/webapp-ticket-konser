@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { MoreHorizontal, Edit, Trash2, Eye } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { formatCurrency } from "@/lib/utils";
 
 type StockStatus = "healthy" | "low" | "out";
 
@@ -116,6 +117,7 @@ export function MerchandiseProductCard({
       >
         <div className="aspect-square bg-muted rounded-xl border border-border mb-4 flex items-center justify-center relative overflow-hidden">
           <SafeImage
+            key={product.imageUrl} // Force re-render when imageUrl changes
             src={product.imageUrl}
             alt={product.name ?? "Product image"}
             fill
@@ -141,7 +143,7 @@ export function MerchandiseProductCard({
             </p>
           </div>
           <span className="text-sm font-medium text-foreground">
-            {product.priceFormatted}
+            {product.priceFormatted || formatCurrency(product.price)}
           </span>
         </div>
         <div className="space-y-1">

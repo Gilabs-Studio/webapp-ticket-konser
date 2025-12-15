@@ -21,6 +21,7 @@ import {
   RotateCcw,
 } from "lucide-react";
 import { useTranslations } from "next-intl";
+import { formatCurrency } from "@/lib/utils";
 
 interface SalesMonitoringProps {
   readonly filters?: {
@@ -89,7 +90,7 @@ export function SalesMonitoring({ filters }: SalesMonitoringProps) {
   const stats = [
     {
       label: t("sales.totalRevenue"),
-      value: sales.total_revenue_formatted,
+      value: formatCurrency(sales.total_revenue),
       icon: DollarSign,
       trend: sales.change_percent,
     },

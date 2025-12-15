@@ -1962,6 +1962,42 @@
           "response": []
         },
         {
+          "name": "Upload Merchandise Image",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "image",
+                  "type": "file",
+                  "src": [],
+                  "description": "Merchandise image file (jpg, png, webp, max 5MB)"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/merchandise/:id/image",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "merchandise", ":id", "image"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "merchandise-uuid-here"
+                }
+              ]
+            },
+            "description": "Upload merchandise image (admin only, requires merchandise.update permission). Gunakan form-data dengan key 'image'. File yang diizinkan: JPEG, PNG, WebP. Ukuran maksimal: 5MB."
+          },
+          "response": []
+        },
+        {
           "name": "Delete Merchandise",
           "request": {
             "method": "DELETE",
@@ -2018,6 +2054,20 @@
     {
       "name": "Settings Management",
       "item": [
+        {
+          "name": "Get Event Date (Public)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/settings/event-date",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "settings", "event-date"]
+            },
+            "description": "Get event date for countdown timer (public endpoint, no authentication required)"
+          },
+          "response": []
+        },
         {
           "name": "Get Event Settings",
           "request": {

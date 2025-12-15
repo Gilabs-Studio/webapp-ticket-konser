@@ -4,7 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { MoreHorizontal, Edit, Trash2, Eye } from "lucide-react";
 import { type TicketType } from "../types";
-import { cn } from "@/lib/utils";
+import { cn, formatCurrency } from "@/lib/utils";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -67,13 +67,7 @@ export function TicketCard({
     return "bg-white";
   };
 
-  const price =
-    ticket.price_formatted ??
-    new Intl.NumberFormat("en-US", {
-      style: "currency",
-      currency: "USD",
-      minimumFractionDigits: 2,
-    }).format(ticket.price);
+  const price = formatCurrency(ticket.price);
 
   return (
     <div
@@ -99,8 +93,8 @@ export function TicketCard({
         <div className="flex justify-between text-xs">
           <span className="text-muted-foreground">Sold</span>
           <span className="text-foreground">
-            {ticket.sold.toLocaleString("en-US")} /{" "}
-            {ticket.total_quota.toLocaleString("en-US")}
+            {ticket.sold.toLocaleString("id-ID")} /{" "}
+            {ticket.total_quota.toLocaleString("id-ID")}
           </span>
         </div>
         <div className="w-full bg-muted h-1.5 rounded-full overflow-hidden">

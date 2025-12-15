@@ -26,6 +26,7 @@ import {
 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { format } from "date-fns";
+import { formatCurrency } from "@/lib/utils";
 
 interface BuyerListProps {
   readonly filters?: {
@@ -99,14 +100,6 @@ export function BuyerList({ filters, limit = 10 }: BuyerListProps) {
   }
 
   const displayedBuyers = buyers.slice(0, limit);
-
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat("id-ID", {
-      style: "currency",
-      currency: "IDR",
-      minimumFractionDigits: 0,
-    }).format(amount);
-  };
 
   return (
     <Card>

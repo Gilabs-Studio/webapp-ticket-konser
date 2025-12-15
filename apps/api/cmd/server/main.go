@@ -244,6 +244,9 @@ func setupRouter(
 		})
 	})
 
+	// Static file serving for uploads
+	router.Static("/uploads", "./uploads")
+
 	// API v1 routes
 	v1 := router.Group("/api/v1")
 	{

@@ -6,8 +6,10 @@ import type {
   MerchandiseFormData,
   UpdateMerchandiseFormData,
 } from "../schemas/merchandise.schema";
+import type { MerchandiseProduct } from "../types";
 import { toast } from "sonner";
 import { useTranslations } from "next-intl";
+import { formatCurrency } from "@/lib/utils";
 
 export function useMerchandise(filters?: {
   page?: number;
@@ -55,30 +57,24 @@ export function useCreateMerchandise() {
       data: MerchandiseFormData;
       imageFile?: File;
     }) => {
-      // For now, we'll send the data without image upload
-      // Backend upload will be implemented later
-      // TODO: Implement image upload to backend when ready
+      // Create merchandise first
       const response = await merchandiseService.createMerchandise({
         event_id: data.event_id,
         name: data.name,
         description: data.description,
         price: data.price,
-        priceFormatted: new Intl.NumberFormat("id-ID", {
-          style: "currency",
-          currency: "IDR",
-          minimumFractionDigits: 0,
-        }).format(data.price),
+        priceFormatted: formatCurrency(data.price),
         stock: data.stock,
         variant: data.variant,
         iconName: data.icon_name ?? "Package",
       });
 
-      // If image file exists, we'll need to upload it separately
-      // For now, just log it
+      // If image file exists, upload it
       if (imageFile) {
-        console.log("Image file ready for upload:", imageFile);
-        // TODO: Upload image file to backend
-        // await merchandiseService.uploadMerchandiseImage(response.data.id, imageFile);
+        await merchandiseService.uploadMerchandiseImage(
+          response.data.id,
+          imageFile,
+        );
       }
 
       return response;
@@ -128,8 +124,7 @@ export function useUpdateMerchandise() {
       data: UpdateMerchandiseFormData;
       imageFile?: File;
     }) => {
-      // For now, we'll send the data without image upload
-      // Backend upload will be implemented later
+      // Update merchandise first
       const response = await merchandiseService.updateMerchandise(id, {
         name: data.name,
         description: data.description,
@@ -139,26 +134,82 @@ export function useUpdateMerchandise() {
         iconName: data.icon_name,
       });
 
-      // If image file exists, we'll need to upload it separately
-      // For now, just log it
+      // If image file exists, upload it and return the upload response (which has the new image URL)
       if (imageFile) {
-        console.log("Image file ready for upload:", imageFile);
-        // TODO: Upload image file to backend
-        // await merchandiseService.uploadMerchandiseImage(id, imageFile);
+        const uploadResponse = await merchandiseService.uploadMerchandiseImage(id, imageFile);
+        return uploadResponse; // Return upload response which contains updated image URL
       }
 
       return response;
     },
-    onSuccess: async () => {
-      // Invalidate all related queries
+    onSuccess: async (response, variables) => {
+      // Update cache immediately with new data (optimistic update)
+      if (response?.data) {
+        // Update merchandise by ID cache
+        queryClient.setQueryData(
+          ["merchandise", variables.id],
+          { data: response.data, success: true }
+        );
+
+        // Update merchandise list cache if it exists
+        // Only update queries that have array data (list queries), skip single product queries
+        queryClient.setQueriesData(
+          { 
+            queryKey: ["merchandise"], 
+            exact: false,
+            predicate: (query) => {
+              // Skip query keys that match ["merchandise", id] pattern (single product)
+              const queryKey = query.queryKey;
+              if (queryKey.length === 2 && typeof queryKey[1] === "string" && queryKey[1] === variables.id) {
+                return false;
+              }
+              // Only process queries with array data
+              const data = query.state.data as any;
+              return data?.data && Array.isArray(data.data);
+            }
+          },
+          (oldData: any) => {
+            // Double check that data is array (safety check)
+            if (!oldData?.data || !Array.isArray(oldData.data)) return oldData;
+            
+            const updatedProducts = oldData.data.map((product: MerchandiseProduct) =>
+              product.id === variables.id ? response.data : product
+            );
+            
+            return {
+              ...oldData,
+              data: updatedProducts,
+            };
+          }
+        );
+
+        // Update inventory cache if it exists
+        queryClient.setQueriesData(
+          { queryKey: ["merchandise", "inventory"], exact: false },
+          (oldData: any) => {
+            if (!oldData?.data?.products) return oldData;
+            
+            const updatedProducts = oldData.data.products.map((product: MerchandiseProduct) =>
+              product.id === variables.id ? response.data : product
+            );
+            
+            return {
+              ...oldData,
+              data: {
+                ...oldData.data,
+                products: updatedProducts,
+              },
+            };
+          }
+        );
+      }
+
+      // Invalidate all related queries to ensure consistency
       await queryClient.invalidateQueries({ queryKey: ["merchandise"] });
       await queryClient.invalidateQueries({ queryKey: ["merchandise", "inventory"] });
-      // Force refetch to ensure UI updates immediately
-      await queryClient.refetchQueries({ 
-        queryKey: ["merchandise"],
-        type: "active",
-        exact: false
-      });
+      // Invalidate specific merchandise by ID to refresh edit dialog
+      await queryClient.invalidateQueries({ queryKey: ["merchandise", variables.id] });
+      
       toast.success(t("updateSuccess"));
     },
     onError: (error: unknown) => {

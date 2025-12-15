@@ -3,7 +3,7 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useQuery } from "@tanstack/react-query";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { eventService } from "@/features/events/services/eventService";
 import {
   merchandiseSchema,
@@ -49,6 +49,13 @@ export function MerchandiseForm({
   );
 
   const isEditMode = !!merchandiseId;
+
+  // Update image preview when defaultValues change (e.g., after refetch)
+  useEffect(() => {
+    if (defaultValues?.image_url) {
+      setImagePreview(defaultValues.image_url);
+    }
+  }, [defaultValues?.image_url]);
 
   // Get events for event selection
   const { data: eventsData } = useQuery({
@@ -196,7 +203,13 @@ export function MerchandiseForm({
           imageFile: imageFile ?? undefined,
         },
         {
-          onSuccess: () => {
+          onSuccess: (response) => {
+            // If image was uploaded, update preview with new image URL
+            if (imageFile && response?.data?.imageUrl) {
+              setImagePreview(response.data.imageUrl);
+              setImageFile(null); // Clear file since it's now uploaded
+              setValue("image_url" as keyof UpdateMerchandiseFormData, response.data.imageUrl);
+            }
             onSuccess?.();
           },
         },

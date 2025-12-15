@@ -25,5 +25,6 @@ func SetupRoutes(
 		merchandiseRoutes.POST("", middleware.RequirePermission("merchandise.create", roleRepo), merchandiseHandler.Create) // Create merchandise
 		merchandiseRoutes.PUT("/:id", middleware.RequirePermission("merchandise.update", roleRepo), merchandiseHandler.Update) // Update merchandise
 		merchandiseRoutes.DELETE("/:id", middleware.RequirePermission("merchandise.delete", roleRepo), merchandiseHandler.Delete) // Delete merchandise
+		merchandiseRoutes.POST("/:id/image", middleware.RequirePermission("merchandise.update", roleRepo), merchandiseHandler.UploadImage) // Upload merchandise image
 	}
 }

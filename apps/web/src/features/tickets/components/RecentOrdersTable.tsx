@@ -12,6 +12,7 @@ import { type Order } from "../types";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
 import { useTranslations } from "next-intl";
+import { formatCurrency } from "@/lib/utils";
 
 interface RecentOrdersTableProps {
   readonly orders?: Order[];
@@ -115,13 +116,7 @@ export function RecentOrdersTable({
           </TableHeader>
           <TableBody className="divide-y divide-border/50">
             {orderList.map((order) => {
-              const total =
-                order.total_formatted ??
-                new Intl.NumberFormat("en-US", {
-                  style: "currency",
-                  currency: "USD",
-                  minimumFractionDigits: 2,
-                }).format(order.total);
+              const total = formatCurrency(order.total);
 
               return (
                 <TableRow

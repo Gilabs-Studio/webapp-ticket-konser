@@ -13,6 +13,10 @@ interface EventSettingsResponse {
   is_sales_paused: boolean;
 }
 
+interface EventDateResponse {
+  event_date: string;
+}
+
 interface SystemSettingsResponse {
   site_name: string;
   site_description: string;
@@ -29,6 +33,16 @@ interface ApiResponse<T> {
 }
 
 export const settingsService = {
+  /**
+   * Get event date for countdown (public endpoint)
+   */
+  async getEventDate(): Promise<string> {
+    const response = await apiClient.get<ApiResponse<EventDateResponse>>(
+      "/settings/event-date",
+    );
+    return response.data.data.event_date ?? "2025-12-31T00:00:00+07:00";
+  },
+
   /**
    * Get event settings
    */
@@ -61,7 +75,7 @@ export const settingsService = {
    * Update event settings
    */
   async updateEventSettings(
-    data: Partial<EventSettingsFormData>,
+    data: Partial<EventSettingsFormData> & { eventDate?: string },
   ): Promise<ApiResponse<EventSettingsFormData>> {
     const response = await apiClient.put<ApiResponse<EventSettingsResponse>>(
       "/settings/event",

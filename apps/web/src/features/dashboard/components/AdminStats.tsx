@@ -4,6 +4,7 @@ import { DollarSign, Ticket, TrendingUp } from "lucide-react";
 import { useSalesOverview } from "../hooks/useDashboard";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useTranslations } from "next-intl";
+import { formatCurrency } from "@/lib/utils";
 
 interface AdminStatsProps {
   readonly filters?: {
@@ -49,17 +50,12 @@ export function AdminStats({ filters }: AdminStatsProps) {
 
   // Calculate Average Order Value (AOV)
   const aov = sales.paid_orders > 0 ? sales.total_revenue / sales.paid_orders : 0;
-  const aovFormatted = new Intl.NumberFormat("id-ID", {
-    style: "currency",
-    currency: "IDR",
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 0,
-  }).format(aov);
+  const aovFormatted = formatCurrency(aov);
 
   const stats = [
     {
       label: t("stats.totalRevenue"),
-      value: sales.total_revenue_formatted,
+      value: formatCurrency(sales.total_revenue),
       icon: DollarSign,
       trend: sales.change_percent,
     },

@@ -36,10 +36,10 @@ function DefaultFallbackIcon({
   height,
   className,
 }: {
-  fill: boolean;
-  width?: number;
-  height?: number;
-  className?: string;
+  readonly fill: boolean;
+  readonly width?: number;
+  readonly height?: number;
+  readonly className?: string;
 }) {
   if (fill) {
     return (
@@ -72,10 +72,10 @@ function LoadingFallback({
   height,
   className,
 }: {
-  fill: boolean;
-  width?: number;
-  height?: number;
-  className?: string;
+  readonly fill: boolean;
+  readonly width?: number;
+  readonly height?: number;
+  readonly className?: string;
 }) {
   return (
     <div
@@ -93,13 +93,10 @@ function LoadingFallback({
 }
 
 /**
- * Safe Image component with fallback handling
- * - Handles null/undefined src with fallback
- * - Handles external images (unconfigured hostnames) with unoptimized mode
- * - Handles image load errors gracefully
- * - Provides default fallback UI
+ * Internal image component that manages its own state
+ * Wrapped with key to force remount when src changes
  */
-export function SafeImage({
+function SafeImageInner({
   src,
   alt,
   fill = false,
@@ -172,4 +169,20 @@ export function SafeImage({
       />
     </>
   );
+}
+
+/**
+ * Safe Image component with fallback handling
+ * - Handles null/undefined src with fallback
+ * - Handles external images (unconfigured hostnames) with unoptimized mode
+ * - Handles image load errors gracefully
+ * - Provides default fallback UI
+ * - Uses key prop to force remount when src changes, resetting state automatically
+ */
+export function SafeImage(props: SafeImageProps) {
+  // Use src as key to force remount when src changes
+  // This automatically resets state without needing useEffect or setState in render
+  const imageKey = props.src ?? "";
+  
+  return <SafeImageInner key={imageKey} {...props} />;
 }
