@@ -12,6 +12,7 @@ import { toast } from "sonner";
 import { setSecureCookie } from "./cookie";
 import { formatError } from "./i18n/error-messages";
 import { useRateLimitStore } from "./stores/useRateLimitStore";
+import { forceLogout } from "./auth-utils";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080";
 
@@ -253,18 +254,12 @@ apiClient.interceptors.response.use(
 
       // Skip refresh if this is already a retry
       if (originalRequest?._retry) {
-        // Refresh failed or already retried, logout user
-        if (typeof window !== "undefined") {
-          localStorage.removeItem("token");
-          localStorage.removeItem("refreshToken");
-          const msg = formatError("backend", "unauthorized");
-          toast.error(msg.title, {
-            description: msg.description,
-          });
-          setTimeout(() => {
-            window.location.href = "/";
-          }, 1000);
-        }
+        // Refresh failed or already retried, force logout
+        const msg = formatError("backend", "unauthorized");
+        toast.error(msg.title, {
+          description: msg.description || "Your session has expired. Please login again.",
+        });
+        forceLogout("/login");
         return Promise.reject(error);
       }
 
@@ -277,19 +272,13 @@ apiClient.interceptors.response.use(
             : null;
 
         if (!refreshToken) {
-          // No refresh token, logout
+          // No refresh token, force logout
           isRefreshing = false;
-          if (typeof window !== "undefined") {
-            localStorage.removeItem("token");
-            localStorage.removeItem("refreshToken");
-            const msg = formatError("backend", "unauthorized");
-            toast.error(msg.title, {
-              description: msg.description,
-            });
-            setTimeout(() => {
-              window.location.href = "/";
-            }, 1000);
-          }
+          const msg = formatError("backend", "unauthorized");
+          toast.error(msg.title, {
+            description: msg.description || "Your session has expired. Please login again.",
+          });
+          forceLogout("/login");
           processQueue(error, null);
           return Promise.reject(error);
         }
@@ -363,19 +352,13 @@ apiClient.interceptors.response.use(
             }
           })
           .catch((refreshError) => {
-            // Refresh failed, logout user
+            // Refresh failed, force logout
             isRefreshing = false;
-            if (typeof window !== "undefined") {
-              localStorage.removeItem("token");
-              localStorage.removeItem("refreshToken");
-              const msg = formatError("backend", "unauthorized");
-              toast.error(msg.title, {
-                description: msg.description,
-              });
-              setTimeout(() => {
-                window.location.href = "/";
-              }, 1000);
-            }
+            const msg = formatError("backend", "unauthorized");
+            toast.error(msg.title, {
+              description: msg.description || "Your session has expired. Please login again.",
+            });
+            forceLogout("/login");
             processQueue(refreshError as AxiosError, null);
             return Promise.reject(refreshError);
           });
@@ -392,6 +375,15 @@ apiClient.interceptors.response.use(
             return apiClient(originalRequest);
           })
           .catch((err) => {
+            // If queue failed (refresh token expired), force logout
+            const axiosError = err as AxiosError<ApiErrorResponse>;
+            if (axiosError.response?.status === 401) {
+              const msg = formatError("backend", "unauthorized");
+              toast.error(msg.title, {
+                description: msg.description || "Your session has expired. Please login again.",
+              });
+              forceLogout("/login");
+            }
             return Promise.reject(err);
           });
       }

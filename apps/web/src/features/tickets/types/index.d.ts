@@ -30,4 +30,23 @@ export interface Order {
   readonly created_at?: string;
 }
 
+export interface ApiResponse<T> {
+  readonly success: boolean;
+  readonly data: T;
+  readonly meta?: {
+    readonly pagination?: {
+      readonly page: number;
+      readonly per_page: number;
+      readonly total: number;
+      readonly total_pages: number;
+      readonly has_next: boolean;
+      readonly has_prev: boolean;
+      readonly next_page?: number;
+      readonly prev_page?: number;
+    };
+  };
+  readonly timestamp: string;
+  readonly request_id: string;
+}
+
 

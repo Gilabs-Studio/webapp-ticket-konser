@@ -70,7 +70,7 @@ export const ticketService = {
     );
 
     // Map API response to frontend types
-    const tickets: TicketType[] = (response.data.data ?? []).map((t) => ({
+    const tickets: TicketType[] = (response.data.data ?? []).map((t: TicketResponse) => ({
       id: t.id,
       name: t.name,
       description: t.description,
@@ -127,7 +127,7 @@ export const ticketService = {
     );
 
     // Map API response to frontend types
-    const orders: Order[] = (response.data.data ?? []).map((o) => {
+    const orders: Order[] = (response.data.data ?? []).map((o: OrderResponse) => {
       // Format order code
       const orderId = o.order_code.replace("ORD-", "#");
       
