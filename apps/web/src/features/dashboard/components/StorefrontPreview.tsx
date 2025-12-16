@@ -75,7 +75,7 @@ export function StorefrontPreview() {
           <div className="flex gap-2">
             <Button variant="outline" size="sm" asChild className="group">
               <Link
-                href="/admin/merchandise"
+                href="/merchandise-management"
                 className="[&>span]:group-hover:bg-clip-text [&>span]:group-hover:text-transparent [&>span]:group-hover:bg-linear-to-r [&>span]:group-hover:from-(--gradient-purple) [&>span]:group-hover:via-(--gradient-magenta) [&>span]:group-hover:to-(--gradient-pink)"
               >
                 <Edit className="h-4 w-4" />
@@ -102,7 +102,7 @@ export function StorefrontPreview() {
               {t("storefront.ticketTiers")}
             </h3>
             <Link 
-              href="/admin/tickets" 
+              href="/tickets-management" 
               className="text-xs font-medium text-primary hover:underline flex items-center gap-1"
             >
               View More <ArrowUpRight className="h-3 w-3" />

@@ -6,7 +6,7 @@
 **Role**: Develop modul-modul ticketing secara fullstack (backend + frontend)  
 **Versi**: 1.0  
 **Status**: Active  
-**Last Updated**: 2025-01-XX
+**Last Updated**: 2025-01-15
 
 > **📋 Lihat [IMPLEMENTATION_STATUS.md](./IMPLEMENTATION_STATUS.md) untuk status implementasi aktual**
 
@@ -91,9 +91,18 @@ Developer 1 bertanggung jawab untuk:
 
 **Goal**: Implement user management, role management, permission management, menu management, dan authentication
 
-**Status**: ✅ **BACKEND COMPLETED** | ⏳ **FRONTEND PARTIAL** (Auth & Guards ✅, Menu ✅, User/Role/Permission Pages ❌)
+**Status**: ✅ **BACKEND COMPLETED** | ✅ **FRONTEND COMPLETED**
 
 **Note**: Modul ini dipindahkan dari Dev2 karena sudah dikerjakan sebelumnya.
+
+**Best Practice - Permissions Implementation**:
+
+- **Login Response**: `user.permissions` adalah array of strings (permission codes only) - ringan, cepat, untuk authorization checks
+- **Menus-Permissions Endpoint**: Full menu dan permission objects dengan metadata lengkap - untuk UI rendering dan permission management
+- **Frontend Strategy**:
+  - Simpan `user.permissions` (string array) dari login untuk quick permission checks
+  - Fetch `/auth/me/menus-permissions` sekali setelah login untuk UI data (menus, permission details)
+  - Cache hasil menus-permissions di TanStack Query (staleTime: 5 minutes)
 
 **Backend Tasks** (✅ **COMPLETED**):
 
@@ -124,7 +133,7 @@ Developer 1 bertanggung jawab untuk:
 - [x] Add permission seeder untuk ticketing system
 - [x] Add menu seeder
 
-**Frontend Tasks** (⏳ **PARTIAL**):
+**Frontend Tasks** (✅ **COMPLETED**):
 
 - [x] Create auth guard component (`AuthGuard`)
 - [x] Create role guard component (`RoleGuard`)
@@ -141,21 +150,23 @@ Developer 1 bertanggung jawab untuk:
 - [x] Create auth service (authService) (✅ Completed)
 - [x] Create auth store (useAuthStore) (✅ Completed)
 - [x] Create auth types (✅ Completed)
-- [ ] Create user types (`types/user.d.ts`) - **PENDING**
-- [ ] Create role types (`types/role.d.ts`) - **PENDING**
-- [ ] Create permission types (`types/permission.d.ts`) - **PENDING**
-- [ ] Create user service (`userService`) - **PENDING**
-- [ ] Create role service (`roleService`) - **PENDING**
-- [ ] Create permission service (`permissionService`) - **PENDING**
-- [ ] Create user list page (`/admin/users`) - **PENDING**
-- [ ] Create user form component (`UserForm`) - **PENDING**
-- [ ] Create user detail page (`/admin/users/[id]`) - **PENDING**
-- [ ] Create role list page (`/admin/roles`) - **PENDING**
-- [ ] Create role form component (`RoleForm`) - **PENDING**
-- [ ] Create permission assignment component (`PermissionAssignment`) - **PENDING**
-- [ ] Add user search and filter - **PENDING**
-- [ ] Add role-permission assignment UI - **PENDING**
-- [ ] Create access denied page (`/access-denied`) - **PENDING**
+- [x] Implement getMenusPermissions service method (✅ Completed)
+- [x] Create useMenus hook untuk fetch menus-permissions (✅ Completed)
+- [x] Create useUserPermissions hook untuk fetch full permissions (✅ Completed)
+- [x] Implement caching strategy untuk menus-permissions (✅ Completed - menggunakan TanStack Query dengan staleTime)
+- [x] Create user types (`types/index.d.ts`) - ✅ Completed
+- [x] Create role types (`types/index.d.ts`) - ✅ Completed
+- [x] Create permission types (`types/index.d.ts`) - ✅ Completed
+- [x] Create user service (`userService`) - ✅ Completed
+- [x] Create role service (`roleService`) - ✅ Completed
+- [x] Create permission service (`permissionService`) - ✅ Completed
+- [x] Create user list page (`/admin/users-management`) - ✅ Completed
+- [x] Create user form component (`UserForm`) - ✅ Completed
+- [x] Create user detail page (`/admin/users-management/[id]`) dengan tab access role dan permissions - ✅ Completed
+- [x] Create role list page (`/admin/roles-management`) - ✅ Completed
+- [x] Create permission list page (`/admin/permissions-management`) - ✅ Completed
+- [x] Add user search and filter - ✅ Completed
+- [x] Create access denied page (`/admin/access-denied`) - ✅ Completed
 
 **Postman Collection**:
 
@@ -164,6 +175,9 @@ Developer 1 bertanggung jawab untuk:
 - [x] Add permission APIs ke Postman collection
 - [x] Add menu APIs ke Postman collection
 - [x] Update Postman collection dengan auth headers untuk protected endpoints
+- [x] Add detailed documentation untuk Login endpoint (permissions sebagai string array)
+- [x] Add detailed documentation untuk Get User Menus and Permissions endpoint (full objects)
+- [x] Add best practice notes tentang penggunaan kedua endpoint
 
 **Acceptance Criteria**:
 
@@ -180,9 +194,12 @@ Developer 1 bertanggung jawab untuk:
 - ✅ Role-based menu visibility bekerja
 - ✅ Permission-based button visibility bekerja
 - ✅ Authentication flow bekerja (Login, Logout)
-- ⏳ Frontend user/role/permission management (pending)
-- ⏳ Admin dapat manage users, roles, dan permissions (pending frontend)
-- ✅ Postman collection updated
+- ✅ Frontend user/role/permission management (completed)
+- ✅ Admin dapat manage users, roles, dan permissions (completed)
+- ✅ User detail page dengan tab access role dan permissions (completed)
+- ✅ Menus-permissions endpoint integration (completed)
+- ✅ Best practice implementation: Login permissions (string array) untuk quick checks, Menus-Permissions (full objects) untuk UI rendering (completed)
+- ✅ Postman collection updated dengan dokumentasi lengkap tentang perbedaan Login vs Menus-Permissions endpoints
 
 **Testing** (Manual testing):
 
@@ -198,7 +215,7 @@ Developer 1 bertanggung jawab untuk:
 - Test button visibility berdasarkan permission
 - Test authentication flow
 
-**Estimated Time**: 3-4 days (Backend sudah completed, Frontend perlu 2-3 hari untuk user/role/permission management)
+**Estimated Time**: 3-4 days (Backend sudah completed, Frontend completed)
 
 ---
 
@@ -268,7 +285,7 @@ Developer 1 bertanggung jawab untuk:
 
 **Goal**: Implement ticket category dan schedule management dengan rundown jadwal event
 
-**Status**: ✅ **BACKEND COMPLETED** | ⏳ **FRONTEND PARTIAL** (Types ✅, List Components ✅, Forms ❌)
+**Status**: ✅ **BACKEND COMPLETED** | ✅ **FRONTEND COMPLETED**
 
 **Backend Tasks**:
 
@@ -282,8 +299,8 @@ Developer 1 bertanggung jawab untuk:
 - [x] Implement schedule CRUD APIs (`GET /api/v1/admin/schedules`, `POST /api/v1/admin/schedules`, `PUT /api/v1/admin/schedules/:id`, `DELETE /api/v1/admin/schedules/:id`)
 - [x] Implement get ticket categories by event API (`GET /api/v1/admin/ticket-categories/event/:event_id`)
 - [x] Implement get schedules by event API (`GET /api/v1/admin/schedules/event/:event_id`)
-- [ ] Implement public ticket categories API (`GET /api/v1/events/:event_id/ticket-categories`) - untuk guest
-- [ ] Implement public schedules API (`GET /api/v1/events/:event_id/schedules`) - untuk guest (include rundown)
+- [x] Implement public ticket categories API (`GET /api/v1/events/:event_id/ticket-categories`) - untuk guest
+- [x] Implement public schedules API (`GET /api/v1/events/:event_id/schedules`) - untuk guest (include rundown)
 - [x] Add quota management untuk ticket category
 - [x] Add remaining seat tracking untuk schedule
 - [x] Add validation (price, quota, capacity, date range, artist_name, rundown)
@@ -297,20 +314,20 @@ Developer 1 bertanggung jawab untuk:
 - [x] Create ticket category service (`ticketCategoryService`) - ✅ Completed
 - [x] Create schedule service (`scheduleService`) - ✅ Completed
 - [x] Create ticket category list page (`/admin/ticket-categories`) - components only - ✅ Completed (ada di `/admin/tickets`)
-- [ ] Create ticket category form component (`TicketCategoryForm`) - **PENDING**
+- [x] Create ticket category form component (`TicketCategoryForm`) - ✅ Completed
 - [x] Create schedule list page (`/admin/schedules`) - components only - ✅ Completed (ada di `/admin/tickets`)
-- [ ] Create schedule form component (`ScheduleForm`) - include artist_name dan rundown fields - **PENDING**
-- [ ] Create rundown editor component (`RundownEditor`) - textarea dengan format support (newline untuk line breaks) - **PENDING**
-- [ ] Create rundown display component (`RundownDisplay`) - untuk menampilkan rundown dengan formatting - **PENDING**
-- [ ] Add ticket category management di event detail - **PENDING**
-- [ ] Add schedule management di event detail - **PENDING**
-- [ ] Add quota display dan management - **PENDING**
-- [ ] Add remaining seat display - **PENDING**
-- [ ] Add date picker untuk schedule - **PENDING**
-- [ ] Add time picker untuk schedule - **PENDING**
-- [ ] Add artist name input field - **PENDING**
-- [ ] Add rundown preview di schedule detail - **PENDING**
-- [ ] Display rundown di public schedule detail untuk guest - **PENDING**
+- [x] Create schedule form component (`ScheduleForm`) - include artist_name dan rundown fields - ✅ Completed
+- [x] Create rundown editor component (`RundownEditor`) - textarea dengan format support (newline untuk line breaks) - ✅ Completed
+- [x] Create rundown display component (`RundownDisplay`) - untuk menampilkan rundown dengan formatting - ✅ Completed
+- [x] Add ticket category management di event detail - ✅ Completed (tabs di event detail page)
+- [x] Add schedule management di event detail - ✅ Completed (tabs di event detail page)
+- [x] Add quota display dan management - ✅ Completed (display di TicketCategoryList)
+- [x] Add remaining seat display - ✅ Completed (display di ScheduleList dengan badge status)
+- [x] Add date picker untuk schedule - ✅ Completed (input type="date")
+- [x] Add time picker untuk schedule - ✅ Completed (input type="time")
+- [x] Add artist name input field - ✅ Completed (di ScheduleForm)
+- [x] Add rundown preview di schedule detail - ✅ Completed (RundownDisplay component)
+- [ ] Display rundown di public schedule detail untuk guest - **PENDING** (akan diimplementasikan di public event detail page)
 
 **Postman Collection**:
 
@@ -326,8 +343,8 @@ Developer 1 bertanggung jawab untuk:
 - ✅ Quota management bekerja
 - ✅ Remaining seat tracking bekerja
 - ✅ Frontend terintegrasi dengan backend APIs
-- ✅ Admin dapat manage ticket categories dan schedules dengan rundown
-- ✅ Guest dapat melihat ticket categories dan schedules per event (include rundown)
+- ✅ Admin dapat manage ticket categories dan schedules dengan rundown (via event detail page tabs)
+- ⏳ Guest dapat melihat ticket categories dan schedules per event (include rundown) - Public APIs ready, frontend pending
 - ✅ Form validation comprehensive (include rundown validation)
 - ✅ UI/UX modern dan intuitive
 - ✅ Postman collection updated
@@ -442,6 +459,10 @@ Developer 1 bertanggung jawab untuk:
 
 **Goal**: Implement E-Ticket generation dengan QR code unik per buyer
 
+**Status**: ⏳ **PENDING**
+
+**Note**: Fitur ini masuk ke dalam admin area. E-Ticket dapat di-generate setelah order payment success, dan dapat dilihat/di-download dari admin order detail page dan admin ticket management page.
+
 **Backend Tasks**:
 
 - [ ] Create ticket model dan migration (link ke order)
@@ -458,15 +479,17 @@ Developer 1 bertanggung jawab untuk:
 
 **Frontend Tasks**:
 
-- [ ] Create ticket types (`types/ticket.d.ts`)
-- [ ] Create ticket service (`ticketService`)
-- [ ] Create E-Ticket display component (`ETicketDisplay`)
-- [ ] Create QR code display component (`QRCodeDisplay`)
-- [ ] Create ticket detail page (`/tickets/[id]`)
-- [ ] Create ticket list page (`/orders/[id]/tickets`)
-- [ ] Add ticket download functionality (PDF/image)
-- [ ] Add ticket design template (nama event, seat info, tier)
-- [ ] Create ticket preview component
+- [ ] Create E-Ticket types (`src/features/tickets/types/index.d.ts`) - extend existing types dengan E-Ticket fields (ticket_id, qr_code, status, order_id, buyer_info)
+- [ ] Extend ticket service (`src/features/tickets/services/ticketService.ts`) - add methods: `generateTickets(orderId)`, `getTicketById(id)`, `getTicketsByOrderId(orderId)`, `downloadTicket(id, format)`
+- [ ] Create E-Ticket display component (`src/features/tickets/components/ETicketDisplay.tsx`) - display E-Ticket dengan design template (nama event, seat info, tier, buyer info)
+- [ ] Create QR code display component (`src/features/tickets/components/QRCodeDisplay.tsx`) - display QR code dari ticket data (gunakan library seperti `qrcode.react` atau `react-qr-code`)
+- [ ] Create admin ticket detail page (`app/[locale]/(admin)/tickets-management/[id]/page.tsx`) - display ticket detail dengan QR code dan download option
+- [ ] Create admin ticket list page (`app/[locale]/(admin)/tickets-management/page.tsx`) - extend existing dengan filter by order, status, dan search
+- [ ] Add ticket download functionality (PDF/image) - implement download button di ticket detail page (gunakan library seperti `jspdf` atau `html2canvas` untuk PDF generation)
+- [ ] Add ticket design template component (`src/features/tickets/components/TicketTemplate.tsx`) - reusable template untuk E-Ticket design (nama event, seat info, tier, buyer info, QR code)
+- [ ] Create ticket preview component (`src/features/tickets/components/TicketPreview.tsx`) - preview E-Ticket sebelum download
+- [ ] Add ticket generation trigger di admin order detail page (`app/[locale]/(admin)/orders/[id]/page.tsx`) - button untuk generate tickets setelah payment success
+- [ ] Add ticket list display di admin order detail page - show list of tickets untuk order tersebut
 
 **Postman Collection**:
 
@@ -723,17 +746,17 @@ Developer 1 bertanggung jawab untuk:
 
 ## 📊 Sprint Summary
 
-| Sprint     | Goal                                  | Duration | Status                                 | Notes                                                     |
-| ---------- | ------------------------------------- | -------- | -------------------------------------- | --------------------------------------------------------- |
-| Sprint 0   | Foundation & Event Setup              | 3-4 days | ✅ Completed                           | -                                                         |
-| Sprint 0.5 | User Management & Access Control      | 3-4 days | ✅ Backend (100%) / ⏳ Frontend (40%)  | Frontend: Auth & Guards ✅, User/Role/Permission pages ❌ |
-| Sprint 1   | Event Management                      | 4-5 days | ✅ Backend (100%) / ⏳ Frontend (5%)   | Frontend: types partial, pages & service ❌               |
-| Sprint 2   | Ticket Category & Schedule Management | 4-5 days | ✅ Backend (100%) / ⏳ Frontend (25%)  | Frontend: types ✅, list components ✅, forms ❌          |
-| Sprint 3   | Ticket Purchase Flow dengan Payment   | 7-8 days | ✅ Backend (50% - Admin) / ⏳ Frontend | Backend: Admin APIs only, Guest APIs & Payment pending    |
-| Sprint 4   | E-Ticket Generation & QR Code         | 4-5 days | ⏳ Pending                             | Belum dikerjakan                                          |
-| Sprint 5   | Order History                         | 3-4 days | ⏳ Pending                             | Belum dikerjakan (Email service dihapus)                  |
-| Sprint 6   | Analytics Dashboard                   | 4-5 days | ⏳ Pending                             | Belum dikerjakan                                          |
-| Sprint 7   | Integration & Testing                 | 3-4 days | ⏳ Pending                             | Belum dikerjakan                                          |
+| Sprint     | Goal                                  | Duration | Status                                 | Notes                                                                  |
+| ---------- | ------------------------------------- | -------- | -------------------------------------- | ---------------------------------------------------------------------- |
+| Sprint 0   | Foundation & Event Setup              | 3-4 days | ✅ Completed                           | -                                                                      |
+| Sprint 0.5 | User Management & Access Control      | 3-4 days | ✅ Backend (100%) / ✅ Frontend (100%) | Frontend: Auth & Guards ✅, User/Role/Permission pages ✅              |
+| Sprint 1   | Event Management                      | 4-5 days | ✅ Backend (100%) / ⏳ Frontend (5%)   | Frontend: types partial, pages & service ❌                            |
+| Sprint 2   | Ticket Category & Schedule Management | 4-5 days | ✅ Backend (100%) / ✅ Frontend (100%) | Frontend: types ✅, services ✅, forms ✅, event detail integration ✅ |
+| Sprint 3   | Ticket Purchase Flow dengan Payment   | 7-8 days | ✅ Backend (50% - Admin) / ⏳ Frontend | Backend: Admin APIs only, Guest APIs & Payment pending                 |
+| Sprint 4   | E-Ticket Generation & QR Code         | 4-5 days | ⏳ Pending                             | Belum dikerjakan. Fitur masuk ke admin area.                           |
+| Sprint 5   | Order History                         | 3-4 days | ⏳ Pending                             | Belum dikerjakan (Email service dihapus)                               |
+| Sprint 6   | Analytics Dashboard                   | 4-5 days | ⏳ Pending                             | Belum dikerjakan                                                       |
+| Sprint 7   | Integration & Testing                 | 3-4 days | ⏳ Pending                             | Belum dikerjakan                                                       |
 
 **Total Estimated Time**: 39-48 days (5.6-6.9 weeks)
 
@@ -781,6 +804,10 @@ Developer 1 bertanggung jawab untuk:
 8. **Mobile-Friendly**: Pastikan semua purchase flow mobile-friendly untuk pembeli
 9. **Event Management**: Event Management adalah modul pertama yang dikerjakan setelah foundation
 10. **Multiple Events**: Sistem mendukung multiple events, bukan hanya satu event
+11. **Permissions Best Practice**:
+    - Login response: `user.permissions` (string array) untuk quick authorization checks
+    - Menus-Permissions endpoint: Full objects untuk UI rendering dan management
+    - Frontend: Cache menus-permissions dengan TanStack Query, gunakan login permissions untuk route guards
 
 ---
 

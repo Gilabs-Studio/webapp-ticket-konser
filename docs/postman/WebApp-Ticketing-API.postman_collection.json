@@ -96,7 +96,7 @@
               "host": ["{{base_url}}"],
               "path": ["api", "v1", "auth", "login"]
             },
-            "description": "Login dengan email dan password. Guest role tidak bisa login ke admin dashboard."
+            "description": "Login dengan email dan password. Guest role tidak bisa login ke admin dashboard.\n\n**Response Format:**\n- `user.permissions`: Array of strings (permission codes only), contoh: `[\"ticket.read\", \"ticket.create\", \"event.read\"]`\n- Format ini ringan dan cepat untuk authorization checks\n- Gunakan untuk: route guards, permission checks, quick validation\n\n**Catatan:** Untuk mendapatkan full menu dan permission objects (dengan name, description, dll), gunakan endpoint `GET /api/v1/auth/me/menus-permissions` setelah login."
           },
           "response": []
         },
@@ -174,7 +174,7 @@
               "host": ["{{base_url}}"],
               "path": ["api", "v1", "auth", "me", "menus-permissions"]
             },
-            "description": "Get menus dan permissions untuk user yang sedang login berdasarkan JWT token. Response berisi array menus dan array permissions yang dapat diakses oleh role user tersebut. Endpoint ini menggunakan role_id dari JWT token yang sedang login."
+            "description": "Get menus dan permissions untuk user yang sedang login berdasarkan JWT token. Response berisi array menus dan array permissions yang dapat diakses oleh role user tersebut. Endpoint ini menggunakan role_id dari JWT token yang sedang login.\n\n**Response Format:**\n- `menus`: Array of full menu objects dengan struktur lengkap (id, code, label, icon, path, order_index, permission_code, children, dll)\n- `permissions`: Array of full permission objects dengan struktur lengkap (id, code, name, description, resource, action, dll)\n- Format ini lengkap untuk UI rendering dan permission management\n- Gunakan untuk: build navigation menu, display permission details, permission management UI\n\n**Perbedaan dengan Login Response:**\n- **Login**: `user.permissions` adalah array of strings (codes only) - ringan, cepat, untuk authorization checks\n- **Menus-Permissions**: Full objects dengan semua metadata - lengkap, untuk UI rendering dan management\n\n**Best Practice:**\n1. Setelah login, simpan `user.permissions` (string array) untuk quick permission checks\n2. Fetch endpoint ini sekali setelah login untuk mendapatkan full menu dan permission objects\n3. Cache hasil endpoint ini di frontend store untuk UI rendering"
           },
           "response": []
         }

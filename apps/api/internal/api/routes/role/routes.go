@@ -24,7 +24,7 @@ func SetupRoutes(
 		adminRoutes.POST("", middleware.RequirePermission("role.create", roleRepo), roleHandler.Create)                    // Create role (admin)
 		adminRoutes.PUT("/:id", middleware.RequirePermission("role.update", roleRepo), roleHandler.Update)                // Update role (admin)
 		adminRoutes.DELETE("/:id", middleware.RequirePermission("role.delete", roleRepo), roleHandler.Delete)            // Delete role (admin)
-		adminRoutes.PUT("/:id/permissions", middleware.RequirePermission("role.update", roleRepo), roleHandler.AssignPermissions) // Assign permissions to role (admin)
+		adminRoutes.PUT("/:id/permissions", middleware.RequirePermission("role.assign_permissions", roleRepo), roleHandler.AssignPermissions) // Assign permissions to role (admin)
 	}
 }
 

@@ -14,6 +14,12 @@ func SetupRoutes(
 	roleRepo role.Repository,
 	jwtManager *jwt.JWTManager,
 ) {
+	// Public routes (for guest - no authentication required)
+	publicRoutes := router.Group("/events")
+	{
+		publicRoutes.GET("/:event_id/schedules", scheduleHandler.GetByEventIDPublic) // Get schedules by event ID (public, include rundown)
+	}
+
 	// Admin only routes
 	adminRoutes := router.Group("/admin/schedules")
 	adminRoutes.Use(middleware.AuthMiddleware(jwtManager))

@@ -43,10 +43,11 @@ func (r *Repository) List(page, perPage int, filters map[string]interface{}) ([]
 		return nil, 0, err
 	}
 
-	// Get ticket categories with pagination
+	// Get ticket categories with pagination and preload event
 	var categories []ticketcategory.TicketCategory
 	offset := (page - 1) * perPage
 	if err := query.
+		Preload("Event").
 		Order("created_at DESC").
 		Offset(offset).
 		Limit(perPage).
@@ -110,7 +111,7 @@ func (r *Repository) List(page, perPage int, filters map[string]interface{}) ([]
 // GetByID gets a ticket by ID
 func (r *Repository) GetByID(id string) (*ticket.Ticket, error) {
 	var cat ticketcategory.TicketCategory
-	if err := r.db.Where("id = ?", id).First(&cat).Error; err != nil {
+	if err := r.db.Preload("Event").Where("id = ?", id).First(&cat).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, ErrTicketNotFound
 		}

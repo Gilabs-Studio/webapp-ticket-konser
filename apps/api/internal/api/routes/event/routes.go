@@ -30,11 +30,12 @@ func SetupRoutes(
 
 	// Public routes (for authenticated users to view events)
 	// Only show published events
+	// Note: Using /events/detail/:id to avoid conflict with nested routes under /events/:event_id
 	publicRoutes := router.Group("/events")
 	publicRoutes.Use(middleware.AuthMiddleware(jwtManager))
 	{
-		publicRoutes.GET("", eventHandler.ListPublic)            // List published events only
-		publicRoutes.GET("/:id", eventHandler.GetByIDPublic)     // Get published event by ID
+		publicRoutes.GET("", eventHandler.ListPublic)                      // List published events only
+		publicRoutes.GET("/detail/:id", eventHandler.GetByIDPublic)       // Get published event by ID
 	}
 }
 

@@ -1,7 +1,9 @@
 "use client";
 
+import { useState } from "react";
 import dynamic from "next/dynamic";
 import { useTickets, useRecentOrders } from "@/features/tickets/hooks/useTickets";
+import { Card } from "@/components/ui/card";
 
 const TicketManagement = dynamic(
   () =>
@@ -30,12 +32,14 @@ export function TicketsPageClient() {
   };
 
   return (
-    <TicketManagement
-      tickets={tickets}
-      orders={orders}
-      isLoadingTickets={isLoadingTickets}
-      isLoadingOrders={isLoadingOrders}
-      onViewAllOrders={handleViewAllOrders}
-    />
+    <Card className="p-6">
+      <TicketManagement
+        tickets={tickets}
+        orders={orders}
+        isLoadingTickets={isLoadingTickets}
+        isLoadingOrders={isLoadingOrders}
+        onViewAllOrders={handleViewAllOrders}
+      />
+    </Card>
   );
 }

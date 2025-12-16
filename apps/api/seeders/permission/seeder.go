@@ -13,11 +13,15 @@ import (
 // This function uses upsert logic: creates permission if not exists, skips if exists
 func Seed() error {
 	permissions := []permission.Permission{
-		// Ticket permissions
+		// Ticket permissions (for ticket sales overview)
 		{Code: "ticket.create", Name: "Create Ticket", Resource: "ticket", Action: "create"},
 		{Code: "ticket.read", Name: "Read Ticket", Resource: "ticket", Action: "read"},
 		{Code: "ticket.update", Name: "Update Ticket", Resource: "ticket", Action: "update"},
 		{Code: "ticket.delete", Name: "Delete Ticket", Resource: "ticket", Action: "delete"},
+
+		// E-Ticket (Order Item) permissions
+		{Code: "ticket.generate", Name: "Generate E-Ticket", Resource: "ticket", Action: "generate"},
+		{Code: "ticket.view_qr", Name: "View Ticket by QR Code", Resource: "ticket", Action: "view_qr"},
 
 		// Ticket Category permissions
 		{Code: "ticket_category.create", Name: "Create Ticket Category", Resource: "ticket_category", Action: "create"},
@@ -60,6 +64,13 @@ func Seed() error {
 		{Code: "role.create", Name: "Create Role", Resource: "role", Action: "create"},
 		{Code: "role.update", Name: "Update Role", Resource: "role", Action: "update"},
 		{Code: "role.delete", Name: "Delete Role", Resource: "role", Action: "delete"},
+		{Code: "role.assign_permissions", Name: "Assign Permissions to Role", Resource: "role", Action: "assign_permissions"},
+
+		// Permission permissions
+		{Code: "permission.read", Name: "Read Permission", Resource: "permission", Action: "read"},
+		{Code: "permission.create", Name: "Create Permission", Resource: "permission", Action: "create"},
+		{Code: "permission.update", Name: "Update Permission", Resource: "permission", Action: "update"},
+		{Code: "permission.delete", Name: "Delete Permission", Resource: "permission", Action: "delete"},
 
 		// Check-in permissions
 		{Code: "checkin.read", Name: "Read Check-in", Resource: "checkin", Action: "read"},

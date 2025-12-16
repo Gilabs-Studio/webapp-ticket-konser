@@ -95,4 +95,14 @@ export const ticketCategoryService = {
   async deleteTicketCategory(id: string): Promise<void> {
     await apiClient.delete(`/admin/ticket-categories/${id}`);
   },
+
+  /**
+   * Get ticket categories by event ID (admin)
+   */
+  async getTicketCategoriesByEventId(eventId: string): Promise<ApiResponse<TicketCategoryResponse[]>> {
+    const response = await apiClient.get<ApiResponse<TicketCategoryResponse[]>>(
+      `/admin/ticket-categories/event/${eventId}`,
+    );
+    return response.data;
+  },
 };

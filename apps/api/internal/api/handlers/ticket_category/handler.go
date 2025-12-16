@@ -1,12 +1,12 @@
 package ticketcategory
 
 import (
-	"github.com/gin-gonic/gin"
-	"github.com/go-playground/validator/v10"
 	"github.com/gilabs/webapp-ticket-konser/api/internal/domain/ticket_category"
 	ticketcategoryservice "github.com/gilabs/webapp-ticket-konser/api/internal/service/ticket_category"
 	"github.com/gilabs/webapp-ticket-konser/api/pkg/errors"
 	"github.com/gilabs/webapp-ticket-konser/api/pkg/response"
+	"github.com/gin-gonic/gin"
+	"github.com/go-playground/validator/v10"
 )
 
 type Handler struct {
@@ -17,6 +17,19 @@ func NewHandler(ticketCategoryService *ticketcategoryservice.Service) *Handler {
 	return &Handler{
 		ticketCategoryService: ticketCategoryService,
 	}
+}
+
+// List lists all ticket categories
+// GET /api/v1/admin/ticket-categories
+func (h *Handler) List(c *gin.Context) {
+	categories, err := h.ticketCategoryService.List()
+	if err != nil {
+		errors.InternalServerErrorResponse(c, "")
+		return
+	}
+
+	meta := &response.Meta{}
+	response.SuccessResponse(c, categories, meta)
 }
 
 // GetByID gets a ticket category by ID
@@ -44,9 +57,30 @@ func (h *Handler) GetByID(c *gin.Context) {
 	response.SuccessResponse(c, category, meta)
 }
 
-// GetByEventID gets ticket categories by event ID
+// GetByEventID gets ticket categories by event ID (admin)
 // GET /api/v1/admin/ticket-categories/event/:event_id
 func (h *Handler) GetByEventID(c *gin.Context) {
+	eventID := c.Param("event_id")
+	if eventID == "" {
+		errors.ErrorResponse(c, "INVALID_PATH_PARAM", map[string]interface{}{
+			"param": "event_id",
+		}, nil)
+		return
+	}
+
+	categories, err := h.ticketCategoryService.GetByEventID(eventID)
+	if err != nil {
+		errors.InternalServerErrorResponse(c, "")
+		return
+	}
+
+	meta := &response.Meta{}
+	response.SuccessResponse(c, categories, meta)
+}
+
+// GetByEventIDPublic gets ticket categories by event ID (public)
+// GET /api/v1/events/:event_id/ticket-categories
+func (h *Handler) GetByEventIDPublic(c *gin.Context) {
 	eventID := c.Param("event_id")
 	if eventID == "" {
 		errors.ErrorResponse(c, "INVALID_PATH_PARAM", map[string]interface{}{
@@ -78,14 +112,14 @@ func (h *Handler) Create(c *gin.Context) {
 		return
 	}
 
-	category, err := h.ticketCategoryService.Create(&req)
+	createdCategory, err := h.ticketCategoryService.Create(&req)
 	if err != nil {
 		errors.InternalServerErrorResponse(c, "")
 		return
 	}
 
 	meta := &response.Meta{}
-	response.SuccessResponseCreated(c, category, meta)
+	response.SuccessResponseCreated(c, createdCategory, meta)
 }
 
 // Update updates a ticket category
@@ -109,7 +143,7 @@ func (h *Handler) Update(c *gin.Context) {
 		return
 	}
 
-	category, err := h.ticketCategoryService.Update(id, &req)
+	updatedCategory, err := h.ticketCategoryService.Update(id, &req)
 	if err != nil {
 		if err == ticketcategoryservice.ErrTicketCategoryNotFound {
 			errors.NotFoundResponse(c, "ticket_category", id)
@@ -120,7 +154,7 @@ func (h *Handler) Update(c *gin.Context) {
 	}
 
 	meta := &response.Meta{}
-	response.SuccessResponse(c, category, meta)
+	response.SuccessResponse(c, updatedCategory, meta)
 }
 
 // Delete deletes a ticket category
@@ -146,18 +180,3 @@ func (h *Handler) Delete(c *gin.Context) {
 
 	response.SuccessResponseNoContent(c)
 }
-
-// List lists all ticket categories
-// GET /api/v1/admin/ticket-categories
-func (h *Handler) List(c *gin.Context) {
-	categories, err := h.ticketCategoryService.List()
-	if err != nil {
-		errors.InternalServerErrorResponse(c, "")
-		return
-	}
-
-	meta := &response.Meta{}
-	response.SuccessResponse(c, categories, meta)
-}
-
-

@@ -12,7 +12,7 @@ export const userService = {
    * Get list of users with pagination and filters
    */
   async list(params?: ListUsersParams): Promise<ListUsersResponse> {
-    const response = await apiClient.get<ListUsersResponse>("/users", {
+    const response = await apiClient.get<ListUsersResponse>("/admin/users", {
       params,
     });
     return response.data;
@@ -22,7 +22,7 @@ export const userService = {
    * Get user by ID
    */
   async getById(id: string): Promise<UserResponse> {
-    const response = await apiClient.get<UserResponse>(`/users/${id}`);
+    const response = await apiClient.get<UserResponse>(`/admin/users/${id}`);
     return response.data;
   },
 
@@ -30,7 +30,7 @@ export const userService = {
    * Create new user
    */
   async create(data: CreateUserFormData): Promise<UserResponse> {
-    const response = await apiClient.post<UserResponse>("/users", data);
+    const response = await apiClient.post<UserResponse>("/admin/users", data);
     return response.data;
   },
 
@@ -38,7 +38,10 @@ export const userService = {
    * Update user
    */
   async update(id: string, data: UpdateUserFormData): Promise<UserResponse> {
-    const response = await apiClient.put<UserResponse>(`/users/${id}`, data);
+    const response = await apiClient.put<UserResponse>(
+      `/admin/users/${id}`,
+      data,
+    );
     return response.data;
   },
 
@@ -46,7 +49,7 @@ export const userService = {
    * Delete user
    */
   async delete(id: string): Promise<void> {
-    await apiClient.delete(`/users/${id}`);
+    await apiClient.delete(`/admin/users/${id}`);
   },
 
   /**
