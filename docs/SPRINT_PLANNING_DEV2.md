@@ -170,6 +170,7 @@ Developer 2 bertanggung jawab untuk:
 **✅ All Features Covered by Attendance Management (Sprint 4.5)**:
 
 **Backend APIs**:
+
 - ✅ Statistics API - `GET /api/v1/admin/attendees/statistics` (total, checked_in, registered, cancelled, by_tier)
 - ✅ Filter by ticket tier - Filter `ticket_tier` di `GET /api/v1/admin/attendees`
 - ✅ Filter by status - Filter `status` di `GET /api/v1/admin/attendees`
@@ -178,6 +179,7 @@ Developer 2 bertanggung jawab untuk:
 - ✅ Check-in list dengan filters - Sudah ada: `GET /api/v1/check-ins` dengan filters (Sprint 1)
 
 **Frontend Components**:
+
 - ✅ Statistics display - Ter-cover oleh AttendeeStatistics component
 - ✅ Filter UI - Ter-cover oleh filter di AttendeeList component (ticket_tier, status)
 - ✅ List dengan pagination - Ter-cover oleh AttendeeList component
@@ -185,6 +187,7 @@ Developer 2 bertanggung jawab untuk:
 - ✅ Export functionality - Ter-cover oleh export di AttendeeList component
 
 **Why Skip Sprint 2**:
+
 1. **Attendance Management lebih comprehensive**: Menyediakan semua fitur yang dibutuhkan untuk monitoring check-in status
 2. **No duplicate work**: Semua task di Sprint 2 sudah ter-cover
 3. **Better UX**: Attendance Management memberikan view yang lebih lengkap (attendees + check-in status dalam satu tempat)
@@ -193,6 +196,7 @@ Developer 2 bertanggung jawab untuk:
 **Original Tasks (All Skipped)**:
 
 **Backend Tasks**:
+
 - [x] ~~Create check-in status service~~ - Covered by attendee service
 - [x] ~~Implement check-in statistics API~~ - Covered by `GET /api/v1/admin/attendees/statistics`
 - [x] ~~Implement real-time check-in feed API~~ - Not needed (can use check-ins list with filters)
@@ -203,6 +207,7 @@ Developer 2 bertanggung jawab untuk:
 - [x] ~~Add date range filtering~~ - Covered by attendees API
 
 **Frontend Tasks**:
+
 - [x] ~~Create check-in status types~~ - Covered by attendee types
 - [x] ~~Create check-in status service~~ - Covered by attendance service
 - [x] ~~Create real-time check-in dashboard page~~ - Covered by `/attendees` page
@@ -216,9 +221,11 @@ Developer 2 bertanggung jawab untuk:
 - [x] ~~Create check-in status widgets~~ - Covered by AttendeeStatistics
 
 **Postman Collection**:
+
 - [x] ~~Add check-in status APIs~~ - Already covered by Attendee Management APIs
 
 **Acceptance Criteria** (All Met via Attendance Management):
+
 - ✅ Statistics API bekerja dengan baik - `GET /api/v1/admin/attendees/statistics`
 - ✅ Filter bekerja optimal - Filter by ticket_tier, status, date range
 - ✅ Dashboard responsive dan mudah dibaca - `/attendees` page
@@ -511,15 +518,15 @@ Developer 2 bertanggung jawab untuk:
 
 ## 📊 Sprint Summary
 
-| Sprint   | Goal                          | Duration | Status                           | Notes                                    |
-| -------- | ----------------------------- | -------- | -------------------------------- | ---------------------------------------- |
-| Sprint 0 | Foundation & Setup            | 1-2 days | ✅ Completed                     | -                                        |
-| Sprint 1 | Check-in Scanner (Mobile-Web) | 5-6 days | ✅ Completed                     | Backend ✅, Frontend ✅, Postman ✅, Rate Limiting ✅ |
-| Sprint 2 | Real-time Check-in Status     | 4-5 days | ⏳ Pending                       | Belum dikerjakan                         |
-| Sprint 3 | Gate Assignment & Management  | 4-5 days | ✅ Completed                     | Backend ✅, Frontend ✅, Postman ✅, Seeder ✅ |
-| Sprint 4 | Admin Dashboard Monitoring    | 4-5 days | ⏳ Frontend (60%) / Backend (0%) | Frontend: Components ✅, Backend APIs ❌ |
-| Sprint 4.5 | Additional Frontend Modules | 5-7 days | ⏳ Frontend (100%) / Backend (0%) | Frontend: Completed ✅, Backend APIs ❌ |
-| Sprint 5 | Integration & Testing         | 3-4 days | ⏳ Pending                       | Belum dikerjakan                         |
+| Sprint     | Goal                          | Duration | Status                            | Notes                                                 |
+| ---------- | ----------------------------- | -------- | --------------------------------- | ----------------------------------------------------- |
+| Sprint 0   | Foundation & Setup            | 1-2 days | ✅ Completed                      | -                                                     |
+| Sprint 1   | Check-in Scanner (Mobile-Web) | 5-6 days | ✅ Completed                      | Backend ✅, Frontend ✅, Postman ✅, Rate Limiting ✅ |
+| Sprint 2   | Real-time Check-in Status     | 4-5 days | ⏳ Pending                        | Belum dikerjakan                                      |
+| Sprint 3   | Gate Assignment & Management  | 4-5 days | ✅ Completed                      | Backend ✅, Frontend ✅, Postman ✅, Seeder ✅        |
+| Sprint 4   | Admin Dashboard Monitoring    | 4-5 days | ⏳ Frontend (60%) / Backend (0%)  | Frontend: Components ✅, Backend APIs ❌              |
+| Sprint 4.5 | Additional Frontend Modules   | 5-7 days | ⏳ Frontend (100%) / Backend (0%) | Frontend: Completed ✅, Backend APIs ❌               |
+| Sprint 5   | Integration & Testing         | 3-4 days | ⏳ Pending                        | Belum dikerjakan                                      |
 
 **Total Estimated Time**: 29-38 days (4.1-5.4 weeks)
 

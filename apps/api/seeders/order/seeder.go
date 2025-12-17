@@ -8,6 +8,7 @@ import (
 	"github.com/gilabs/webapp-ticket-konser/api/internal/database"
 	"github.com/gilabs/webapp-ticket-konser/api/internal/domain/order"
 	"github.com/gilabs/webapp-ticket-konser/api/internal/domain/schedule"
+	ticketcategory "github.com/gilabs/webapp-ticket-konser/api/internal/domain/ticket_category"
 	"github.com/gilabs/webapp-ticket-konser/api/internal/domain/user"
 	"gorm.io/gorm"
 )
@@ -65,6 +66,24 @@ func Seed() error {
 		return nil
 	}
 
+	// Get ticket categories for the event
+	var ticketCategories []ticketcategory.TicketCategory
+	eventID := schedules[0].EventID
+	if schedules[0].Event != nil {
+		eventID = schedules[0].Event.ID
+	}
+	if err := database.DB.Where("event_id = ?", eventID).Find(&ticketCategories).Error; err != nil {
+		log.Println("⚠️  [Order Seeder] Failed to get ticket categories, skipping order seeding...")
+		log.Println("⚠️  [Order Seeder] Please seed ticket categories first before seeding orders")
+		return nil
+	}
+
+	if len(ticketCategories) == 0 {
+		log.Println("⚠️  [Order Seeder] No ticket categories found, skipping order seeding...")
+		log.Println("⚠️  [Order Seeder] Please seed ticket categories first before seeding orders")
+		return nil
+	}
+
 	// Use upsert logic: create if not exists, skip if exists
 	// Check if orders already exist
 	var existingCount int64
@@ -102,6 +121,9 @@ func Seed() error {
 		// Select user based on index
 		selectedUser := allUsers[i%len(allUsers)]
 
+		// Select ticket category based on index (cycle through available categories)
+		selectedCategory := ticketCategories[i%len(ticketCategories)]
+
 		// Create order date based on schedule date
 		orderDate := sched.Date
 		if orderDate.IsZero() {
@@ -113,30 +135,37 @@ func Seed() error {
 
 		var paymentStatus order.PaymentStatus
 		var paymentMethod string
-		var midtransID string
+		// var midtransID string
+		var paymentExpiresAt *time.Time
 
 		// Assign different payment statuses
 		switch i % 5 {
 		case 0:
 			paymentStatus = order.PaymentStatusPaid
 			paymentMethod = "QRIS"
-			midtransID = "MIDTRANS-TXN-" + formatNumber(i+1)
+			// midtransID = "MIDTRANS-TXN-" + formatNumber(i+1)
 		case 1:
 			paymentStatus = order.PaymentStatusUnpaid
+			// Set payment expiration for UNPAID orders (15 minutes from order creation)
+			expiresAt := time.Now().Add(15 * time.Minute)
+			paymentExpiresAt = &expiresAt
 		case 2:
 			paymentStatus = order.PaymentStatusFailed
 			paymentMethod = "QRIS"
-			midtransID = "MIDTRANS-TXN-FAILED-" + formatNumber(i+1)
+			// midtransID = "MIDTRANS-TXN-FAILED-" + formatNumber(i+1)
 		case 3:
 			paymentStatus = order.PaymentStatusCanceled
 		case 4:
 			paymentStatus = order.PaymentStatusRefunded
 			paymentMethod = "QRIS"
-			midtransID = "MIDTRANS-TXN-REFUNDED-" + formatNumber(i+1)
+			// midtransID = "MIDTRANS-TXN-REFUNDED-" + formatNumber(i+1)
 		}
 
-		// Calculate total amount based on schedule (simulate different ticket prices)
-		totalAmount := float64(300000 + (i * 50000)) // Varying prices
+		// Set quantity (1-3 tickets per order)
+		quantity := (i % 3) + 1
+
+		// Calculate total amount based on ticket category price
+		totalAmount := selectedCategory.Price * float64(quantity)
 
 		// Create order timestamp (order was created before the event date, more realistic)
 		// Order created 1-7 days before the event date
@@ -151,16 +180,33 @@ func Seed() error {
 			orderCreatedAt = time.Now().Add(-time.Duration((7-i)*24) * time.Hour)
 		}
 
+		// Generate buyer information based on user
+		buyerName := selectedUser.Name
+		if buyerName == "" {
+			buyerName = "Buyer " + fmt.Sprintf("%d", i+1)
+		}
+		buyerEmail := selectedUser.Email
+		if buyerEmail == "" {
+			buyerEmail = fmt.Sprintf("buyer%d@example.com", i+1)
+		}
+		buyerPhone := "+628123456789" + fmt.Sprintf("%d", i)
+
 		order := &order.Order{
-			UserID:                selectedUser.ID,
-			OrderCode:             orderCode,
-			ScheduleID:            sched.ID,
-			TotalAmount:           totalAmount,
-			PaymentStatus:         paymentStatus,
-			PaymentMethod:         paymentMethod,
-			MidtransTransactionID: midtransID,
-			CreatedAt:             orderCreatedAt,
-			UpdatedAt:             orderCreatedAt,
+			UserID:           selectedUser.ID,
+			OrderCode:        orderCode,
+			ScheduleID:       sched.ID,
+			TicketCategoryID: selectedCategory.ID,
+			Quantity:         quantity,
+			TotalAmount:      totalAmount,
+			PaymentStatus:    paymentStatus,
+			PaymentMethod:    paymentMethod,
+			// MidtransTransactionID: midtransID,
+			PaymentExpiresAt: paymentExpiresAt,
+			BuyerName:        buyerName,
+			BuyerEmail:       buyerEmail,
+			BuyerPhone:       buyerPhone,
+			CreatedAt:        orderCreatedAt,
+			UpdatedAt:        orderCreatedAt,
 		}
 
 		orders = append(orders, order)
@@ -172,8 +218,8 @@ func Seed() error {
 		if err := database.DB.Create(o).Error; err != nil {
 			return err
 		}
-		log.Printf("[Order Seeder] ✅ Created order: %s (User: %s, Status: %s, Amount: %.0f, Schedule: %s)",
-			o.OrderCode, o.UserID, o.PaymentStatus, o.TotalAmount, o.ScheduleID)
+		log.Printf("[Order Seeder] ✅ Created order: %s (User: %s, Status: %s, Amount: %.0f, Schedule: %s, Category: %s, Quantity: %d)",
+			o.OrderCode, o.UserID, o.PaymentStatus, o.TotalAmount, o.ScheduleID, o.TicketCategoryID, o.Quantity)
 		createdCount++
 	}
 

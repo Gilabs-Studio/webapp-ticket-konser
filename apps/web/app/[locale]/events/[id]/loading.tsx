@@ -12,3 +12,4 @@ export default function PublicEventDetailLoading() {
     </div>
   );
 }
+

@@ -285,3 +285,4 @@ func (h *Handler) AssignPermissions(c *gin.Context) {
 	response.SuccessResponse(c, roleResponse, meta)
 }
 
+

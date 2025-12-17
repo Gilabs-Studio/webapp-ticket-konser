@@ -17,3 +17,4 @@ export interface Schedule {
   readonly updated_at: string;
 }
 
+

@@ -78,7 +78,7 @@ func (s *Service) GetByOrderID(orderID string) ([]*orderitem.OrderItemResponse, 
 // This creates order items based on the order's ticket categories
 func (s *Service) GenerateTickets(orderID string, categories []string, quantities []int) ([]*orderitem.OrderItemResponse, error) {
 	// Validate order exists and is paid
-	_, err := s.orderRepo.FindByID(orderID)
+	o, err := s.orderRepo.FindByID(orderID)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, ErrOrderNotFound
@@ -86,10 +86,11 @@ func (s *Service) GenerateTickets(orderID string, categories []string, quantitie
 		return nil, err
 	}
 
-	// Check if order is paid (for now, we allow generation even if unpaid for testing)
-	// In production, this should check: if o.PaymentStatus != order.PaymentStatusPaid {
-	// 	return nil, ErrOrderNotPaid
-	// }
+	// Check if order is paid
+	// PaymentStatus is string type, check if equals "PAID"
+	if o.PaymentStatus != "PAID" {
+		return nil, ErrOrderNotPaid
+	}
 
 	// Check if tickets already exist
 	existingItems, err := s.orderItemRepo.FindByOrderID(orderID)

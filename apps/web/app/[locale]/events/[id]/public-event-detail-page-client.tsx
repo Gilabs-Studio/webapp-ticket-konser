@@ -104,6 +104,17 @@ export function PublicEventDetailPageClient({
           )}
         </div>
       </Card>
+
+      {/* Buy Ticket Button */}
+      <div className="flex justify-center">
+        <Button
+          size="lg"
+          onClick={() => router.push(`/events/${eventId}/purchase`)}
+          className="min-w-[200px]"
+        >
+          Buy Tickets
+        </Button>
+      </div>
     </div>
   );
 }

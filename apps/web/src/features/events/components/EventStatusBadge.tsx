@@ -45,3 +45,4 @@ export function EventStatusBadge({
     </Badge>
   );
 }
+

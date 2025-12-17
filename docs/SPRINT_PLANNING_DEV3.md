@@ -331,14 +331,14 @@ Developer 3 bertanggung jawab untuk:
 
 ## 📊 Sprint Summary
 
-| Sprint   | Goal                          | Duration | Status       | Notes            |
-| -------- | ----------------------------- | -------- | ------------ | ---------------- |
-| Sprint 0 | Foundation & Setup            | 3-4 days | ⏳ Pending   | -                |
-| Sprint 1 | QR Code Scanner               | 4-5 days | ⏳ Pending   | -                |
-| Sprint 2 | Check-in Validation & Processing | 4-5 days | ⏳ Pending   | -                |
-| Sprint 3 | Check-in History              | 3-4 days | ⏳ Pending   | -                |
-| Sprint 4 | Profile & Settings            | 2-3 days | ⏳ Pending   | -                |
-| Sprint 5 | Polish & Testing             | 3-4 days | ⏳ Pending   | -                |
+| Sprint   | Goal                             | Duration | Status     | Notes |
+| -------- | -------------------------------- | -------- | ---------- | ----- |
+| Sprint 0 | Foundation & Setup               | 3-4 days | ⏳ Pending | -     |
+| Sprint 1 | QR Code Scanner                  | 4-5 days | ⏳ Pending | -     |
+| Sprint 2 | Check-in Validation & Processing | 4-5 days | ⏳ Pending | -     |
+| Sprint 3 | Check-in History                 | 3-4 days | ⏳ Pending | -     |
+| Sprint 4 | Profile & Settings               | 2-3 days | ⏳ Pending | -     |
+| Sprint 5 | Polish & Testing                 | 3-4 days | ⏳ Pending | -     |
 
 **Total Estimated Time**: 19-25 days (2.7-3.6 weeks)
 
@@ -349,6 +349,7 @@ Developer 3 bertanggung jawab untuk:
 ### API Requirements untuk Mobile App
 
 **Authentication APIs** (✅ Ready dari Dev1):
+
 - [x] `POST /api/v1/auth/login` - Login
 - [x] `POST /api/v1/auth/logout` - Logout
 - [x] `GET /api/v1/auth/me` - Get Current User
@@ -399,4 +400,3 @@ Developer 3 bertanggung jawab untuk:
 ---
 
 **Dokumen ini akan diupdate sesuai dengan progress development.**
-

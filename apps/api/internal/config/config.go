@@ -14,6 +14,7 @@ type Config struct {
 	Database DatabaseConfig
 	JWT      JWTConfig
 	Cerebras CerebrasConfig
+	Midtrans MidtransConfig
 }
 
 type ServerConfig struct {
@@ -31,8 +32,8 @@ type DatabaseConfig struct {
 }
 
 type JWTConfig struct {
-	SecretKey      string
-	AccessTokenTTL int // in hours
+	SecretKey       string
+	AccessTokenTTL  int // in hours
 	RefreshTokenTTL int // in days
 }
 
@@ -40,6 +41,14 @@ type CerebrasConfig struct {
 	BaseURL string
 	APIKey  string
 	Model   string // Default model name
+}
+
+type MidtransConfig struct {
+	ServerKey    string
+	ClientKey    string
+	MerchantID   string
+	IsProduction bool
+	APIBaseURL   string // https://api.midtrans.com (production) atau https://api.sandbox.midtrans.com (sandbox)
 }
 
 var AppConfig *Config
@@ -111,8 +120,8 @@ func Load() error {
 			SSLMode:  getEnv("DB_SSLMODE", "disable"),
 		},
 		JWT: JWTConfig{
-			SecretKey:      jwtSecret,
-			AccessTokenTTL: getEnvAsInt("JWT_ACCESS_TTL", 24), // 24 hours
+			SecretKey:       jwtSecret,
+			AccessTokenTTL:  getEnvAsInt("JWT_ACCESS_TTL", 24), // 24 hours
 			RefreshTokenTTL: getEnvAsInt("JWT_REFRESH_TTL", 7), // 7 days
 		},
 		Cerebras: CerebrasConfig{
@@ -120,6 +129,30 @@ func Load() error {
 			APIKey:  getEnv("CEREBRAS_API_KEY", ""),
 			Model:   getEnv("CEREBRAS_MODEL", "llama-3.1-8b"), // Default model
 		},
+		Midtrans: MidtransConfig{
+			ServerKey:    getEnv("MIDTRANS_SERVER_KEY", ""),
+			ClientKey:    getEnv("MIDTRANS_CLIENT_KEY", ""),
+			MerchantID:   getEnv("MIDTRANS_MERCHANT_ID", ""),
+			IsProduction: getEnv("MIDTRANS_IS_PRODUCTION", "false") == "true",
+		},
+	}
+
+	// Set APIBaseURL berdasarkan IsProduction
+	if AppConfig.Midtrans.IsProduction {
+		AppConfig.Midtrans.APIBaseURL = "https://api.midtrans.com"
+	} else {
+		AppConfig.Midtrans.APIBaseURL = "https://api.sandbox.midtrans.com"
+	}
+
+	// Validate Midtrans credentials (warn jika tidak ada, tapi tidak block startup)
+	if AppConfig.Midtrans.ServerKey == "" {
+		log.Printf("WARNING: MIDTRANS_SERVER_KEY is not set. Payment features will not work.")
+	}
+	if AppConfig.Midtrans.ClientKey == "" {
+		log.Printf("WARNING: MIDTRANS_CLIENT_KEY is not set. Payment features will not work.")
+	}
+	if AppConfig.Midtrans.MerchantID == "" {
+		log.Printf("WARNING: MIDTRANS_MERCHANT_ID is not set. Payment features will not work.")
 	}
 
 	return nil
@@ -152,4 +185,3 @@ func GetDSN() string {
 		db.Host, db.Port, db.User, db.Password, db.DBName, db.SSLMode,
 	)
 }
-

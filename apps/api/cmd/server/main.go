@@ -42,6 +42,7 @@ import (
 	userroutes "github.com/gilabs/webapp-ticket-konser/api/internal/api/routes/user"
 	"github.com/gilabs/webapp-ticket-konser/api/internal/config"
 	"github.com/gilabs/webapp-ticket-konser/api/internal/database"
+	paymentexpirationjob "github.com/gilabs/webapp-ticket-konser/api/internal/job"
 	"github.com/gilabs/webapp-ticket-konser/api/internal/repository/interfaces/role"
 	attendeerepo "github.com/gilabs/webapp-ticket-konser/api/internal/repository/postgres/attendee"
 	authrepo "github.com/gilabs/webapp-ticket-konser/api/internal/repository/postgres/auth"
@@ -145,8 +146,8 @@ func main() {
 	ticketCategoryService := ticketcategoryservice.NewService(ticketCategoryRepo)
 	ticketService := ticketservice.NewService(ticketRepo)
 	scheduleService := scheduleservice.NewService(scheduleRepo)
-	orderService := orderservice.NewService(orderRepo)
 	orderItemService := orderitemservice.NewService(orderItemRepo, orderRepo, ticketCategoryRepo)
+	orderService := orderservice.NewService(orderRepo, ticketCategoryRepo, scheduleRepo, orderItemRepo, orderItemService)
 	checkInService := checkinservice.NewService(checkInRepo, orderItemRepo)
 	gateService := gateservice.NewService(gateRepo, orderItemRepo, checkInRepo, checkInService)
 	userService := userservice.NewService(userRepo, roleRepo)
@@ -165,7 +166,7 @@ func main() {
 	ticketHandler := tickethandler.NewHandler(ticketService)
 	scheduleHandler := schedulehandler.NewHandler(scheduleService)
 	orderHandler := orderhandler.NewHandler(orderService)
-	orderItemHandler := orderitemhandler.NewHandler(orderItemService)
+	orderItemHandler := orderitemhandler.NewHandler(orderItemService, orderRepo)
 	checkInHandler := checkinhandler.NewHandler(checkInService)
 	gateHandler := gatehandler.NewHandler(gateService)
 	userHandler := userhandler.NewHandler(userService)
@@ -195,6 +196,9 @@ func main() {
 		dashboardHandler,
 		roleRepo,
 	)
+
+	// Start background jobs
+	paymentexpirationjob.StartPaymentExpirationJob(orderService)
 
 	// Run server
 	port := config.AppConfig.Server.Port
@@ -289,7 +293,7 @@ func setupRouter(
 		orderitemroutes.SetupRoutes(v1, orderItemHandler, roleRepo, jwtManager)
 
 		// Order routes (must be after nested routes to avoid route conflict)
-		orderroutes.SetupRoutes(v1, orderHandler, roleRepo, jwtManager)
+		orderroutes.SetupRoutes(v1, orderHandler, orderItemHandler, roleRepo, jwtManager)
 
 		// Check-in routes
 		checkinroutes.SetupRoutes(v1, checkInHandler, roleRepo, jwtManager)

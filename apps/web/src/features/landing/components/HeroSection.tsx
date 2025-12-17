@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useMemo } from "react";
+import { useRouter } from "@/i18n/routing";
 import Beams from "./Beams";
 import { Button } from "../../../components/ui/button";
 import { ShineBorder } from "../../../components/ui/shine-border";
@@ -18,6 +19,7 @@ interface HeroSectionProps {
 }
 
 export default function HeroSection({ locale }: Readonly<HeroSectionProps>) {
+  const router = useRouter();
   const { data: eventDate, isLoading, isError } = useEventDate();
   
   // Default date fallback
@@ -162,7 +164,10 @@ export default function HeroSection({ locale }: Readonly<HeroSectionProps>) {
             ]}
             className="rounded-xl"
           />
-          <Button className="relative z-10">
+          <Button 
+            className="relative z-10"
+            onClick={() => router.push("/events")}
+          >
             {locale === "id" ? "Dapatkan Tiket" : "Get Tickets"}
           </Button>
         </div>

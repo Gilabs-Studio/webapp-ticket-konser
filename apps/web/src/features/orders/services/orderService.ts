@@ -4,7 +4,11 @@ import type {
   PaymentStatus,
   ApiResponse,
   OrderFilters,
+  CreateOrderRequest,
   UpdateOrderRequest,
+  PaymentInitiationRequest,
+  PaymentInitiationResponse,
+  PaymentStatusResponse,
 } from "../types";
 
 // API Response types
@@ -41,10 +45,17 @@ interface OrderResponse {
   order_code: string;
   schedule_id: string;
   schedule?: OrderScheduleResponse;
+  ticket_category_id: string;
+  quantity: number;
   total_amount: number;
   payment_status: PaymentStatus;
   payment_method?: string;
   midtrans_transaction_id?: string;
+  payment_expires_at?: string;
+  qris_code?: string;
+  buyer_name: string;
+  buyer_email: string;
+  buyer_phone: string;
   created_at: string;
   updated_at: string;
 }
@@ -110,11 +121,18 @@ function mapOrderResponse(response: OrderResponse): Order {
           remaining_seat: response.schedule.remaining_seat,
         }
       : undefined,
+    ticket_category_id: response.ticket_category_id ?? "",
+    quantity: response.quantity ?? 1,
     total_amount: totalAmount,
     total_amount_formatted: totalFormatted,
     payment_status: response.payment_status,
     payment_method: response.payment_method,
     midtrans_transaction_id: response.midtrans_transaction_id,
+    payment_expires_at: response.payment_expires_at,
+    qris_code: response.qris_code,
+    buyer_name: response.buyer_name ?? "",
+    buyer_email: response.buyer_email ?? "",
+    buyer_phone: response.buyer_phone ?? "",
     created_at: response.created_at,
     updated_at: response.updated_at,
   };
@@ -236,6 +254,120 @@ export const orderService = {
    */
   async deleteOrder(id: string): Promise<void> {
     await apiClient.delete(`/admin/orders/${id}`);
+  },
+
+  /**
+   * Create order (Guest API)
+   */
+  async createOrder(
+    data: CreateOrderRequest,
+  ): Promise<ApiResponse<Order>> {
+    const response = await apiClient.post<ApiResponseInternal<OrderResponse>>(
+      "/orders",
+      data,
+    );
+
+    return {
+      success: response.data.success,
+      data: mapOrderResponse(response.data.data),
+      meta: response.data.meta,
+      timestamp: response.data.timestamp,
+      request_id: response.data.request_id,
+    };
+  },
+
+  /**
+   * Get my orders (Guest API)
+   */
+  async getMyOrders(
+    filters?: OrderFilters,
+  ): Promise<ApiResponse<Order[]>> {
+    const params = new URLSearchParams();
+    if (filters?.page) {
+      params.append("page", filters.page.toString());
+    }
+    if (filters?.per_page) {
+      params.append("per_page", filters.per_page.toString());
+    }
+    if (filters?.payment_status) {
+      params.append("payment_status", filters.payment_status);
+    }
+    if (filters?.start_date) {
+      params.append("start_date", filters.start_date);
+    }
+    if (filters?.end_date) {
+      params.append("end_date", filters.end_date);
+    }
+
+    const response = await apiClient.get<
+      ApiResponseInternal<OrderResponse[]>
+    >(`/orders?${params.toString()}`);
+
+    const orders: Order[] = (response.data.data ?? []).map(mapOrderResponse);
+
+    return {
+      success: response.data.success,
+      data: orders,
+      meta: response.data.meta,
+      timestamp: response.data.timestamp,
+      request_id: response.data.request_id,
+    };
+  },
+
+  /**
+   * Get my order by ID (Guest API)
+   */
+  async getMyOrder(id: string): Promise<ApiResponse<Order>> {
+    const response = await apiClient.get<ApiResponseInternal<OrderResponse>>(
+      `/orders/${id}`,
+    );
+
+    return {
+      success: response.data.success,
+      data: mapOrderResponse(response.data.data),
+      meta: response.data.meta,
+      timestamp: response.data.timestamp,
+      request_id: response.data.request_id,
+    };
+  },
+
+  /**
+   * Initiate payment (Guest API)
+   */
+  async initiatePayment(
+    orderId: string,
+    data: PaymentInitiationRequest,
+  ): Promise<ApiResponse<PaymentInitiationResponse>> {
+    const response = await apiClient.post<
+      ApiResponseInternal<PaymentInitiationResponse>
+    >(`/orders/${orderId}/payment`, data);
+
+    return {
+      success: response.data.success,
+      data: response.data.data,
+      meta: response.data.meta,
+      timestamp: response.data.timestamp,
+      request_id: response.data.request_id,
+    };
+  },
+
+  /**
+   * Check payment status (Guest API)
+   */
+  async checkPaymentStatus(
+    orderId: string,
+  ): Promise<ApiResponse<PaymentStatusResponse>> {
+    const response = await apiClient.get<
+      ApiResponseInternal<PaymentStatusResponse>
+    >(`/orders/${orderId}/payment-status`);
+
+    return {
+      success: response.data.success,
+      data: response.data.data,
+      meta: response.data.meta,
+      timestamp: response.data.timestamp,
+      request_id: response.data.request_id,
+    };
   },
 };
 

@@ -46,7 +46,7 @@ export function OrderTicketsSection({
     refetch: refetchTickets,
   } = useQuery({
     queryKey: ["order-tickets", orderId],
-    queryFn: () => ticketService.getETicketsByOrderId(orderId),
+    queryFn: () => ticketService.getETicketsByOrderId(orderId, true),
     enabled: !!orderId,
   });
 
