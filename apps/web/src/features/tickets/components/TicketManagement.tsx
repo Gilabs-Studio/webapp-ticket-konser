@@ -1,13 +1,21 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Button } from "@/components/ui/button";
-import { Plus } from "lucide-react";
+import { Plus, Filter } from "lucide-react";
 import { TicketList } from "./TicketList";
 import { RecentOrdersTable } from "./RecentOrdersTable";
 import { type TicketType, type Order } from "../types";
 import { useTranslations } from "next-intl";
 import { motion } from "framer-motion";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { useEvents } from "@/features/events/hooks/useEvents";
 import {
   Dialog,
   DialogContent,
@@ -42,6 +50,25 @@ export function TicketManagement({
   onViewAllOrders,
 }: TicketManagementProps) {
   const t = useTranslations("tickets");
+  const [selectedEventId, setSelectedEventId] = useState<string>("all");
+
+  // Fetch events for filter
+  const { data: eventsData, isLoading: isLoadingEvents } = useEvents({
+    page: 1,
+    per_page: 100,
+  });
+
+  const events = eventsData?.data ?? [];
+
+  // Filter tickets by event
+  const filteredTickets = useMemo(() => {
+    if (selectedEventId === "all") {
+      return tickets ?? [];
+    }
+    return (tickets ?? []).filter(
+      (ticket) => ticket.category?.event_id === selectedEventId,
+    );
+  }, [tickets, selectedEventId]);
 
   // Dialog states
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
@@ -132,8 +159,46 @@ export function TicketManagement({
         </Button>
       </motion.div>
 
+      {/* Event Filter */}
+      <div className="flex items-center gap-4">
+        <div className="flex items-center gap-2">
+          <Filter className="h-4 w-4 text-muted-foreground" />
+          <span className="text-sm text-muted-foreground">
+            {t("filterByEvent") ?? "Filter by Event"}:
+          </span>
+        </div>
+        <Select
+          value={selectedEventId}
+          onValueChange={setSelectedEventId}
+        >
+          <SelectTrigger className="w-[250px]">
+            <SelectValue placeholder={t("selectEvent") ?? "Select Event"} />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">
+              {t("allEvents") ?? "All Events"}
+            </SelectItem>
+            {isLoadingEvents ? (
+              <SelectItem value="loading" disabled>
+                Loading events...
+              </SelectItem>
+            ) : events.length === 0 ? (
+              <SelectItem value="no-events" disabled>
+                No events available
+              </SelectItem>
+            ) : (
+              events.map((event) => (
+                <SelectItem key={event.id} value={event.id}>
+                  {event.eventName}
+                </SelectItem>
+              ))
+            )}
+          </SelectContent>
+        </Select>
+      </div>
+
       <TicketList
-        tickets={tickets}
+        tickets={filteredTickets}
         isLoading={isLoadingTickets}
         onEdit={handleEdit}
         onMore={handleMore}

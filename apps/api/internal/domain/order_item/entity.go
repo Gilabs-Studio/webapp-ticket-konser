@@ -104,4 +104,10 @@ type UpdateOrderItemRequest struct {
 	CheckInTime *time.Time    `json:"check_in_time" binding:"omitempty"`
 }
 
+// GenerateTicketsRequest represents generate tickets request DTO
+type GenerateTicketsRequest struct {
+	Categories []string `json:"categories" binding:"required,min=1,dive,uuid"`
+	Quantities []int    `json:"quantities" binding:"required,min=1,dive,min=1"`
+}
+
 

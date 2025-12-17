@@ -79,6 +79,11 @@ export function TicketCard({
       <div className="absolute top-0 right-0 p-2 z-10">{getStatusBadge()}</div>
 
       <div className="mb-4">
+        {ticket.category?.event?.event_name && (
+          <p className="text-xs text-muted-foreground mb-1">
+            {ticket.category.event.event_name}
+          </p>
+        )}
         <h3 className="text-base font-medium text-foreground">{ticket.name}</h3>
         <p className="text-xs text-muted-foreground mt-1">
           {ticket.description ?? "Standard entry pass"}

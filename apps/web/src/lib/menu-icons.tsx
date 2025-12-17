@@ -31,6 +31,7 @@ import {
   Settings,
   DoorOpen,
   Shirt,
+  Clock,
 } from "lucide-react";
 
 const iconMap: Record<string, React.ReactNode> = {
@@ -85,6 +86,9 @@ const iconMap: Record<string, React.ReactNode> = {
   "door-open": <DoorOpen className="h-4 w-4" />,
   // Merchandise Management icons
   shirt: <Shirt className="h-4 w-4" />,
+  // Schedule Management icons
+  clock: <Clock className="h-4 w-4" />,
+  "calendar-clock": <Clock className="h-4 w-4" />,
 };
 
 export function getMenuIcon(iconName: string): React.ReactNode {

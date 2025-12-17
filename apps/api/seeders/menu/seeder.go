@@ -26,28 +26,37 @@ func Seed() error {
 		},
 		{
 			Code:           "event-management",
-			Label:          "Event Management",
+			Label:          "Event",
 			Icon:           "calendar",
-			Path:           "/events",
+			Path:           "/events-management",
 			OrderIndex:     2,
 			PermissionCode: "event.read",
 			IsActive:       true,
 		},
 		{
 			Code:           "ticket-management",
-			Label:          "Ticket Management",
+			Label:          "Ticket",
 			Icon:           "ticket",
-			Path:           "/tickets",
+			Path:           "/tickets-management",
 			OrderIndex:     3,
 			PermissionCode: "ticket.read",
 			IsActive:       true,
 		},
 		{
-			Code:           "user-management",
-			Label:          "User Management",
-			Icon:           "users",
-			Path:           "/users",
+			Code:           "order-management",
+			Label:          "Order",
+			Icon:           "shopping-cart",
+			Path:           "/orders-management",
 			OrderIndex:     4,
+			PermissionCode: "order.read",
+			IsActive:       true,
+		},
+		{
+			Code:           "user-management",
+			Label:          "User",
+			Icon:           "users",
+			Path:           "/users-management",
+			OrderIndex:     5,
 			PermissionCode: "user.read",
 			IsActive:       true,
 		},
@@ -56,7 +65,7 @@ func Seed() error {
 			Label:          "Settings",
 			Icon:           "settings",
 			Path:           "/settings",
-			OrderIndex:     5,
+			OrderIndex:     6,
 			PermissionCode: "settings.read",
 			IsActive:       true,
 		},
@@ -64,33 +73,43 @@ func Seed() error {
 			Code:           "attendees",
 			Label:          "Attendees",
 			Icon:           "users",
-			Path:           "/attendees",
-			OrderIndex:     6,
+			Path:           "/attendees-management",
+			OrderIndex:     7,
 			PermissionCode: "attendee.read",
 			IsActive:       true,
 		},
 		{
 			Code:           "gate-management",
-			Label:          "Gate Management",
+			Label:          "Gate",
 			Icon:           "door-open",
-			Path:           "/gates",
-			OrderIndex:     7,
+			Path:           "/gates-management",
+			OrderIndex:     8,
 			PermissionCode: "gate.read",
 			IsActive:       true,
 		},
 		{
 			Code:           "merchandise-management",
-			Label:          "Merchandise Management",
+			Label:          "Merchandise",
 			Icon:           "shirt",
-			Path:           "/merchandise",
-			OrderIndex:     8,
+			Path:           "/merchandise-management",
+			OrderIndex:     9,
 			PermissionCode: "merchandise.read",
+			IsActive:       true,
+		},
+		{
+			Code:           "schedule-management",
+			Label:          "Schedule",
+			Icon:           "calendar-clock",
+			Path:           "/schedules-management",
+			OrderIndex:     10,
+			PermissionCode: "schedule.read",
 			IsActive:       true,
 		},
 		// Note: Scanner and Check-ins menus are NOT added here because:
 		// - Staff access these via profile dropdown (not sidebar)
 		// - Admin should not see these in sidebar (they have admin dashboard)
 		// - These are accessed via /scanner and /check-ins routes (not /staff/*)
+		// Note: Ticket Category management is accessible via tabs in Ticket Management page
 	}
 
 	createdCount := 0
@@ -136,6 +155,3 @@ func Seed() error {
 	log.Printf("[Menu Seeder] Menus seeded successfully. Created: %d, Skipped: %d", createdCount, skippedCount)
 	return nil
 }
-
-
-

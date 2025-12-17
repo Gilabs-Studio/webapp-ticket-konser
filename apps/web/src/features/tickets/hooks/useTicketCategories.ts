@@ -26,6 +26,15 @@ export function useTicketCategories() {
   });
 }
 
+export function useTicketCategoriesByEventId(eventId: string) {
+  return useQuery({
+    queryKey: ["ticket-categories", "event", eventId],
+    queryFn: () => ticketCategoryService.getTicketCategoriesByEventId(eventId),
+    enabled: !!eventId,
+    staleTime: 30000,
+  });
+}
+
 export function useCreateTicketCategory() {
   const queryClient = useQueryClient();
   const t = useTranslations("tickets");

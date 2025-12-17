@@ -1,5 +1,11 @@
 import apiClient from "@/lib/api-client";
-import type { ApiResponse, TicketType, Order } from "../types";
+import type {
+  ApiResponse,
+  TicketType,
+  Order,
+  ETicket,
+  GenerateTicketsRequest,
+} from "../types";
 
 // API Response types
 interface TicketResponse {
@@ -12,6 +18,16 @@ interface TicketResponse {
   sold: number;
   status: "active" | "low_stock" | "sold_out" | "inactive";
   category_id: string;
+  category?: {
+    id: string;
+    event_id: string;
+    event?: {
+      id: string;
+      event_name: string;
+      start_date?: string;
+      end_date?: string;
+    };
+  };
   created_at: string;
   updated_at: string;
 }
@@ -70,7 +86,7 @@ export const ticketService = {
     );
 
     // Map API response to frontend types
-    const tickets: TicketType[] = (response.data.data ?? []).map((t) => ({
+    const tickets: TicketType[] = (response.data.data ?? []).map((t: TicketResponse) => ({
       id: t.id,
       name: t.name,
       description: t.description,
@@ -79,6 +95,16 @@ export const ticketService = {
       total_quota: t.total_quota,
       sold: t.sold,
       status: t.status as TicketType["status"],
+      category: t.category ? {
+        id: t.category.id,
+        event_id: t.category.event_id,
+        event: t.category.event ? {
+          id: t.category.event.id,
+          event_name: t.category.event.event_name,
+          start_date: t.category.event.start_date,
+          end_date: t.category.event.end_date,
+        } : undefined,
+      } : undefined,
     }));
 
     return {
@@ -98,15 +124,26 @@ export const ticketService = {
       `/tickets/${id}`,
     );
 
+    const t = response.data.data;
     const ticket: TicketType = {
-      id: response.data.data.id,
-      name: response.data.data.name,
-      description: response.data.data.description,
-      price: response.data.data.price,
-      price_formatted: response.data.data.price_formatted,
-      total_quota: response.data.data.total_quota,
-      sold: response.data.data.sold,
-      status: response.data.data.status as TicketType["status"],
+      id: t.id,
+      name: t.name,
+      description: t.description,
+      price: t.price,
+      price_formatted: t.price_formatted,
+      total_quota: t.total_quota,
+      sold: t.sold,
+      status: t.status as TicketType["status"],
+      category: t.category ? {
+        id: t.category.id,
+        event_id: t.category.event_id,
+        event: t.category.event ? {
+          id: t.category.event.id,
+          event_name: t.category.event.event_name,
+          start_date: t.category.event.start_date,
+          end_date: t.category.event.end_date,
+        } : undefined,
+      } : undefined,
     };
 
     return {
@@ -127,7 +164,7 @@ export const ticketService = {
     );
 
     // Map API response to frontend types
-    const orders: Order[] = (response.data.data ?? []).map((o) => {
+    const orders: Order[] = (response.data.data ?? []).map((o: OrderResponse) => {
       // Format order code
       const orderId = o.order_code.replace("ORD-", "#");
       
@@ -173,5 +210,51 @@ export const ticketService = {
       timestamp: response.data.timestamp,
       request_id: response.data.request_id,
     };
+  },
+
+  /**
+   * Get E-Ticket (order item) by ID
+   */
+  async getETicketById(id: string): Promise<ApiResponse<ETicket>> {
+    const response = await apiClient.get<ApiResponse<ETicket>>(
+      `/admin/tickets/${id}`,
+    );
+    return response.data;
+  },
+
+  /**
+   * Get E-Ticket (order item) by QR code
+   */
+  async getETicketByQRCode(qrCode: string): Promise<ApiResponse<ETicket>> {
+    const response = await apiClient.get<ApiResponse<ETicket>>(
+      `/admin/tickets/qr/${qrCode}`,
+    );
+    return response.data;
+  },
+
+  /**
+   * Get E-Tickets (order items) by order ID
+   */
+  async getETicketsByOrderId(
+    orderId: string,
+  ): Promise<ApiResponse<ETicket[]>> {
+    const response = await apiClient.get<ApiResponse<ETicket[]>>(
+      `/admin/order-tickets/order/${orderId}`,
+    );
+    return response.data;
+  },
+
+  /**
+   * Generate E-Tickets (order items) for an order
+   */
+  async generateTickets(
+    orderId: string,
+    request: GenerateTicketsRequest,
+  ): Promise<ApiResponse<ETicket[]>> {
+    const response = await apiClient.post<ApiResponse<ETicket[]>>(
+      `/admin/order-tickets/order/${orderId}/generate`,
+      request,
+    );
+    return response.data;
   },
 };

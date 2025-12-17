@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
@@ -14,6 +15,7 @@ import {
 import {
   useCreateTicketCategory,
   useUpdateTicketCategory,
+  useTicketCategoriesByEventId,
 } from "../hooks/useTicketCategories";
 import { Loader2 } from "lucide-react";
 import { DialogFooter } from "@/components/ui/dialog";
@@ -49,15 +51,7 @@ export function TicketCategoryForm({
 
   const isPending = isCreating || isUpdating;
   const isEditMode = !!ticketCategoryId;
-
-  // Get events for event selection
-  const { data: eventsData } = useQuery({
-    queryKey: ["events"],
-    queryFn: () => eventService.getEvents({ page: 1, per_page: 100 }),
-    staleTime: 30000,
-  });
-
-  const events = eventsData?.data ?? [];
+  const [isCreatingNewCategory, setIsCreatingNewCategory] = useState(false);
 
   const schema = isEditMode
     ? updateTicketCategorySchema
@@ -80,13 +74,36 @@ export function TicketCategoryForm({
     handleSubmit,
     formState: { errors },
     setValue,
+    watch,
+    control,
   } = form;
 
-  // Use useWatch to avoid memoization issues
+  // Use useWatch to avoid memoization issues - must be declared before using it
   const eventId = useWatch({
-    control: form.control,
+    control: control,
     name: "event_id" as keyof TicketCategoryFormData,
   }) as string | undefined;
+
+  // Get events for event selection
+  const { data: eventsData } = useQuery({
+    queryKey: ["events", "admin"],
+    queryFn: () => eventService.getEvents({ page: 1, per_page: 100 }),
+    staleTime: 30000,
+  });
+
+  const events = eventsData?.data ?? [];
+
+  // Get ticket categories for the selected event
+  const { data: categoriesData, isLoading: isLoadingCategories } =
+    useTicketCategoriesByEventId(eventId ?? "");
+
+  const categories = categoriesData?.data ?? [];
+
+  // Reset creating new category state when event changes
+  useEffect(() => {
+    setIsCreatingNewCategory(false);
+    setValue("category_name", "");
+  }, [eventId, setValue]);
 
   // Helper function to validate and convert numeric field
   const validateNumericField = (
@@ -208,7 +225,7 @@ export function TicketCategoryForm({
             <SelectContent>
               {events.map((event) => (
                 <SelectItem key={event.id} value={event.id}>
-                  {event.event_name}
+                  {event.eventName}
                 </SelectItem>
               ))}
             </SelectContent>
@@ -225,17 +242,69 @@ export function TicketCategoryForm({
         <Label htmlFor="category_name" className="text-sm">
           Category Name <span className="text-destructive">*</span>
         </Label>
-        <Input
-          id="category_name"
-          type="text"
-          placeholder="VIP Pass"
-          {...register("category_name")}
-          className={errors.category_name ? "border-destructive" : ""}
-          disabled={isPending}
-        />
+        {!isEditMode && eventId && categories.length > 0 && !isCreatingNewCategory ? (
+          <Select
+            value={watch("category_name") ?? ""}
+            onValueChange={(value) => {
+              if (value === "__new__") {
+                setIsCreatingNewCategory(true);
+                setValue("category_name", "");
+              } else {
+                setValue("category_name", value);
+                // Auto-fill price, quota, and limit_per_user if category is selected
+                const selectedCategory = categories.find(
+                  (cat) => cat.category_name === value,
+                );
+                if (selectedCategory) {
+                  setValue("price", selectedCategory.price);
+                  setValue("quota", selectedCategory.quota);
+                  setValue("limit_per_user", selectedCategory.limit_per_user);
+                }
+              }
+            }}
+            disabled={isPending || isLoadingCategories}
+          >
+            <SelectTrigger
+              className={
+                errors.category_name ? "border-destructive" : ""
+              }
+            >
+              <SelectValue placeholder="Select a category" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="__new__">
+                + Create New Category
+              </SelectItem>
+              {categories.map((category) => (
+                <SelectItem key={category.id} value={category.category_name}>
+                  {category.category_name} -{" "}
+                  {new Intl.NumberFormat("id-ID", {
+                    style: "currency",
+                    currency: "IDR",
+                    minimumFractionDigits: 0,
+                  }).format(category.price)}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        ) : (
+          <Input
+            id="category_name"
+            type="text"
+            placeholder="VIP Pass"
+            {...register("category_name")}
+            className={errors.category_name ? "border-destructive" : ""}
+            disabled={isPending}
+          />
+        )}
         {errors.category_name && (
           <p className="text-xs text-destructive mt-1">
             {errors.category_name.message}
+          </p>
+        )}
+        {!isEditMode && eventId && categories.length > 0 && !isCreatingNewCategory && (
+          <p className="text-xs text-muted-foreground mt-1">
+            Select an existing category to reuse its settings, or choose "Create New Category" to enter a new name
           </p>
         )}
       </div>
@@ -364,7 +433,7 @@ export function TicketCategoryForm({
             disabled={isPending}
           >
             {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-            {isEditMode ? "Update Ticket" : "Create Ticket"}
+            {isEditMode ? "Update Category" : "Create Category"}
           </Button>
         </DialogFooter>
       </>
@@ -393,7 +462,7 @@ export function TicketCategoryForm({
           )}
           <Button type="submit" disabled={isPending}>
             {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-            {isEditMode ? "Update Ticket" : "Create Ticket"}
+            {isEditMode ? "Update Category" : "Create Category"}
           </Button>
         </div>
       </div>

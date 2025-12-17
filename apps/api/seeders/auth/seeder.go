@@ -15,7 +15,7 @@ import (
 // This function uses upsert logic: creates user if not exists, skips if exists
 func Seed() error {
 	// Get roles
-	var adminRole, staffTicketRole role.Role
+	var adminRole, staffTicketRole, guestRole role.Role
 	if err := database.DB.Where("code = ?", "admin").First(&adminRole).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			log.Println("[Auth Seeder] Error: Admin role not found. Please seed roles first.")
@@ -26,6 +26,13 @@ func Seed() error {
 	if err := database.DB.Where("code = ?", "staff_ticket").First(&staffTicketRole).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			log.Println("[Auth Seeder] Error: Staff ticket role not found. Please seed roles first.")
+			return err
+		}
+		return err
+	}
+	if err := database.DB.Where("code = ?", "guest").First(&guestRole).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			log.Println("[Auth Seeder] Error: Guest role not found. Please seed roles first.")
 			return err
 		}
 		return err
@@ -52,6 +59,14 @@ func Seed() error {
 			Name:      "Staff Ticket User",
 			AvatarURL: "https://api.dicebear.com/7.x/lorelei/svg?seed=staff@example.com",
 			RoleID:    staffTicketRole.ID,
+			Status:    "active",
+		},
+		{
+			Email:     "guest@example.com",
+			Password:  string(hashedPassword),
+			Name:      "Guest User",
+			AvatarURL: "https://api.dicebear.com/7.x/lorelei/svg?seed=guest@example.com",
+			RoleID:    guestRole.ID,
 			Status:    "active",
 		},
 	}
@@ -87,6 +102,3 @@ func Seed() error {
 	log.Printf("[Auth Seeder] Users seeded successfully. Created: %d, Skipped: %d", createdCount, skippedCount)
 	return nil
 }
-
-
-

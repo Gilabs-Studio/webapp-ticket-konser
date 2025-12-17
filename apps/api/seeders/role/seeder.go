@@ -67,6 +67,3 @@ func Seed() error {
 	log.Printf("[Role Seeder] Roles seeded successfully. Created: %d, Skipped: %d", createdCount, skippedCount)
 	return nil
 }
-
-
-

@@ -26,13 +26,14 @@ export function proxy(request: NextRequest) {
   // Protected admin routes (moved from /admin/* to root level)
   const protectedAdminRoutes = [
     "/dashboard",
-    "/tickets",
+    "/tickets-management",
     "/settings",
-    "/merchandise",
+    "/merchandise-management",
     "/attendance",
-    "/attendees",
-    "/events",
-    "/users",
+    "/attendees-management",
+    "/events-management",
+    "/users-management",
+    "/gates-management",
   ];
 
   // Check if accessing protected admin routes

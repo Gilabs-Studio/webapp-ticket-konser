@@ -41,8 +41,75 @@ Dokumentasi Postman collection untuk WebApp Ticketing API.
 
 ### Authentication
 - **Login**: POST `/api/v1/auth/login`
+  - Response includes `user.permissions` as array of strings (permission codes only)
+  - Lightweight format for quick authorization checks
+  - Use for: route guards, permission validation
+- **Get User Menus and Permissions**: GET `/api/v1/auth/me/menus-permissions`
+  - Response includes full menu and permission objects with complete metadata
+  - Complete format for UI rendering and management
+  - Use for: navigation menu, permission management UI
 - **Refresh Token**: POST `/api/v1/auth/refresh`
 - **Logout**: POST `/api/v1/auth/logout`
+
+#### Understanding Permissions in Login vs Menus-Permissions
+
+**Login Response (`POST /api/v1/auth/login`):**
+```json
+{
+  "success": true,
+  "data": {
+    "user": {
+      "id": "user-uuid",
+      "email": "admin@example.com",
+      "permissions": ["ticket.read", "ticket.create", "event.read"]
+    },
+    "token": "...",
+    "refresh_token": "..."
+  }
+}
+```
+- `permissions` adalah **array of strings** (codes only)
+- **Ringan** (~100 bytes untuk 20 permissions)
+- **Cepat** untuk authorization checks
+- **Gunakan untuk**: Route guards, permission validation, quick checks
+
+**Menus-Permissions Response (`GET /api/v1/auth/me/menus-permissions`):**
+```json
+{
+  "success": true,
+  "data": {
+    "menus": [
+      {
+        "id": "menu-uuid",
+        "code": "dashboard",
+        "label": "Dashboard",
+        "icon": "home",
+        "path": "/dashboard",
+        "permission_code": "dashboard.read",
+        "children": [...]
+      }
+    ],
+    "permissions": [
+      {
+        "id": "permission-uuid",
+        "code": "ticket.read",
+        "name": "Read Ticket",
+        "description": "Permission untuk membaca data ticket",
+        "resource": "ticket",
+        "action": "read"
+      }
+    ]
+  }
+}
+```
+- `menus` dan `permissions` adalah **full objects** dengan semua metadata
+- **Lengkap** (~2-5 KB untuk 20 permissions)
+- **Gunakan untuk**: Build navigation menu, display permission details, permission management UI
+
+**Best Practice:**
+1. Setelah login, simpan `user.permissions` (string array) untuk quick checks
+2. Fetch `/auth/me/menus-permissions` sekali setelah login untuk UI data
+3. Cache hasil di frontend store untuk menghindari re-fetch
 
 ### Health Check
 - **Health**: GET `/health`

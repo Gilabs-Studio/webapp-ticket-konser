@@ -160,4 +160,25 @@ func (h *Handler) List(c *gin.Context) {
 	response.SuccessResponse(c, schedules, meta)
 }
 
+// GetByEventIDPublic gets schedules by event ID (public route - for guest, include rundown)
+// GET /api/v1/events/:event_id/schedules
+func (h *Handler) GetByEventIDPublic(c *gin.Context) {
+	eventID := c.Param("event_id")
+	if eventID == "" {
+		errors.ErrorResponse(c, "INVALID_PATH_PARAM", map[string]interface{}{
+			"param": "event_id",
+		}, nil)
+		return
+	}
+
+	schedules, err := h.scheduleService.GetByEventID(eventID)
+	if err != nil {
+		errors.InternalServerErrorResponse(c, "")
+		return
+	}
+
+	meta := &response.Meta{}
+	response.SuccessResponse(c, schedules, meta)
+}
+
 

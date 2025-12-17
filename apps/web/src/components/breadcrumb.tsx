@@ -23,6 +23,12 @@ export function Breadcrumb({ eventName, eventStatus }: BreadcrumbProps) {
     const labelMap: Record<string, string> = {
       admin: "Events",
       dashboard: "Dashboard",
+      "users-management": "Users",
+      "events-management": "Events",
+      "tickets-management": "Tickets",
+      "merchandise-management": "Merchandise",
+      "gates-management": "Gates",
+      "attendees-management": "Attendees",
       users: "Users",
       events: "Events",
       tickets: "Tickets",

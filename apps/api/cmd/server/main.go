@@ -14,6 +14,7 @@ import (
 	menuhandler "github.com/gilabs/webapp-ticket-konser/api/internal/api/handlers/menu"
 	merchandisehandler "github.com/gilabs/webapp-ticket-konser/api/internal/api/handlers/merchandise"
 	orderhandler "github.com/gilabs/webapp-ticket-konser/api/internal/api/handlers/order"
+	orderitemhandler "github.com/gilabs/webapp-ticket-konser/api/internal/api/handlers/order_item"
 	permissionhandler "github.com/gilabs/webapp-ticket-konser/api/internal/api/handlers/permission"
 	rolehandler "github.com/gilabs/webapp-ticket-konser/api/internal/api/handlers/role"
 	schedulehandler "github.com/gilabs/webapp-ticket-konser/api/internal/api/handlers/schedule"
@@ -31,6 +32,7 @@ import (
 	menuroutes "github.com/gilabs/webapp-ticket-konser/api/internal/api/routes/menu"
 	merchandiseroutes "github.com/gilabs/webapp-ticket-konser/api/internal/api/routes/merchandise"
 	orderroutes "github.com/gilabs/webapp-ticket-konser/api/internal/api/routes/order"
+	orderitemroutes "github.com/gilabs/webapp-ticket-konser/api/internal/api/routes/order_item"
 	permissionroutes "github.com/gilabs/webapp-ticket-konser/api/internal/api/routes/permission"
 	roleroutes "github.com/gilabs/webapp-ticket-konser/api/internal/api/routes/role"
 	scheduleroutes "github.com/gilabs/webapp-ticket-konser/api/internal/api/routes/schedule"
@@ -67,6 +69,7 @@ import (
 	menuservice "github.com/gilabs/webapp-ticket-konser/api/internal/service/menu"
 	merchandiseservice "github.com/gilabs/webapp-ticket-konser/api/internal/service/merchandise"
 	orderservice "github.com/gilabs/webapp-ticket-konser/api/internal/service/order"
+	orderitemservice "github.com/gilabs/webapp-ticket-konser/api/internal/service/order_item"
 	permissionservice "github.com/gilabs/webapp-ticket-konser/api/internal/service/permission"
 	roleservice "github.com/gilabs/webapp-ticket-konser/api/internal/service/role"
 	scheduleservice "github.com/gilabs/webapp-ticket-konser/api/internal/service/schedule"
@@ -143,6 +146,7 @@ func main() {
 	ticketService := ticketservice.NewService(ticketRepo)
 	scheduleService := scheduleservice.NewService(scheduleRepo)
 	orderService := orderservice.NewService(orderRepo)
+	orderItemService := orderitemservice.NewService(orderItemRepo, orderRepo, ticketCategoryRepo)
 	checkInService := checkinservice.NewService(checkInRepo, orderItemRepo)
 	gateService := gateservice.NewService(gateRepo, orderItemRepo, checkInRepo, checkInService)
 	userService := userservice.NewService(userRepo, roleRepo)
@@ -161,6 +165,7 @@ func main() {
 	ticketHandler := tickethandler.NewHandler(ticketService)
 	scheduleHandler := schedulehandler.NewHandler(scheduleService)
 	orderHandler := orderhandler.NewHandler(orderService)
+	orderItemHandler := orderitemhandler.NewHandler(orderItemService)
 	checkInHandler := checkinhandler.NewHandler(checkInService)
 	gateHandler := gatehandler.NewHandler(gateService)
 	userHandler := userhandler.NewHandler(userService)
@@ -181,6 +186,7 @@ func main() {
 		ticketHandler,
 		scheduleHandler,
 		orderHandler,
+		orderItemHandler,
 		checkInHandler,
 		gateHandler,
 		userHandler,
@@ -210,6 +216,7 @@ func setupRouter(
 	ticketHandler *tickethandler.Handler,
 	scheduleHandler *schedulehandler.Handler,
 	orderHandler *orderhandler.Handler,
+	orderItemHandler *orderitemhandler.Handler,
 	checkInHandler *checkinhandler.Handler,
 	gateHandler *gatehandler.Handler,
 	userHandler *userhandler.Handler,
@@ -266,19 +273,22 @@ func setupRouter(
 		// Menu routes
 		menuroutes.SetupRoutes(v1, menuHandler, roleRepo, jwtManager)
 
-		// Event routes
-		eventroutes.SetupRoutes(v1, eventHandler, roleRepo, jwtManager)
-
-		// Ticket Category routes
+		// Ticket Category routes (must be before event routes to avoid route conflict)
 		ticketcategoryroutes.SetupRoutes(v1, ticketCategoryHandler, roleRepo, jwtManager)
+
+		// Schedule routes (must be before event routes to avoid route conflict)
+		scheduleroutes.SetupRoutes(v1, scheduleHandler, roleRepo, jwtManager)
+
+		// Event routes (must be after nested routes to avoid route conflict)
+		eventroutes.SetupRoutes(v1, eventHandler, roleRepo, jwtManager)
 
 		// Ticket routes
 		ticketroutes.SetupRoutes(v1, ticketHandler, roleRepo, jwtManager)
 
-		// Schedule routes
-		scheduleroutes.SetupRoutes(v1, scheduleHandler, roleRepo, jwtManager)
+		// Order Item (Ticket) routes (must be before order routes to avoid route conflict)
+		orderitemroutes.SetupRoutes(v1, orderItemHandler, roleRepo, jwtManager)
 
-		// Order routes
+		// Order routes (must be after nested routes to avoid route conflict)
 		orderroutes.SetupRoutes(v1, orderHandler, roleRepo, jwtManager)
 
 		// Check-in routes

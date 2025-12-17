@@ -47,6 +47,7 @@ export interface Menu {
   is_active: boolean;
   created_at: string;
   updated_at: string;
+  children?: Menu[]; // Hierarchical menu structure
 }
 
 export interface Permission {

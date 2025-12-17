@@ -28,3 +28,29 @@ export function formatCurrency(amount: number | string | undefined | null): stri
     maximumFractionDigits: 0,
   }).format(numAmount);
 }
+
+/**
+ * Format date string to readable format
+ * @param dateString - The date string to format (ISO format or date string)
+ * @returns Formatted date string like "Jan 1, 2024"
+ */
+export function formatDate(dateString?: string | null): string {
+  if (!dateString) {
+    return "";
+  }
+
+  try {
+    const date = new Date(dateString);
+    if (Number.isNaN(date.getTime())) {
+      return "";
+    }
+
+    return new Intl.DateTimeFormat("en-US", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+    }).format(date);
+  } catch {
+    return "";
+  }
+}

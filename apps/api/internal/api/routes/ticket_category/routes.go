@@ -2,7 +2,7 @@ package ticketcategory
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/gilabs/webapp-ticket-konser/api/internal/api/handlers/ticket_category"
+	ticketcategoryhandler "github.com/gilabs/webapp-ticket-konser/api/internal/api/handlers/ticket_category"
 	"github.com/gilabs/webapp-ticket-konser/api/internal/api/middleware"
 	"github.com/gilabs/webapp-ticket-konser/api/internal/repository/interfaces/role"
 	"github.com/gilabs/webapp-ticket-konser/api/pkg/jwt"
@@ -10,10 +10,16 @@ import (
 
 func SetupRoutes(
 	router *gin.RouterGroup,
-	ticketCategoryHandler *ticketcategory.Handler,
+	ticketCategoryHandler *ticketcategoryhandler.Handler,
 	roleRepo role.Repository,
 	jwtManager *jwt.JWTManager,
 ) {
+	// Public routes (for guest - no authentication required)
+	publicRoutes := router.Group("/events")
+	{
+		publicRoutes.GET("/:event_id/ticket-categories", ticketCategoryHandler.GetByEventIDPublic) // Get ticket categories by event ID (public)
+	}
+
 	// Admin only routes
 	adminRoutes := router.Group("/admin/ticket-categories")
 	adminRoutes.Use(middleware.AuthMiddleware(jwtManager))
