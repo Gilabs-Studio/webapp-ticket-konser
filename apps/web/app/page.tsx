@@ -5,3 +5,4 @@ export default function RootRedirectPage() {
   // Redirect root "/" to default locale landing page
   redirect(`/${routing.defaultLocale}`);
 }
+

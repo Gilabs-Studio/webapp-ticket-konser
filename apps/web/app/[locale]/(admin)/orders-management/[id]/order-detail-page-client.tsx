@@ -27,3 +27,4 @@ export function OrderDetailPageClient({
   return <OrderDetail order={order} isLoading={isLoading} />;
 }
 
+

@@ -26,6 +26,23 @@ export interface OrderSchedule {
   readonly remaining_seat: number;
 }
 
+export interface OrderItem {
+  readonly id: string;
+  readonly order_id: string;
+  readonly category_id: string;
+  readonly category?: {
+    readonly id: string;
+    readonly category_name: string;
+    readonly price: number;
+    readonly price_formatted?: string;
+  };
+  readonly qr_code: string;
+  readonly status: "UNPAID" | "PAID" | "CHECKED-IN" | "CANCELED" | "REFUNDED";
+  readonly check_in_time?: string;
+  readonly created_at: string;
+  readonly updated_at: string;
+}
+
 export interface Order {
   readonly id: string;
   readonly user_id: string;
@@ -33,11 +50,19 @@ export interface Order {
   readonly order_code: string;
   readonly schedule_id: string;
   readonly schedule?: OrderSchedule;
+  readonly ticket_category_id: string;
+  readonly quantity: number;
   readonly total_amount: number;
   readonly total_amount_formatted?: string;
   readonly payment_status: PaymentStatus;
   readonly payment_method?: string;
   readonly midtrans_transaction_id?: string;
+  readonly payment_expires_at?: string;
+  readonly qris_code?: string; // Temporary QRIS code (available for pending payments)
+  readonly buyer_name: string;
+  readonly buyer_email: string;
+  readonly buyer_phone: string;
+  readonly order_items?: OrderItem[];
   readonly created_at: string;
   readonly updated_at: string;
 }
@@ -72,9 +97,43 @@ export interface OrderFilters {
   readonly end_date?: string;
 }
 
+export interface CreateOrderRequest {
+  readonly schedule_id: string;
+  readonly ticket_category_id: string;
+  readonly quantity: number;
+  readonly buyer_name: string;
+  readonly buyer_email: string;
+  readonly buyer_phone: string;
+}
+
 export interface UpdateOrderRequest {
   readonly payment_status?: PaymentStatus;
   readonly payment_method?: string;
   readonly midtrans_transaction_id?: string;
+}
+
+export interface PaymentInitiationRequest {
+  readonly payment_method: "qris";
+}
+
+export interface PaymentInitiationResponse {
+  readonly order_id: string;
+  readonly transaction_id: string;
+  readonly payment_type: string;
+  readonly qris_code: string;
+  readonly payment_url: string;
+  readonly expires_at: string;
+  readonly status: string;
+}
+
+export interface PaymentStatusResponse {
+  readonly order_id: string;
+  readonly payment_status: string;
+  readonly payment_method: string | null;
+  readonly transaction_id: string | null;
+  readonly paid_at: string | null;
+  readonly expires_at: string | null;
+  readonly is_expired: boolean;
+  readonly qris_code?: string; // QRIS code (available for pending QRIS transactions)
 }
 

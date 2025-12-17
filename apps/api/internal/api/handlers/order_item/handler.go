@@ -1,21 +1,27 @@
 package orderitem
 
 import (
+	"errors"
+
 	orderitem "github.com/gilabs/webapp-ticket-konser/api/internal/domain/order_item"
 	orderitemservice "github.com/gilabs/webapp-ticket-konser/api/internal/service/order_item"
-	"github.com/gilabs/webapp-ticket-konser/api/pkg/errors"
+	orderrepo "github.com/gilabs/webapp-ticket-konser/api/internal/repository/interfaces/order"
+	apierrors "github.com/gilabs/webapp-ticket-konser/api/pkg/errors"
 	"github.com/gilabs/webapp-ticket-konser/api/pkg/response"
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
+	"gorm.io/gorm"
 )
 
 type Handler struct {
 	orderItemService *orderitemservice.Service
+	orderRepo        orderrepo.Repository
 }
 
-func NewHandler(orderItemService *orderitemservice.Service) *Handler {
+func NewHandler(orderItemService *orderitemservice.Service, orderRepo orderrepo.Repository) *Handler {
 	return &Handler{
 		orderItemService: orderItemService,
+		orderRepo:        orderRepo,
 	}
 }
 
@@ -24,7 +30,7 @@ func NewHandler(orderItemService *orderitemservice.Service) *Handler {
 func (h *Handler) GetByID(c *gin.Context) {
 	id := c.Param("id")
 	if id == "" {
-		errors.ErrorResponse(c, "INVALID_PATH_PARAM", map[string]interface{}{
+		apierrors.ErrorResponse(c, "INVALID_PATH_PARAM", map[string]interface{}{
 			"param": "id",
 		}, nil)
 		return
@@ -33,10 +39,10 @@ func (h *Handler) GetByID(c *gin.Context) {
 	ticket, err := h.orderItemService.GetByID(id)
 	if err != nil {
 		if err == orderitemservice.ErrOrderItemNotFound {
-			errors.NotFoundResponse(c, "ticket", id)
+			apierrors.NotFoundResponse(c, "ticket", id)
 			return
 		}
-		errors.InternalServerErrorResponse(c, "")
+		apierrors.InternalServerErrorResponse(c, "")
 		return
 	}
 
@@ -49,7 +55,7 @@ func (h *Handler) GetByID(c *gin.Context) {
 func (h *Handler) GetByQRCode(c *gin.Context) {
 	qrCode := c.Param("qr_code")
 	if qrCode == "" {
-		errors.ErrorResponse(c, "INVALID_PATH_PARAM", map[string]interface{}{
+		apierrors.ErrorResponse(c, "INVALID_PATH_PARAM", map[string]interface{}{
 			"param": "qr_code",
 		}, nil)
 		return
@@ -58,10 +64,10 @@ func (h *Handler) GetByQRCode(c *gin.Context) {
 	ticket, err := h.orderItemService.GetByQRCode(qrCode)
 	if err != nil {
 		if err == orderitemservice.ErrOrderItemNotFound {
-			errors.NotFoundResponse(c, "ticket", qrCode)
+			apierrors.NotFoundResponse(c, "ticket", qrCode)
 			return
 		}
-		errors.InternalServerErrorResponse(c, "")
+		apierrors.InternalServerErrorResponse(c, "")
 		return
 	}
 
@@ -74,7 +80,7 @@ func (h *Handler) GetByQRCode(c *gin.Context) {
 func (h *Handler) GetByOrderID(c *gin.Context) {
 	orderID := c.Param("order_id")
 	if orderID == "" {
-		errors.ErrorResponse(c, "INVALID_PATH_PARAM", map[string]interface{}{
+		apierrors.ErrorResponse(c, "INVALID_PATH_PARAM", map[string]interface{}{
 			"param": "order_id",
 		}, nil)
 		return
@@ -82,7 +88,7 @@ func (h *Handler) GetByOrderID(c *gin.Context) {
 
 	tickets, err := h.orderItemService.GetByOrderID(orderID)
 	if err != nil {
-		errors.InternalServerErrorResponse(c, "")
+		apierrors.InternalServerErrorResponse(c, "")
 		return
 	}
 
@@ -95,7 +101,7 @@ func (h *Handler) GetByOrderID(c *gin.Context) {
 func (h *Handler) GenerateTickets(c *gin.Context) {
 	orderID := c.Param("order_id")
 	if orderID == "" {
-		errors.ErrorResponse(c, "INVALID_PATH_PARAM", map[string]interface{}{
+		apierrors.ErrorResponse(c, "INVALID_PATH_PARAM", map[string]interface{}{
 			"param": "order_id",
 		}, nil)
 		return
@@ -104,9 +110,9 @@ func (h *Handler) GenerateTickets(c *gin.Context) {
 	var req orderitem.GenerateTicketsRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		if validationErrors, ok := err.(validator.ValidationErrors); ok {
-			errors.HandleValidationError(c, validationErrors)
+			apierrors.HandleValidationError(c, validationErrors)
 		} else {
-			errors.InvalidRequestBodyResponse(c)
+			apierrors.InvalidRequestBodyResponse(c)
 		}
 		return
 	}
@@ -114,22 +120,22 @@ func (h *Handler) GenerateTickets(c *gin.Context) {
 	tickets, err := h.orderItemService.GenerateTickets(orderID, req.Categories, req.Quantities)
 	if err != nil {
 		if err == orderitemservice.ErrOrderNotFound {
-			errors.NotFoundResponse(c, "order", orderID)
+			apierrors.NotFoundResponse(c, "order", orderID)
 			return
 		}
 		if err == orderitemservice.ErrOrderNotPaid {
-			errors.ErrorResponse(c, "ORDER_NOT_PAID", map[string]interface{}{
+			apierrors.ErrorResponse(c, "ORDER_NOT_PAID", map[string]interface{}{
 				"message": "Order must be paid before generating tickets",
 			}, nil)
 			return
 		}
 		if err == orderitemservice.ErrTicketsAlreadyGenerated {
-			errors.ErrorResponse(c, "TICKETS_ALREADY_GENERATED", map[string]interface{}{
+			apierrors.ErrorResponse(c, "TICKETS_ALREADY_GENERATED", map[string]interface{}{
 				"message": "Tickets have already been generated for this order",
 			}, nil)
 			return
 		}
-		errors.InternalServerErrorResponse(c, "")
+		apierrors.InternalServerErrorResponse(c, "")
 		return
 	}
 
@@ -142,7 +148,7 @@ func (h *Handler) GenerateTickets(c *gin.Context) {
 func (h *Handler) Update(c *gin.Context) {
 	id := c.Param("id")
 	if id == "" {
-		errors.ErrorResponse(c, "INVALID_PATH_PARAM", map[string]interface{}{
+		apierrors.ErrorResponse(c, "INVALID_PATH_PARAM", map[string]interface{}{
 			"param": "id",
 		}, nil)
 		return
@@ -151,9 +157,9 @@ func (h *Handler) Update(c *gin.Context) {
 	var req orderitem.UpdateOrderItemRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		if validationErrors, ok := err.(validator.ValidationErrors); ok {
-			errors.HandleValidationError(c, validationErrors)
+			apierrors.HandleValidationError(c, validationErrors)
 		} else {
-			errors.InvalidRequestBodyResponse(c)
+			apierrors.InvalidRequestBodyResponse(c)
 		}
 		return
 	}
@@ -161,10 +167,10 @@ func (h *Handler) Update(c *gin.Context) {
 	ticket, err := h.orderItemService.Update(id, &req)
 	if err != nil {
 		if err == orderitemservice.ErrOrderItemNotFound {
-			errors.NotFoundResponse(c, "ticket", id)
+			apierrors.NotFoundResponse(c, "ticket", id)
 			return
 		}
-		errors.InternalServerErrorResponse(c, "")
+		apierrors.InternalServerErrorResponse(c, "")
 		return
 	}
 
@@ -177,7 +183,7 @@ func (h *Handler) Update(c *gin.Context) {
 func (h *Handler) Delete(c *gin.Context) {
 	id := c.Param("id")
 	if id == "" {
-		errors.ErrorResponse(c, "INVALID_PATH_PARAM", map[string]interface{}{
+		apierrors.ErrorResponse(c, "INVALID_PATH_PARAM", map[string]interface{}{
 			"param": "id",
 		}, nil)
 		return
@@ -186,13 +192,67 @@ func (h *Handler) Delete(c *gin.Context) {
 	err := h.orderItemService.Delete(id)
 	if err != nil {
 		if err == orderitemservice.ErrOrderItemNotFound {
-			errors.NotFoundResponse(c, "ticket", id)
+			apierrors.NotFoundResponse(c, "ticket", id)
 			return
 		}
-		errors.InternalServerErrorResponse(c, "")
+		apierrors.InternalServerErrorResponse(c, "")
 		return
 	}
 
 	response.SuccessResponseNoContent(c)
+}
+
+// GetMyOrderTickets gets all tickets (order items) for an order with ownership verification (Guest API)
+// GET /api/v1/orders/:id/tickets
+func (h *Handler) GetMyOrderTickets(c *gin.Context) {
+	orderID := c.Param("id")
+	if orderID == "" {
+		apierrors.ErrorResponse(c, "INVALID_PATH_PARAM", map[string]interface{}{
+			"param": "id",
+		}, nil)
+		return
+	}
+
+	// Get user ID from context
+	userID, exists := c.Get("user_id")
+	if !exists {
+		apierrors.UnauthorizedResponse(c, "user not authenticated")
+		return
+	}
+
+	userIDStr, ok := userID.(string)
+	if !ok {
+		apierrors.UnauthorizedResponse(c, "invalid user id")
+		return
+	}
+
+	// Verify order ownership
+	order, err := h.orderRepo.FindByID(orderID)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			apierrors.NotFoundResponse(c, "order", orderID)
+			return
+		}
+		apierrors.InternalServerErrorResponse(c, "")
+		return
+	}
+
+	// Verify ownership
+	if order.UserID != userIDStr {
+		apierrors.ErrorResponse(c, "FORBIDDEN", map[string]interface{}{
+			"message": "You do not have permission to access this order",
+		}, nil)
+		return
+	}
+
+	// Get tickets for the order
+	tickets, err := h.orderItemService.GetByOrderID(orderID)
+	if err != nil {
+		apierrors.InternalServerErrorResponse(c, "")
+		return
+	}
+
+	meta := &response.Meta{}
+	response.SuccessResponse(c, tickets, meta)
 }
 

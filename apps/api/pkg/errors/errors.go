@@ -103,6 +103,30 @@ var ErrorCodeMap = map[string]ErrorInfo{
 		HTTPStatus: http.StatusNotFound,
 		Message:    "Category not found",
 	},
+	"SCHEDULE_NOT_FOUND": {
+		HTTPStatus: http.StatusNotFound,
+		Message:    "Schedule not found",
+	},
+	"TICKET_CATEGORY_NOT_FOUND": {
+		HTTPStatus: http.StatusNotFound,
+		Message:    "Ticket category not found",
+	},
+	"INSUFFICIENT_QUOTA": {
+		HTTPStatus: http.StatusUnprocessableEntity,
+		Message:    "Insufficient quota available",
+	},
+	"INSUFFICIENT_SEATS": {
+		HTTPStatus: http.StatusUnprocessableEntity,
+		Message:    "Insufficient remaining seats",
+	},
+	"PAYMENT_ALREADY_PROCESSED": {
+		HTTPStatus: http.StatusConflict,
+		Message:    "Payment has already been processed",
+	},
+	"PAYMENT_EXPIRED": {
+		HTTPStatus: http.StatusUnprocessableEntity,
+		Message:    "Payment has expired",
+	},
 	"CONFLICT": {
 		HTTPStatus: http.StatusConflict,
 		Message:    "Conflict with current state",
@@ -201,7 +225,7 @@ func UnauthorizedResponse(c *gin.Context, reason string) {
 func ForbiddenResponse(c *gin.Context, requiredPermission string, userPermissions []string) {
 	details := map[string]interface{}{
 		"required_permission": requiredPermission,
-		"user_permissions":     userPermissions,
+		"user_permissions":    userPermissions,
 	}
 	ErrorResponse(c, "FORBIDDEN", details, nil)
 }
@@ -222,9 +246,9 @@ func HandleValidationError(c *gin.Context, err error) {
 		for _, fieldError := range validationErrors {
 			errorInfo := getFieldErrorInfo(fieldError.Tag())
 			fieldErr := response.FieldError{
-				Field:     fieldError.Field(),
-				Code:      fieldError.Tag(),
-				Message:   errorInfo.Message,
+				Field:   fieldError.Field(),
+				Code:    fieldError.Tag(),
+				Message: errorInfo.Message,
 			}
 			fieldErrors = append(fieldErrors, fieldErr)
 		}
@@ -258,7 +282,6 @@ func getFieldErrorInfo(tag string) ErrorInfo {
 	}
 }
 
-
 // getRequestID extracts request ID from context
 func getRequestID(c *gin.Context) string {
 	if requestID, exists := c.Get("request_id"); exists {
@@ -278,4 +301,3 @@ func InvalidRequestBodyResponse(c *gin.Context) {
 func InvalidQueryParamResponse(c *gin.Context) {
 	ErrorResponse(c, "INVALID_QUERY_PARAM", nil, nil)
 }
-

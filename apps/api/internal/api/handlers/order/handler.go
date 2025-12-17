@@ -174,4 +174,155 @@ func (h *Handler) GetRecentOrders(c *gin.Context) {
 	response.SuccessResponse(c, orders, meta)
 }
 
+// CreateOrder creates a new order (Guest API)
+// POST /api/v1/orders
+func (h *Handler) CreateOrder(c *gin.Context) {
+	// Get user ID from context (set by AuthMiddleware)
+	userID, exists := c.Get("user_id")
+	if !exists {
+		errors.UnauthorizedResponse(c, "user not authenticated")
+		return
+	}
 
+	userIDStr, ok := userID.(string)
+	if !ok {
+		errors.UnauthorizedResponse(c, "invalid user id")
+		return
+	}
+
+	var req order.CreateOrderRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		if validationErrors, ok := err.(validator.ValidationErrors); ok {
+			errors.HandleValidationError(c, validationErrors)
+		} else {
+			errors.InvalidRequestBodyResponse(c)
+		}
+		return
+	}
+
+	createdOrder, err := h.orderService.CreateOrder(&req, userIDStr)
+	if err != nil {
+		if err == orderservice.ErrUserNotFound {
+			errors.ErrorResponse(c, "USER_NOT_FOUND", map[string]interface{}{
+				"message": "User account not found. Please login again.",
+			}, nil)
+			return
+		}
+		if err == orderservice.ErrScheduleNotFound {
+			errors.ErrorResponse(c, "SCHEDULE_NOT_FOUND", map[string]interface{}{
+				"schedule_id": req.ScheduleID,
+			}, nil)
+			return
+		}
+		if err == orderservice.ErrTicketCategoryNotFound {
+			errors.ErrorResponse(c, "TICKET_CATEGORY_NOT_FOUND", map[string]interface{}{
+				"ticket_category_id": req.TicketCategoryID,
+			}, nil)
+			return
+		}
+		if err == orderservice.ErrInsufficientQuota {
+			errors.ErrorResponse(c, "INSUFFICIENT_QUOTA", map[string]interface{}{
+				"requested": req.Quantity,
+			}, nil)
+			return
+		}
+		if err == orderservice.ErrInsufficientSeats {
+			errors.ErrorResponse(c, "INSUFFICIENT_SEATS", map[string]interface{}{
+				"requested": req.Quantity,
+			}, nil)
+			return
+		}
+		errors.InternalServerErrorResponse(c, "")
+		return
+	}
+
+	meta := &response.Meta{}
+	response.SuccessResponseCreated(c, createdOrder, meta)
+}
+
+// GetMyOrder gets an order by ID with ownership verification (Guest API)
+// GET /api/v1/orders/:id
+func (h *Handler) GetMyOrder(c *gin.Context) {
+	id := c.Param("id")
+	if id == "" {
+		errors.ErrorResponse(c, "INVALID_PATH_PARAM", map[string]interface{}{
+			"param": "id",
+		}, nil)
+		return
+	}
+
+	// Get user ID from context
+	userID, exists := c.Get("user_id")
+	if !exists {
+		errors.UnauthorizedResponse(c, "user not authenticated")
+		return
+	}
+
+	userIDStr, ok := userID.(string)
+	if !ok {
+		errors.UnauthorizedResponse(c, "invalid user id")
+		return
+	}
+
+	order, err := h.orderService.GetByID(id)
+	if err != nil {
+		if err == orderservice.ErrOrderNotFound {
+			errors.NotFoundResponse(c, "order", id)
+			return
+		}
+		errors.InternalServerErrorResponse(c, "")
+		return
+	}
+
+	// Verify ownership
+	if order.UserID != userIDStr {
+		errors.ErrorResponse(c, "FORBIDDEN", map[string]interface{}{
+			"message": "You do not have permission to access this order",
+		}, nil)
+		return
+	}
+
+	meta := &response.Meta{}
+	response.SuccessResponse(c, order, meta)
+}
+
+// GetMyOrders lists orders for current user (Guest API)
+// GET /api/v1/orders
+func (h *Handler) GetMyOrders(c *gin.Context) {
+	// Get user ID from context
+	userID, exists := c.Get("user_id")
+	if !exists {
+		errors.UnauthorizedResponse(c, "user not authenticated")
+		return
+	}
+
+	userIDStr, ok := userID.(string)
+	if !ok {
+		errors.UnauthorizedResponse(c, "invalid user id")
+		return
+	}
+
+	var req order.ListOrdersRequest
+	if err := c.ShouldBindQuery(&req); err != nil {
+		if validationErrors, ok := err.(validator.ValidationErrors); ok {
+			errors.HandleValidationError(c, validationErrors)
+		} else {
+			errors.InvalidQueryParamResponse(c)
+		}
+		return
+	}
+
+	// Force filter by current user ID
+	req.UserID = userIDStr
+
+	orders, pagination, err := h.orderService.List(&req)
+	if err != nil {
+		errors.InternalServerErrorResponse(c, "")
+		return
+	}
+
+	meta := &response.Meta{
+		Pagination: pagination,
+	}
+	response.SuccessResponse(c, orders, meta)
+}

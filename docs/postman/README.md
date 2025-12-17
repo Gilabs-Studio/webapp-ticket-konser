@@ -21,9 +21,11 @@ Dokumentasi Postman collection untuk WebApp Ticketing API.
 ## Usage
 
 ### 1. Health Check
+
 - Jalankan request "Health" atau "Ping" untuk memastikan API berjalan
 
 ### 2. Login
+
 - Jalankan request "Login" dengan credentials:
   ```json
   {
@@ -34,12 +36,14 @@ Dokumentasi Postman collection untuk WebApp Ticketing API.
 - Token akan otomatis disimpan di environment variable setelah login berhasil
 
 ### 3. Authenticated Requests
+
 - Semua request yang memerlukan authentication akan otomatis menggunakan token dari environment variable
 - Token akan di-set di header `Authorization: Bearer {{token}}`
 
 ## Collection Structure
 
 ### Authentication
+
 - **Login**: POST `/api/v1/auth/login`
   - Response includes `user.permissions` as array of strings (permission codes only)
   - Lightweight format for quick authorization checks
@@ -54,6 +58,7 @@ Dokumentasi Postman collection untuk WebApp Ticketing API.
 #### Understanding Permissions in Login vs Menus-Permissions
 
 **Login Response (`POST /api/v1/auth/login`):**
+
 ```json
 {
   "success": true,
@@ -68,12 +73,14 @@ Dokumentasi Postman collection untuk WebApp Ticketing API.
   }
 }
 ```
+
 - `permissions` adalah **array of strings** (codes only)
 - **Ringan** (~100 bytes untuk 20 permissions)
 - **Cepat** untuk authorization checks
 - **Gunakan untuk**: Route guards, permission validation, quick checks
 
 **Menus-Permissions Response (`GET /api/v1/auth/me/menus-permissions`):**
+
 ```json
 {
   "success": true,
@@ -102,16 +109,19 @@ Dokumentasi Postman collection untuk WebApp Ticketing API.
   }
 }
 ```
+
 - `menus` dan `permissions` adalah **full objects** dengan semua metadata
 - **Lengkap** (~2-5 KB untuk 20 permissions)
 - **Gunakan untuk**: Build navigation menu, display permission details, permission management UI
 
 **Best Practice:**
+
 1. Setelah login, simpan `user.permissions` (string array) untuk quick checks
 2. Fetch `/auth/me/menus-permissions` sekali setelah login untuk UI data
 3. Cache hasil di frontend store untuk menghindari re-fetch
 
 ### Health Check
+
 - **Health**: GET `/health`
 - **Ping**: GET `/ping`
 
@@ -120,6 +130,7 @@ Dokumentasi Postman collection untuk WebApp Ticketing API.
 Semua response mengikuti format standar:
 
 ### Success Response
+
 ```json
 {
   "success": true,
@@ -130,6 +141,7 @@ Semua response mengikuti format standar:
 ```
 
 ### Error Response
+
 ```json
 {
   "success": false,
@@ -146,4 +158,3 @@ Semua response mengikuti format standar:
 
 - Collection ini akan terus diupdate sesuai dengan perkembangan API
 - Untuk detail lengkap, lihat dokumentasi di `/docs/api-standart/`
-

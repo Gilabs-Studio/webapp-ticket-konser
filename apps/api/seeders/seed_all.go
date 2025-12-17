@@ -9,7 +9,7 @@ import (
 	menuseeder "github.com/gilabs/webapp-ticket-konser/api/seeders/menu"
 	merchandiseseeder "github.com/gilabs/webapp-ticket-konser/api/seeders/merchandise"
 	orderitemseeder "github.com/gilabs/webapp-ticket-konser/api/seeders/order_item"
-	orderseeder "github.com/gilabs/webapp-ticket-konser/api/seeders/order"
+	// orderseeder "github.com/gilabs/webapp-ticket-konser/api/seeders/order" // Disabled for testing
 	permissionseeder "github.com/gilabs/webapp-ticket-konser/api/seeders/permission"
 	roleseeder "github.com/gilabs/webapp-ticket-konser/api/seeders/role"
 	rolepermissionseeder "github.com/gilabs/webapp-ticket-konser/api/seeders/role_permission"
@@ -95,10 +95,11 @@ func SeedAll() error {
 
 	// Step 9: Seed orders (requires users and schedules)
 	log.Println("\n[Step 9/11] Seeding orders...")
-	if err := orderseeder.Seed(); err != nil {
-		log.Printf("❌ Error seeding orders: %v", err)
-		return err
-	}
+	// Order seeder disabled for testing
+	// if err := orderseeder.Seed(); err != nil {
+	// 	log.Printf("❌ Error seeding orders: %v", err)
+	// 	return err
+	// }
 
 	// Step 10: Seed order items (tickets) (requires orders and ticket categories)
 	log.Println("\n[Step 10/12] Seeding order items (tickets)...")

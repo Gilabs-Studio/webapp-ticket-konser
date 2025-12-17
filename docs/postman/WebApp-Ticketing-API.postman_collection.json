@@ -1095,6 +1095,198 @@
       ]
     },
     {
+      "name": "Guest Order APIs",
+      "item": [
+        {
+          "name": "Create Order",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"schedule_id\": \"schedule-uuid-here\",\n  \"ticket_category_id\": \"category-uuid-here\",\n  \"quantity\": 2,\n  \"buyer_name\": \"John Doe\",\n  \"buyer_email\": \"john@example.com\",\n  \"buyer_phone\": \"+6281234567890\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/orders",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "orders"]
+            },
+            "description": "Create a new order (Guest API - authenticated users). Order akan dibuat dengan status UNPAID dan quota/remaining seats akan di-decrement. Payment expires dalam 15 menit.\n\n**Request Body:**\n- `schedule_id`: UUID of schedule (required)\n- `ticket_category_id`: UUID of ticket category (required)\n- `quantity`: Number of tickets (1-10, required)\n- `buyer_name`: Full name (3-100 chars, required)\n- `buyer_email`: Email address (valid email, required)\n- `buyer_phone`: Phone number in E.164 format (required)\n\n**Response:**\n- Order dengan payment_expires_at (15 menit dari sekarang)\n- Quota dan remaining seats sudah di-decrement\n\n**Error Codes:**\n- `SCHEDULE_NOT_FOUND` (404): Schedule tidak ditemukan\n- `TICKET_CATEGORY_NOT_FOUND` (404): Ticket category tidak ditemukan\n- `INSUFFICIENT_QUOTA` (422): Quota tidak mencukupi\n- `INSUFFICIENT_SEATS` (422): Remaining seats tidak mencukupi"
+          },
+          "response": []
+        },
+        {
+          "name": "Get My Orders",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/orders?page=1&per_page=20&payment_status=UNPAID",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "orders"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1",
+                  "description": "Page number (default: 1)"
+                },
+                {
+                  "key": "per_page",
+                  "value": "20",
+                  "description": "Items per page (default: 20, max: 100)"
+                },
+                {
+                  "key": "payment_status",
+                  "value": "UNPAID",
+                  "description": "Filter by payment status: UNPAID, PAID, FAILED, CANCELED, REFUNDED",
+                  "disabled": true
+                },
+                {
+                  "key": "start_date",
+                  "value": "",
+                  "description": "Filter by start date (YYYY-MM-DD)",
+                  "disabled": true
+                },
+                {
+                  "key": "end_date",
+                  "value": "",
+                  "description": "Filter by end date (YYYY-MM-DD)",
+                  "disabled": true
+                }
+              ]
+            },
+            "description": "Get list of orders for current user (Guest API - authenticated users). Hanya menampilkan orders milik user yang sedang login.\n\n**Query Parameters:**\n- `page`: Page number (default: 1)\n- `per_page`: Items per page (default: 20, max: 100)\n- `payment_status`: Filter by payment status\n- `start_date`: Filter by start date (YYYY-MM-DD)\n- `end_date`: Filter by end date (YYYY-MM-DD)\n\n**Response:**\n- Array of orders dengan pagination metadata\n- Setiap order include schedule dan event information"
+          },
+          "response": []
+        },
+        {
+          "name": "Get My Order Detail",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/orders/:id",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "orders", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "order-uuid-here"
+                }
+              ]
+            },
+            "description": "Get order detail by ID (Guest API - authenticated users). Hanya bisa mengakses order milik sendiri.\n\n**Security:**\n- Ownership verification: order.user_id == current_user.id\n- Return 403 FORBIDDEN jika order bukan milik user\n\n**Response:**\n- Order detail dengan schedule, event, dan buyer information\n- Include payment_expires_at\n- OrderItems akan di-include jika order status = PAID dan OrderItems sudah generated (Sprint 4)"
+          },
+          "response": []
+        },
+        {
+          "name": "Initiate Payment",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"payment_method\": \"qris\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/orders/:id/payment",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "orders", ":id", "payment"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "order-uuid-here"
+                }
+              ]
+            },
+            "description": "Initiate payment untuk order (Guest API - authenticated users). Membuat Midtrans transaction dan return QRIS code.\n\n**Request Body:**\n- `payment_method`: Payment method (saat ini hanya \"qris\")\n\n**Business Logic:**\n1. Verify order exists dan milik current user\n2. Verify order status = UNPAID\n3. Verify payment belum expired\n4. Create Midtrans transaction\n5. Update order dengan midtrans_transaction_id\n6. Return QRIS code dan payment URL\n\n**Response:**\n- `order_id`: Order ID\n- `transaction_id`: Midtrans transaction ID\n- `payment_type`: Payment type (qris)\n- `qris_code`: QRIS code untuk scan\n- `payment_url`: Payment URL (jika ada)\n- `expires_at`: Payment expiration time\n- `status`: Transaction status\n\n**Error Codes:**\n- `ORDER_NOT_FOUND` (404): Order tidak ditemukan\n- `ORDER_NOT_OWNED` (403): Order bukan milik user\n- `PAYMENT_ALREADY_PROCESSED` (409): Order sudah dibayar\n- `PAYMENT_EXPIRED` (422): Payment sudah expired\n- `MIDTRANS_ERROR` (502): Error dari Midtrans API"
+          },
+          "response": []
+        },
+        {
+          "name": "Check Payment Status",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/orders/:id/payment-status",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "orders", ":id", "payment-status"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "order-uuid-here"
+                }
+              ]
+            },
+            "description": "Check payment status dari Midtrans (Guest API - authenticated users). Sync status dari Midtrans API dan update order jika berbeda.\n\n**Security:**\n- Verify order ownership\n- Rate limiting: max 10 requests per minute per order\n\n**Response:**\n- `order_id`: Order ID\n- `payment_status`: Current payment status (UNPAID, PAID, FAILED, CANCELED)\n- `payment_method`: Payment method (qris)\n- `transaction_id`: Midtrans transaction ID\n- `paid_at`: Payment time (jika sudah paid)\n- `expires_at`: Payment expiration time\n- `is_expired`: Whether payment is expired\n\n**Note:**\n- Jika ada midtrans_transaction_id, akan check status dari Midtrans API\n- Order status akan di-update jika berbeda dengan Midtrans status"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Payment Webhook",
+      "item": [
+        {
+          "name": "Midtrans Payment Webhook",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"transaction_time\": \"2025-01-15 10:35:00\",\n  \"transaction_status\": \"settlement\",\n  \"transaction_id\": \"midtrans-transaction-id\",\n  \"status_message\": \"midtrans payment notification\",\n  \"status_code\": \"200\",\n  \"signature_key\": \"signature-hash\",\n  \"payment_type\": \"qris\",\n  \"order_id\": \"ORD-20250115-abc123\",\n  \"merchant_id\": \"merchant-id\",\n  \"gross_amount\": \"500000.00\",\n  \"fraud_status\": \"accept\",\n  \"currency\": \"IDR\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/payments/webhook",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "payments", "webhook"]
+            },
+            "description": "Payment webhook handler dari Midtrans (Public endpoint - no authentication).\n\n**Security - CRITICAL:**\n- **Webhook signature verification**: SHA512 hash verification (order_id + status_code + gross_amount + server_key)\n- **Payment amount validation**: Verify gross_amount == order.total_amount\n- **Idempotency check**: Prevent duplicate processing\n- **Rate limiting**: Prevent webhook spam (optional)\n\n**Webhook Payload:**\n- `transaction_time`: Transaction time\n- `transaction_status`: Transaction status (settlement, pending, expire, cancel, deny)\n- `transaction_id`: Midtrans transaction ID\n- `status_code`: Status code (200 = success)\n- `signature_key`: Signature hash untuk verification\n- `payment_type`: Payment type (qris)\n- `order_id`: Order code (ORD-YYYYMMDD-xxxxx)\n- `merchant_id`: Merchant ID\n- `gross_amount`: Payment amount (string format)\n- `fraud_status`: Fraud status (accept)\n- `currency`: Currency (IDR)\n\n**Transaction Status Mapping:**\n- `settlement` → `PAID`\n- `pending` → `UNPAID` (tetap UNPAID, tunggu settlement)\n- `expire` → `CANCELED` (auto restore quota)\n- `cancel` → `CANCELED` (auto restore quota)\n- `deny` → `FAILED` (auto restore quota)\n\n**Business Logic:**\n1. Verify webhook signature (SHA512)\n2. Find order by order_code\n3. Verify payment amount match\n4. Check idempotency\n5. Update order payment_status\n6. Jika PAID: Update payment_method, transaction_id (OrderItem generation akan di Sprint 4)\n7. Jika CANCELED/FAILED: Auto restore quota dan remaining seats\n8. Return 200 OK ke Midtrans\n\n**Error Handling:**\n- Invalid signature → 401 Unauthorized\n- Amount mismatch → 400 Bad Request (log untuk investigation)\n- Order not found → 404 Not Found (log untuk investigation)\n- Processing error → 500 Internal Server Error (Midtrans akan retry)\n\n**Note:**\n- Endpoint ini TIDAK menggunakan authentication middleware (webhook dari Midtrans)\n- Signature verification adalah MUST untuk security\n- Webhook akan di-call oleh Midtrans saat payment status berubah"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
       "name": "Check-in Management",
       "item": [
         {

@@ -2,6 +2,7 @@ package order
 
 import (
 	"errors"
+	"time"
 
 	"github.com/gilabs/webapp-ticket-konser/api/internal/domain/order"
 	orderrepo "github.com/gilabs/webapp-ticket-konser/api/internal/repository/interfaces/order"
@@ -26,7 +27,10 @@ func NewRepository(db *gorm.DB) orderrepo.Repository {
 // FindByID finds an order by ID
 func (r *Repository) FindByID(id string) (*order.Order, error) {
 	var o order.Order
-	if err := r.db.Where("id = ?", id).Preload("User").Preload("Schedule.Event").First(&o).Error; err != nil {
+	if err := r.db.Where("id = ?", id).
+		Preload("User").
+		Preload("Schedule.Event").
+		First(&o).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, ErrOrderNotFound
 		}
@@ -80,6 +84,17 @@ func (r *Repository) Delete(id string) error {
 	return r.db.Where("id = ?", id).Delete(&order.Order{}).Error
 }
 
+// FindExpiredUnpaidOrders finds expired unpaid orders
+func (r *Repository) FindExpiredUnpaidOrders() ([]*order.Order, error) {
+	var orders []*order.Order
+	now := time.Now()
+	if err := r.db.Where("payment_status = ? AND payment_expires_at IS NOT NULL AND payment_expires_at < ?", order.PaymentStatusUnpaid, now).
+		Find(&orders).Error; err != nil {
+		return nil, err
+	}
+	return orders, nil
+}
+
 // List lists orders with filters
 func (r *Repository) List(page, perPage int, filters map[string]interface{}) ([]*order.Order, int64, error) {
 	var orders []*order.Order
@@ -121,5 +136,3 @@ func (r *Repository) List(page, perPage int, filters map[string]interface{}) ([]
 
 	return orders, total, nil
 }
-
-

@@ -234,13 +234,17 @@ export const ticketService = {
 
   /**
    * Get E-Tickets (order items) by order ID
+   * For guest users, use /orders/:orderId/tickets
+   * For admin users, use /admin/order-tickets/order/:orderId
    */
   async getETicketsByOrderId(
     orderId: string,
+    isAdmin = false,
   ): Promise<ApiResponse<ETicket[]>> {
-    const response = await apiClient.get<ApiResponse<ETicket[]>>(
-      `/admin/order-tickets/order/${orderId}`,
-    );
+    const endpoint = isAdmin
+      ? `/admin/order-tickets/order/${orderId}`
+      : `/orders/${orderId}/tickets`;
+    const response = await apiClient.get<ApiResponse<ETicket[]>>(endpoint);
     return response.data;
   },
 

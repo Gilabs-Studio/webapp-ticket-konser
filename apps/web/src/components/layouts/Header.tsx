@@ -26,9 +26,9 @@ export default function Header({ locale }: HeaderProps) {
   }, []);
 
   const menuItems = [
-    { label: "Event", href: "#event" },
-    { label: "Merchandise", href: "#merchandise" },
-    { label: "Ticket", href: "#ticket" },
+    { label: "Event", href: "/events" },
+    { label: "Merchandise", href: "/merchandise" },
+    { label: "Ticket", href: "/events" },
     { label: "About Us", href: "#about" },
   ];
 
@@ -51,13 +51,23 @@ export default function Header({ locale }: HeaderProps) {
           <ul className="flex items-center justify-center gap-8 md:gap-12">
             {menuItems.map((item) => (
               <li key={item.label}>
-                <a
-                  href={item.href}
-                  className="text-sm font-light tracking-wide uppercase text-foreground/70 hover:text-foreground transition-colors duration-300 relative group"
-                >
-                  {item.label}
-                  <span className="absolute -bottom-1 left-0 w-0 h-px bg-gradient-to-r from-[var(--gradient-purple)] via-[var(--gradient-magenta)] to-[var(--gradient-pink)] group-hover:w-full transition-all duration-300" />
-                </a>
+                {item.href.startsWith("#") ? (
+                  <a
+                    href={item.href}
+                    className="text-sm font-light tracking-wide uppercase text-foreground/70 hover:text-foreground transition-colors duration-300 relative group"
+                  >
+                    {item.label}
+                    <span className="absolute -bottom-1 left-0 w-0 h-px bg-gradient-to-r from-[var(--gradient-purple)] via-[var(--gradient-magenta)] to-[var(--gradient-pink)] group-hover:w-full transition-all duration-300" />
+                  </a>
+                ) : (
+                  <Link
+                    href={item.href}
+                    className="text-sm font-light tracking-wide uppercase text-foreground/70 hover:text-foreground transition-colors duration-300 relative group"
+                  >
+                    {item.label}
+                    <span className="absolute -bottom-1 left-0 w-0 h-px bg-gradient-to-r from-[var(--gradient-purple)] via-[var(--gradient-magenta)] to-[var(--gradient-pink)] group-hover:w-full transition-all duration-300" />
+                  </Link>
+                )}
               </li>
             ))}
           </ul>

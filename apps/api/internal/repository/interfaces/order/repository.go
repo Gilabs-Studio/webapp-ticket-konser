@@ -31,5 +31,7 @@ type Repository interface {
 
 	// List lists orders with filters
 	List(page, perPage int, filters map[string]interface{}) ([]*order.Order, int64, error)
-}
 
+	// FindExpiredUnpaidOrders finds expired unpaid orders
+	FindExpiredUnpaidOrders() ([]*order.Order, error)
+}

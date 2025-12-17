@@ -105,4 +105,14 @@ export const ticketCategoryService = {
     );
     return response.data;
   },
+
+  /**
+   * Get ticket categories by event ID (public - for guest)
+   */
+  async getTicketCategoriesByEventIdPublic(eventId: string): Promise<ApiResponse<TicketCategoryResponse[]>> {
+    const response = await apiClient.get<ApiResponse<TicketCategoryResponse[]>>(
+      `/events/${eventId}/ticket-categories`,
+    );
+    return response.data;
+  },
 };

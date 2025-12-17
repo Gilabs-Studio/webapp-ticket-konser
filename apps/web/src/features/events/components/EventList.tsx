@@ -223,7 +223,11 @@ export function EventList({
       {/* Events Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {filteredEvents.map((event) => (
-          <Card key={event.id} className="overflow-hidden hover:shadow-lg transition-shadow">
+          <Card 
+            key={event.id} 
+            className="overflow-hidden hover:shadow-lg transition-shadow cursor-pointer"
+            onClick={() => !isAdmin && handleView(event.id)}
+          >
             <div className="relative aspect-video w-full bg-muted">
               {event.bannerImage ? (
                 <SafeImage
@@ -258,13 +262,16 @@ export function EventList({
                 <Calendar className="h-3 w-3" />
                 <span>{formatDate(event.startDate)} - {formatDate(event.endDate)}</span>
               </div>
-              {isAdmin && (
+              {isAdmin ? (
                 <div className="flex gap-2 pt-2">
                   <Button
                     variant="outline"
                     size="sm"
                     className="flex-1 text-xs"
-                    onClick={() => handleView(event.id)}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleView(event.id);
+                    }}
                   >
                     <Eye className="h-3 w-3 mr-1" />
                     View
@@ -273,7 +280,10 @@ export function EventList({
                     variant="outline"
                     size="sm"
                     className="flex-1 text-xs"
-                    onClick={() => handleEdit(event.id)}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleEdit(event.id);
+                    }}
                   >
                     <Edit className="h-3 w-3 mr-1" />
                     Edit
@@ -282,11 +292,26 @@ export function EventList({
                     variant="outline"
                     size="sm"
                     className="text-xs"
-                    onClick={() => handleDelete(event.id)}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleDelete(event.id);
+                    }}
                   >
                     <Trash2 className="h-3 w-3" />
                   </Button>
                 </div>
+              ) : (
+                <Button
+                  variant="default"
+                  size="sm"
+                  className="w-full text-xs"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleView(event.id);
+                  }}
+                >
+                  View Details
+                </Button>
               )}
             </div>
           </Card>
