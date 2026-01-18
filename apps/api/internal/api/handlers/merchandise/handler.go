@@ -5,12 +5,12 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
-	"time"
 
 	"github.com/gilabs/webapp-ticket-konser/api/internal/domain/merchandise"
 	merchandiseservice "github.com/gilabs/webapp-ticket-konser/api/internal/service/merchandise"
 	"github.com/gilabs/webapp-ticket-konser/api/pkg/errors"
 	"github.com/gilabs/webapp-ticket-konser/api/pkg/response"
+	"github.com/gilabs/webapp-ticket-konser/api/pkg/upload"
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
 )
@@ -240,12 +240,16 @@ func (h *Handler) UploadImage(c *gin.Context) {
 		return
 	}
 
-	// Generate unique filename
-	filename := fmt.Sprintf("%s_%d_%s", id, time.Now().Unix(), file.Filename)
-	filepath := filepath.Join(uploadDir, filename)
+	// Generate server-controlled filename (do not use client-provided file.Filename)
+	filename, err := upload.GenerateImageFilename(contentType)
+	if err != nil {
+		errors.InternalServerErrorResponse(c, "")
+		return
+	}
+	dstPath := filepath.Join(uploadDir, filename)
 
 	// Save file
-	if err := c.SaveUploadedFile(file, filepath); err != nil {
+	if err := c.SaveUploadedFile(file, dstPath); err != nil {
 		errors.InternalServerErrorResponse(c, "")
 		return
 	}
@@ -257,7 +261,7 @@ func (h *Handler) UploadImage(c *gin.Context) {
 	merchandise, err := h.merchandiseService.UpdateImageURL(id, imageURL)
 	if err != nil {
 		// Clean up uploaded file if update fails
-		os.Remove(filepath)
+		os.Remove(dstPath)
 		if err == merchandiseservice.ErrMerchandiseNotFound {
 			errors.NotFoundResponse(c, "merchandise", id)
 			return

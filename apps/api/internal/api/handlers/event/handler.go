@@ -5,7 +5,6 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
-	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
@@ -13,6 +12,7 @@ import (
 	eventservice "github.com/gilabs/webapp-ticket-konser/api/internal/service/event"
 	"github.com/gilabs/webapp-ticket-konser/api/pkg/errors"
 	"github.com/gilabs/webapp-ticket-konser/api/pkg/response"
+	"github.com/gilabs/webapp-ticket-konser/api/pkg/upload"
 )
 
 type Handler struct {
@@ -294,12 +294,16 @@ func (h *Handler) UploadBanner(c *gin.Context) {
 		return
 	}
 
-	// Generate unique filename
-	filename := fmt.Sprintf("%s_%d_%s", id, time.Now().Unix(), file.Filename)
-	filepath := filepath.Join(uploadDir, filename)
+	// Generate server-controlled filename (do not use client-provided file.Filename)
+	filename, err := upload.GenerateImageFilename(contentType)
+	if err != nil {
+		errors.InternalServerErrorResponse(c, "")
+		return
+	}
+	dstPath := filepath.Join(uploadDir, filename)
 
 	// Save file
-	if err := c.SaveUploadedFile(file, filepath); err != nil {
+	if err := c.SaveUploadedFile(file, dstPath); err != nil {
 		errors.InternalServerErrorResponse(c, "")
 		return
 	}
@@ -311,7 +315,7 @@ func (h *Handler) UploadBanner(c *gin.Context) {
 	event, err := h.eventService.UpdateBannerImage(id, bannerURL)
 	if err != nil {
 		// Clean up uploaded file if update fails
-		os.Remove(filepath)
+		os.Remove(dstPath)
 		if err == eventservice.ErrEventNotFound {
 			errors.NotFoundResponse(c, "event", id)
 			return

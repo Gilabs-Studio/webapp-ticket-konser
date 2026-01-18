@@ -57,6 +57,9 @@ func Load() error {
 	// Load .env file if exists (for local development)
 	_ = godotenv.Load()
 
+	env := getEnv("ENV", "development")
+	defaultJWTSecret := "your-secret-key-change-in-production"
+
 	// Read JWT secret from file if JWT_SECRET_FILE is set (Docker secrets)
 	jwtSecret := getEnv("JWT_SECRET", "")
 	if jwtSecret == "" {
@@ -69,7 +72,17 @@ func Load() error {
 		}
 	}
 	if jwtSecret == "" {
-		jwtSecret = "your-secret-key-change-in-production"
+		jwtSecret = defaultJWTSecret
+	}
+
+	// Fail-fast in production if JWT secret is not properly set
+	if env == "production" {
+		if jwtSecret == "" || jwtSecret == defaultJWTSecret {
+			return fmt.Errorf("JWT_SECRET must be set in production (do not use default)")
+		}
+		if len(jwtSecret) < 32 {
+			return fmt.Errorf("JWT_SECRET must be at least 32 characters in production")
+		}
 	}
 
 	// Validate JWT secret length (minimum 32 characters for security)
@@ -109,7 +122,7 @@ func Load() error {
 	AppConfig = &Config{
 		Server: ServerConfig{
 			Port: getEnv("PORT", "8083"),
-			Env:  getEnv("ENV", "development"),
+			Env:  env,
 		},
 		Database: DatabaseConfig{
 			Host:     getEnv("DB_HOST", "localhost"),

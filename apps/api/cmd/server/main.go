@@ -1,8 +1,12 @@
 package main
 
 import (
+	"context"
 	"log"
 	"net/http"
+	"os"
+	"os/signal"
+	"syscall"
 	"time"
 
 	attendeehandler "github.com/gilabs/webapp-ticket-konser/api/internal/api/handlers/attendee"
@@ -200,12 +204,38 @@ func main() {
 	// Start background jobs
 	paymentexpirationjob.StartPaymentExpirationJob(orderService)
 
-	// Run server
+	// Run server with explicit timeouts + graceful shutdown
 	port := config.AppConfig.Server.Port
-	log.Printf("Server starting on port %s", port)
-	if err := router.Run(":" + port); err != nil {
-		log.Fatal("Failed to start server:", err)
+	addr := ":" + port
+
+	srv := &http.Server{
+		Addr:              addr,
+		Handler:           router,
+		ReadHeaderTimeout: 5 * time.Second,
+		ReadTimeout:       15 * time.Second,
+		WriteTimeout:      30 * time.Second,
+		IdleTimeout:       60 * time.Second,
 	}
+
+	go func() {
+		log.Printf("Server starting on %s", addr)
+		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+			log.Fatal("Failed to start server:", err)
+		}
+	}()
+
+	quit := make(chan os.Signal, 1)
+	signal.Notify(quit, os.Interrupt, syscall.SIGTERM)
+	<-quit
+
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	log.Println("Shutting down server...")
+	if err := srv.Shutdown(ctx); err != nil {
+		log.Fatal("Server shutdown failed:", err)
+	}
+	log.Println("Server stopped")
 }
 
 func setupRouter(
@@ -234,7 +264,8 @@ func setupRouter(
 		gin.SetMode(gin.ReleaseMode)
 	}
 
-	router := gin.Default()
+	router := gin.New()
+	router.Use(gin.Recovery())
 
 	// Global middleware
 	router.Use(middleware.LoggerMiddleware())
