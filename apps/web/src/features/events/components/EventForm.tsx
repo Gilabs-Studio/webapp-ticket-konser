@@ -3,6 +3,7 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useState, useEffect, useMemo, useRef } from "react";
+import { toast } from "sonner";
 import {
   createEventSchema,
   updateEventSchema,
@@ -99,7 +100,7 @@ export function EventForm({
   );
 
   // Track which eventId we've already reset the form for
-  const resetForEventIdRef = useRef<string | undefined>();
+  const resetForEventIdRef = useRef<string | undefined>(undefined);
 
   // Update form only once when defaultValues becomes available for a new eventId
   useEffect(() => {
@@ -137,11 +138,13 @@ export function EventForm({
     const allowedTypes = ["image/jpeg", "image/jpg", "image/png", "image/webp"];
 
     if (!allowedTypes.includes(file.type)) {
+      toast.error("Invalid file type. Allowed types: JPG, PNG, WebP.");
       setValue("bannerImage", "", { shouldValidate: true });
       return;
     }
 
     if (file.size > maxSize) {
+      toast.error("File size exceeds 5MB limit.");
       setValue("bannerImage", "", { shouldValidate: true });
       return;
     }
