@@ -13,6 +13,8 @@ type Config struct {
 	Server   ServerConfig
 	Database DatabaseConfig
 	JWT      JWTConfig
+	Redis    RedisConfig
+	Obs      ObservabilityConfig
 	Cerebras CerebrasConfig
 	Midtrans MidtransConfig
 }
@@ -49,6 +51,25 @@ type MidtransConfig struct {
 	MerchantID   string
 	IsProduction bool
 	APIBaseURL   string // https://api.midtrans.com (production) atau https://api.sandbox.midtrans.com (sandbox)
+}
+
+type RedisConfig struct {
+	Enabled  bool
+	URL      string
+	Addr     string
+	Password string
+	DB       int
+	Prefix   string
+
+	DialTimeout  string
+	ReadTimeout  string
+	WriteTimeout string
+}
+
+type ObservabilityConfig struct {
+	MetricsEnabled bool
+	PprofEnabled   bool
+	DebugToken     string
 }
 
 var AppConfig *Config
@@ -136,6 +157,23 @@ func Load() error {
 			SecretKey:       jwtSecret,
 			AccessTokenTTL:  getEnvAsInt("JWT_ACCESS_TTL", 24), // 24 hours
 			RefreshTokenTTL: getEnvAsInt("JWT_REFRESH_TTL", 7), // 7 days
+		},
+		Redis: RedisConfig{
+			Enabled:  getEnv("REDIS_ENABLED", "false") == "true",
+			URL:      getEnv("REDIS_URL", ""),
+			Addr:     getEnv("REDIS_ADDR", "localhost:6379"),
+			Password: getEnv("REDIS_PASSWORD", ""),
+			DB:       getEnvAsInt("REDIS_DB", 0),
+			Prefix:   getEnv("REDIS_PREFIX", "ticketing_api"),
+
+			DialTimeout:  getEnv("REDIS_DIAL_TIMEOUT", "2s"),
+			ReadTimeout:  getEnv("REDIS_READ_TIMEOUT", "1s"),
+			WriteTimeout: getEnv("REDIS_WRITE_TIMEOUT", "1s"),
+		},
+		Obs: ObservabilityConfig{
+			MetricsEnabled: getEnv("METRICS_ENABLED", "true") == "true",
+			PprofEnabled:   getEnv("PPROF_ENABLED", "false") == "true",
+			DebugToken:     getEnv("DEBUG_TOKEN", ""),
 		},
 		Cerebras: CerebrasConfig{
 			BaseURL: getEnv("CEREBRAS_BASE_URL", "https://api.cerebras.ai"),

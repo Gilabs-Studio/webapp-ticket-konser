@@ -6,13 +6,13 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/gin-gonic/gin"
-	"github.com/go-playground/validator/v10"
 	"github.com/gilabs/webapp-ticket-konser/api/internal/domain/event"
 	eventservice "github.com/gilabs/webapp-ticket-konser/api/internal/service/event"
 	"github.com/gilabs/webapp-ticket-konser/api/pkg/errors"
 	"github.com/gilabs/webapp-ticket-konser/api/pkg/response"
 	"github.com/gilabs/webapp-ticket-konser/api/pkg/upload"
+	"github.com/gin-gonic/gin"
+	"github.com/go-playground/validator/v10"
 )
 
 type Handler struct {
@@ -67,7 +67,7 @@ func (h *Handler) Create(c *gin.Context) {
 	if err != nil {
 		if err == eventservice.ErrEventAlreadyExists {
 			errors.ErrorResponse(c, "CONFLICT", map[string]interface{}{
-				"reason": "Event name already exists",
+				"reason":     "Event name already exists",
 				"event_name": req.EventName,
 			}, nil)
 			return

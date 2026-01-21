@@ -1,6 +1,8 @@
 package checkin
 
 import (
+	"time"
+
 	"github.com/gilabs/webapp-ticket-konser/api/internal/api/handlers/checkin"
 	"github.com/gilabs/webapp-ticket-konser/api/internal/api/middleware"
 	"github.com/gilabs/webapp-ticket-konser/api/internal/repository/interfaces/role"
@@ -19,8 +21,8 @@ func SetupRoutes(
 	checkInRoutes.Use(middleware.AuthMiddleware(jwtManager))
 	checkInRoutes.Use(middleware.CheckInRateLimitMiddleware()) // Rate limiting for check-in endpoints
 	{
-		checkInRoutes.POST("/validate", checkInHandler.ValidateQRCode) // Validate QR code
-		checkInRoutes.POST("", checkInHandler.CheckIn)                 // Perform check-in
+		checkInRoutes.POST("/validate", checkInHandler.ValidateQRCode)                                                                        // Validate QR code
+		checkInRoutes.POST("", middleware.IdempotencyMiddleware(middleware.IdempotencyConfig{TTL: 10 * time.Minute}), checkInHandler.CheckIn) // Perform check-in
 	}
 
 	// Check-in history routes (admin only)
@@ -28,11 +30,10 @@ func SetupRoutes(
 	adminRoutes.Use(middleware.AuthMiddleware(jwtManager))
 	adminRoutes.Use(middleware.RequirePermission("checkin.read", roleRepo))
 	{
-		adminRoutes.GET("", checkInHandler.List)                              // List all check-ins
-		adminRoutes.GET("/:id", checkInHandler.GetByID)                      // Get check-in by ID
-		adminRoutes.GET("/qr/:qr_code", checkInHandler.GetByQRCode)           // Get check-ins by QR code
+		adminRoutes.GET("", checkInHandler.List)                                       // List all check-ins
+		adminRoutes.GET("/:id", checkInHandler.GetByID)                                // Get check-in by ID
+		adminRoutes.GET("/qr/:qr_code", checkInHandler.GetByQRCode)                    // Get check-ins by QR code
 		adminRoutes.GET("/order-item/:order_item_id", checkInHandler.GetByOrderItemID) // Get check-ins by order item ID
-		adminRoutes.GET("/gate/:gate_id", checkInHandler.GetByGateID)         // Get check-ins by gate ID
+		adminRoutes.GET("/gate/:gate_id", checkInHandler.GetByGateID)                  // Get check-ins by gate ID
 	}
 }
-

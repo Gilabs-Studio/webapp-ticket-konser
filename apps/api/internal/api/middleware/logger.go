@@ -3,8 +3,8 @@ package middleware
 import (
 	"time"
 
-	"github.com/gin-gonic/gin"
 	"github.com/gilabs/webapp-ticket-konser/api/pkg/logger"
+	"github.com/gin-gonic/gin"
 )
 
 // LoggerMiddleware logs HTTP requests
@@ -37,4 +37,3 @@ func LoggerMiddleware() gin.HandlerFunc {
 		)
 	}
 }
-

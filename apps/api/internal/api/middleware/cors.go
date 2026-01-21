@@ -4,9 +4,9 @@ import (
 	"os"
 	"strings"
 
+	configpkg "github.com/gilabs/webapp-ticket-konser/api/internal/config"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
-	configpkg "github.com/gilabs/webapp-ticket-konser/api/internal/config"
 )
 
 // CORSMiddleware sets up CORS configuration
@@ -60,4 +60,3 @@ func CORSMiddleware() gin.HandlerFunc {
 
 	return cors.New(corsCfg)
 }
-

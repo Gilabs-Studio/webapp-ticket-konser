@@ -141,6 +141,14 @@ var ErrorCodeMap = map[string]ErrorInfo{
 		HTTPStatus: http.StatusTooManyRequests,
 		Message:    "Too many requests. Please try again later",
 	},
+	"IDEMPOTENCY_KEY_REUSED": {
+		HTTPStatus: http.StatusConflict,
+		Message:    "Idempotency-Key already used with a different request",
+	},
+	"IDEMPOTENCY_IN_PROGRESS": {
+		HTTPStatus: http.StatusConflict,
+		Message:    "A request with the same Idempotency-Key is still in progress",
+	},
 	"SERVICE_UNAVAILABLE": {
 		HTTPStatus: http.StatusServiceUnavailable,
 		Message:    "Service is under maintenance. Please try again later",
