@@ -150,7 +150,7 @@ export function RoleDetailPageClient({ roleId }: RoleDetailPageClientProps) {
                   {rolePermissions.map((permission) => (
                     <div
                       key={permission.id}
-                      className="flex items-center justify-between p-3 border rounded-lg"
+                      className="flex items-center justify-between p-3 border rounded-md"
                     >
                       <div>
                         <p className="font-medium">{permission.name}</p>

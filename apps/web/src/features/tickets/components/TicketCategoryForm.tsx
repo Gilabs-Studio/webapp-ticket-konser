@@ -442,7 +442,7 @@ export function TicketCategoryForm({
 
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
-      <div className="border border-border bg-card/20 rounded-xl p-6 space-y-6">
+      <div className="border border-border bg-card/20 rounded-md p-6 space-y-6">
         <div>
           <h3 className="text-lg font-semibold mb-2">
             {isEditMode ? "Edit Ticket Category" : "Create New Ticket Category"}

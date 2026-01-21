@@ -147,7 +147,7 @@ export function EventList({
             </Button>
           </div>
         )}
-        <div className="border border-border bg-card/30 rounded-xl p-8 text-center">
+        <div className="border border-border bg-card/30 rounded-md p-8 text-center">
           <p className="text-sm text-muted-foreground mb-4">
             {searchQuery || statusFilter !== "all"
               ? "No events found matching your filters."

@@ -425,7 +425,7 @@ export function QRCodeScanner({
           {/* Camera Preview */}
           <div
             ref={containerRef}
-            className="w-full min-h-[400px] bg-black rounded-lg overflow-hidden relative"
+            className="w-full min-h-[400px] bg-black rounded-md overflow-hidden relative"
           >
             <video
               ref={videoRef}
@@ -438,7 +438,7 @@ export function QRCodeScanner({
             {/* Scanning overlay */}
             {isScanning && (
               <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                <div className="border-2 border-green-500 rounded-lg w-64 h-64 flex items-center justify-center">
+                <div className="border-2 border-green-500 rounded-md w-64 h-64 flex items-center justify-center">
                   <Scan className="h-8 w-8 text-green-500 animate-pulse" />
                 </div>
               </div>

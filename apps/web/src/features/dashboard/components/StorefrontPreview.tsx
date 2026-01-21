@@ -76,7 +76,6 @@ export function StorefrontPreview() {
             <Button variant="outline" size="sm" asChild className="group">
               <Link
                 href="/merchandise-management"
-                className="[&>span]:group-hover:bg-clip-text [&>span]:group-hover:text-transparent [&>span]:group-hover:bg-linear-to-r [&>span]:group-hover:from-(--gradient-purple) [&>span]:group-hover:via-(--gradient-magenta) [&>span]:group-hover:to-(--gradient-pink)"
               >
                 <Edit className="h-4 w-4" />
                 <span>{t("storefront.editProducts")}</span>
@@ -85,7 +84,6 @@ export function StorefrontPreview() {
             <Button variant="default" size="sm" asChild className="group">
               <Link
                 href="/"
-                className="[&>span]:group-hover:bg-clip-text [&>span]:group-hover:text-transparent [&>span]:group-hover:bg-linear-to-r [&>span]:group-hover:from-(--gradient-purple) [&>span]:group-hover:via-(--gradient-magenta) [&>span]:group-hover:to-(--gradient-pink)"
               >
                 <ExternalLink className="h-4 w-4" />
                 <span>{t("storefront.visitLivePage")}</span>
@@ -112,7 +110,7 @@ export function StorefrontPreview() {
             {displayedTickets.map((ticket) => (
               <div
                 key={ticket.id}
-                className="group relative overflow-hidden rounded-lg border bg-card/50 p-3 hover:bg-card transition-all duration-300 hover:shadow-md hover:border-primary/20"
+                className="group relative overflow-hidden rounded-md border bg-card/50 p-3 hover:bg-card transition-all duration-300 hover:shadow-md hover:border-primary/20"
               >
                 <div className="flex items-center justify-between gap-4">
                   {/* Left: Date & Time */}
@@ -158,7 +156,7 @@ export function StorefrontPreview() {
             ))}
             
             {displayedTickets.length === 0 && (
-              <div className="text-center py-8 text-sm text-muted-foreground border border-dashed rounded-lg">
+              <div className="text-center py-8 text-sm text-muted-foreground border border-dashed rounded-md">
                 No tickets available
               </div>
             )}

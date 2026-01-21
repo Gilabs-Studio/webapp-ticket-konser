@@ -146,7 +146,7 @@ export function SalesMonitoring({ filters }: SalesMonitoringProps) {
             return (
               <div
                 key={stat.label}
-                className="flex flex-col gap-2 rounded-xl border p-4"
+                className="flex flex-col gap-2 rounded-md border p-4"
               >
                 <div className="flex items-center justify-between">
                   <p className="text-sm font-medium text-muted-foreground">

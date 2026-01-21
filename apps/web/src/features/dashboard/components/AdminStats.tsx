@@ -24,7 +24,7 @@ export function AdminStats({ filters }: AdminStatsProps) {
         {[1, 2, 3].map((i) => (
           <div
             key={i}
-            className="p-5 rounded-xl border border-border bg-card/30"
+            className="p-5 rounded-md border border-border bg-card/30"
           >
             <Skeleton className="h-24 w-full" />
           </div>
@@ -83,10 +83,10 @@ export function AdminStats({ filters }: AdminStatsProps) {
         return (
           <div
             key={stat.label}
-            className="p-5 rounded-xl border border-border bg-card/30 hover:border-ring transition-colors group"
+            className="p-5 rounded-md border border-border bg-card/30 hover:border-ring transition-colors group"
           >
             <div className="flex justify-between items-start mb-4">
-              <div className="p-2 bg-card rounded-xl border border-border group-hover:border-ring text-foreground">
+              <div className="p-2 bg-card rounded-md border border-border group-hover:border-ring text-foreground">
                 <Icon className="h-[18px] w-[18px]" />
               </div>
               {(() => {

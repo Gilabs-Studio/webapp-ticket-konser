@@ -153,7 +153,7 @@ export default function HeroSection({ locale }: Readonly<HeroSectionProps>) {
         </div>
 
         {/* CTA Button */}
-        <div className="relative inline-block rounded-xl">
+        <div className="relative inline-block rounded-md">
           <ShineBorder
             borderWidth={2}
             duration={14}
@@ -162,7 +162,7 @@ export default function HeroSection({ locale }: Readonly<HeroSectionProps>) {
               "oklch(0.55 0.13 337)",
               "oklch(0.65 0.15 11)",
             ]}
-            className="rounded-xl"
+            className="rounded-md"
           />
           <Button 
             className="relative z-10"

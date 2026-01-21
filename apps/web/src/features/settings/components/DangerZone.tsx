@@ -13,7 +13,7 @@ export function DangerZone() {
   };
 
   return (
-    <Card className="border-destructive/20 bg-destructive/5 rounded-xl">
+    <Card className="border-destructive/20 bg-destructive/5 rounded-md">
       <CardContent className="p-6">
         <h3 className="text-sm font-medium text-destructive mb-2">
           {t("title")}

@@ -156,7 +156,7 @@ export function SchedulesPageClient() {
                 value={selectedEventId}
                 onValueChange={setSelectedEventId}
               >
-                <SelectTrigger className="w-full sm:w-[300px] border-0 bg-background shadow-sm rounded-xl md:rounded-full h-10 focus:ring-0 focus:ring-offset-0">
+                <SelectTrigger className="w-full sm:w-[300px] border-0 bg-background shadow-sm rounded-md md:rounded-full h-10 focus:ring-0 focus:ring-offset-0">
                   <SelectValue placeholder={t("selectEvent") ?? "Select Event"} />
                 </SelectTrigger>
                 <SelectContent>

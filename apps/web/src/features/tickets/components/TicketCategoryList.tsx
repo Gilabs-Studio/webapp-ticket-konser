@@ -49,7 +49,7 @@ export function TicketCategoryList({
 
   if (categoryList.length === 0) {
     return (
-      <div className="border border-border bg-card/20 rounded-xl p-8 text-center">
+      <div className="border border-border bg-card/20 rounded-md p-8 text-center">
         <p className="text-sm text-muted-foreground">
           No ticket categories available
         </p>

@@ -12,13 +12,13 @@ export default function TicketsLoading() {
         {Array.from({ length: 3 }).map((_, i) => (
           <Card
             key={i}
-            className="border border-border bg-card/40 rounded-xl p-5"
+            className="border border-border bg-card/40 rounded-md p-5"
           >
             <Skeleton className="h-32 w-full" />
           </Card>
         ))}
       </div>
-      <Card className="border border-border bg-card/20 rounded-xl overflow-hidden mt-6">
+      <Card className="border border-border bg-card/20 rounded-md overflow-hidden mt-6">
         <div className="px-4 py-3 border-b border-border">
           <Skeleton className="h-4 w-32" />
         </div>

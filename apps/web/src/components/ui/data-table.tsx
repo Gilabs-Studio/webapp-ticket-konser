@@ -114,13 +114,13 @@ export function DataTable<T extends { id: string }>({
   // Mobile card view
   if (isMobile) {
     return (
-      <div className="border rounded-lg">
+      <div className="border rounded-md">
         {isLoading ? (
           <div className="p-4 space-y-3">
             {Array.from({ length: 5 }, (_, i) => (
               <Skeleton
                 key={`skeleton-card-${i}`}
-                className="h-32 w-full rounded-lg"
+                className="h-32 w-full rounded-md"
               />
             ))}
           </div>
@@ -360,7 +360,7 @@ export function DataTable<T extends { id: string }>({
 
   // Desktop table view
   return (
-    <div className="border rounded-lg">
+    <div className="border rounded-md">
       {isLoading ? (
         <div className="p-4 space-y-3">
           {Array.from({ length: 5 }, (_, i) => (

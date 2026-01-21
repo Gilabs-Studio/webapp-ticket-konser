@@ -53,7 +53,7 @@ export function MerchandiseProductCard({
   const stockStatusText = getStockStatusText(product.stockStatus);
 
   return (
-    <div className="border border-border bg-card/30 rounded-xl p-4 group hover:border-ring transition-all relative">
+    <div className="border border-border bg-card/30 rounded-md p-4 group hover:border-ring transition-all relative">
       {/* Actions Dropdown */}
       {(onEdit || onDelete || onView) && (
         <div className="absolute top-2 right-2 z-10">
@@ -115,7 +115,7 @@ export function MerchandiseProductCard({
         className="w-full text-left cursor-pointer"
         onClick={() => onClick?.(product.id)}
       >
-        <div className="aspect-square bg-muted rounded-xl border border-border mb-4 flex items-center justify-center relative overflow-hidden">
+        <div className="aspect-square bg-muted rounded-md border border-border mb-4 flex items-center justify-center relative overflow-hidden">
           <SafeImage
             key={product.imageUrl} // Force re-render when imageUrl changes
             src={product.imageUrl}

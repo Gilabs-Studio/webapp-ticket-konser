@@ -72,7 +72,7 @@ export function TicketCard({
   return (
     <div
       className={cn(
-        "col-span-1 border border-border bg-card/40 rounded-xl p-5 relative group hover:border-ring transition-all",
+        "col-span-1 border border-border bg-card/40 rounded-md p-5 relative group hover:border-ring transition-all",
         ticket.status === "sold_out" && "opacity-75",
       )}
     >

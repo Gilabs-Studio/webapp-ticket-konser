@@ -29,7 +29,7 @@ export function RecentOrdersTable({
 
   if (isLoading) {
     return (
-      <div className="border border-border bg-card/20 rounded-xl overflow-hidden mt-6">
+      <div className="border border-border bg-card/20 rounded-md overflow-hidden mt-6">
         <div className="px-4 py-3 border-b border-border">
           <Skeleton className="h-4 w-32" />
         </div>
@@ -74,7 +74,7 @@ export function RecentOrdersTable({
   };
 
   return (
-    <div className="border border-border bg-card/20 rounded-xl overflow-hidden mt-6">
+    <div className="border border-border bg-card/20 rounded-md overflow-hidden mt-6">
       <div className="px-4 py-3 border-b border-border flex justify-between items-center">
         <h3 className="text-sm font-medium text-foreground">
           {t("orders.recent")}

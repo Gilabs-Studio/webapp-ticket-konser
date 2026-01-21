@@ -27,7 +27,7 @@ export function TicketList({
         {[1, 2, 3].map((i) => (
           <div
             key={i}
-            className="border border-border bg-card/40 rounded-xl p-5 relative overflow-hidden"
+            className="border border-border bg-card/40 rounded-md p-5 relative overflow-hidden"
           >
             <Skeleton className="h-32 w-full" />
           </div>
@@ -40,7 +40,7 @@ export function TicketList({
 
   if (ticketList.length === 0) {
     return (
-      <div className="border border-border bg-card/20 rounded-xl p-8 text-center">
+      <div className="border border-border bg-card/20 rounded-md p-8 text-center">
         <p className="text-sm text-muted-foreground">No tickets available</p>
       </div>
     );

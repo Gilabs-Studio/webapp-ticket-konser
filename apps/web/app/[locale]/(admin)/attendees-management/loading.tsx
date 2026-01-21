@@ -11,7 +11,7 @@ export default function AttendeesLoading() {
           <Skeleton className="h-8 w-24" />
         </div>
       </div>
-      <Card className="border border-border bg-card/20 rounded-xl overflow-hidden">
+      <Card className="border border-border bg-card/20 rounded-md overflow-hidden">
         <div className="p-4 border-b border-border bg-muted/50">
           <Skeleton className="h-10 w-full" />
         </div>

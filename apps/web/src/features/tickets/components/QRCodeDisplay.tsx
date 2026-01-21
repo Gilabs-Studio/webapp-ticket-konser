@@ -39,7 +39,7 @@ export function QRCodeDisplay({
             alt={`QR Code: ${qrCode}`}
             width={size}
             height={size}
-            className="border-2 border-border rounded-lg"
+            className="border-2 border-border rounded-md"
           />
           <p className="text-xs text-muted-foreground font-mono break-all text-center max-w-[200px]">
             {qrCode}

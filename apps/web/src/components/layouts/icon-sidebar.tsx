@@ -59,7 +59,7 @@ export const IconSidebar = memo(function IconSidebar({
             alt={logoAlt}
             width={36}
             height={36}
-            className="object-contain rounded-lg"
+            className="object-contain rounded-md"
           />
         </Link>
       </div>
@@ -77,7 +77,7 @@ export const IconSidebar = memo(function IconSidebar({
                     variant="ghost"
                     size="icon"
                     className={cn(
-                      "h-10 w-10 rounded-xl transition-all duration-200 text-sidebar-dark-foreground",
+                      "h-10 w-10 rounded-md transition-all duration-200 text-sidebar-dark-foreground",
                       "hover:bg-white/10",
                       isActive && "bg-primary text-primary-foreground shadow-lg hover:bg-primary/90 hover:text-primary-foreground"
                     )}
@@ -103,7 +103,7 @@ export const IconSidebar = memo(function IconSidebar({
                     variant="ghost"
                     size="icon"
                     className={cn(
-                      "h-10 w-10 rounded-xl transition-all duration-200 text-sidebar-dark-foreground",
+                      "h-10 w-10 rounded-md transition-all duration-200 text-sidebar-dark-foreground",
                       "hover:bg-white/10",
                       isActive && "bg-primary text-primary-foreground shadow-lg hover:bg-primary/90 hover:text-primary-foreground"
                     )}
@@ -128,7 +128,7 @@ export const IconSidebar = memo(function IconSidebar({
             <Button
               variant="ghost"
               size="icon"
-              className="h-10 w-10 rounded-xl hover:bg-white/10 text-sidebar-dark-foreground"
+              className="h-10 w-10 rounded-md hover:bg-white/10 text-sidebar-dark-foreground"
               aria-label="Add new"
             >
               <Plus className="h-5 w-5" />
@@ -145,7 +145,7 @@ export const IconSidebar = memo(function IconSidebar({
               <Button
                 variant="ghost"
                 size="icon"
-                className="h-10 w-10 rounded-xl hover:bg-white/10 text-sidebar-dark-foreground"
+                className="h-10 w-10 rounded-md hover:bg-white/10 text-sidebar-dark-foreground"
                 aria-label="Settings"
               >
                 <Settings className="h-5 w-5" />

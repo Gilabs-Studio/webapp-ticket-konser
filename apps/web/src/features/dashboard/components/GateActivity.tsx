@@ -92,7 +92,7 @@ export function GateActivity({ filters }: GateActivityProps) {
           {gates.map((gate) => (
             <div
               key={gate.gate_id}
-              className="flex flex-col gap-3 rounded-xl border p-4"
+              className="flex flex-col gap-3 rounded-md border p-4"
             >
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">

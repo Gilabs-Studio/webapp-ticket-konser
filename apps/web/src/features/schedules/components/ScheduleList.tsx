@@ -32,7 +32,7 @@ export function ScheduleList({
           <div key={i} className="bg-card rounded-2xl p-6 border border-border/50 space-y-4">
             <Skeleton className="h-6 w-1/3" />
             <Skeleton className="h-4 w-1/2" />
-            <Skeleton className="h-16 w-full rounded-xl" />
+            <Skeleton className="h-16 w-full rounded-md" />
           </div>
         ))}
       </div>
@@ -219,8 +219,8 @@ export function ScheduleList({
             <div className="space-y-2.5">
                 {/* Event Info */}
                  {schedule.event && (
-                    <div className="flex items-center gap-2 p-2 rounded-xl bg-muted/50 text-xs">
-                        <div className="h-8 w-8 rounded-lg bg-background flex items-center justify-center shrink-0 shadow-sm text-xs font-bold text-muted-foreground/70">
+                    <div className="flex items-center gap-2 p-2 rounded-md bg-muted/50 text-xs">
+                        <div className="h-8 w-8 rounded-md bg-background flex items-center justify-center shrink-0 shadow-sm text-xs font-bold text-muted-foreground/70">
                             EV
                         </div>
                          <div className="flex-1 min-w-0">

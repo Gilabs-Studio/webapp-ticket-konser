@@ -105,7 +105,7 @@ export function MyOrdersPageClient() {
             </div>
           ) : (
             <>
-              <div className="border rounded-lg">
+              <div className="border rounded-md">
                 <Table>
                   <TableHeader>
                     <TableRow>

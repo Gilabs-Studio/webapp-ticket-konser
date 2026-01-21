@@ -320,7 +320,7 @@ const MobileSidebar = memo(function MobileSidebar({
                 alt="Logo"
                 width={36}
                 height={36}
-                className="object-contain rounded-lg"
+                className="object-contain rounded-md"
               />
             </div>
             <nav className={cn(
@@ -342,7 +342,7 @@ const MobileSidebar = memo(function MobileSidebar({
                         onClose();
                       }}
                       className={cn(
-                        "flex items-center gap-3 rounded-xl transition-all duration-200 cursor-pointer",
+                        "flex items-center gap-3 rounded-md transition-all duration-200 cursor-pointer",
                         showDetailColumn 
                           ? "h-10 w-10 justify-center" 
                           : "h-11 px-4",
@@ -366,7 +366,7 @@ const MobileSidebar = memo(function MobileSidebar({
                     variant="ghost"
                     size={showDetailColumn ? "icon" : "default"}
                     className={cn(
-                      "rounded-xl transition-all duration-200 text-sidebar-dark-foreground",
+                      "rounded-md transition-all duration-200 text-sidebar-dark-foreground",
                       showDetailColumn 
                         ? "h-10 w-10" 
                         : "h-11 w-full justify-start gap-3 px-4",
@@ -425,7 +425,7 @@ const MobileMenuItem = memo(function MobileMenuItem({
       <div>
         <button
           type="button"
-          className={`flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm transition-colors hover:bg-sidebar-accent`}
+          className={`flex w-full items-center gap-2 rounded-md px-3 py-2 text-sm transition-colors hover:bg-sidebar-accent`}
           style={{ paddingLeft: `${level * 12 + 12}px` }}
           onClick={() => setIsExpanded(!isExpanded)}
         >
@@ -448,7 +448,7 @@ const MobileMenuItem = memo(function MobileMenuItem({
   return (
     <Link
       href={item.href || "#"}
-      className={`flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm transition-colors hover:bg-sidebar-accent cursor-pointer ${
+      className={`flex w-full items-center gap-2 rounded-md px-3 py-2 text-sm transition-colors hover:bg-sidebar-accent cursor-pointer ${
         isActive ? "bg-primary/10 text-primary font-medium" : ""
       }`}
       style={{ paddingLeft: `${level * 12 + 12}px` }}
