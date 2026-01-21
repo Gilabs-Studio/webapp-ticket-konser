@@ -3,13 +3,7 @@
 import { SafeImage } from "@/components/ui/image";
 import { DynamicIcon } from "@/lib/icon-utils";
 import { MerchandiseProduct } from "../types";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { MoreHorizontal, Edit, Trash2, Eye } from "lucide-react";
+import { Edit, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { formatCurrency } from "@/lib/utils";
 
@@ -29,17 +23,7 @@ function getStockColorClass(stockStatus: StockStatus): string {
   return "text-red-500";
 }
 
-function getStockBarColorClass(stockStatus: StockStatus): string {
-  if (stockStatus === "healthy") return "bg-emerald-500";
-  if (stockStatus === "low") return "bg-orange-500";
-  return "bg-red-500";
-}
 
-function getStockStatusText(stockStatus: StockStatus): string {
-  if (stockStatus === "healthy") return "Healthy";
-  if (stockStatus === "low") return "Low";
-  return "Out";
-}
 
 export function MerchandiseProductCard({
   product,
@@ -49,121 +33,128 @@ export function MerchandiseProductCard({
   onClick,
 }: MerchandiseProductCardProps) {
   const stockColorClass = getStockColorClass(product.stockStatus);
-  const stockBarColorClass = getStockBarColorClass(product.stockStatus);
-  const stockStatusText = getStockStatusText(product.stockStatus);
+
 
   return (
-    <div className="border border-border bg-card/30 rounded-md p-4 group hover:border-ring transition-all relative">
-      {/* Actions Dropdown */}
-      {(onEdit || onDelete || onView) && (
-        <div className="absolute top-2 right-2 z-10">
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity"
-                onClick={(e) => {
-                  e.stopPropagation();
-                }}
-              >
-                <MoreHorizontal className="h-4 w-4" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              {onView && (
-                <DropdownMenuItem
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onView(product.id);
-                  }}
-                >
-                  <Eye className="h-4 w-4 mr-2" />
-                  View Details
-                </DropdownMenuItem>
-              )}
-              {onEdit && (
-                <DropdownMenuItem
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onEdit(product.id);
-                  }}
-                >
-                  <Edit className="h-4 w-4 mr-2" />
-                  Edit
-                </DropdownMenuItem>
-              )}
-              {onDelete && (
-                <DropdownMenuItem
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onDelete(product.id);
-                  }}
-                  className="text-destructive focus:text-destructive"
-                >
-                  <Trash2 className="h-4 w-4 mr-2" />
-                  Delete
-                </DropdownMenuItem>
-              )}
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </div>
-      )}
-
-      <button
-        type="button"
-        className="w-full text-left cursor-pointer"
-        onClick={() => onClick?.(product.id)}
-      >
-        <div className="aspect-square bg-muted rounded-md border border-border mb-4 flex items-center justify-center relative overflow-hidden">
+    <div 
+      className="group relative h-[400px] w-full overflow-hidden rounded-3xl bg-muted transition-all hover:shadow-2xl cursor-pointer"
+      onClick={() => onClick?.(product.id)}
+      role="button"
+      tabIndex={0}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          onClick?.(product.id);
+        }
+      }}
+    >
+      {/* Full Bleed Image Background */}
+      <div className="absolute inset-0 z-0">
+        {product.imageUrl ? (
           <SafeImage
-            key={product.imageUrl} // Force re-render when imageUrl changes
+            key={product.imageUrl}
             src={product.imageUrl}
             alt={product.name ?? "Product image"}
             fill
-            className="object-cover"
-            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
-            fallback={
-              <DynamicIcon
-                name={product.iconName ?? "Package"}
-                className="text-muted-foreground"
-                size={48}
-              />
-            }
-            fallbackIcon={false}
+            className="h-full w-full object-cover transition-transform duration-700 ease-in-out group-hover:scale-105"
+            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+            fallbackIcon={true}
           />
-        </div>
-        <div className="flex justify-between items-start mb-2">
-          <div>
-            <h3 className="text-sm font-medium text-foreground">
-              {product.name}
-            </h3>
-            <p className="text-xs text-muted-foreground">
-              {product.variant ?? product.description ?? ""}
-            </p>
-          </div>
-          <span className="text-sm font-medium text-foreground">
-            {product.priceFormatted || formatCurrency(product.price)}
-          </span>
-        </div>
-        <div className="space-y-1">
-          <div className="flex justify-between text-[10px] uppercase text-muted-foreground font-medium">
-            <span>Stock</span>
-            <span className={stockColorClass}>{stockStatusText}</span>
-          </div>
-          <div className="w-full bg-muted h-1 rounded-full overflow-hidden">
-            <div
-              className={`${stockBarColorClass} h-full rounded-full transition-all`}
-              style={{
-                width: `${Math.max(0, Math.min(100, product.stockPercentage))}%`,
-              }}
+        ) : (
+          <div className="flex h-full w-full items-center justify-center bg-neutral-900 text-neutral-700">
+             <DynamicIcon
+              name={product.iconName ?? "Package"}
+              className="h-16 w-16 opacity-20"
+              size={64}
             />
           </div>
-          <div className="text-[10px] text-muted-foreground text-right pt-1">
-            {product.stock} left
+        )}
+        {/* Modern Gradient Overlay */}
+        <div className="absolute inset-0 bg-linear-to-t from-black/90 via-black/20 to-transparent opacity-80 transition-opacity duration-300 group-hover:opacity-90" />
+      </div>
+
+      {/* Actions (Top Right) */}
+      {(onEdit || onDelete) && (
+        <div className="absolute top-4 right-4 z-20 flex gap-2 opacity-0 transform -translate-y-2 transition-all duration-300 group-hover:opacity-100 group-hover:translate-y-0">
+            {onEdit && (
+              <Button
+                variant="secondary"
+                size="icon"
+                className="h-8 w-8 rounded-full bg-amber-500/80 hover:bg-amber-500/90 text-white border-0 backdrop-blur-md"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onEdit(product.id);
+                }}
+                title="Edit"
+              >
+                <Edit className="h-4 w-4" />
+              </Button>
+            )}
+            {onDelete && (
+              <Button
+                variant="destructive"
+                size="icon"
+                className="h-8 w-8 rounded-full bg-red-500/80 hover:bg-red-500/90 text-white border-0 backdrop-blur-md"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onDelete(product.id);
+                }}
+                title="Delete"
+              >
+                <Trash2 className="h-4 w-4" />
+              </Button>
+            )}
+        </div>
+      )}
+
+      {/* Content Overlay (Bottom) */}
+      <div className="relative z-10 flex h-full flex-col justify-end p-6 text-white text-left">
+        <div className="transform transition-transform duration-300 group-hover:-translate-y-1">
+          <div className="flex items-end gap-4 justify-between">
+             {/* Left: Title and Price */}
+             <div className="flex flex-col gap-1 flex-1 min-w-0">
+                <h3 className="text-2xl font-bold leading-tight tracking-tight text-white drop-shadow-sm truncate pr-2">
+                  {product.name}
+                </h3>
+                <span className="text-lg font-semibold text-white drop-shadow-md">
+                   {product.priceFormatted || formatCurrency(product.price)}
+                </span>
+             </div>
+
+             {/* Right: Circular Progress */}
+             <div className="flex-none">
+                <div className="relative h-12 w-12 flex items-center justify-center">
+                  <svg className="h-full w-full -rotate-90 transform" viewBox="0 0 36 36">
+                    {/* Background Circle */}
+                    <path
+                      className="text-white/20"
+                      strokeWidth="3"
+                      stroke="currentColor"
+                      fill="none"
+                      d="M18 2.0845
+                        a 15.9155 15.9155 0 0 1 0 31.831
+                        a 15.9155 15.9155 0 0 1 0 -31.831"
+                    />
+                    {/* Progress Circle */}
+                    <path
+                      className={stockColorClass}
+                      strokeDasharray={`${Math.max(0, Math.min(100, product.stockPercentage))}, 100`}
+                      strokeWidth="3"
+                      strokeLinecap="round"
+                      stroke="currentColor"
+                      fill="none"
+                      d="M18 2.0845
+                        a 15.9155 15.9155 0 0 1 0 31.831
+                        a 15.9155 15.9155 0 0 1 0 -31.831"
+                    />
+                  </svg>
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <span className="text-[10px] font-bold">{Math.round(product.stockPercentage)}%</span>
+                  </div>
+                </div>
+             </div>
           </div>
         </div>
-      </button>
+      </div>
     </div>
   );
 }

@@ -32,12 +32,8 @@ export function MerchandiseInventory({
           {Array.from({ length: 3 }, (_, i) => (
             <div
               key={`skeleton-${i}`}
-              className="border border-border bg-card/30 rounded-md p-4 animate-pulse"
-            >
-              <div className="aspect-square bg-muted rounded-md mb-4" />
-              <div className="h-4 bg-muted rounded mb-2" />
-              <div className="h-2 bg-muted rounded" />
-            </div>
+              className="h-[400px] rounded-3xl bg-muted animate-pulse border-0"
+            />
           ))}
         </div>
       </div>
