@@ -22,6 +22,3 @@ function Label({
 }
 
 export { Label };
-
-
-

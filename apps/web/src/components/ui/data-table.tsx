@@ -38,6 +38,16 @@ export interface Column<T> {
   className?: string;
 }
 
+export interface MobileGrid2Layout {
+  readonly type: "grid2";
+  readonly columns: readonly string[]; // Column IDs to display in 2-column grid
+}
+
+export interface MobileLayoutConfig {
+  readonly titleColumn?: string; // Column ID for title (actions will be placed next to it)
+  readonly grid2?: MobileGrid2Layout; // Optional grid2 layout for some columns
+}
+
 interface DataTableProps<T> {
   readonly columns: readonly Column<T>[];
   readonly data: readonly T[];
@@ -53,9 +63,9 @@ interface DataTableProps<T> {
   };
   readonly onPageChange?: (page: number) => void;
   readonly onPerPageChange?: (perPage: number) => void;
-  readonly itemName?: string; // e.g., "diagnosis", "procedure"
   readonly perPageOptions?: readonly number[]; // e.g., [10, 20, 50, 100]
   readonly onResetFilters?: () => void;
+  readonly mobileLayout?: MobileLayoutConfig; // Optional mobile layout configuration
 }
 
 export function DataTable<T extends { id: string }>({
@@ -66,9 +76,9 @@ export function DataTable<T extends { id: string }>({
   pagination,
   onPageChange,
   onPerPageChange,
-  itemName = "item",
   perPageOptions = [10, 20, 50, 100],
   onResetFilters,
+  mobileLayout,
 }: DataTableProps<T>) {
   const isMobile = useIsMobile();
 
@@ -104,11 +114,14 @@ export function DataTable<T extends { id: string }>({
   // Mobile card view
   if (isMobile) {
     return (
-      <div className="border">
+      <div className="border rounded-lg">
         {isLoading ? (
           <div className="p-4 space-y-3">
             {Array.from({ length: 5 }, (_, i) => (
-              <Skeleton key={`skeleton-card-${i}`} className="h-32 w-full" />
+              <Skeleton
+                key={`skeleton-card-${i}`}
+                className="h-32 w-full rounded-lg"
+              />
             ))}
           </div>
         ) : (
@@ -119,40 +132,133 @@ export function DataTable<T extends { id: string }>({
               </div>
             ) : (
               <div className="divide-y">
-                {data.map((row) => (
-                  <div
-                    key={row.id}
-                    className="p-4 hover:bg-muted/30 border-b last:border-b-0"
-                  >
-                    <div className="space-y-2.5">
-                      {columns.map((column, index) => {
-                        const isFirstColumn = index === 0;
-                        return (
-                          <div
-                            key={column.id}
-                            className={cn(
-                              "flex flex-col gap-1",
-                              isFirstColumn && "pb-2 border-b border-border/50",
-                            )}
-                          >
-                            <div className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-                              {column.header}
+                {data.map((row) => {
+                  // Find actions column (always look for it)
+                  const actionsColumnIndex = columns.findIndex((col) => col.id === "actions");
+                  const actionsColumn = actionsColumnIndex === -1 ? null : columns[actionsColumnIndex];
+
+                  // If mobile layout is configured, use custom layout
+                  if (mobileLayout) {
+                    const titleColumnId = mobileLayout.titleColumn || columns[0]?.id;
+                    const titleColumnIndex = columns.findIndex((col) => col.id === titleColumnId);
+                    const titleColumn = titleColumnIndex === -1 ? columns[0] : columns[titleColumnIndex];
+
+                    // Get columns for grid2 layout if configured
+                    const grid2Columns: Column<T>[] = [];
+                    if (mobileLayout.grid2) {
+                      mobileLayout.grid2.columns.forEach((colId) => {
+                        const col = columns.find((c) => c.id === colId);
+                        if (col) grid2Columns.push(col);
+                      });
+                    }
+
+                    // Get all other columns (excluding title, actions, and grid2 columns)
+                    const otherColumns = columns.filter(
+                      (col) =>
+                        col.id !== titleColumnId &&
+                        col.id !== "actions" &&
+                        !mobileLayout.grid2?.columns.includes(col.id),
+                    );
+
+                    return (
+                      <div
+                        key={row.id}
+                        className="p-4 hover:bg-muted/30 transition-colors border-b last:border-b-0"
+                      >
+                        <div className="space-y-2.5">
+                          {/* Title + Actions Row */}
+                          {titleColumn && (
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center justify-between gap-2 mb-1.5">
+                                <div className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+                                  {titleColumn.header}
+                                </div>
+                                {actionsColumn && (
+                                  <div className="shrink-0">
+                                    {actionsColumn.accessor(row)}
+                                  </div>
+                                )}
+                              </div>
+                              <div className="text-sm font-semibold text-foreground">
+                                {titleColumn.accessor(row)}
+                              </div>
                             </div>
-                            <div
-                              className={cn(
-                                "text-sm",
-                                isFirstColumn &&
-                                  "font-semibold text-foreground",
-                              )}
-                            >
-                              {column.accessor(row)}
+                          )}
+
+                          {/* Other columns (non-grid) */}
+                          {otherColumns.map((column) => (
+                            <div key={column.id} className="flex flex-col gap-1">
+                              <div className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+                                {column.header}
+                              </div>
+                              <div className="text-sm text-muted-foreground">
+                                {column.accessor(row)}
+                              </div>
                             </div>
-                          </div>
-                        );
-                      })}
+                          ))}
+
+                          {/* Grid2 Layout */}
+                          {grid2Columns.length > 0 && (
+                            <div className="grid grid-cols-2 gap-3">
+                              {grid2Columns.map((column) => (
+                                <div key={column.id} className="flex flex-col gap-1">
+                                  <div className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+                                    {column.header}
+                                  </div>
+                                  <div className="text-sm">
+                                    {column.accessor(row)}
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  }
+
+                  // Default layout for tables without mobile layout config
+                  return (
+                    <div
+                      key={row.id}
+                      className="p-4 hover:bg-muted/30 transition-colors border-b last:border-b-0"
+                    >
+                      <div className="space-y-2.5">
+                        {columns
+                          .filter(() => {
+                            // In default layout, show actions column normally
+                            // Only skip if mobileLayout is configured (actions will be shown with title)
+                            return true;
+                          })
+                          .map((column, index) => {
+                            const isFirstColumn = index === 0;
+                            return (
+                              <div
+                                key={column.id}
+                                className={cn(
+                                  "flex flex-col gap-1",
+                                  isFirstColumn && "pb-2 border-b border-border/50",
+                                )}
+                              >
+                                <div className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+                                  {column.header}
+                                </div>
+                                <div
+                                  className={cn(
+                                    "text-sm",
+                                    isFirstColumn &&
+                                      "font-semibold text-foreground",
+                                  )}
+                                >
+                                  {column.accessor(row)}
+                                </div>
+                              </div>
+                            );
+                          })}
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             )}
 
@@ -254,7 +360,7 @@ export function DataTable<T extends { id: string }>({
 
   // Desktop table view
   return (
-    <div className="border">
+    <div className="border rounded-lg">
       {isLoading ? (
         <div className="p-4 space-y-3">
           {Array.from({ length: 5 }, (_, i) => (
@@ -364,7 +470,7 @@ export function DataTable<T extends { id: string }>({
                       <button
                         type="button"
                         onClick={() => onResetFilters()}
-                        className="text-xs font-medium text-muted-foreground hover:text-primary underline-offset-4 hover:underline"
+                        className="text-xs font-medium text-muted-foreground hover:text-primary underline-offset-4 hover:underline cursor-pointer"
                       >
                         Reset filters
                       </button>

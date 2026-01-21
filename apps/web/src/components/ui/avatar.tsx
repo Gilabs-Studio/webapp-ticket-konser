@@ -39,20 +39,17 @@ function AvatarImage({
   const { setImageLoaded } = React.useContext(AvatarContext);
   const [hasError, setHasError] = React.useState(false);
 
-  // Reset state when src changes
   React.useEffect(() => {
     if (src) {
       setHasError(false);
       setImageLoaded(false);
     } else {
-      setHasError(true);
       setImageLoaded(false);
     }
   }, [src, setImageLoaded]);
 
-  // Early return if no src or error - don't render img
-  // This prevents any state updates during render
   if (hasError || !src) {
+    setImageLoaded(false);
     return null;
   }
 
@@ -61,9 +58,7 @@ function AvatarImage({
       src={src}
       alt={alt}
       className={cn("aspect-square h-full w-full object-cover", className)}
-      onLoad={() => {
-        setImageLoaded(true);
-      }}
+      onLoad={() => setImageLoaded(true)}
       onError={() => {
         setHasError(true);
         setImageLoaded(false);
