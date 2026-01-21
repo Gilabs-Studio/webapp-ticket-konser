@@ -1,61 +1,54 @@
 import { useQuery } from "@tanstack/react-query";
-import { adminDashboardService } from "../services/adminDashboardService";
-import type { DashboardFilters } from "../types";
+import { dashboardService } from "../services/dashboard.service";
+import { DashboardFilters } from "../types/dashboard";
 
-export function useDashboard(filters?: DashboardFilters) {
+const KEYS = {
+  overview: "dashboard-overview",
+  sales: "dashboard-sales",
+  checkIn: "dashboard-check-ins",
+  quota: "dashboard-quota",
+  gates: "dashboard-gates",
+  buyers: "dashboard-buyers",
+};
+
+export const useDashboardOverview = (filters?: DashboardFilters) => {
   return useQuery({
-    queryKey: ["dashboard", "overview", filters],
-    queryFn: () => adminDashboardService.getDashboardOverview(filters),
-    staleTime: 30000, // 30 seconds
-    refetchInterval: 60000, // Refetch every minute for real-time updates
+    queryKey: [KEYS.overview, filters],
+    queryFn: () => dashboardService.getOverview(filters),
   });
-}
+};
 
-export function useSalesOverview(filters?: DashboardFilters) {
+export const useSalesOverview = (filters?: DashboardFilters) => {
   return useQuery({
-    queryKey: ["dashboard", "sales", filters],
-    queryFn: () => adminDashboardService.getSalesOverview(filters),
-    staleTime: 30000,
+    queryKey: [KEYS.sales, filters],
+    queryFn: () => dashboardService.getSalesOverview(filters),
   });
-}
+};
 
-export function useCheckInOverview(filters?: DashboardFilters) {
+export const useCheckInOverview = (filters?: DashboardFilters) => {
   return useQuery({
-    queryKey: ["dashboard", "check-ins", filters],
-    queryFn: () => adminDashboardService.getCheckInOverview(filters),
-    staleTime: 30000,
+    queryKey: [KEYS.checkIn, filters],
+    queryFn: () => dashboardService.getCheckInOverview(filters),
   });
-}
+};
 
-export function useQuotaOverview(filters?: DashboardFilters) {
+export const useQuotaOverview = (filters?: DashboardFilters) => {
   return useQuery({
-    queryKey: ["dashboard", "quota", filters],
-    queryFn: () => adminDashboardService.getQuotaOverview(filters),
-    staleTime: 30000,
+    queryKey: [KEYS.quota, filters],
+    queryFn: () => dashboardService.getQuotaOverview(filters),
   });
-}
+};
 
-export function useGateActivity(filters?: DashboardFilters) {
+export const useGateActivity = (filters?: DashboardFilters) => {
   return useQuery({
-    queryKey: ["dashboard", "gates", filters],
-    queryFn: () => adminDashboardService.getGateActivity(filters),
-    staleTime: 30000,
+    queryKey: [KEYS.gates, filters],
+    queryFn: () => dashboardService.getGateActivity(filters),
   });
-}
+};
 
-export function useBuyerList(filters?: DashboardFilters) {
+export const useBuyerList = (filters?: DashboardFilters) => {
   return useQuery({
-    queryKey: ["dashboard", "buyers", filters],
-    queryFn: () => adminDashboardService.getBuyerList(filters),
-    staleTime: 30000,
+    queryKey: [KEYS.buyers, filters],
+    queryFn: () => dashboardService.getBuyerList(filters),
   });
-}
-
-export function useRecentSales(limit = 5) {
-  return useQuery({
-    queryKey: ["dashboard", "recent-sales", limit],
-    queryFn: () => adminDashboardService.getRecentSales(limit),
-    staleTime: 30000,
-  });
-}
-
+};
