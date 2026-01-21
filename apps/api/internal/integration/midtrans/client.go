@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/gilabs/webapp-ticket-konser/api/internal/config"
@@ -238,7 +239,7 @@ func (c *Client) VerifyWebhookSignature(payload *WebhookPayload) bool {
 	expectedSignature := hex.EncodeToString(hash[:])
 
 	// Compare with signature_key from payload (case-insensitive)
-	return expectedSignature == payload.SignatureKey
+	return strings.EqualFold(expectedSignature, payload.SignatureKey)
 }
 
 // getBasicAuth returns Basic Auth header value

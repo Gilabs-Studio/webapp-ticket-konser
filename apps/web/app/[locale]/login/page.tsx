@@ -4,6 +4,7 @@ import { useEffect } from "react";
 import { useRouter } from "@/i18n/routing";
 import { LoginForm } from "@/features/auth/components/login-form";
 import { useAuthStore } from "@/features/auth/stores/useAuthStore";
+import { getNormalizedRoleCode } from "@/features/auth/utils/role";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -11,7 +12,7 @@ export default function LoginPage() {
 
   useEffect(() => {
     if (isAuthenticated && user) {
-      const userRole = user.role?.toLowerCase() ?? "";
+      const userRole = getNormalizedRoleCode(user.role);
 
       // Redirect based on role
       if (userRole === "admin" || userRole === "super_admin") {

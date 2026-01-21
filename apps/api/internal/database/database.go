@@ -4,7 +4,9 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"strconv"
 	"strings"
+	"time"
 
 	"github.com/gilabs/webapp-ticket-konser/api/internal/config"
 	"github.com/gilabs/webapp-ticket-konser/api/internal/domain/checkin"
@@ -40,8 +42,36 @@ func Connect() error {
 		return fmt.Errorf("failed to connect to database: %w", err)
 	}
 
+	sqlDB, err := DB.DB()
+	if err != nil {
+		return fmt.Errorf("failed to get sql DB from gorm: %w", err)
+	}
+
+	// Connection pool tuning (defaults are safe; override via env vars)
+	maxOpenConns := getEnvInt("DB_MAX_OPEN_CONNS", 25)
+	maxIdleConns := getEnvInt("DB_MAX_IDLE_CONNS", 10)
+	connMaxLifetimeMin := getEnvInt("DB_CONN_MAX_LIFETIME_MINUTES", 30)
+	connMaxIdleTimeMin := getEnvInt("DB_CONN_MAX_IDLE_TIME_MINUTES", 5)
+
+	sqlDB.SetMaxOpenConns(maxOpenConns)
+	sqlDB.SetMaxIdleConns(maxIdleConns)
+	sqlDB.SetConnMaxLifetime(time.Duration(connMaxLifetimeMin) * time.Minute)
+	sqlDB.SetConnMaxIdleTime(time.Duration(connMaxIdleTimeMin) * time.Minute)
+
 	log.Println("Database connected successfully")
 	return nil
+}
+
+func getEnvInt(key string, defaultValue int) int {
+	value := strings.TrimSpace(os.Getenv(key))
+	if value == "" {
+		return defaultValue
+	}
+	parsed, err := strconv.Atoi(value)
+	if err != nil {
+		return defaultValue
+	}
+	return parsed
 }
 
 // AutoMigrate runs database migrations

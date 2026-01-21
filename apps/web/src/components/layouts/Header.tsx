@@ -7,6 +7,7 @@ import { useAuthStore } from "@/features/auth/stores/useAuthStore";
 import { UserMenu } from "@/components/user-menu";
 import { ThemeToggleButton } from "@/components/ui/theme-toggle";
 import { LanguageToggleButton } from "@/components/ui/language-toggle";
+import { getNormalizedRoleCode } from "@/features/auth/utils/role";
 
 interface HeaderProps {
   readonly locale: string;
@@ -33,7 +34,7 @@ export default function Header({ locale }: HeaderProps) {
   ];
 
   // Determine user role for menu customization
-  const userRole = user?.role?.toLowerCase() ?? "";
+  const userRole = getNormalizedRoleCode(user?.role);
   const isAdmin = ["admin", "super_admin"].includes(userRole);
   const isStaff = ["staff_ticket", "gate_staff"].includes(userRole);
   const isGuest = Boolean(isAuthenticated && user && !isAdmin && !isStaff);

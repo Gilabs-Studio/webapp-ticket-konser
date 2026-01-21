@@ -5,6 +5,7 @@ import type { LoginFormData } from "../schemas/login.schema";
 import type { AuthError } from "../types/errors";
 import { useState } from "react";
 import { setSecureCookie } from "@/lib/cookie";
+import { getNormalizedRoleCode } from "../utils/role";
 
 export function useLogin() {
   const router = useRouter();
@@ -43,7 +44,7 @@ export function useLogin() {
           error: null,
         });
         // Redirect berdasarkan role code
-        const userRole = user.role?.toLowerCase() ?? "";
+        const userRole = getNormalizedRoleCode(user.role);
         if (userRole === "admin" || userRole === "super_admin") {
           // Dashboard route moved from /admin/dashboard to /dashboard
           router.push("/dashboard");
