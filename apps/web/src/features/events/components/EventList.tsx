@@ -11,17 +11,16 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Card } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { SafeImage } from "@/components/ui/image";
-import { Plus, Search, Calendar, Edit, Trash2, Eye } from "lucide-react";
+import { Plus, Search, Calendar, Edit, Trash2 } from "lucide-react";
 import { useRouter } from "@/i18n/routing";
+import { useTranslations } from "next-intl";
 import type { Event, EventStatus } from "../types";
 import { EventStatusBadge } from "./EventStatusBadge";
 import {
   Dialog,
   DialogContent,
   DialogDescription,
-  DialogFooter,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
@@ -49,6 +48,7 @@ export function EventList({
   onViewEvent,
 }: EventListProps) {
   const router = useRouter();
+  const t = useTranslations("events");
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<EventStatus | "all">("all");
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
@@ -225,94 +225,88 @@ export function EventList({
         {filteredEvents.map((event) => (
           <Card 
             key={event.id} 
-            className="overflow-hidden hover:shadow-lg transition-shadow cursor-pointer"
-            onClick={() => !isAdmin && handleView(event.id)}
+            className="group relative flex h-[400px] w-full flex-col overflow-hidden rounded-3xl border-0 bg-muted transition-all hover:shadow-2xl cursor-pointer"
+            onClick={() => handleView(event.id)}
           >
-            <div className="relative aspect-video w-full bg-muted">
+            {/* Full Bleed Image Background */}
+            <div className="absolute inset-0 z-0">
               {event.bannerImage ? (
                 <SafeImage
                   src={event.bannerImage}
                   alt={event.eventName}
                   fill
-                  className="object-cover"
+                  className="h-full w-full object-cover transition-transform duration-700 ease-in-out group-hover:scale-105"
                   sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                   fallbackIcon={true}
                 />
               ) : (
-                <div className="w-full h-full flex items-center justify-center text-muted-foreground">
-                  <Calendar className="h-12 w-12" />
+                <div className="w-full h-full flex items-center justify-center bg-neutral-900 text-neutral-700">
+                  <Calendar className="h-16 w-16 opacity-20" />
                 </div>
               )}
-              {isAdmin && (
-                <div className="absolute top-2 right-2">
-                  <EventStatusBadge status={event.status} className="text-[10px]" />
-                </div>
-              )}
+              {/* Modern Gradient Overlay - Stronger at bottom for text, subtle at top */}
+              <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent opacity-80 transition-opacity duration-300 group-hover:opacity-90" />
             </div>
-            <div className="p-4 space-y-3">
-              <div>
-                <h3 className="font-semibold text-sm line-clamp-1">{event.eventName}</h3>
+
+            {/* Top Bar: Status (Left) & Actions (Right) */}
+            <div className="absolute top-4 left-4 right-4 z-20 flex justify-between items-start">
+              {/* Status Badge */}
+              <div className="backdrop-blur-md bg-black/30 rounded-full px-2 py-1 border border-white/10 shadow-sm">
+                 <EventStatusBadge status={event.status} className="text-xs font-medium text-white bg-transparent border-0" />
+              </div>
+
+              {/* Action Buttons - Top Right, Icon Only */}
+              <div className="flex gap-2 opacity-0 transform -translate-y-2 transition-all duration-300 group-hover:opacity-100 group-hover:translate-y-0">
+                {isAdmin && (
+                  <>
+                    <Button
+                      variant="secondary"
+                      size="icon"
+                      className="h-8 w-8 rounded-full bg-amber-500/80 hover:bg-amber-500/90 text-white border-0 backdrop-blur-md"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleEdit(event.id);
+                      }}
+                      title={t("editEvent")}
+                    >
+                      <Edit className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      variant="destructive"
+                      size="icon"
+                      className="h-8 w-8 rounded-full bg-red-500/80 hover:bg-red-500/90 text-white border-0 backdrop-blur-md"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleDelete(event.id);
+                      }}
+                      title={t("deleteError") === "Failed to delete event. Please try again." ? "Delete" : t("deleteError")}
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </>
+                )}
+              </div>
+            </div>
+
+            {/* Content Overlay */}
+            <div className="relative z-10 flex flex-1 flex-col justify-end p-6 text-white">
+              <div className="space-y-2 transform transition-transform duration-300 group-hover:-translate-y-1">
+                <h3 className="text-2xl font-bold leading-tight tracking-tight text-white drop-shadow-sm line-clamp-2">
+                  {event.eventName}
+                </h3>
                 {event.description && (
-                  <p className="text-xs text-muted-foreground line-clamp-2 mt-1">
+                  <p className="text-sm text-gray-200 line-clamp-2 opacity-90 leading-relaxed font-light">
                     {event.description}
                   </p>
                 )}
-              </div>
-              <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                <Calendar className="h-3 w-3" />
-                <span>{formatDate(event.startDate)} - {formatDate(event.endDate)}</span>
-              </div>
-              {isAdmin ? (
-                <div className="flex gap-2 pt-2">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="flex-1 text-xs"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleView(event.id);
-                    }}
-                  >
-                    <Eye className="h-3 w-3 mr-1" />
-                    View
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="flex-1 text-xs"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleEdit(event.id);
-                    }}
-                  >
-                    <Edit className="h-3 w-3 mr-1" />
-                    Edit
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="text-xs"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleDelete(event.id);
-                    }}
-                  >
-                    <Trash2 className="h-3 w-3" />
-                  </Button>
+                
+                <div className="flex items-center gap-2 text-xs font-medium text-gray-300 mt-2">
+                  <Calendar className="h-3.5 w-3.5" />
+                  <span>
+                    {formatDate(event.startDate)} - {formatDate(event.endDate)}
+                  </span>
                 </div>
-              ) : (
-                <Button
-                  variant="default"
-                  size="sm"
-                  className="w-full text-xs"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleView(event.id);
-                  }}
-                >
-                  View Details
-                </Button>
-              )}
+              </div>
             </div>
           </Card>
         ))}
