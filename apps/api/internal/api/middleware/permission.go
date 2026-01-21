@@ -1,9 +1,9 @@
 package middleware
 
 import (
-	"github.com/gin-gonic/gin"
 	"github.com/gilabs/webapp-ticket-konser/api/internal/repository/interfaces/role"
 	"github.com/gilabs/webapp-ticket-konser/api/pkg/errors"
+	"github.com/gin-gonic/gin"
 )
 
 // RequirePermission creates a middleware that checks if the user's role has the required permission
@@ -37,7 +37,7 @@ func RequirePermission(permissionCode string, roleRepo role.Repository) gin.Hand
 		if !hasPermission {
 			errors.ErrorResponse(c, "FORBIDDEN", map[string]interface{}{
 				"required_permission": permissionCode,
-				"reason":             "Insufficient permissions",
+				"reason":              "Insufficient permissions",
 			}, nil)
 			c.Abort()
 			return
@@ -46,7 +46,3 @@ func RequirePermission(permissionCode string, roleRepo role.Repository) gin.Hand
 		c.Next()
 	}
 }
-
-
-
-

@@ -44,23 +44,23 @@ func (r *Repository) GetSalesOverview(startDate, endDate *time.Time, eventID str
 	}
 
 	type salesAgg struct {
-		TotalOrders   int64   `gorm:"column:total_orders"`
-		PaidOrders    int64   `gorm:"column:paid_orders"`
-		UnpaidOrders  int64   `gorm:"column:unpaid_orders"`
-		FailedOrders  int64   `gorm:"column:failed_orders"`
-		CanceledOrders int64  `gorm:"column:canceled_orders"`
-		RefundedOrders int64  `gorm:"column:refunded_orders"`
-		TotalRevenue  float64 `gorm:"column:total_revenue"`
+		TotalOrders    int64   `gorm:"column:total_orders"`
+		PaidOrders     int64   `gorm:"column:paid_orders"`
+		UnpaidOrders   int64   `gorm:"column:unpaid_orders"`
+		FailedOrders   int64   `gorm:"column:failed_orders"`
+		CanceledOrders int64   `gorm:"column:canceled_orders"`
+		RefundedOrders int64   `gorm:"column:refunded_orders"`
+		TotalRevenue   float64 `gorm:"column:total_revenue"`
 	}
 
 	agg := salesAgg{}
 	if err := query.Select(
-		"COUNT(*) AS total_orders, " +
-			"SUM(CASE WHEN payment_status = ? THEN 1 ELSE 0 END) AS paid_orders, " +
-			"SUM(CASE WHEN payment_status = ? THEN 1 ELSE 0 END) AS unpaid_orders, " +
-			"SUM(CASE WHEN payment_status = ? THEN 1 ELSE 0 END) AS failed_orders, " +
-			"SUM(CASE WHEN payment_status = ? THEN 1 ELSE 0 END) AS canceled_orders, " +
-			"SUM(CASE WHEN payment_status = ? THEN 1 ELSE 0 END) AS refunded_orders, " +
+		"COUNT(*) AS total_orders, "+
+			"SUM(CASE WHEN payment_status = ? THEN 1 ELSE 0 END) AS paid_orders, "+
+			"SUM(CASE WHEN payment_status = ? THEN 1 ELSE 0 END) AS unpaid_orders, "+
+			"SUM(CASE WHEN payment_status = ? THEN 1 ELSE 0 END) AS failed_orders, "+
+			"SUM(CASE WHEN payment_status = ? THEN 1 ELSE 0 END) AS canceled_orders, "+
+			"SUM(CASE WHEN payment_status = ? THEN 1 ELSE 0 END) AS refunded_orders, "+
 			"COALESCE(SUM(CASE WHEN payment_status = ? THEN total_amount ELSE 0 END), 0) AS total_revenue",
 		order.PaymentStatusPaid,
 		order.PaymentStatusUnpaid,
@@ -89,16 +89,16 @@ func (r *Repository) GetSalesOverview(startDate, endDate *time.Time, eventID str
 	}
 
 	return &dashboard.SalesOverview{
-		TotalRevenue:        agg.TotalRevenue,
+		TotalRevenue:          agg.TotalRevenue,
 		TotalRevenueFormatted: revenueFormatted,
-		TotalOrders:         int(agg.TotalOrders),
-		PaidOrders:          int(agg.PaidOrders),
-		UnpaidOrders:        int(agg.UnpaidOrders),
-		FailedOrders:        int(agg.FailedOrders),
-		CanceledOrders:      int(agg.CanceledOrders),
-		RefundedOrders:      int(agg.RefundedOrders),
-		ChangePercent:       0, // TODO: Calculate when we have historical data
-		Period:              period,
+		TotalOrders:           int(agg.TotalOrders),
+		PaidOrders:            int(agg.PaidOrders),
+		UnpaidOrders:          int(agg.UnpaidOrders),
+		FailedOrders:          int(agg.FailedOrders),
+		CanceledOrders:        int(agg.CanceledOrders),
+		RefundedOrders:        int(agg.RefundedOrders),
+		ChangePercent:         0, // TODO: Calculate when we have historical data
+		Period:                period,
 	}, nil
 }
 
@@ -107,7 +107,7 @@ func (r *Repository) GetCheckInOverview(startDate, endDate *time.Time, eventID s
 	// Get total order items (tickets issued)
 	var totalTickets int64
 	orderItemQuery := r.db.Model(&orderitem.OrderItem{}).Where("deleted_at IS NULL")
-	
+
 	if startDate != nil {
 		orderItemQuery = orderItemQuery.Where("created_at >= ?", startDate)
 	}
@@ -130,7 +130,7 @@ func (r *Repository) GetCheckInOverview(startDate, endDate *time.Time, eventID s
 	// Get checked in count
 	var checkedInCount int64
 	checkInQuery := r.db.Model(&checkin.CheckIn{}).Where("status = ?", checkin.CheckInStatusSuccess)
-	
+
 	if startDate != nil {
 		checkInQuery = checkInQuery.Where("checked_in_at >= ?", startDate)
 	}
@@ -173,7 +173,7 @@ func (r *Repository) GetCheckInOverview(startDate, endDate *time.Time, eventID s
 	return &dashboard.CheckInOverview{
 		TotalCheckIns: int(totalTickets),
 		CheckedIn:     int(checkedInCount),
-		NotCheckedIn: notCheckedIn,
+		NotCheckedIn:  notCheckedIn,
 		CheckInRate:   checkInRate,
 		ChangePercent: 0, // TODO: Calculate when we have historical data
 		Period:        period,
@@ -183,7 +183,7 @@ func (r *Repository) GetCheckInOverview(startDate, endDate *time.Time, eventID s
 // GetQuotaOverview gets quota overview statistics
 func (r *Repository) GetQuotaOverview(eventID string) (*dashboard.QuotaOverview, error) {
 	query := r.db.Model(&ticketcategory.TicketCategory{}).Where("deleted_at IS NULL")
-	
+
 	if eventID != "" {
 		query = query.Where("event_id = ?", eventID)
 	}
@@ -272,7 +272,7 @@ func (r *Repository) GetQuotaOverview(eventID string) (*dashboard.QuotaOverview,
 // GetGateActivity gets gate activity statistics
 func (r *Repository) GetGateActivity(gateID string) ([]*dashboard.GateActivity, error) {
 	query := r.db.Model(&gate.Gate{}).Where("deleted_at IS NULL")
-	
+
 	if gateID != "" {
 		query = query.Where("id = ?", gateID)
 	}

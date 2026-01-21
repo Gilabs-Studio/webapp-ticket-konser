@@ -10,6 +10,8 @@ Backend API untuk WebApp Ticketing Platform (Harry Potter Museum Exhibition) men
 - **GORM**: ORM
 - **JWT**: Authentication
 - **Docker**: Containerization
+- **Redis**: Cache + distributed rate limit + idempotency (optional, recommended for scale)
+- **Prometheus**: Metrics endpoint (optional)
 
 ## Arsitektur
 
@@ -85,17 +87,25 @@ cp .env.example .env
 - `DB_NAME`: Database name (default: ticketing_app)
 - `JWT_SECRET`: JWT secret key (min 32 characters)
 
+**Optional (Recommended for scale):**
+
+- `REDIS_ENABLED=true` untuk mengaktifkan cache, distributed rate limit, dan idempotency
+- `REDIS_ADDR` / `REDIS_URL` untuk koneksi Redis
+- `METRICS_ENABLED=true` untuk `GET /metrics`
+- `PPROF_ENABLED=true` + `DEBUG_TOKEN=<token>` untuk mengaktifkan `/debug/pprof/*` secara aman
+
 ### Database Setup
 
 #### Option 1: Docker Compose (Recommended)
 
 ```bash
 cd apps/api
-docker-compose up -d postgres
+docker-compose up -d postgres redis
 ```
 
-**Note**: Docker Compose menggunakan port **5435** (bukan 5432) untuk menghindari konflik dengan PostgreSQL lain (termasuk CRM Healthcare yang mungkin menggunakan 5434). Pastikan `.env` file menggunakan `DB_PORT=5435` saat connect dari host, atau `DB_PORT=5432` saat connect dari dalam Docker network.
+**Note**: Docker Compose menggunakan port **5438** (bukan 5432) untuk menghindari konflik. Saat connect dari host gunakan `DB_PORT=5438`, sedangkan dari dalam Docker network gunakan `DB_PORT=5432`.
 
+Redis (default) tersedia di `localhost:6379`.
 #### Option 2: Local PostgreSQL
 
 1. Install PostgreSQL
@@ -214,6 +224,13 @@ Semua error mengikuti format standar:
 {
   "success": false,
   "error": {
+- `JWT_SECRET`: JWT secret key (min 32 characters)
+
+**Optional (Recommended for scale):**
+
+- `REDIS_ENABLED=true` untuk mengaktifkan cache, distributed rate limit, dan idempotency
+- `METRICS_ENABLED=true` untuk `GET /metrics`
+- `PPROF_ENABLED=true` + `DEBUG_TOKEN=<token>` untuk mengaktifkan `/debug/pprof/*` secara aman
     "code": "ERROR_CODE",
     "message": "Error message",
     "details": {},

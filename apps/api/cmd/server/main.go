@@ -46,6 +46,7 @@ import (
 	userroutes "github.com/gilabs/webapp-ticket-konser/api/internal/api/routes/user"
 	"github.com/gilabs/webapp-ticket-konser/api/internal/config"
 	"github.com/gilabs/webapp-ticket-konser/api/internal/database"
+	redisint "github.com/gilabs/webapp-ticket-konser/api/internal/integration/redis"
 	paymentexpirationjob "github.com/gilabs/webapp-ticket-konser/api/internal/job"
 	"github.com/gilabs/webapp-ticket-konser/api/internal/repository/interfaces/role"
 	attendeerepo "github.com/gilabs/webapp-ticket-konser/api/internal/repository/postgres/attendee"
@@ -96,6 +97,39 @@ func main() {
 	// Load configuration
 	if err := config.Load(); err != nil {
 		log.Fatal("Failed to load config:", err)
+	}
+
+	// Connect to Redis (optional)
+	{
+		redisCfg := redisint.LoadConfigFromEnv()
+		// Prefer central config values when available
+		if config.AppConfig != nil {
+			if config.AppConfig.Redis.URL != "" {
+				// LoadConfigFromEnv already supports REDIS_URL; keep env as source of truth
+			}
+			redisCfg.Enabled = config.AppConfig.Redis.Enabled
+			redisCfg.Addr = config.AppConfig.Redis.Addr
+			redisCfg.Password = config.AppConfig.Redis.Password
+			redisCfg.DB = config.AppConfig.Redis.DB
+			redisCfg.Prefix = config.AppConfig.Redis.Prefix
+			if d, err := time.ParseDuration(config.AppConfig.Redis.DialTimeout); err == nil {
+				redisCfg.DialTimeout = d
+			}
+			if d, err := time.ParseDuration(config.AppConfig.Redis.ReadTimeout); err == nil {
+				redisCfg.ReadTimeout = d
+			}
+			if d, err := time.ParseDuration(config.AppConfig.Redis.WriteTimeout); err == nil {
+				redisCfg.WriteTimeout = d
+			}
+		}
+
+		ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+		if err := redisint.Connect(ctx, redisCfg); err != nil {
+			cancel()
+			log.Fatal("Failed to connect to redis:", err)
+		}
+		cancel()
+		defer redisint.Close()
 	}
 
 	// Connect to database
@@ -271,6 +305,7 @@ func setupRouter(
 	router.Use(middleware.LoggerMiddleware())
 	router.Use(middleware.CORSMiddleware())
 	router.Use(middleware.RequestIDMiddleware())
+	router.Use(middleware.MetricsMiddleware())
 
 	// Health check endpoints
 	router.GET("/health", func(c *gin.Context) {
@@ -285,6 +320,10 @@ func setupRouter(
 			"message": "pong",
 		})
 	})
+
+	// Observability endpoints
+	middleware.RegisterMetricsRoute(router)
+	middleware.RegisterDebugRoutes(router)
 
 	// Static file serving for uploads
 	router.Static("/uploads", "./uploads")
