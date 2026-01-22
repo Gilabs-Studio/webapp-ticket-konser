@@ -17,7 +17,7 @@ import {
 } from "@/components/ui/dialog";
 import { Ticket, Plus, QrCode, Eye } from "lucide-react";
 import { ticketService } from "../services/ticketService";
-import type { ETicket, GenerateTicketsRequest } from "../types";
+import type { ETicket, GenerateTicketsRequest } from "../types/ticket";
 import { ETicketDisplay } from "./ETicketDisplay";
 import { GenerateTicketsForm } from "./GenerateTicketsForm";
 import { useTranslations } from "next-intl";

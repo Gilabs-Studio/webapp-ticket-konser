@@ -27,7 +27,7 @@ import {
   Contact,
   Bot,
   Sparkles,
-  Ticket,
+
   Settings,
   DoorOpen,
   Shirt,
@@ -78,8 +78,7 @@ const iconMap: Record<string, React.ReactNode> = {
   sparkles: <Sparkles className="h-4 w-4" />,
   "ai-chatbot": <Bot className="h-4 w-4" />,
   "ai-settings": <Sparkles className="h-4 w-4" />,
-  // Ticketing icons
-  ticket: <Ticket className="h-4 w-4" />,
+
   // Settings icons
   settings: <Settings className="h-4 w-4" />,
   // Gate Management icons

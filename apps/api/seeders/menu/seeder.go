@@ -26,22 +26,14 @@ func Seed() error {
 		},
 		{
 			Code:           "event-management",
-			Label:          "Event",
+			Label:          "Event & Ticket",
 			Icon:           "calendar",
 			Path:           "/events-management",
 			OrderIndex:     2,
 			PermissionCode: "event.read",
 			IsActive:       true,
 		},
-		{
-			Code:           "ticket-management",
-			Label:          "Ticket",
-			Icon:           "ticket",
-			Path:           "/tickets-management",
-			OrderIndex:     3,
-			PermissionCode: "ticket.read",
-			IsActive:       true,
-		},
+
 		{
 			Code:           "order-management",
 			Label:          "Order",

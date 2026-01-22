@@ -31,16 +31,17 @@ import { formatDate } from "@/lib/utils";
 import { Skeleton } from "@/components/ui/skeleton";
 import type { EventStatus } from "@/features/events/types";
 import { Tabs, TabsList, TabsTrigger, TabsContent, TabsContents } from "@/components/ui/tabs";
-import { TicketCategoryList } from "@/features/tickets/components/TicketCategoryList";
+import { TicketCategoryList } from "@/features/events/components/TicketCategoryList";
 import { ScheduleList } from "@/features/schedules/components/ScheduleList";
-import { useTicketCategoriesByEventId, useTicketCategory } from "@/features/tickets/hooks/useTicketCategories";
+import { useTicketCategoriesByEventId, useTicketCategory, useDeleteTicketCategory } from "@/features/events/hooks/useTicketCategories";
 import { useSchedules, useSchedule } from "@/features/schedules/hooks/useSchedules";
-import { TicketCategoryForm } from "@/features/tickets/components/TicketCategoryForm";
+import { TicketCategoryForm } from "@/features/events/components/TicketCategoryForm";
 import { ScheduleForm } from "@/features/schedules/components/ScheduleForm";
-import { useDeleteTicketCategory } from "@/features/tickets/hooks/useTicketCategories";
+
 import { useDeleteSchedule } from "@/features/schedules/hooks/useSchedules";
 import { Plus } from "lucide-react";
-
+import { RecentOrdersTable } from "@/features/events/components/RecentOrdersTable";
+import { useRecentOrders } from "@/features/events/hooks/useTickets";
 interface EventDetailPageClientProps {
   readonly eventId: string;
 }
@@ -311,6 +312,7 @@ export function EventDetailPageClient({
             <TabsList>
               <TabsTrigger value="categories">Ticket Categories</TabsTrigger>
               <TabsTrigger value="schedules">Schedules</TabsTrigger>
+              <TabsTrigger value="purchases">Purchases</TabsTrigger>
             </TabsList>
           <TabsContents className="pt-6">
             <TabsContent value="categories" className="space-y-4">
@@ -350,6 +352,9 @@ export function EventDetailPageClient({
                 onEdit={handleEditSchedule}
                 onDelete={handleDeleteSchedule}
               />
+            </TabsContent>
+            <TabsContent value="purchases" className="space-y-4">
+              <EventPurchasesTab eventId={eventId} />
             </TabsContent>
           </TabsContents>
         </Tabs>
@@ -571,5 +576,26 @@ function EditScheduleWrapper({
       onCancel={onCancel}
       onSuccess={onSuccess}
     />
+  );
+}
+
+// Wrapper component for Event Purchases Tab
+function EventPurchasesTab({ eventId }: { readonly eventId: string }) {
+  // TODO: Use a hook that fetches orders specifically for this event
+  // For now, using recent orders as a placeholder/demo
+  const { data: ordersData, isLoading } = useRecentOrders(10);
+  const orders = ordersData?.data ?? [];
+
+  return (
+    <div className="space-y-4">
+      <div className="flex items-center justify-between">
+        <h3 className="text-lg font-semibold">Recent Purchases</h3>
+        {/* Add filter/export actions if needed */}
+      </div>
+      <RecentOrdersTable
+        orders={orders}
+        isLoading={isLoading}
+      />
+    </div>
   );
 }

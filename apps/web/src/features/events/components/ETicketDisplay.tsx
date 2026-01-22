@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { QRCodeDisplay } from "./QRCodeDisplay";
-import type { ETicket } from "../types";
+import type { ETicket } from "../types/ticket";
 import { Calendar, User, Ticket, MapPin } from "lucide-react";
 import { format } from "date-fns";
 
