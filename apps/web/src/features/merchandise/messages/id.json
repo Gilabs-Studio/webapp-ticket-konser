@@ -21,7 +21,8 @@
   },
   "sales": {
     "title": "Performa Penjualan",
-    "subtitle": "30 Hari Terakhir"
+    "subtitle": "30 Hari Terakhir",
+    "noData": "Data penjualan belum tersedia"
   },
   "history": {
     "title": "Riwayat Stok",

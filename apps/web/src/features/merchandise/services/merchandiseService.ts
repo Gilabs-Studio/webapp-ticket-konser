@@ -39,6 +39,21 @@ interface MerchandiseResponse {
   status: "active" | "inactive";
   created_at: string;
   updated_at: string;
+  purchase_history?: {
+    date: string;
+    quantity: number;
+    total_amount: number;
+  }[];
+  item_history?: {
+    id: string;
+    date: string; // created_at mapped to date? No, response has created_at
+    created_at: string;
+    type: "restock" | "sold" | "adjustment" | "return";
+    change_amount: number;
+    new_stock: number;
+    notes: string;
+    performed_by: string;
+  }[];
 }
 
 interface InventoryResponse {
@@ -113,6 +128,20 @@ export const merchandiseService = {
         iconName: m.icon_name ?? "Package",
         imageUrl: getFullImageUrl(m.image_url),
         isActive: m.status === "active",
+        purchaseHistory: m.purchase_history?.map(p => ({
+            date: p.date,
+            quantity: p.quantity,
+            totalAmount: p.total_amount,
+        })),
+        itemHistory: m.item_history?.map(h => ({
+          id: h.id,
+          date: h.created_at,
+          type: h.type,
+          change_amount: h.change_amount,
+          new_stock: h.new_stock,
+          notes: h.notes,
+          performed_by: h.performed_by,
+        })),
       }),
     );
 
@@ -146,6 +175,20 @@ export const merchandiseService = {
       iconName: response.data.data.icon_name ?? "Package",
       imageUrl: getFullImageUrl(response.data.data.image_url),
       isActive: response.data.data.status === "active",
+      purchaseHistory: response.data.data.purchase_history?.map(p => ({
+        date: p.date,
+        quantity: p.quantity,
+        totalAmount: p.total_amount,
+      })),
+      itemHistory: response.data.data.item_history?.map(h => ({
+        id: h.id,
+        date: h.created_at,
+        type: h.type,
+        change_amount: h.change_amount,
+        new_stock: h.new_stock,
+        notes: h.notes,
+        performed_by: h.performed_by,
+      })),
     };
 
     return {
@@ -284,6 +327,7 @@ export const merchandiseService = {
         variant: p.variant,
         iconName: p.icon_name ?? "Package",
         imageUrl: getFullImageUrl(p.image_url),
+        isActive: p.status === "active",
       })),
     };
 
@@ -324,6 +368,7 @@ export const merchandiseService = {
       variant: response.data.data.variant,
       iconName: response.data.data.icon_name ?? "Package",
       imageUrl: getFullImageUrl(response.data.data.image_url),
+      isActive: response.data.data.status === "active",
     };
 
     return {

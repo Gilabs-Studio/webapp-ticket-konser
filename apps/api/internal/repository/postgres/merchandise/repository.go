@@ -78,3 +78,17 @@ func (r *Repository) List(page, perPage int, filters map[string]interface{}) ([]
 
 	return merchandises, total, nil
 }
+
+// CreateStockLog creates a new stock log
+func (r *Repository) CreateStockLog(log *merchandise.StockLog) error {
+	return r.db.Create(log).Error
+}
+
+// GetStockLogs gets stock logs for a merchandise
+func (r *Repository) GetStockLogs(merchandiseID string) ([]*merchandise.StockLog, error) {
+	var logs []*merchandise.StockLog
+	err := r.db.Where("merchandise_id = ?", merchandiseID).
+		Order("created_at DESC").
+		Find(&logs).Error
+	return logs, err
+}

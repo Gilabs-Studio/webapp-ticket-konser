@@ -43,33 +43,6 @@ interface MerchandiseViewDialogContentProps {
   readonly onDelete: (productId: string) => void;
 }
 
-// Mock data generator for history if not available
-const generateMockHistory = (baseStock: number) => {
-  const history = [];
-  const now = new Date();
-  for (let i = 30; i >= 0; i--) {
-    const date = new Date(now);
-    date.setDate(date.getDate() - i);
-    history.push({
-      date: format(date, "MMM dd"),
-      sales: Math.floor(Math.random() * 20),
-      stock: baseStock + Math.floor(Math.random() * 50),
-    });
-  }
-  return history;
-};
-
-// Mock detailed history
-const generateMockDetailHistory = () => {
-  return [
-    { id: "1", date: new Date().toISOString(), type: "restock", quantity: 50, performedBy: "Admin", notes: "Initial stock" },
-    { id: "2", date: new Date(Date.now() - 86400000).toISOString(), type: "sold", quantity: -2, performedBy: "System", notes: "Order #1234" },
-    { id: "3", date: new Date(Date.now() - 172800000).toISOString(), type: "sold", quantity: -5, performedBy: "System", notes: "Order #1230" },
-    { id: "4", date: new Date(Date.now() - 259200000).toISOString(), type: "adjustment", quantity: -1, performedBy: "Admin", notes: "Damaged item" },
-    { id: "5", date: new Date(Date.now() - 345600000).toISOString(), type: "sold", quantity: -3, performedBy: "System", notes: "Order #1228" },
-  ] as const;
-};
-
 export function MerchandiseViewDialogContent({
   isLoading,
   hasError,
@@ -79,19 +52,6 @@ export function MerchandiseViewDialogContent({
   onDelete,
 }: MerchandiseViewDialogContentProps) {
   const t = useTranslations("merchandise");
-  
-  if (isLoading) {
-    return (
-      <div className="space-y-6">
-        <Skeleton className="h-[200px] w-full rounded-xl" />
-        <div className="grid grid-cols-2 gap-4">
-          <Skeleton className="h-[150px] w-full rounded-xl" />
-          <Skeleton className="h-[150px] w-full rounded-xl" />
-        </div>
-        <Skeleton className="h-[300px] w-full rounded-xl" />
-      </div>
-    );
-  }
 
   if (hasError || !product) {
     return (
@@ -112,15 +72,15 @@ export function MerchandiseViewDialogContent({
     );
   }
 
-  // Use mock data if real history is missing
+  // Use real data or empty array
   const salesHistory = product.purchaseHistory?.map(h => ({
     date: format(new Date(h.date), "MMM dd"),
     sales: h.quantity,
     stock: 0 
-  })) ?? generateMockHistory(product.stock);
+  })) ?? [];
 
-  // Combine real item history if available, else mock
-  const itemHistory = product.itemHistory ?? generateMockDetailHistory();
+  // Use real item history or empty array
+  const itemHistory = product.itemHistory ?? [];
 
   return (
     <div className="space-y-6 pb-6 container mx-auto p-4">
@@ -189,42 +149,49 @@ export function MerchandiseViewDialogContent({
                 </CardTitle>
              </CardHeader>
              <CardContent className="p-0">
-               <div className="h-[250px] w-full pt-4 pr-1">
-                 <ResponsiveContainer width="100%" height="100%">
-                   <AreaChart data={salesHistory} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-                     <defs>
-                       <linearGradient id="minimalSales" x1="0" y1="0" x2="0" y2="1">
-                         <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.1}/>
-                         <stop offset="95%" stopColor="hsl(var(--primary))" stopOpacity={0}/>
-                       </linearGradient>
-                     </defs>
-                     <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="hsl(var(--border))" strokeOpacity={0.5} />
-                     <XAxis 
-                       dataKey="date" 
-                       axisLine={false} 
-                       tickLine={false} 
-                       tick={{ fontSize: 10, fill: "hsl(var(--muted-foreground))" }} 
-                       dy={10}
-                     />
-                     <Tooltip 
-                       contentStyle={{ 
-                         backgroundColor: "hsl(var(--popover))", 
-                         border: "1px solid hsl(var(--border))", 
-                         borderRadius: "8px",
-                         boxShadow: "0 4px 6px -1px rgb(0 0 0 / 0.1)"
-                       }}
-                       cursor={{ stroke: "hsl(var(--muted-foreground))", strokeWidth: 1, strokeDasharray: "3 3" }}
-                     />
-                     <Area 
-                       type="monotone" 
-                       dataKey="sales" 
-                       stroke="hsl(var(--primary))" 
-                       strokeWidth={2} 
-                       fill="url(#minimalSales)" 
-                     />
-                   </AreaChart>
-                 </ResponsiveContainer>
-               </div>
+               {salesHistory.length > 0 ? (
+                 <div className="h-[250px] w-full pt-4 pr-1">
+                   <ResponsiveContainer width="100%" height="100%">
+                     <AreaChart data={salesHistory} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                       <defs>
+                         <linearGradient id="minimalSales" x1="0" y1="0" x2="0" y2="1">
+                           <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.1}/>
+                           <stop offset="95%" stopColor="hsl(var(--primary))" stopOpacity={0}/>
+                         </linearGradient>
+                       </defs>
+                       <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="hsl(var(--border))" strokeOpacity={0.5} />
+                       <XAxis 
+                         dataKey="date" 
+                         axisLine={false} 
+                         tickLine={false} 
+                         tick={{ fontSize: 10, fill: "hsl(var(--muted-foreground))" }} 
+                         dy={10}
+                       />
+                       <Tooltip 
+                         contentStyle={{ 
+                           backgroundColor: "hsl(var(--popover))", 
+                           border: "1px solid hsl(var(--border))", 
+                           borderRadius: "8px",
+                           boxShadow: "0 4px 6px -1px rgb(0 0 0 / 0.1)"
+                         }}
+                         cursor={{ stroke: "hsl(var(--muted-foreground))", strokeWidth: 1, strokeDasharray: "3 3" }}
+                       />
+                       <Area 
+                         type="monotone" 
+                         dataKey="sales" 
+                         stroke="hsl(var(--primary))" 
+                         strokeWidth={2} 
+                         fill="url(#minimalSales)" 
+                       />
+                     </AreaChart>
+                   </ResponsiveContainer>
+                 </div>
+               ) : (
+                 <div className="h-[250px] flex flex-col items-center justify-center text-muted-foreground">
+                   <TrendingUp className="h-8 w-8 mb-2 opacity-20" />
+                   <p className="text-sm">{t("sales.noData")}</p>
+                 </div>
+               )}
              </CardContent>
            </Card>
 
@@ -238,30 +205,37 @@ export function MerchandiseViewDialogContent({
              </CardHeader>
              <CardContent className="p-0 flex-1 overflow-hidden">
                 <ScrollArea className="h-full">
-                  <Table>
-                    <TableBody>
-                      {itemHistory.map((item) => (
-                        <TableRow key={item.id} className="hover:bg-muted/10 border-border/50">
-                          <TableCell className="py-3 pl-6 font-medium text-xs">
-                             {format(new Date(item.date), "MMM dd, yyyy")}
-                             <div className="text-[10px] text-muted-foreground font-normal mt-0.5">
-                               {t("history.performedBy")} {item.performedBy}
-                             </div>
-                          </TableCell>
-                          <TableCell className="py-3 text-center">
-                             <Badge variant="outline" className="text-[10px] h-5 bg-transparent font-normal opacity-80">
-                               {item.type}
-                             </Badge>
-                          </TableCell>
-                          <TableCell className="py-3 pr-6 text-right font-medium text-sm">
-                            <span className={item.type === "restock" ? "text-green-600" : ""}>
-                               {item.type === "restock" ? "+" : ""}{item.quantity}
-                            </span>
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
+                  {itemHistory.length > 0 ? (
+                    <Table>
+                      <TableBody>
+                        {itemHistory.map((item) => (
+                          <TableRow key={item.id} className="hover:bg-muted/10 border-border/50">
+                            <TableCell className="py-3 pl-6 font-medium text-xs">
+                               {format(new Date(item.date), "MMM dd, yyyy")}
+                               <div className="text-[10px] text-muted-foreground font-normal mt-0.5">
+                                 {t("history.performedBy")} {item.performed_by}
+                               </div>
+                            </TableCell>
+                            <TableCell className="py-3 text-center">
+                               <Badge variant="outline" className="text-[10px] h-5 bg-transparent font-normal opacity-80">
+                                 {item.type}
+                               </Badge>
+                            </TableCell>
+                            <TableCell className="py-3 pr-6 text-right font-medium text-sm">
+                              <span className={item.type === "restock" ? "text-green-600" : ""}>
+                                 {item.type === "restock" ? "+" : ""}{item.change_amount}
+                              </span>
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  ) : (
+                    <div className="h-full flex flex-col items-center justify-center text-muted-foreground p-6">
+                      <History className="h-8 w-8 mb-2 opacity-20" />
+                      <p className="text-sm">{t("history.noActivity")}</p>
+                    </div>
+                  )}
                 </ScrollArea>
              </CardContent>
            </Card>
