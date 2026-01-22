@@ -1,0 +1,59 @@
+{
+  "title": "Merchandise",
+  "overview": "Merchandise Overview",
+  "description": "Detailed view of product performance and inventory status.",
+  "status": {
+    "active": "Active",
+    "inactive": "Inactive",
+    "activeProduct": "Active Product",
+    "inactiveProduct": "Inactive Product",
+    "toggle": "Toggle Status"
+  },
+  "stats": {
+    "currentStock": "Current Stock",
+    "lowStock": "Low Stock",
+    "inStock": "In Stock",
+    "healthy": "Healthy Level",
+    "price": "Price",
+    "unitPrice": "Unit Price",
+    "perUnit": "per unit",
+    "fixedRate": "Fixed rate"
+  },
+  "sales": {
+    "title": "Sales Performance",
+    "subtitle": "30 Days"
+  },
+  "history": {
+    "title": "Stock History",
+    "recentActivity": "Recent Activity",
+    "date": "Date",
+    "type": "Type",
+    "quantity": "Qty",
+    "performedBy": "By",
+    "noActivity": "No activity recorded",
+    "types": {
+      "restock": "Restock",
+      "sold": "Sold",
+      "adjustment": "Adjustment"
+    }
+  },
+  "actions": {
+    "view": "View",
+    "edit": "Edit",
+    "delete": "Delete",
+    "cancel": "Cancel",
+    "save": "Save",
+    "create": "Create Product",
+    "close": "Close"
+  },
+  "errors": {
+    "notFound": "Product Not Found",
+    "notFoundDesc": "The merchandise you are looking for does not exist or has been deleted."
+  },
+  "createSuccess": "Merchandise created successfully",
+  "createError": "Failed to create merchandise",
+  "updateSuccess": "Merchandise updated successfully",
+  "updateError": "Failed to update merchandise",
+  "deleteSuccess": "Merchandise deleted successfully",
+  "deleteError": "Failed to delete merchandise"
+}

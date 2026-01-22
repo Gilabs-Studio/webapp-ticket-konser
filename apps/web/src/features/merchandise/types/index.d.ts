@@ -10,6 +10,20 @@ export interface MerchandiseProduct {
   readonly variant?: string;
   readonly iconName: string;
   readonly imageUrl?: string;
+  readonly isActive: boolean;
+  readonly purchaseHistory?: {
+    readonly date: string;
+    readonly quantity: number;
+    readonly totalAmount: number;
+  }[];
+  readonly itemHistory?: {
+    readonly id: string;
+    readonly date: string;
+    readonly type: "restock" | "sold" | "adjustment" | "return";
+    readonly quantity: number;
+    readonly notes?: string;
+    readonly performedBy?: string;
+  }[];
 }
 
 export interface MerchandiseInventory {

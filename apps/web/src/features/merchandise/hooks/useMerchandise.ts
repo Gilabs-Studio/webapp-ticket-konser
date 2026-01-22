@@ -132,6 +132,7 @@ export function useUpdateMerchandise() {
         stock: data.stock,
         variant: data.variant,
         iconName: data.icon_name,
+        isActive: data.status === "active",
       });
 
       // If image file exists, upload it and return the upload response (which has the new image URL)

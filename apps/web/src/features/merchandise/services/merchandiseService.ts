@@ -112,6 +112,7 @@ export const merchandiseService = {
         variant: m.variant,
         iconName: m.icon_name ?? "Package",
         imageUrl: getFullImageUrl(m.image_url),
+        isActive: m.status === "active",
       }),
     );
 
@@ -144,6 +145,7 @@ export const merchandiseService = {
       variant: response.data.data.variant,
       iconName: response.data.data.icon_name ?? "Package",
       imageUrl: getFullImageUrl(response.data.data.image_url),
+      isActive: response.data.data.status === "active",
     };
 
     return {
@@ -159,8 +161,9 @@ export const merchandiseService = {
    * Create merchandise
    */
   async createMerchandise(
-    data: Omit<MerchandiseProduct, "id" | "stockStatus" | "stockPercentage"> & {
+    data: Omit<MerchandiseProduct, "id" | "stockStatus" | "stockPercentage" | "isActive"> & {
       event_id: string;
+      isActive?: boolean;
     },
   ): Promise<ApiResponse<MerchandiseProduct>> {
     const response = await apiClient.post<
@@ -174,6 +177,7 @@ export const merchandiseService = {
       variant: data.variant,
       image_url: "",
       icon_name: data.iconName,
+      status: data.isActive ? "active" : "inactive",
     });
 
     const product: MerchandiseProduct = {
@@ -188,6 +192,7 @@ export const merchandiseService = {
       variant: response.data.data.variant,
       iconName: response.data.data.icon_name ?? "Package",
       imageUrl: getFullImageUrl(response.data.data.image_url),
+      isActive: response.data.data.status === "active",
     };
 
     return {
@@ -215,7 +220,7 @@ export const merchandiseService = {
         stock: data.stock,
         variant: data.variant,
         icon_name: data.iconName,
-        status: data.stockStatus === "out" ? "inactive" : "active",
+        status: data.isActive !== undefined ? (data.isActive ? "active" : "inactive") : undefined,
       },
     );
 
@@ -231,6 +236,7 @@ export const merchandiseService = {
       variant: response.data.data.variant,
       iconName: response.data.data.icon_name ?? "Package",
       imageUrl: getFullImageUrl(response.data.data.image_url),
+      isActive: response.data.data.status === "active",
     };
 
     return {

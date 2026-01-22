@@ -8,7 +8,7 @@ import { useRouter } from "@/i18n/routing";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
-  Field,
+
   FieldError,
   FieldGroup,
   FieldLabel,
@@ -24,7 +24,7 @@ import {
 import { ArrowLeft, Loader2 } from "lucide-react";
 import { usePublicEvent } from "@/features/events/hooks/useEvents";
 import { scheduleService } from "@/features/schedules/services/scheduleService";
-import { useTicketCategoriesByEventIdPublic } from "@/features/tickets/hooks/useTicketCategories";
+import { useTicketCategoriesByEventIdPublic } from "@/features/events/hooks/useTicketCategories";
 import { useCreateOrder } from "@/features/orders/hooks/useOrders";
 import { purchaseOrderSchema, type PurchaseOrderFormData } from "@/features/orders/schemas/purchase.schema";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -44,7 +44,7 @@ export function PurchasePageClient({ eventId }: PurchasePageClientProps) {
   const event = eventData?.data;
 
   // Fetch schedules (auto-select first schedule)
-  const { data: schedulesData, isLoading: isLoadingSchedules } = useQuery({
+  const { data: schedulesData } = useQuery({
     queryKey: ["schedules", "public", "event", eventId],
     queryFn: () => scheduleService.getSchedulesByEventIdPublic(eventId),
     enabled: !!eventId,

@@ -12,6 +12,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { Drawer } from "@/components/ui/drawer";
 import { MerchandiseForm } from "./MerchandiseForm";
 import { MerchandiseProductCard } from "./MerchandiseProductCard";
 import { useMerchandiseById, useDeleteMerchandise } from "../hooks/useMerchandise";
@@ -242,24 +243,21 @@ export function MerchandiseManagement({
         </DialogContent>
       </Dialog>
 
-      {/* View Merchandise Dialog */}
-      <Dialog 
+      {/* View Merchandise Drawer */}
+      <Drawer 
         open={viewDialogOpen} 
         onOpenChange={(open) => {
           setViewDialogOpen(open);
           if (!open) {
-            // Clear selected product when dialog closes
             setSelectedProductId(null);
           }
         }}
+        side="bottom"
+        title="Merchandise Overview"
+        description="Detailed view of product performance and inventory status."
+        className="h-[85vh]" // Make it tall enough for the bento layout
       >
-        <DialogContent className="max-w-2xl">
-          <DialogHeader>
-            <DialogTitle>Merchandise Details</DialogTitle>
-            <DialogDescription>
-              View merchandise product information.
-            </DialogDescription>
-          </DialogHeader>
+        <div className="h-full overflow-y-auto px-6 py-4">
           <MerchandiseViewDialogContent
             isLoading={isLoadingProduct}
             hasError={!!productError}
@@ -271,8 +269,8 @@ export function MerchandiseManagement({
             onEdit={handleEdit}
             onDelete={handleDelete}
           />
-        </DialogContent>
-      </Dialog>
+        </div>
+      </Drawer>
     </div>
   );
 }

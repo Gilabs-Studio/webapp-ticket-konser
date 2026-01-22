@@ -1,0 +1,59 @@
+{
+  "title": "Merchandise",
+  "overview": "Ringkasan Merchandise",
+  "description": "Tampilan detail performa produk dan status inventaris.",
+  "status": {
+    "active": "Aktif",
+    "inactive": "Tidak Aktif",
+    "activeProduct": "Produk Aktif",
+    "inactiveProduct": "Produk Tidak Aktif",
+    "toggle": "Ubah Status"
+  },
+  "stats": {
+    "currentStock": "Stok Saat Ini",
+    "lowStock": "Stok Menipis",
+    "inStock": "Tersedia",
+    "healthy": "Level Aman",
+    "price": "Harga",
+    "unitPrice": "Harga Satuan",
+    "perUnit": "per unit",
+    "fixedRate": "Harga tetap"
+  },
+  "sales": {
+    "title": "Performa Penjualan",
+    "subtitle": "30 Hari Terakhir"
+  },
+  "history": {
+    "title": "Riwayat Stok",
+    "recentActivity": "Aktivitas Terbaru",
+    "date": "Tanggal",
+    "type": "Tipe",
+    "quantity": "Jml",
+    "performedBy": "Oleh",
+    "noActivity": "Tidak ada aktivitas tercatat",
+    "types": {
+      "restock": "Restock",
+      "sold": "Terjual",
+      "adjustment": "Penyesuaian"
+    }
+  },
+  "actions": {
+    "view": "Lihat",
+    "edit": "Ubah",
+    "delete": "Hapus",
+    "cancel": "Batal",
+    "save": "Simpan",
+    "create": "Buat Produk",
+    "close": "Tutup"
+  },
+  "errors": {
+    "notFound": "Produk Tidak Ditemukan",
+    "notFoundDesc": "Merchandise yang Anda cari tidak ada atau telah dihapus."
+  },
+  "createSuccess": "Produk berhasil dibuat",
+  "createError": "Gagal membuat produk",
+  "updateSuccess": "Produk berhasil diperbarui",
+  "updateError": "Gagal memperbarui produk",
+  "deleteSuccess": "Produk berhasil dihapus",
+  "deleteError": "Gagal menghapus produk"
+}
