@@ -15,9 +15,10 @@ import {
 import { Drawer } from "@/components/ui/drawer";
 import { MerchandiseForm } from "./MerchandiseForm";
 import { MerchandiseProductCard } from "./MerchandiseProductCard";
-import { useMerchandiseById, useDeleteMerchandise } from "../hooks/useMerchandise";
+import { useMerchandiseById, useDeleteMerchandise, useUpdateMerchandise } from "../hooks/useMerchandise";
 import { MerchandiseEditDialogContent } from "./MerchandiseEditDialogContent";
 import { MerchandiseViewDialogContent } from "./MerchandiseViewDialogContent";
+import { cn } from "@/lib/utils";
 
 interface MerchandiseManagementProps {
   readonly products?: readonly MerchandiseProduct[];
@@ -42,6 +43,7 @@ export function MerchandiseManagement({
     shouldFetchProduct ? selectedProductId : ""
   );
   const { mutate: deleteMerchandise, isPending: isDeleting } = useDeleteMerchandise();
+  const { mutate: updateMerchandise } = useUpdateMerchandise();
 
   const handleCreate = () => {
     setCreateDialogOpen(true);
@@ -64,6 +66,13 @@ export function MerchandiseManagement({
   const handleView = (productId: string) => {
     setSelectedProductId(productId);
     setViewDialogOpen(true);
+  };
+  
+  const handleToggleStatus = (productId: string, isActive: boolean) => {
+    updateMerchandise({
+      id: productId,
+      data: { status: isActive ? "active" : "inactive" },
+    });
   };
 
   const handleCreateSuccess = () => {
@@ -160,6 +169,7 @@ export function MerchandiseManagement({
               onDelete={handleDelete}
               onView={handleView}
               onClick={(productId: string) => handleView(productId)}
+              onToggleActive={handleToggleStatus}
             />
           ))}
         </div>

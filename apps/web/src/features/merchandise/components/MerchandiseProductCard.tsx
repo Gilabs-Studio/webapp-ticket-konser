@@ -5,7 +5,8 @@ import { DynamicIcon } from "@/lib/icon-utils";
 import { MerchandiseProduct } from "../types";
 import { Edit, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { formatCurrency } from "@/lib/utils";
+import { formatCurrency, cn } from "@/lib/utils";
+import { Switch } from "@/components/ui/switch";
 
 type StockStatus = "healthy" | "low" | "out";
 
@@ -15,6 +16,7 @@ interface MerchandiseProductCardProps {
   readonly onDelete?: (productId: string) => void;
   readonly onView?: (productId: string) => void;
   readonly onClick?: (productId: string) => void;
+  readonly onToggleActive?: (productId: string, isActive: boolean) => void;
 }
 
 function getStockColorClass(stockStatus: StockStatus): string {
@@ -23,21 +25,23 @@ function getStockColorClass(stockStatus: StockStatus): string {
   return "text-red-500";
 }
 
-
-
 export function MerchandiseProductCard({
   product,
   onEdit,
   onDelete,
   onView,
   onClick,
+  onToggleActive,
 }: MerchandiseProductCardProps) {
   const stockColorClass = getStockColorClass(product.stockStatus);
-
+  const isInactive = !product.isActive;
 
   return (
     <div 
-      className="group relative h-[400px] w-full overflow-hidden rounded-3xl bg-muted transition-all hover:shadow-2xl cursor-pointer"
+      className={cn(
+        "group relative h-[400px] w-full overflow-hidden rounded-3xl bg-muted transition-all hover:shadow-2xl cursor-pointer",
+        isInactive ? "opacity-60 grayscale" : ""
+      )}
       onClick={() => onClick?.(product.id)}
       role="button"
       tabIndex={0}
@@ -70,6 +74,18 @@ export function MerchandiseProductCard({
         )}
         {/* Modern Gradient Overlay */}
         <div className="absolute inset-0 bg-linear-to-t from-black/90 via-black/20 to-transparent opacity-80 transition-opacity duration-300 group-hover:opacity-90" />
+      </div>
+
+      {/* Status Toggle (Top Left) */}
+      <div className="absolute top-4 left-4 z-30">
+        <div 
+          onClick={(e) => e.stopPropagation()}
+        >
+          <Switch 
+            checked={product.isActive}
+            onCheckedChange={(checked) => onToggleActive?.(product.id, checked)}
+          />
+        </div>
       </div>
 
       {/* Actions (Top Right) */}

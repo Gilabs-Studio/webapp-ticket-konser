@@ -69,7 +69,7 @@ func (r *Repository) List(page, perPage int, filters map[string]interface{}) ([]
 	offset := (page - 1) * perPage
 	if err := query.
 		Preload("Event").
-		Order("created_at DESC").
+		Order("status ASC, created_at DESC").
 		Offset(offset).
 		Limit(perPage).
 		Find(&merchandises).Error; err != nil {
