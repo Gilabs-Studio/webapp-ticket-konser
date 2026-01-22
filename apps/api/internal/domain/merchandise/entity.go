@@ -55,9 +55,18 @@ type MerchandiseResponse struct {
 	Variant       string              `json:"variant"`
 	ImageURL      string              `json:"image_url"`
 	IconName      string              `json:"icon_name"`
-	Status        string              `json:"status"`
-	CreatedAt     time.Time           `json:"created_at"`
-	UpdatedAt     time.Time           `json:"updated_at"`
+	Status          string              `json:"status"`
+	CreatedAt       time.Time           `json:"created_at"`
+	UpdatedAt       time.Time           `json:"updated_at"`
+	PurchaseHistory []PurchaseHistoryItem `json:"purchase_history" gorm:"-"`
+	ItemHistory     []*StockLogResponse   `json:"item_history" gorm:"-"`
+}
+
+// PurchaseHistoryItem represents daily sales stats
+type PurchaseHistoryItem struct {
+	Date        string `json:"date"`
+	Quantity    int    `json:"quantity"`
+	TotalAmount float64 `json:"total_amount"`
 }
 
 // ToMerchandiseResponse converts Merchandise to MerchandiseResponse

@@ -247,7 +247,6 @@
     },
     "eventDetails": {
       "title": "Event Details",
-      "description": "Basic information about your event.",
       "eventName": "Event Name",
       "date": "Event Date",
       "location": "Location",
@@ -295,7 +294,14 @@
     "updateError": "Failed to update event. Please try again.",
     "deleteError": "Failed to delete event. Please try again.",
     "updateStatusError": "Failed to update event status. Please try again.",
-    "uploadBannerError": "Failed to upload banner. Please try again."
+    "uploadBannerError": "Failed to upload banner. Please try again.",
+    "viewDetails": "View Details",
+    "backToEvents": "Back to Events",
+    "back": "Back",
+    "notFound": "Event not found",
+    "about": "About this Event",
+    "ticketCategories": "Ticket Categories",
+    "schedules": "Schedules"
   },
   "schedules": {
     "title": "Schedule Management",

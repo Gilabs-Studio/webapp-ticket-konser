@@ -38,7 +38,7 @@ export function MerchandiseImageUpload({
       <div className="space-y-4">
         {imagePreview ? (
           <div className="relative">
-            <div className="relative aspect-square w-full max-w-xs border border-border rounded-xl overflow-hidden bg-muted">
+            <div className="relative aspect-square w-full max-w-xs border border-border rounded-md overflow-hidden bg-muted">
               <SafeImage
                 src={imagePreview}
                 alt="Product preview"
@@ -68,7 +68,7 @@ export function MerchandiseImageUpload({
           <button
             type="button"
             className={cn(
-              "w-full border-2 border-dashed border-border rounded-xl p-8 text-center cursor-pointer transition-colors hover:border-ring",
+              "w-full border-2 border-dashed border-border rounded-md p-8 text-center cursor-pointer transition-colors hover:border-ring",
               errors.image_url && "border-destructive"
             )}
             onClick={() => fileInputRef.current?.click()}

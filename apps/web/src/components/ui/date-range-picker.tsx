@@ -104,7 +104,7 @@ export function DateRangePicker({
     to: endOfYear(subYears(today, 1)),
   };
 
-  const [month, setMonth] = useState<Date | undefined>(today);
+  const [month, setMonth] = useState(today);
   const [open, setOpen] = useState(false);
 
   const handlePresetClick = (range: DateRange) => {
@@ -214,20 +214,22 @@ export function DateRangePicker({
             <Calendar
               mode="range"
               selected={dateRange}
-              onSelect={(newDate: any) => {
-                if (newDate) {
+              onSelect={(newDate: unknown) => {
+                // Type assertion: when mode="range", onSelect receives DateRange | undefined
+                const range = newDate as DateRange | undefined;
+                if (range) {
                   // Normalize dates to avoid timezone issues
                   const normalizedRange: DateRange = {
-                    from: newDate.from
+                    from: range.from
                       ? (() => {
-                          const d = new Date(newDate.from);
+                          const d = new Date(range.from);
                           d.setHours(0, 0, 0, 0);
                           return d;
                         })()
                       : undefined,
-                    to: newDate.to
+                    to: range.to
                       ? (() => {
-                          const d = new Date(newDate.to);
+                          const d = new Date(range.to);
                           d.setHours(0, 0, 0, 0);
                           return d;
                         })()
@@ -237,7 +239,11 @@ export function DateRangePicker({
                 }
               }}
               month={month}
-              onMonthChange={setMonth}
+              onMonthChange={(newMonth) => {
+                if (newMonth) {
+                  setMonth(newMonth);
+                }
+              }}
               className="p-2"
             />
           </div>

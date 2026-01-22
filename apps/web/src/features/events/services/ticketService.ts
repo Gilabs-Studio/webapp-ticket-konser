@@ -5,7 +5,7 @@ import type {
   Order,
   ETicket,
   GenerateTicketsRequest,
-} from "../types";
+} from "../types/ticket";
 
 // API Response types
 interface TicketResponse {

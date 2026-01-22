@@ -2,6 +2,7 @@
 
 import { useQuery } from "@tanstack/react-query";
 import { useRouter } from "@/i18n/routing";
+import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { SafeImage } from "@/components/ui/image";
@@ -30,16 +31,17 @@ import { formatDate } from "@/lib/utils";
 import { Skeleton } from "@/components/ui/skeleton";
 import type { EventStatus } from "@/features/events/types";
 import { Tabs, TabsList, TabsTrigger, TabsContent, TabsContents } from "@/components/ui/tabs";
-import { TicketCategoryList } from "@/features/tickets/components/TicketCategoryList";
+import { TicketCategoryList } from "@/features/events/components/TicketCategoryList";
 import { ScheduleList } from "@/features/schedules/components/ScheduleList";
-import { useTicketCategoriesByEventId, useTicketCategory } from "@/features/tickets/hooks/useTicketCategories";
+import { useTicketCategoriesByEventId, useTicketCategory, useDeleteTicketCategory } from "@/features/events/hooks/useTicketCategories";
 import { useSchedules, useSchedule } from "@/features/schedules/hooks/useSchedules";
-import { TicketCategoryForm } from "@/features/tickets/components/TicketCategoryForm";
+import { TicketCategoryForm } from "@/features/events/components/TicketCategoryForm";
 import { ScheduleForm } from "@/features/schedules/components/ScheduleForm";
-import { useDeleteTicketCategory } from "@/features/tickets/hooks/useTicketCategories";
+
 import { useDeleteSchedule } from "@/features/schedules/hooks/useSchedules";
 import { Plus } from "lucide-react";
-
+import { RecentOrdersTable } from "@/features/events/components/RecentOrdersTable";
+import { useRecentOrders } from "@/features/events/hooks/useTickets";
 interface EventDetailPageClientProps {
   readonly eventId: string;
 }
@@ -144,11 +146,16 @@ export function EventDetailPageClient({
     deleteSchedule(id);
   };
 
+  const t = useTranslations("events");
+  const tCommon = useTranslations("common");
+
+  // ... (keep state logic)
+  
   if (isLoading) {
     return (
       <div className="space-y-6">
         <Skeleton className="h-8 w-64" />
-        <Skeleton className="aspect-video w-full rounded-xl" />
+        <Skeleton className="aspect-video w-full rounded-md" />
         <div className="space-y-4">
           <Skeleton className="h-6 w-32" />
           <Skeleton className="h-24 w-full" />
@@ -156,18 +163,18 @@ export function EventDetailPageClient({
       </div>
     );
   }
-
+ 
   if (!event) {
     return (
       <div className="text-center py-12">
-        <p className="text-muted-foreground">Event not found</p>
+        <p className="text-muted-foreground">{t("notFound")}</p>
         <Button
           variant="outline"
           onClick={() => router.push("/events-management")}
           className="mt-4"
         >
           <ArrowLeft className="h-4 w-4 mr-2" />
-          Back to Events
+          {t("backToEvents")}
         </Button>
       </div>
     );
@@ -175,23 +182,27 @@ export function EventDetailPageClient({
 
   return (
     <div className="space-y-6">
+      {/* Header Navigation - Simplified Actions */}
       <div className="flex items-center justify-between">
         <Button
           variant="ghost"
+          size="sm"
+          className="gap-2 text-muted-foreground hover:text-foreground pl-0"
           onClick={() => router.push("/events-management")}
         >
-          <ArrowLeft className="h-4 w-4 mr-2" />
-          Back
+          <ArrowLeft className="h-4 w-4" />
+          {t("back")}
         </Button>
         <div className="flex gap-2">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button
                 variant="outline"
+                size="icon"
                 disabled={isUpdatingStatus}
-                className="gap-2"
+                className="h-9 w-9"
+                title="Change Status"
               >
-                <EventStatusBadge status={event.status} className="text-xs" />
                 <ChevronDown className="h-4 w-4 opacity-50" />
               </Button>
             </DropdownMenuTrigger>
@@ -221,75 +232,89 @@ export function EventDetailPageClient({
           </DropdownMenu>
           <Button
             variant="outline"
+            size="icon"
+            className="h-9 w-9 text-amber-500 hover:text-amber-600 hover:bg-amber-50 border-amber-200"
             onClick={() => setEditDialogOpen(true)}
+            title={t("editEvent")}
           >
-            <Edit className="h-4 w-4 mr-2" />
-            Edit
+            <Edit className="h-4 w-4" />
           </Button>
           <Button
             variant="destructive"
+            size="icon"
+            className="h-9 w-9"
             onClick={() => setDeleteDialogOpen(true)}
+            title="Delete Event"
           >
-            <Trash2 className="h-4 w-4 mr-2" />
-            Delete
+            <Trash2 className="h-4 w-4" />
           </Button>
         </div>
       </div>
 
-      <Card className="overflow-hidden">
-        {/* Banner Image - Fixed height untuk layout lebih rapi */}
-        <div className="relative w-full h-64 bg-muted overflow-hidden">
+      {/* Modern Full Bleed Banner - No Shadow, Simple */}
+      <div className="relative w-full h-[500px] overflow-hidden rounded-3xl bg-muted group">
+        {/* Background Image */}
+        <div className="absolute inset-0 z-0">
           {event.bannerImage ? (
             <SafeImage
               src={event.bannerImage}
               alt={event.eventName}
               fill
-              className="object-cover"
+              className="object-cover transition-transform duration-1000 ease-in-out group-hover:scale-105"
               sizes="100vw"
+              priority
               fallbackIcon={true}
             />
           ) : (
-            <div className="w-full h-full flex items-center justify-center text-muted-foreground">
-              <Calendar className="h-16 w-16" />
+            <div className="w-full h-full flex items-center justify-center bg-neutral-900 text-neutral-700">
+              <Calendar className="h-32 w-32 opacity-20" />
             </div>
           )}
+          
+          {/* Progressive Blur / Gradient Overlay */}
+          <div className="absolute inset-0 bg-gradient-to-t from-background via-background/60 to-transparent opacity-100" />
         </div>
-        <div className="p-6 space-y-4">
-          <div className="flex items-start justify-between">
-            <div className="flex-1">
-              <h1 className="text-2xl font-bold mb-3">{event.eventName}</h1>
-              <div className="flex flex-wrap items-center gap-3">
-                <EventStatusBadge status={event.status} />
-                <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <Calendar className="h-4 w-4" />
-                  <span>
-                    {formatDate(event.startDate)} - {formatDate(event.endDate)}
-                  </span>
+
+        {/* Content Overlay */}
+        <div className="absolute inset-x-0 bottom-0 z-10 p-8 md:p-10">
+            <div className="flex flex-col md:flex-row items-end justify-between gap-6">
+                <div className="space-y-4 max-w-4xl">
+                    <div className="flex flex-wrap items-center gap-3 animate-in fade-in slide-in-from-bottom-4 duration-500 delay-100">
+                        <EventStatusBadge status={event.status} className="bg-white/10 backdrop-blur-md text-foreground border-white/20 px-3 py-1 shadow-sm" />
+                        <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground bg-background/30 backdrop-blur-md px-3 py-1 rounded-full border border-white/10">
+                            <Calendar className="h-4 w-4" />
+                            <span>
+                                {formatDate(event.startDate)} - {formatDate(event.endDate)}
+                            </span>
+                        </div>
+                    </div>
+                    
+                    <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight text-foreground drop-shadow-sm animate-in fade-in slide-in-from-bottom-6 duration-500 delay-200">
+                        {event.eventName}
+                    </h1>
                 </div>
-              </div>
             </div>
-          </div>
-          {event.description && (
-            <div>
-              <h3 className="text-sm font-semibold mb-2">Description</h3>
-              <p className="text-sm text-muted-foreground whitespace-pre-wrap leading-relaxed">
-                {event.description}
-              </p>
-            </div>
-          )}
         </div>
-      </Card>
+      </div>
+      
+      {/* Description Section */}
+      {event.description && (
+         <div className="px-2">
+            <h3 className="text-lg font-semibold mb-3">{t("about")}</h3>
+             <p className="text-muted-foreground whitespace-pre-wrap leading-relaxed max-w-4xl">
+                {event.description}
+             </p>
+         </div>
+      )}
 
       {/* Ticket Categories and Schedules Tabs */}
-      <Card>
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <div className="p-6 pb-0">
             <TabsList>
               <TabsTrigger value="categories">Ticket Categories</TabsTrigger>
               <TabsTrigger value="schedules">Schedules</TabsTrigger>
+              <TabsTrigger value="purchases">Purchases</TabsTrigger>
             </TabsList>
-          </div>
-          <TabsContents className="p-6">
+          <TabsContents className="pt-6">
             <TabsContent value="categories" className="space-y-4">
               <div className="flex items-center justify-between">
                 <h3 className="text-lg font-semibold">Ticket Categories</h3>
@@ -328,9 +353,11 @@ export function EventDetailPageClient({
                 onDelete={handleDeleteSchedule}
               />
             </TabsContent>
+            <TabsContent value="purchases" className="space-y-4">
+              <EventPurchasesTab eventId={eventId} />
+            </TabsContent>
           </TabsContents>
         </Tabs>
-      </Card>
 
       {/* Create Ticket Category Dialog */}
       <Dialog open={createCategoryDialogOpen} onOpenChange={setCreateCategoryDialogOpen}>
@@ -549,5 +576,26 @@ function EditScheduleWrapper({
       onCancel={onCancel}
       onSuccess={onSuccess}
     />
+  );
+}
+
+// Wrapper component for Event Purchases Tab
+function EventPurchasesTab({ eventId }: { readonly eventId: string }) {
+  // TODO: Use a hook that fetches orders specifically for this event
+  // For now, using recent orders as a placeholder/demo
+  const { data: ordersData, isLoading } = useRecentOrders(10);
+  const orders = ordersData?.data ?? [];
+
+  return (
+    <div className="space-y-4">
+      <div className="flex items-center justify-between">
+        <h3 className="text-lg font-semibold">Recent Purchases</h3>
+        {/* Add filter/export actions if needed */}
+      </div>
+      <RecentOrdersTable
+        orders={orders}
+        isLoading={isLoading}
+      />
+    </div>
   );
 }

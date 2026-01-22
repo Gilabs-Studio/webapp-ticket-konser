@@ -236,7 +236,7 @@ export function PaymentPageClient({ orderId }: PaymentPageClientProps) {
             <CardTitle>Scan QR Code</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="flex justify-center p-4 bg-white rounded-lg">
+            <div className="flex justify-center p-4 bg-white rounded-md">
               <QRCodeSVG value={qrisCode} size={256} level="M" />
             </div>
             {expiresAt && (

@@ -12,7 +12,7 @@ export default function OrdersLoading() {
           <Skeleton className="h-10 flex-1" />
           <Skeleton className="h-10 w-40" />
         </div>
-        <div className="border rounded-lg">
+        <div className="border rounded-md">
           <div className="p-4 space-y-4">
             {Array.from({ length: 5 }, (_, i) => (
               <Skeleton key={i} className="h-16 w-full" />

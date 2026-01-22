@@ -87,7 +87,7 @@ function createCaptionComponentFactory({
         <button
           type="button"
           onClick={handlePreviousClick}
-          className={mergedClassNames.button_previous}
+          className={cn(mergedClassNames.button_previous, "cursor-pointer")}
           aria-label="Previous month"
         >
           <ChevronLeftIcon size={16} aria-hidden="true" />
@@ -111,7 +111,7 @@ function createCaptionComponentFactory({
         <button
           type="button"
           onClick={handleNextClick}
-          className={mergedClassNames.button_next}
+          className={cn(mergedClassNames.button_next, "cursor-pointer")}
           aria-label="Next month"
         >
           <ChevronRightIcon size={16} aria-hidden="true" />
@@ -185,7 +185,7 @@ function Calendar({
     ),
     weekday: "size-9 p-0 text-xs font-medium text-muted-foreground/80",
     day_button:
-      "relative flex size-9 items-center justify-center whitespace-nowrap rounded-md p-0 text-foreground group-[[data-selected]:not(.range-middle)]:[transition-property:color,background-color,border-radius,box-shadow] group-[[data-selected]:not(.range-middle)]:duration-150 group-data-disabled:pointer-events-none focus-visible:z-10 hover:not-in-data-selected:bg-accent group-data-selected:bg-primary hover:not-in-data-selected:text-foreground group-data-selected:text-primary-foreground group-data-disabled:text-foreground/30 group-data-disabled:line-through group-data-outside:text-foreground/30 group-data-selected:group-data-outside:text-primary-foreground outline-none focus-visible:ring-ring/50 focus-visible:ring-[3px] group-[.range-start:not(.range-end)]:rounded-e-none group-[.range-end:not(.range-start)]:rounded-s-none group-[.range-middle]:rounded-none group-[.range-middle]:group-data-selected:bg-accent group-[.range-middle]:group-data-selected:text-foreground",
+      "relative flex size-9 items-center justify-center whitespace-nowrap rounded-md p-0 text-foreground cursor-pointer group-[[data-selected]:not(.range-middle)]:[transition-property:color,background-color,border-radius,box-shadow] group-[[data-selected]:not(.range-middle)]:duration-150 group-data-disabled:pointer-events-none group-data-disabled:cursor-not-allowed focus-visible:z-10 hover:not-in-data-selected:bg-accent group-data-selected:bg-primary hover:not-in-data-selected:text-foreground group-data-selected:text-primary-foreground group-data-disabled:text-foreground/30 group-data-disabled:line-through group-data-outside:text-foreground/30 group-data-selected:group-data-outside:text-primary-foreground outline-none focus-visible:ring-ring/50 focus-visible:ring-[3px] group-[.range-start:not(.range-end)]:rounded-e-none group-[.range-end:not(.range-start)]:rounded-s-none group-[.range-middle]:rounded-none group-[.range-middle]:group-data-selected:bg-accent group-[.range-middle]:group-data-selected:text-foreground",
     day: "group size-9 px-0 py-px text-sm",
     range_start: "range-start",
     range_end: "range-end",
@@ -351,7 +351,7 @@ function Calendar({
               type="button"
               onClick={() => handleMonthSelect(index)}
               className={cn(
-                "px-4 py-2 text-sm rounded-md transition-colors",
+                "px-4 py-2 text-sm rounded-md transition-colors cursor-pointer",
                 index === currentMonth && currentYear === month.getFullYear()
                   ? "bg-primary text-primary-foreground font-medium"
                   : "hover:bg-accent hover:text-accent-foreground",
@@ -373,7 +373,7 @@ function Calendar({
               type="button"
               onClick={() => handleYearSelect(year)}
               className={cn(
-                "px-4 py-2 text-sm rounded-md transition-colors",
+                "px-4 py-2 text-sm rounded-md transition-colors cursor-pointer",
                 year === currentYear
                   ? "bg-primary text-primary-foreground font-medium"
                   : "hover:bg-accent hover:text-accent-foreground",

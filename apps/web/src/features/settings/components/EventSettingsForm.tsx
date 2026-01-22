@@ -57,7 +57,7 @@ export function EventSettingsForm({
 
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
-      <Card className="border border-border bg-card/20 rounded-xl">
+      <Card className="border border-border bg-card/20 rounded-md">
         <CardContent className="space-y-6 p-6">
           <div>
             <h3 className="text-sm font-medium text-foreground mb-1">

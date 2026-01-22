@@ -61,7 +61,7 @@ export function Drawer({
       e.preventDefault();
       setIsResizing(true);
     },
-    [resizable, side],
+    [resizable, side]
   );
 
   React.useEffect(() => {
@@ -144,7 +144,7 @@ export function Drawer({
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.2 }}
-            className="fixed inset-0 z-50 bg-black/50 h-full"
+            className="fixed inset-0 z-50 bg-black/50 h-full cursor-pointer"
             onClick={() => onOpenChange(false)}
           />
 
@@ -168,7 +168,7 @@ export function Drawer({
               "fixed z-50 bg-background border shadow-lg",
               getDefaultWidthClass(),
               sideClasses[side],
-              className,
+              className
             )}
           >
             {/* Resize Handle */}
@@ -184,7 +184,7 @@ export function Drawer({
                   side === "right" ? "left-0" : "right-0",
                   isHoveringResizeArea || isResizing
                     ? "bg-primary/50"
-                    : "bg-transparent hover:bg-primary/30",
+                    : "bg-transparent hover:bg-primary/30"
                 )}
               />
             )}
@@ -192,10 +192,10 @@ export function Drawer({
             <div className="flex flex-col h-full">
               {/* Header */}
               {(title || description) && (
-                <div className="flex items-center justify-between border-b px-6 py-4">
-                  <div className="flex-1">
+                <div className="flex items-center justify-between border-b px-6 py-4 shrink-0">
+                  <div className="flex-1 min-w-0">
                     {title && (
-                      <h2 className="text-lg font-semibold">{title}</h2>
+                      <h2 className="text-lg font-semibold truncate">{title}</h2>
                     )}
                     {description && (
                       <p className="text-sm text-muted-foreground mt-1">
@@ -207,7 +207,7 @@ export function Drawer({
                     variant="ghost"
                     size="icon"
                     onClick={() => onOpenChange(false)}
-                    className="h-8 w-8"
+                    className="h-8 w-8 shrink-0 ml-4"
                   >
                     <X className="h-4 w-4" />
                     <span className="sr-only">Close</span>
@@ -215,8 +215,13 @@ export function Drawer({
                 </div>
               )}
 
-              {/* Content */}
-              <div className="flex-1 overflow-y-auto px-6 py-4">{children}</div>
+              {/* Content - no padding when header exists to allow full-bleed layouts */}
+              <div className={cn(
+                "flex-1 overflow-hidden",
+                !(title || description) && "px-6 py-4"
+              )}>
+                {children}
+              </div>
             </div>
           </motion.div>
         </>
@@ -224,3 +229,4 @@ export function Drawer({
     </AnimatePresence>
   );
 }
+

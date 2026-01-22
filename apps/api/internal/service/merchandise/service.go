@@ -32,7 +32,56 @@ func (s *Service) GetByID(id string) (*merchandise.MerchandiseResponse, error) {
 		}
 		return nil, err
 	}
-	return m.ToMerchandiseResponse(), nil
+	resp := m.ToMerchandiseResponse()
+
+	// Get stock logs
+	logs, err := s.repo.GetStockLogs(id)
+	if err == nil {
+		// Populate item history
+		stockLogs := make([]*merchandise.StockLogResponse, len(logs))
+		for i, log := range logs {
+			stockLogs[i] = log.ToStockLogResponse()
+		}
+		resp.ItemHistory = stockLogs
+
+		// Calculate purchase history (daily sales stats)
+		// Group by date and sum sold quantity
+		dailySales := make(map[string]struct {
+			Quantity    int
+			TotalAmount float64
+		})
+
+		for _, log := range logs {
+			if log.Type == merchandise.StockLogTypeSold {
+				date := log.CreatedAt.Format("2006-01-02")
+				current := dailySales[date]
+				
+				// ChangeAmount is negative for sales, so we negate it
+				quantity := -log.ChangeAmount
+				
+				dailySales[date] = struct {
+					Quantity    int
+					TotalAmount float64
+				}{
+					Quantity:    current.Quantity + quantity,
+					TotalAmount: current.TotalAmount + (float64(quantity) * m.Price),
+				}
+			}
+		}
+
+		// Convert map to slice
+		purchaseHistory := make([]merchandise.PurchaseHistoryItem, 0, len(dailySales))
+		for date, stats := range dailySales {
+			purchaseHistory = append(purchaseHistory, merchandise.PurchaseHistoryItem{
+				Date:        date,
+				Quantity:    stats.Quantity,
+				TotalAmount: stats.TotalAmount,
+			})
+		}
+		resp.PurchaseHistory = purchaseHistory
+	}
+
+	return resp, nil
 }
 
 // Create creates a new merchandise

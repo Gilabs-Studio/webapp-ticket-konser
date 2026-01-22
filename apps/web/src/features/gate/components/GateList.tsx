@@ -175,7 +175,7 @@ export function GateList({ filters }: GateListProps) {
           <Skeleton className="h-6 w-32" />
           <Skeleton className="h-8 w-24" />
         </div>
-        <div className="border border-border bg-card rounded-xl overflow-hidden">
+        <div className="border border-border bg-card rounded-md overflow-hidden">
           <div className="p-4 border-b border-border bg-muted/50">
             <Skeleton className="h-10 w-full" />
           </div>
@@ -195,7 +195,7 @@ export function GateList({ filters }: GateListProps) {
         <div className="flex justify-between items-center">
           <h2 className="text-lg font-medium">Gate Management</h2>
         </div>
-        <div className="border border-border bg-card rounded-xl p-8 text-center">
+        <div className="border border-border bg-card rounded-md p-8 text-center">
           <p className="text-sm text-muted-foreground">
             Failed to load gates. Please try again.
           </p>
@@ -314,7 +314,7 @@ export function GateList({ filters }: GateListProps) {
         initial={{ opacity: 0, y: -10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.3, delay: 0.2 }}
-        className="border border-border bg-card rounded-xl overflow-hidden"
+        className="border border-border bg-card rounded-md overflow-hidden"
       >
         <div className="p-4 border-b border-border bg-muted/50">
           <div className="relative">

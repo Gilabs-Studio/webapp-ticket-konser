@@ -14,7 +14,7 @@ export default function MerchandiseLoading() {
         {Array.from({ length: 4 }).map((_, i) => (
           <div
             key={i}
-            className="border border-border bg-card/30 rounded-lg p-4"
+            className="border border-border bg-card/30 rounded-md p-4"
           >
             <Skeleton className="aspect-square w-full mb-4" />
             <Skeleton className="h-4 w-3/4 mb-2" />

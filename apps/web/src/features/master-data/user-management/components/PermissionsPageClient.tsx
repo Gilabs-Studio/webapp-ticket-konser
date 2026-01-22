@@ -101,7 +101,7 @@ export function PermissionsPageClient() {
       </div>
 
       {/* Table */}
-      <div className="border rounded-lg">
+      <div className="border rounded-md">
         <Table>
           <TableHeader>
             <TableRow>

@@ -12,7 +12,7 @@ export default function SettingsLoading() {
           ))}
         </div>
         <div className="lg:col-span-2 space-y-6">
-          <Card className="border border-border bg-card/20 rounded-xl p-6">
+          <Card className="border border-border bg-card/20 rounded-md p-6">
             <Skeleton className="h-5 w-32 mb-4" />
             <div className="space-y-4">
               <Skeleton className="h-10 w-full" />

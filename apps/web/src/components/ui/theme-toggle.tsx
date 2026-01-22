@@ -356,7 +356,7 @@ export const ThemeToggleButton = ({
     <button
       type="button"
       className={cn(
-        "inline-flex h-8 w-8 items-center justify-center rounded-full bg-background/80 text-muted-foreground shadow-sm transition-all duration-200 hover:bg-accent/60 active:scale-95",
+        "inline-flex h-8 w-8 items-center justify-center rounded-full bg-background/80 text-muted-foreground shadow-sm transition-all duration-200 hover:bg-accent/60 active:scale-95 cursor-pointer",
         isDark ? "text-foreground" : "",
         className,
       )}

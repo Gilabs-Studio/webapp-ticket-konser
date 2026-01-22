@@ -1,7 +1,7 @@
 "use client";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Calendar, User, CreditCard, Package } from "lucide-react";
 import { useRouter } from "@/i18n/routing";
@@ -14,7 +14,7 @@ import dynamic from "next/dynamic";
 
 const OrderTicketsSection = dynamic(
   () =>
-    import("@/features/tickets/components/OrderTicketsSection").then((mod) => ({
+    import("@/features/events/components/OrderTicketsSection").then((mod) => ({
       default: mod.OrderTicketsSection,
     })),
   {

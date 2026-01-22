@@ -1,29 +1,62 @@
 "use client";
 
-import { AdminStats } from "@/features/dashboard/components/AdminStats";
-import { StorefrontPreview } from "@/features/dashboard/components/StorefrontPreview";
-import { RecentSales } from "@/features/dashboard/components/RecentSales";
-import { QuickActions } from "@/features/dashboard/components/QuickActions";
+import { PageMotion } from "@/components/motion";
+import {
+  useSalesOverview,
+  useCheckInOverview,
+  useQuotaOverview,
+  useGateActivity,
+  useBuyerList,
+} from "@/features/dashboard/hooks/useDashboard";
+import { StatsCards } from "@/features/dashboard/components/stats-cards";
+import { QuotaChart } from "@/features/dashboard/components/quota-chart";
+import { CheckInChart } from "@/features/dashboard/components/check-in-chart";
+import { GateTrafficChart } from "@/features/dashboard/components/gate-traffic-chart";
+import { RecentActivity } from "@/features/dashboard/components/recent-activity";
 
 export default function DashboardPage() {
-  return (
-    <div className="p-6 space-y-6">
-      {/* 3 Stats Cards */}
-      <AdminStats />
+  // Fetch data
+  const { data: sales, isLoading: isSalesLoading } = useSalesOverview();
+  const { data: checkIn, isLoading: isCheckInLoading } = useCheckInOverview();
+  const { data: quota, isLoading: isQuotaLoading } = useQuotaOverview();
+  const { data: gates, isLoading: isGatesLoading } = useGateActivity();
+  const { data: buyers, isLoading: isBuyersLoading } = useBuyerList();
 
-      {/* Main Content Grid */}
-      <div className="grid gap-6 lg:grid-cols-3">
-        {/* Storefront Preview - Takes 2 columns */}
-        <div className="lg:col-span-2">
-          <StorefrontPreview />
+  const isLoading =
+    isSalesLoading ||
+    isCheckInLoading ||
+    isQuotaLoading ||
+    isGatesLoading ||
+    isBuyersLoading;
+
+  return (
+    <PageMotion>
+      <div className="flex-1 space-y-4 p-2 pt-6 md:p-6">
+        <StatsCards
+          sales={sales}
+          checkIn={checkIn}
+          quota={quota}
+          isLoading={isLoading}
+        />
+
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
+          <div className="col-span-4">
+             <QuotaChart quota={quota} isLoading={isLoading} />
+          </div>
+          <div className="col-span-3">
+             <CheckInChart checkIn={checkIn} isLoading={isLoading} />
+          </div>
         </div>
 
-        {/* Right Sidebar - Recent Sales and Quick Actions */}
-        <div className="space-y-6">
-          <RecentSales limit={5} />
-          <QuickActions />
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
+           <div className="col-span-3">
+              <GateTrafficChart gates={gates} isLoading={isLoading} />
+           </div>
+           <div className="col-span-4">
+              <RecentActivity buyers={buyers} isLoading={isLoading} />
+           </div>
         </div>
       </div>
-    </div>
+    </PageMotion>
   );
 }

@@ -114,6 +114,7 @@ func AutoMigrate() error {
 		&checkin.CheckIn{},
 		&gate.Gate{},
 		&merchandise.Merchandise{},
+		&merchandise.StockLog{},
 		&settings.Settings{},
 	)
 	if err != nil {

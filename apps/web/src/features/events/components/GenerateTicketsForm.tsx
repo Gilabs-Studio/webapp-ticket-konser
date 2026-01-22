@@ -16,7 +16,7 @@ import {
 } from "@/components/ui/select";
 import { useTicketCategoriesByEventId } from "../hooks/useTicketCategories";
 import { useOrder } from "@/features/orders/hooks/useOrders";
-import type { GenerateTicketsRequest } from "../types";
+import type { GenerateTicketsRequest } from "../types/ticket";
 import { Loader2, Plus, X } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { DialogFooter } from "@/components/ui/dialog";

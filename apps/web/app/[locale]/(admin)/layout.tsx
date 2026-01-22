@@ -13,10 +13,10 @@ import {
   SidebarTrigger,
   SidebarGroup,
   SidebarGroupLabel,
+  SidebarRail,
 } from "@/components/ui/sidebar";
 import { Link, usePathname } from "@/i18n/routing";
 import {
-  Ticket,
   ChevronDown,
   LogOut,
 } from "lucide-react";
@@ -92,144 +92,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
     return menuLabelMap[label] || label;
   };
 
-  // Render sidebar content based on loading/error state
-  const renderSidebarContent = () => {
-    if (isLoadingMenus) {
-      return (
-        <div className="space-y-2">
-          <Skeleton className="h-10 w-full" />
-          <Skeleton className="h-10 w-full" />
-          <Skeleton className="h-10 w-full" />
-          <Skeleton className="h-10 w-full" />
-        </div>
-      );
-    }
 
-    if (isErrorMenus) {
-      return (
-        <div className="p-4 text-sm text-muted-foreground">
-          {t("menu.error")}
-        </div>
-      );
-    }
-
-    return (
-      <>
-        <SidebarMenu>
-          {overview.map((menu) => {
-            const normalizedPath = normalizeMenuPath(menu.path);
-            const isActive =
-              pathname === normalizedPath ||
-              pathname?.startsWith(`${normalizedPath}/`);
-            return (
-              <SidebarMenuItem key={menu.id}>
-                <SidebarMenuButton
-                  asChild
-                  isActive={isActive}
-                  tooltip={getLabel(menu.label)}
-                >
-                  <Link href={normalizedPath}>
-                    {getMenuIcon(menu.icon)}
-                    <span>{getLabel(menu.label)}</span>
-                  </Link>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-            );
-          })}
-        </SidebarMenu>
-
-        {event_operations.length > 0 && (
-          <SidebarGroup>
-            <SidebarGroupLabel className="text-xs uppercase text-muted-foreground/70 font-bold tracking-wider mb-2 mt-4 ml-2">
-              Event Control
-            </SidebarGroupLabel>
-            <SidebarMenu>
-              {event_operations.map((menu) => {
-                const normalizedPath = normalizeMenuPath(menu.path);
-                const isActive =
-                  pathname === normalizedPath ||
-                  pathname?.startsWith(`${normalizedPath}/`);
-                return (
-                  <SidebarMenuItem key={menu.id}>
-                    <SidebarMenuButton
-                      asChild
-                      isActive={isActive}
-                      tooltip={getLabel(menu.label)}
-                    >
-                      <Link href={normalizedPath}>
-                        {getMenuIcon(menu.icon)}
-                        <span>{getLabel(menu.label)}</span>
-                      </Link>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                );
-              })}
-            </SidebarMenu>
-          </SidebarGroup>
-        )}
-
-        {manage_people.length > 0 && (
-          <SidebarGroup>
-            <SidebarGroupLabel className="text-xs uppercase text-muted-foreground/70 font-bold tracking-wider mb-2 mt-4 ml-2">
-              People
-            </SidebarGroupLabel>
-            <SidebarMenu>
-              {manage_people.map((menu) => {
-                const normalizedPath = normalizeMenuPath(menu.path);
-                const isActive =
-                  pathname === normalizedPath ||
-                  pathname?.startsWith(`${normalizedPath}/`);
-                return (
-                  <SidebarMenuItem key={menu.id}>
-                    <SidebarMenuButton
-                      asChild
-                      isActive={isActive}
-                      tooltip={getLabel(menu.label)}
-                    >
-                      <Link href={normalizedPath}>
-                        {getMenuIcon(menu.icon)}
-                        <span>{getLabel(menu.label)}</span>
-                      </Link>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                );
-              })}
-            </SidebarMenu>
-          </SidebarGroup>
-        )}
-
-        {system.length > 0 && (
-          <SidebarGroup>
-            <SidebarGroupLabel className="text-xs uppercase text-muted-foreground/70 font-bold tracking-wider mb-2 mt-4 ml-2">
-              System
-            </SidebarGroupLabel>
-            <SidebarMenu>
-              {system.map((menu) => {
-                const normalizedPath = normalizeMenuPath(menu.path);
-                const isActive =
-                  pathname === normalizedPath ||
-                  pathname?.startsWith(`${normalizedPath}/`);
-                return (
-                  <SidebarMenuItem key={menu.id}>
-                    <SidebarMenuButton
-                      asChild
-                      isActive={isActive}
-                      tooltip={getLabel(menu.label)}
-                    >
-                      <Link href={normalizedPath}>
-                        {getMenuIcon(menu.icon)}
-                        <span>{getLabel(menu.label)}</span>
-                      </Link>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                );
-              })}
-            </SidebarMenu>
-          </SidebarGroup>
-        )}
-      </>
-    );
-  };
 
   // Calculate user initials
   const userInitials = user?.name
@@ -243,62 +106,208 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
 
   return (
     <SidebarProvider>
-      <Sidebar>
+      <Sidebar collapsible="icon">
         <SidebarHeader>
-          <div className="flex items-center gap-2 px-2 py-2">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
-              <Ticket className="h-4 w-4" />
-            </div>
-            <span className="text-sm font-semibold">UMN FESTIVAL</span>
+          <div className="flex items-center gap-2 px-2 py-2 group-data-[collapsible=icon]:justify-center">
+            <span className="text-sm font-semibold group-data-[collapsible=icon]:hidden">
+              UMN FESTIVAL
+            </span>
           </div>
         </SidebarHeader>
-        <SidebarContent className="p-4">
-          {renderSidebarContent()}
+        <SidebarContent>
+          {isLoadingMenus ? (
+            <div className="space-y-2 p-4">
+              <Skeleton className="h-10 w-full" />
+              <Skeleton className="h-10 w-full" />
+              <Skeleton className="h-10 w-full" />
+              <Skeleton className="h-10 w-full" />
+            </div>
+          ) : isErrorMenus ? (
+            <div className="p-4 text-sm text-muted-foreground">
+              {t("menu.error")}
+            </div>
+          ) : (
+            <>
+              {overview.length > 0 && (
+                <SidebarGroup>
+                  <SidebarGroupLabel className="uppercase text-xs font-bold tracking-wider text-muted-foreground/70">Overview</SidebarGroupLabel>
+                  <SidebarMenu>
+                    {overview.map((menu) => {
+                      const normalizedPath = normalizeMenuPath(menu.path);
+                      const isActive =
+                        pathname === normalizedPath ||
+                        pathname?.startsWith(`${normalizedPath}/`);
+                      return (
+                        <SidebarMenuItem key={menu.id}>
+                          <SidebarMenuButton
+                            asChild
+                            isActive={isActive}
+                            tooltip={getLabel(menu.label)}
+                          >
+                            <Link href={normalizedPath}>
+                              {getMenuIcon(menu.icon)}
+                              <span>{getLabel(menu.label)}</span>
+                            </Link>
+                          </SidebarMenuButton>
+                        </SidebarMenuItem>
+                      );
+                    })}
+                  </SidebarMenu>
+                </SidebarGroup>
+              )}
+
+              {event_operations.length > 0 && (
+                <SidebarGroup>
+                  <SidebarGroupLabel className="uppercase text-xs font-bold tracking-wider text-muted-foreground/70">
+                    Event Control
+                  </SidebarGroupLabel>
+                  <SidebarMenu>
+                    {event_operations.map((menu) => {
+                      const normalizedPath = normalizeMenuPath(menu.path);
+                      const isActive =
+                        pathname === normalizedPath ||
+                        pathname?.startsWith(`${normalizedPath}/`);
+                      return (
+                        <SidebarMenuItem key={menu.id}>
+                          <SidebarMenuButton
+                            asChild
+                            isActive={isActive}
+                            tooltip={getLabel(menu.label)}
+                          >
+                            <Link href={normalizedPath}>
+                              {getMenuIcon(menu.icon)}
+                              <span>{getLabel(menu.label)}</span>
+                            </Link>
+                          </SidebarMenuButton>
+                        </SidebarMenuItem>
+                      );
+                    })}
+                  </SidebarMenu>
+                </SidebarGroup>
+              )}
+
+              {manage_people.length > 0 && (
+                <SidebarGroup>
+                  <SidebarGroupLabel className="uppercase text-xs font-bold tracking-wider text-muted-foreground/70">
+                    People
+                  </SidebarGroupLabel>
+                  <SidebarMenu>
+                    {manage_people.map((menu) => {
+                      const normalizedPath = normalizeMenuPath(menu.path);
+                      const isActive =
+                        pathname === normalizedPath ||
+                        pathname?.startsWith(`${normalizedPath}/`);
+                      return (
+                        <SidebarMenuItem key={menu.id}>
+                          <SidebarMenuButton
+                            asChild
+                            isActive={isActive}
+                            tooltip={getLabel(menu.label)}
+                          >
+                            <Link href={normalizedPath}>
+                              {getMenuIcon(menu.icon)}
+                              <span>{getLabel(menu.label)}</span>
+                            </Link>
+                          </SidebarMenuButton>
+                        </SidebarMenuItem>
+                      );
+                    })}
+                  </SidebarMenu>
+                </SidebarGroup>
+              )}
+
+              {system.length > 0 && (
+                <SidebarGroup>
+                  <SidebarGroupLabel className="uppercase text-xs font-bold tracking-wider text-muted-foreground/70">
+                    System
+                  </SidebarGroupLabel>
+                  <SidebarMenu>
+                    {system.map((menu) => {
+                      const normalizedPath = normalizeMenuPath(menu.path);
+                      const isActive =
+                        pathname === normalizedPath ||
+                        pathname?.startsWith(`${normalizedPath}/`);
+                      return (
+                        <SidebarMenuItem key={menu.id}>
+                          <SidebarMenuButton
+                            asChild
+                            isActive={isActive}
+                            tooltip={getLabel(menu.label)}
+                          >
+                            <Link href={normalizedPath}>
+                              {getMenuIcon(menu.icon)}
+                              <span>{getLabel(menu.label)}</span>
+                            </Link>
+                          </SidebarMenuButton>
+                        </SidebarMenuItem>
+                      );
+                    })}
+                  </SidebarMenu>
+                </SidebarGroup>
+              )}
+            </>
+          )}
         </SidebarContent>
         {user && (
           <SidebarFooter>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <button className="flex w-full items-center gap-2 rounded-md px-2 py-2 hover:bg-accent focus:outline-none focus:ring-2 focus:ring-ring">
-                  <Avatar className="h-8 w-8">
-                    <AvatarImage
-                      src={user.avatar_url}
-                      alt={user.name ?? "User"}
-                    />
-                    <AvatarFallback>{userInitials}</AvatarFallback>
-                  </Avatar>
-                  <div className="flex flex-1 flex-col items-start text-left text-sm">
-                    <span className="font-medium">{user.name ?? "User"}</span>
-                    <span className="text-xs text-muted-foreground">
-                      {user.email ?? ""}
-                    </span>
-                  </div>
-                  <ChevronDown className="h-4 w-4 text-muted-foreground" />
-                </button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-56">
-                <DropdownMenuLabel>
-                  <div className="flex flex-col space-y-1">
-                    <p className="text-sm font-medium leading-none">
-                      {user.name ?? "User"}
-                    </p>
-                    <p className="text-xs leading-none text-muted-foreground">
-                      {user.email ?? ""}
-                    </p>
-                  </div>
-                </DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem
-                  onClick={handleLogout}
-                  className="text-destructive"
-                >
-                  <LogOut className="mr-2 h-4 w-4" />
-                  <span>{t("logout")}</span>
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+            <SidebarMenu>
+              <SidebarMenuItem>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <SidebarMenuButton
+                      size="lg"
+                      className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
+                    >
+                      <Avatar className="h-8 w-8 rounded-lg">
+                        <AvatarImage
+                          src={user.avatar_url}
+                          alt={user.name ?? "User"}
+                        />
+                        <AvatarFallback className="rounded-lg">{userInitials}</AvatarFallback>
+                      </Avatar>
+                      <div className="grid flex-1 text-left text-sm leading-tight">
+                        <span className="truncate font-semibold">{user.name ?? "User"}</span>
+                        <span className="truncate text-xs">{user.email ?? ""}</span>
+                      </div>
+                      <ChevronDown className="ml-auto size-4" />
+                    </SidebarMenuButton>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent
+                    className="w-[--radix-dropdown-menu-trigger-width] min-w-56 rounded-lg"
+                    side="bottom"
+                    align="end"
+                    sideOffset={4}
+                  >
+                    <DropdownMenuLabel className="p-0 font-normal">
+                      <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
+                        <Avatar className="h-8 w-8 rounded-lg">
+                          <AvatarImage
+                            src={user.avatar_url}
+                            alt={user.name ?? "User"}
+                          />
+                          <AvatarFallback className="rounded-lg">{userInitials}</AvatarFallback>
+                        </Avatar>
+                        <div className="grid flex-1 text-left text-sm leading-tight">
+                          <span className="truncate font-semibold">{user.name ?? "User"}</span>
+                          <span className="truncate text-xs">{user.email ?? ""}</span>
+                        </div>
+                      </div>
+                    </DropdownMenuLabel>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem
+                      onClick={handleLogout}
+                      className="text-destructive"
+                    >
+                      <LogOut className="mr-2 h-4 w-4" />
+                      <span>{t("logout")}</span>
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </SidebarMenuItem>
+            </SidebarMenu>
           </SidebarFooter>
         )}
+        <SidebarRail />
       </Sidebar>
       <SidebarInset>
         <header className="flex h-16 shrink-0 items-center justify-between gap-4 border-b bg-background px-6">

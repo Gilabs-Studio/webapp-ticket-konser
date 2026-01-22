@@ -3,14 +3,14 @@
 import { useRouter } from "@/i18n/routing";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { ArrowLeft, Package, Download } from "lucide-react";
+import { ArrowLeft, Package } from "lucide-react";
 import { useMyOrder } from "@/features/orders/hooks/useOrders";
 import { useQuery } from "@tanstack/react-query";
-import { ticketService } from "@/features/tickets/services/ticketService";
-import { ETicketDisplay } from "@/features/tickets/components/ETicketDisplay";
+import { ticketService } from "@/features/events/services/ticketService";
+import { ETicketDisplay } from "@/features/events/components/ETicketDisplay";
 import { Skeleton } from "@/components/ui/skeleton";
-import { toast } from "sonner";
-import type { ETicket } from "@/features/tickets/types";
+
+import type { ETicket } from "@/features/events/types/ticket";
 
 interface OrderTicketsPageClientProps {
   readonly orderId: string;
@@ -28,7 +28,7 @@ export function OrderTicketsPageClient({
   });
 
   const order = orderData?.data;
-  const tickets = ticketsData?.data?.data ?? [];
+  const tickets = ticketsData?.data ?? [];
 
   if (isLoadingOrder) {
     return (

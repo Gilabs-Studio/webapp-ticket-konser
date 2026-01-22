@@ -20,4 +20,10 @@ type Repository interface {
 	
 	// List lists all merchandises with pagination and filters
 	List(page, perPage int, filters map[string]interface{}) ([]*merchandise.Merchandise, int64, error)
+	
+	// CreateStockLog creates a new stock log
+	CreateStockLog(log *merchandise.StockLog) error
+	
+	// GetStockLogs gets stock logs for a merchandise
+	GetStockLogs(merchandiseID string) ([]*merchandise.StockLog, error)
 }

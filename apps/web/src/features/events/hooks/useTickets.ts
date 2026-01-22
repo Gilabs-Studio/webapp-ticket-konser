@@ -2,7 +2,7 @@
 
 import { useQuery } from "@tanstack/react-query";
 import { ticketService } from "../services/ticketService";
-import type { TicketType, Order } from "../types";
+import type { TicketType, Order } from "../types/ticket";
 
 interface TicketFilters {
   page?: number;
