@@ -251,8 +251,8 @@ export function EventList({
             {/* Top Bar: Status (Left) & Actions (Right) */}
             <div className="absolute top-4 left-4 right-4 z-20 flex justify-between items-start">
               {/* Status Badge */}
-              <div className="backdrop-blur-md bg-black/30 rounded-full px-2 py-1 border border-white/10 shadow-sm">
-                 <EventStatusBadge status={event.status} className="text-xs font-medium text-white bg-transparent border-0" />
+              <div className="backdrop-blur-md bg-black/30 rounded-full px-2 py-1 border border-white/10 shadow-sm flex items-center justify-center">
+                 <EventStatusBadge status={event.status} className="text-xs font-medium text-white bg-transparent border-0 p-0" />
               </div>
 
               {/* Action Buttons - Top Right, Icon Only */}
