@@ -15,6 +15,24 @@ export function useGates(filters?: GateFilters) {
   });
 }
 
+export function useMyGates() {
+  return useQuery({
+    queryKey: ["gates", "my"],
+    queryFn: () => gateService.getMyGates(),
+    staleTime: 30000, // 30 seconds
+    enabled: true,
+  });
+}
+
+export function useMyGatesEnabled(enabled: boolean) {
+  return useQuery({
+    queryKey: ["gates", "my"],
+    queryFn: () => gateService.getMyGates(),
+    staleTime: 30000, // 30 seconds
+    enabled,
+  });
+}
+
 export function useGate(id: string) {
   return useQuery({
     queryKey: ["gate", id],

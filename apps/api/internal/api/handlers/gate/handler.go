@@ -261,7 +261,12 @@ func (h *Handler) GateCheckIn(c *gin.Context) {
 	ipAddress := c.ClientIP()
 	userAgent := c.GetHeader("User-Agent")
 
-	result, err := h.gateService.GateCheckIn(&req, userIDStr, ipAddress, userAgent)
+	// Determine if user is admin
+	userRole, _ := c.Get("user_role")
+	userRoleStr, _ := userRole.(string)
+	isAdmin := userRoleStr == "admin" || userRoleStr == "super_admin"
+
+	result, err := h.gateService.GateCheckIn(&req, userIDStr, ipAddress, userAgent, isAdmin)
 	if err != nil {
 		// Handle specific errors
 		if err == gateservice.ErrGateNotFound {
@@ -324,6 +329,10 @@ func (h *Handler) GateCheckIn(c *gin.Context) {
 				"message": result.Message,
 				"check_in": result.CheckIn,
 			}, nil)
+		case "GATE_STAFF_NOT_ASSIGNED":
+			errors.ErrorResponse(c, "FORBIDDEN", map[string]interface{}{
+				"message": result.Message,
+			}, nil)
 		default:
 			errors.ErrorResponse(c, "CHECK_IN_ERROR", map[string]interface{}{
 				"message": result.Message,
@@ -334,6 +343,102 @@ func (h *Handler) GateCheckIn(c *gin.Context) {
 
 	meta := &response.Meta{}
 	response.SuccessResponse(c, result, meta)
+}
+
+// ListMyGates lists gates assigned to the authenticated user (gatekeeper).
+// GET /api/v1/gates/my
+func (h *Handler) ListMyGates(c *gin.Context) {
+	userID, exists := c.Get("user_id")
+	if !exists {
+		errors.ErrorResponse(c, "UNAUTHORIZED", map[string]interface{}{
+			"reason": "User ID not found in context",
+		}, nil)
+		return
+	}
+
+	userIDStr, ok := userID.(string)
+	if !ok || userIDStr == "" {
+		errors.ErrorResponse(c, "UNAUTHORIZED", map[string]interface{}{
+			"reason": "Invalid user ID",
+		}, nil)
+		return
+	}
+
+	gates, err := h.gateService.ListMyGates(userIDStr)
+	if err != nil {
+		errors.InternalServerErrorResponse(c, "")
+		return
+	}
+
+	meta := &response.Meta{}
+	response.SuccessResponse(c, gates, meta)
+}
+
+// AssignStaffToGate assigns a staff member to a gate (admin).
+// POST /api/v1/gates/:id/assign-staff
+func (h *Handler) AssignStaffToGate(c *gin.Context) {
+	gateID := c.Param("id")
+	if gateID == "" {
+		errors.ErrorResponse(c, "INVALID_PATH_PARAM", map[string]interface{}{
+			"param": "id",
+		}, nil)
+		return
+	}
+
+	var req gate.AssignStaffToGateRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		if validationErrors, ok := err.(validator.ValidationErrors); ok {
+			errors.HandleValidationError(c, validationErrors)
+		} else {
+			errors.InvalidRequestBodyResponse(c)
+		}
+		return
+	}
+
+	if err := h.gateService.AssignStaffToGate(gateID, req.StaffID); err != nil {
+		if err == gateservice.ErrGateNotFound {
+			errors.NotFoundResponse(c, "gate", gateID)
+			return
+		}
+		errors.InternalServerErrorResponse(c, "")
+		return
+	}
+
+	meta := &response.Meta{}
+	response.SuccessResponse(c, map[string]interface{}{
+		"message": "Staff assigned to gate successfully",
+	}, meta)
+}
+
+// UnassignStaffFromGate removes a staff member from a gate (admin).
+// DELETE /api/v1/gates/:id/assign-staff/:staff_id
+func (h *Handler) UnassignStaffFromGate(c *gin.Context) {
+	gateID := c.Param("id")
+	if gateID == "" {
+		errors.ErrorResponse(c, "INVALID_PATH_PARAM", map[string]interface{}{
+			"param": "id",
+		}, nil)
+		return
+	}
+
+	staffID := c.Param("staff_id")
+	if staffID == "" {
+		errors.ErrorResponse(c, "INVALID_PATH_PARAM", map[string]interface{}{
+			"param": "staff_id",
+		}, nil)
+		return
+	}
+
+	if err := h.gateService.UnassignStaffFromGate(gateID, staffID); err != nil {
+		if err == gateservice.ErrGateNotFound {
+			errors.NotFoundResponse(c, "gate", gateID)
+			return
+		}
+		errors.InternalServerErrorResponse(c, "")
+		return
+	}
+
+	response.SuccessResponseNoContent(c)
 }
 
 // GetStatistics gets gate statistics

@@ -73,5 +73,40 @@ func RegisterMetricsRoute(router *gin.Engine) {
 		return
 	}
 
-	router.GET("/metrics", gin.WrapH(promhttp.Handler()))
+	// In production, require a token and disable endpoint if none is configured.
+	if config.AppConfig != nil && config.AppConfig.Server.Env == "production" {
+		if config.AppConfig.Obs.MetricsToken == "" {
+			return
+		}
+	}
+
+	metrics := router.Group("/metrics")
+	metrics.Use(MetricsTokenMiddleware())
+	{
+		metrics.GET("", gin.WrapH(promhttp.Handler()))
+	}
+}
+
+func MetricsTokenMiddleware() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		token := ""
+		if config.AppConfig != nil {
+			token = config.AppConfig.Obs.MetricsToken
+		}
+		if token == "" {
+			// If no token is configured (typical dev), allow.
+			c.Next()
+			return
+		}
+
+		if c.GetHeader("X-Metrics-Token") != token {
+			errors.ErrorResponse(c, "FORBIDDEN", map[string]interface{}{
+				"message": "Invalid metrics token",
+			}, nil)
+			c.Abort()
+			return
+		}
+
+		c.Next()
+	}
 }

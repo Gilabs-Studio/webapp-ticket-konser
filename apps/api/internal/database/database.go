@@ -32,10 +32,11 @@ var DB *gorm.DB
 // Connect initializes database connection
 func Connect() error {
 	dsn := config.GetDSN()
+	logMode := resolveGormLogMode()
 
 	var err error
 	DB, err = gorm.Open(postgres.Open(dsn), &gorm.Config{
-		Logger: logger.Default.LogMode(logger.Info),
+		Logger: logger.Default.LogMode(logMode),
 	})
 
 	if err != nil {
@@ -60,6 +61,33 @@ func Connect() error {
 
 	log.Println("Database connected successfully")
 	return nil
+}
+
+func resolveGormLogMode() logger.LogLevel {
+	// Allow explicit override.
+	switch strings.ToLower(strings.TrimSpace(os.Getenv("GORM_LOG_LEVEL"))) {
+	case "silent":
+		return logger.Silent
+	case "error":
+		return logger.Error
+	case "warn", "warning":
+		return logger.Warn
+	case "info":
+		return logger.Info
+	}
+
+	// Default based on environment.
+	env := ""
+	if config.AppConfig != nil {
+		env = config.AppConfig.Server.Env
+	}
+	if env == "" {
+		env = os.Getenv("ENV")
+	}
+	if env == "production" || env == "prod" {
+		return logger.Warn
+	}
+	return logger.Info
 }
 
 func getEnvInt(key string, defaultValue int) int {
@@ -113,6 +141,7 @@ func AutoMigrate() error {
 		&orderitem.OrderItem{},
 		&checkin.CheckIn{},
 		&gate.Gate{},
+		&gate.GateStaffAssignment{},
 		&merchandise.Merchandise{},
 		&merchandise.StockLog{},
 		&settings.Settings{},

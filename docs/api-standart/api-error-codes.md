@@ -107,6 +107,20 @@
 
 ## Business Logic Errors
 
+### Check-in & Gate (Ticketing)
+
+| Code                     | HTTP Status | Description                                         |
+| ------------------------ | ----------- | --------------------------------------------------- |
+| `INVALID_QR_CODE`        | 400         | QR code tidak valid                                 |
+| `QR_CODE_ALREADY_USED`   | 409         | QR code sudah pernah digunakan (sudah check-in)     |
+| `DUPLICATE_CHECK_IN`     | 409         | Check-in duplikat (scan kedua dan seterusnya)       |
+| `TICKET_NOT_PAID`        | 422         | Tiket belum dibayar                                 |
+| `GATE_INACTIVE`          | 422         | Gate tidak aktif                                    |
+| `GATE_CAPACITY_EXCEEDED` | 422         | Kapasitas gate sudah penuh                          |
+| `VIP_GATE_REQUIRED`      | 422         | Tiket VIP harus masuk lewat gate VIP                |
+| `GATE_STAFF_NOT_ASSIGNED`| 403         | Staff/gatekeeper tidak ditugaskan di gate tersebut  |
+| `CHECK_IN_ERROR`         | 422         | Check-in gagal (business error umum)                |
+
 ### Stock & Inventory
 
 | Code                     | HTTP Status | Description                        |

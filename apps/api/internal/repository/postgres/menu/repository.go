@@ -27,7 +27,7 @@ func (r *Repository) FindByID(id string) (*menu.Menu, error) {
 	var m menu.Menu
 	if err := r.db.Where("id = ?", id).Preload("Children").First(&m).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, ErrMenuNotFound
+			return nil, errors.Join(gorm.ErrRecordNotFound, ErrMenuNotFound)
 		}
 		return nil, err
 	}
@@ -39,7 +39,7 @@ func (r *Repository) FindByCode(code string) (*menu.Menu, error) {
 	var m menu.Menu
 	if err := r.db.Where("code = ?", code).Preload("Children").First(&m).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, ErrMenuNotFound
+			return nil, errors.Join(gorm.ErrRecordNotFound, ErrMenuNotFound)
 		}
 		return nil, err
 	}

@@ -21,7 +21,7 @@ func Seed() error {
 			Icon:           "layout-dashboard",
 			Path:           "/dashboard",
 			OrderIndex:     1,
-			PermissionCode: "", // No permission needed - all admin users can access
+			PermissionCode: "dashboard.read",
 			IsActive:       true,
 		},
 		{

@@ -1,13 +1,18 @@
 package orderitem
 
 import (
+	"fmt"
 	"errors"
 
+	"github.com/gilabs/webapp-ticket-konser/api/internal/database"
+	"github.com/gilabs/webapp-ticket-konser/api/internal/domain/order"
 	orderitem "github.com/gilabs/webapp-ticket-konser/api/internal/domain/order_item"
+	ticketcategory "github.com/gilabs/webapp-ticket-konser/api/internal/domain/ticket_category"
 	orderitemrepo "github.com/gilabs/webapp-ticket-konser/api/internal/repository/interfaces/order_item"
 	orderrepo "github.com/gilabs/webapp-ticket-konser/api/internal/repository/interfaces/order"
 	ticketcategoryrepo "github.com/gilabs/webapp-ticket-konser/api/internal/repository/interfaces/ticket_category"
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 )
 
 var (
@@ -22,6 +27,7 @@ type Service struct {
 	orderItemRepo     orderitemrepo.Repository
 	orderRepo         orderrepo.Repository
 	ticketCategoryRepo ticketcategoryrepo.Repository
+	db               *gorm.DB
 }
 
 func NewService(
@@ -33,6 +39,7 @@ func NewService(
 		orderItemRepo:     orderItemRepo,
 		orderRepo:         orderRepo,
 		ticketCategoryRepo: ticketCategoryRepo,
+		db:               database.DB,
 	}
 }
 
@@ -77,9 +84,23 @@ func (s *Service) GetByOrderID(orderID string) ([]*orderitem.OrderItemResponse, 
 // GenerateTickets generates tickets (order items) for an order
 // This creates order items based on the order's ticket categories
 func (s *Service) GenerateTickets(orderID string, categories []string, quantities []int) ([]*orderitem.OrderItemResponse, error) {
-	// Validate order exists and is paid
-	o, err := s.orderRepo.FindByID(orderID)
-	if err != nil {
+	// Validate categories and quantities match
+	if len(categories) != len(quantities) {
+		return nil, errors.New("categories and quantities must have the same length")
+	}
+
+	// Start transaction + lock the order row to prevent concurrent ticket generation
+	tx := s.db.Begin()
+	defer func() {
+		if r := recover(); r != nil {
+			tx.Rollback()
+		}
+	}()
+
+	// Lock order row
+	var lockedOrder order.Order
+	if err := tx.Clauses(clause.Locking{Strength: "UPDATE"}).Where("id = ?", orderID).First(&lockedOrder).Error; err != nil {
+		tx.Rollback()
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, ErrOrderNotFound
 		}
@@ -87,64 +108,87 @@ func (s *Service) GenerateTickets(orderID string, categories []string, quantitie
 	}
 
 	// Check if order is paid
-	// PaymentStatus is string type, check if equals "PAID"
-	if o.PaymentStatus != "PAID" {
+	if lockedOrder.PaymentStatus != order.PaymentStatusPaid {
+		tx.Rollback()
 		return nil, ErrOrderNotPaid
 	}
 
-	// Check if tickets already exist
-	existingItems, err := s.orderItemRepo.FindByOrderID(orderID)
-	if err != nil {
+	// Check if tickets already exist (within the same tx)
+	var existingCount int64
+	if err := tx.Model(&orderitem.OrderItem{}).Where("order_id = ?", orderID).Count(&existingCount).Error; err != nil {
+		tx.Rollback()
 		return nil, err
 	}
-	if len(existingItems) > 0 {
+	if existingCount > 0 {
+		tx.Rollback()
 		return nil, ErrTicketsAlreadyGenerated
 	}
 
-	// Validate categories and quantities match
-	if len(categories) != len(quantities) {
-		return nil, errors.New("categories and quantities must have the same length")
+	// Validate categories exist (single query)
+	uniqueCategoryIDs := make(map[string]struct{}, len(categories))
+	for _, id := range categories {
+		uniqueCategoryIDs[id] = struct{}{}
+	}
+	categoryIDs := make([]string, 0, len(uniqueCategoryIDs))
+	for id := range uniqueCategoryIDs {
+		categoryIDs = append(categoryIDs, id)
+	}
+	if len(categoryIDs) > 0 {
+		var categoryCount int64
+		if err := tx.Model(&ticketcategory.TicketCategory{}).Where("id IN ?", categoryIDs).Count(&categoryCount).Error; err != nil {
+			tx.Rollback()
+			return nil, err
+		}
+		if int(categoryCount) != len(categoryIDs) {
+			tx.Rollback()
+			return nil, ErrInvalidCategory
+		}
 	}
 
-	// Generate order items
-	var generatedItems []*orderitem.OrderItem
+	// Build items for batch insert
+	items := make([]orderitem.OrderItem, 0, 16)
 	for i, categoryID := range categories {
 		quantity := quantities[i]
 		if quantity <= 0 {
 			continue
 		}
-
-		// Validate category exists
-		_, err := s.ticketCategoryRepo.FindByID(categoryID)
-		if err != nil {
-			return nil, ErrInvalidCategory
-		}
-
-		// Create order items for this category (one per ticket)
 		for j := 0; j < quantity; j++ {
-			oi := &orderitem.OrderItem{
+			items = append(items, orderitem.OrderItem{
 				OrderID:    orderID,
 				CategoryID: categoryID,
-				Status:     orderitem.TicketStatusPaid, // Set as paid since order is paid
-			}
-
-			if err := s.orderItemRepo.Create(oi); err != nil {
-				return nil, err
-			}
-
-			// Reload to get QR code
-			createdItem, err := s.orderItemRepo.FindByID(oi.ID)
-			if err != nil {
-				return nil, err
-			}
-
-			generatedItems = append(generatedItems, createdItem)
+				Status:     orderitem.TicketStatusPaid,
+			})
 		}
 	}
 
-	// Convert to responses
-	responses := make([]*orderitem.OrderItemResponse, len(generatedItems))
-	for i, item := range generatedItems {
+	if len(items) == 0 {
+		tx.Rollback()
+		return nil, fmt.Errorf("no tickets to generate")
+	}
+
+	// Batch create (use conservative batch size)
+	if err := tx.CreateInBatches(&items, 100).Error; err != nil {
+		tx.Rollback()
+		return nil, err
+	}
+
+	// Fetch created tickets once with preloads for response
+	var created []*orderitem.OrderItem
+	if err := tx.Where("order_id = ?", orderID).
+		Preload("Order").
+		Preload("Category").
+		Order("created_at ASC").
+		Find(&created).Error; err != nil {
+		tx.Rollback()
+		return nil, err
+	}
+
+	if err := tx.Commit().Error; err != nil {
+		return nil, err
+	}
+
+	responses := make([]*orderitem.OrderItemResponse, len(created))
+	for i, item := range created {
 		responses[i] = item.ToOrderItemResponse()
 	}
 

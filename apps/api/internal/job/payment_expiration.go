@@ -26,16 +26,12 @@ func StartPaymentExpirationJob(orderService *orderservice.Service) {
 		log.Printf("Found %d expired unpaid orders, processing...", len(expiredOrders))
 
 		for _, order := range expiredOrders {
-			// Update status ke CANCELED
-			if err := orderService.CancelExpiredOrder(order.ID); err != nil {
-				log.Printf("Error canceling expired order %s: %v", order.ID, err)
+			processed, err := orderService.ExpireAndRestoreQuota(order.ID)
+			if err != nil {
+				log.Printf("Error expiring order %s: %v", order.ID, err)
 				continue
 			}
-
-			// Restore quota
-			if err := orderService.RestoreQuota(order.ID); err != nil {
-				log.Printf("Error restoring quota for order %s: %v", order.ID, err)
-			} else {
+			if processed {
 				log.Printf("Successfully expired and restored quota for order %s", order.ID)
 			}
 		}

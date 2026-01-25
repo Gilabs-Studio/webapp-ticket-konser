@@ -45,6 +45,19 @@ func (h *Handler) ValidateQRCode(c *gin.Context) {
 // CheckIn performs check-in operation
 // POST /api/v1/check-in
 func (h *Handler) CheckIn(c *gin.Context) {
+	// Only admin should use generic check-in endpoint.
+	// Gatekeepers/staff must use the gate-specific endpoint: POST /api/v1/gates/:id/check-in
+	userRole, _ := c.Get("user_role")
+	userRoleStr, _ := userRole.(string)
+	isAdmin := userRoleStr == "admin" || userRoleStr == "super_admin"
+	if !isAdmin {
+		errors.ErrorResponse(c, "FORBIDDEN", map[string]interface{}{
+			"reason":  "Gate check-in required",
+			"message": "Gunakan endpoint gate check-in: /api/v1/gates/:id/check-in",
+		}, nil)
+		return
+	}
+
 	// Get user ID from context (set by auth middleware)
 	userID, exists := c.Get("user_id")
 	if !exists {

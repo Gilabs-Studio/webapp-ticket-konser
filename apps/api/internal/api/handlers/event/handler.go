@@ -1,6 +1,7 @@
 package event
 
 import (
+	stderrors "errors"
 	"fmt"
 	"net/http"
 	"os"
@@ -238,6 +239,13 @@ func (h *Handler) UploadBanner(c *gin.Context) {
 	// Get file from form data
 	file, err := c.FormFile("banner")
 	if err != nil {
+		var mbe *http.MaxBytesError
+		if stderrors.As(err, &mbe) {
+			errors.ErrorResponse(c, "PAYLOAD_TOO_LARGE", map[string]interface{}{
+				"max_body_bytes": mbe.Limit,
+			}, nil)
+			return
+		}
 		errors.ErrorResponse(c, "VALIDATION_ERROR", map[string]interface{}{
 			"reason": "Banner image file is required",
 			"field":  "banner",

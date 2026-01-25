@@ -29,7 +29,7 @@ func (r *Repository) FindByID(id string) (*schedule.Schedule, error) {
 	var s schedule.Schedule
 	if err := r.db.Where("id = ?", id).Preload("Event").First(&s).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, ErrScheduleNotFound
+			return nil, errors.Join(gorm.ErrRecordNotFound, ErrScheduleNotFound)
 		}
 		return nil, err
 	}
