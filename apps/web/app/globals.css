@@ -181,6 +181,17 @@
   --shadow-lg: var(--shadow-lg);
   --shadow-xl: var(--shadow-xl);
   --shadow-2xl: var(--shadow-2xl);
+
+  @keyframes scan-line {
+    from { top: 0%; }
+    to { top: 100%; }
+  }
+  @keyframes scan-line-pc {
+    from { top: 10%; }
+    to { top: 90%; }
+  }
+  --animate-scan-line: scan-line 2s linear infinite;
+  --animate-scan-line-pc: scan-line-pc 2.5s ease-in-out infinite alternate;
 }
 
 * {

@@ -37,46 +37,46 @@ export function ScannerPageClient() {
   );
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold tracking-tight">QR Code Scanner</h1>
-        <p className="text-muted-foreground mt-2">
-          Scan QR code dari tiket untuk melakukan check-in
-        </p>
-      </div>
+    <div className="flex flex-col items-center justify-center min-h-[calc(100vh-12rem)]">
+      <div className="w-full max-w-2xl space-y-6">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight">QR Code Scanner</h1>
+          <p className="text-muted-foreground mt-2">
+            Scan QR code dari tiket untuk melakukan check-in
+          </p>
+        </div>
 
-      {isAdmin && <QRCodeScanner />}
+        {isAdmin && <QRCodeScanner />}
 
-      {!isAdmin && (
-        <>
-          {isLoading && (
-            <div className="flex items-center gap-2 text-muted-foreground">
-              <Loader2 className="h-4 w-4 animate-spin" />
-              <span>Memuat gate...</span>
-            </div>
-          )}
+        {!isAdmin && (
+          <>
+            {isLoading && (
+              <div className="flex items-center gap-2 text-muted-foreground">
+                <Loader2 className="h-4 w-4 animate-spin" />
+                <span>Memuat gate...</span>
+              </div>
+            )}
 
-          {isError && (
-            <Alert variant="destructive">
-              <AlertTitle>Gagal memuat gate</AlertTitle>
-              <AlertDescription>
-                Tidak bisa mengambil daftar gate yang di-assign untuk akun ini.
-              </AlertDescription>
-            </Alert>
-          )}
+            {isError && (
+              <Alert variant="destructive">
+                <AlertTitle>Gagal memuat gate</AlertTitle>
+                <AlertDescription>
+                  Tidak bisa mengambil daftar gate yang di-assign untuk akun ini.
+                </AlertDescription>
+              </Alert>
+            )}
 
-          {!isLoading && !isError && gates.length === 0 && (
-            <Alert variant="destructive">
-              <AlertTitle>Belum ada gate</AlertTitle>
-              <AlertDescription>
-                Akun ini belum di-assign ke gate mana pun. Hubungi admin untuk
-                meng-assign gate.
-              </AlertDescription>
-            </Alert>
-          )}
+            {!isLoading && !isError && gates.length === 0 && (
+              <Alert variant="destructive">
+                <AlertTitle>Belum ada gate</AlertTitle>
+                <AlertDescription>
+                  Akun ini belum di-assign ke gate mana pun. Hubungi admin untuk
+                  meng-assign gate.
+                </AlertDescription>
+              </Alert>
+            )}
 
-          {!isLoading && !isError && gates.length > 1 && (
-            <div className="max-w-2xl">
+            {!isLoading && !isError && gates.length > 1 && (
               <Select value={selectedGateId} onValueChange={setSelectedGateId}>
                 <SelectTrigger>
                   <SelectValue placeholder="Pilih gate untuk scan" />
@@ -89,17 +89,17 @@ export function ScannerPageClient() {
                   ))}
                 </SelectContent>
               </Select>
-            </div>
-          )}
+            )}
 
-          {!!selectedGateId && (
-            <QRCodeScanner
-              gateId={selectedGateId}
-              location={selectedGate?.location ?? undefined}
-            />
-          )}
-        </>
-      )}
+            {!!selectedGateId && (
+              <QRCodeScanner
+                gateId={selectedGateId}
+                location={selectedGate?.location ?? undefined}
+              />
+            )}
+          </>
+        )}
+      </div>
     </div>
   );
 }
