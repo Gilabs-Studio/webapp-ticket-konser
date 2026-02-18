@@ -281,3 +281,70 @@ func (h *Handler) UploadImage(c *gin.Context) {
 	meta := &response.Meta{}
 	response.SuccessResponse(c, merchandise, meta)
 }
+
+// ListPublic lists active merchandises for public/guest browsing
+// GET /api/v1/public/merchandise
+func (h *Handler) ListPublic(c *gin.Context) {
+	var req merchandise.ListMerchandiseRequest
+	if err := c.ShouldBindQuery(&req); err != nil {
+		if validationErrors, ok := err.(validator.ValidationErrors); ok {
+			errors.HandleValidationError(c, validationErrors)
+		} else {
+			errors.InvalidQueryParamResponse(c)
+		}
+		return
+	}
+
+	// Force active status for public routes
+	req.Status = "active"
+
+	merchandises, pagination, err := h.merchandiseService.List(&req)
+	if err != nil {
+		errors.InternalServerErrorResponse(c, "")
+		return
+	}
+
+	meta := &response.Meta{
+		Pagination: pagination,
+		Filters: map[string]interface{}{
+			"event_id": req.EventID,
+			"status":   "active",
+		},
+	}
+	response.SuccessResponse(c, merchandises, meta)
+}
+
+// GetByIDPublic gets an active merchandise by ID for public/guest browsing
+// GET /api/v1/public/merchandise/:id
+func (h *Handler) GetByIDPublic(c *gin.Context) {
+	id := c.Param("id")
+	if id == "" {
+		errors.ErrorResponse(c, "INVALID_PATH_PARAM", map[string]interface{}{
+			"param": "id",
+		}, nil)
+		return
+	}
+
+	merch, err := h.merchandiseService.GetByID(id)
+	if err != nil {
+		if err == merchandiseservice.ErrMerchandiseNotFound {
+			errors.NotFoundResponse(c, "merchandise", id)
+			return
+		}
+		errors.InternalServerErrorResponse(c, "")
+		return
+	}
+
+	// Only show active merchandise to public
+	if merch.Status != "active" {
+		errors.NotFoundResponse(c, "merchandise", id)
+		return
+	}
+
+	// Strip admin-only data from public response
+	merch.PurchaseHistory = nil
+	merch.ItemHistory = nil
+
+	meta := &response.Meta{}
+	response.SuccessResponse(c, merch, meta)
+}

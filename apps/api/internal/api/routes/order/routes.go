@@ -18,12 +18,17 @@ func SetupRoutes(
 	roleRepo role.Repository,
 	jwtManager *jwt.JWTManager,
 ) {
-	// Payment webhook (no auth - called by Midtrans)
-	router.POST("/payments/webhook", orderHandler.HandlePaymentWebhook)
+	// Payment webhook (no auth - called by Midtrans, rate limited to prevent abuse)
+	webhookGroup := router.Group("/payments")
+	webhookGroup.Use(middleware.RateLimitMiddleware(middleware.WebhookRateLimitConfig()))
+	{
+		webhookGroup.POST("/webhook", orderHandler.HandlePaymentWebhook)
+	}
 
-	// Guest/User routes (authenticated users)
+	// Guest/User routes (authenticated users, rate limited for anti-overselling)
 	guestRoutes := router.Group("/orders")
 	guestRoutes.Use(middleware.AuthMiddleware(jwtManager))
+	guestRoutes.Use(middleware.OrderRateLimitMiddleware())
 	{
 		guestRoutes.POST("", middleware.IdempotencyMiddleware(middleware.IdempotencyConfig{TTL: 10 * time.Minute}), orderHandler.CreateOrder) // Create order
 		guestRoutes.GET("", orderHandler.GetMyOrders)                                                                                         // List my orders

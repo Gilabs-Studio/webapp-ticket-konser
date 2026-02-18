@@ -48,9 +48,10 @@ func Connect() error {
 		return fmt.Errorf("failed to get sql DB from gorm: %w", err)
 	}
 
-	// Connection pool tuning (defaults are safe; override via env vars)
-	maxOpenConns := getEnvInt("DB_MAX_OPEN_CONNS", 25)
-	maxIdleConns := getEnvInt("DB_MAX_IDLE_CONNS", 10)
+	// Connection pool tuning — optimized for high-traffic event scenarios (1K-3K concurrent users)
+	// Override via env vars for production fine-tuning
+	maxOpenConns := getEnvInt("DB_MAX_OPEN_CONNS", 50)
+	maxIdleConns := getEnvInt("DB_MAX_IDLE_CONNS", 20)
 	connMaxLifetimeMin := getEnvInt("DB_CONN_MAX_LIFETIME_MINUTES", 30)
 	connMaxIdleTimeMin := getEnvInt("DB_CONN_MAX_IDLE_TIME_MINUTES", 5)
 
@@ -58,6 +59,10 @@ func Connect() error {
 	sqlDB.SetMaxIdleConns(maxIdleConns)
 	sqlDB.SetConnMaxLifetime(time.Duration(connMaxLifetimeMin) * time.Minute)
 	sqlDB.SetConnMaxIdleTime(time.Duration(connMaxIdleTimeMin) * time.Minute)
+
+	// Set global statement timeout to prevent runaway queries from holding connections
+	statementTimeout := getEnvInt("DB_STATEMENT_TIMEOUT_SECONDS", 30)
+	DB.Exec(fmt.Sprintf("SET statement_timeout = '%ds'", statementTimeout))
 
 	log.Println("Database connected successfully")
 	return nil

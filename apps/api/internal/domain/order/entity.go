@@ -36,6 +36,12 @@ type Order struct {
 	MidtransTransactionID *string            `gorm:"type:varchar(255);uniqueIndex" json:"midtrans_transaction_id"`
 	PaymentExpiresAt      *time.Time         `gorm:"type:timestamp;index" json:"payment_expires_at"`
 	QRISCode              *string            `gorm:"type:text" json:"qris_code,omitempty"` // Temporary QRIS code (cleared after expired/paid)
+	IdempotencyKey        *string            `gorm:"type:varchar(255);uniqueIndex" json:"-"`                   // Deduplication key for order creation
+	UnitPrice             float64            `gorm:"type:decimal(15,2);not null;default:0" json:"unit_price"`  // Snapshot: ticket unit price at purchase time
+	CategoryNameSnapshot  string             `gorm:"type:varchar(255)" json:"category_name_snapshot"`          // Snapshot: category name at purchase time
+	EventNameSnapshot     string             `gorm:"type:varchar(255)" json:"event_name_snapshot"`             // Snapshot: event name at purchase time
+	ScheduleNameSnapshot  string             `gorm:"type:varchar(255)" json:"schedule_name_snapshot"`          // Snapshot: schedule session name at purchase time
+	QuotaRestored         bool               `gorm:"not null;default:false" json:"-"`                          // Prevents double quota restoration
 	BuyerName             string             `gorm:"type:varchar(100);not null" json:"buyer_name"`
 	BuyerEmail            string             `gorm:"type:varchar(255);not null" json:"buyer_email"`
 	BuyerPhone            string             `gorm:"type:varchar(20);not null" json:"buyer_phone"`
@@ -74,6 +80,10 @@ type OrderResponse struct {
 	ScheduleID            string                     `json:"schedule_id"`
 	Schedule              *schedule.ScheduleResponse `json:"schedule,omitempty"`
 	TotalAmount           float64                    `json:"total_amount"`
+	UnitPrice             float64                    `json:"unit_price"`
+	CategoryNameSnapshot  string                     `json:"category_name_snapshot"`
+	EventNameSnapshot     string                     `json:"event_name_snapshot"`
+	ScheduleNameSnapshot  string                     `json:"schedule_name_snapshot"`
 	PaymentStatus         PaymentStatus              `json:"payment_status"`
 	PaymentMethod         string                     `json:"payment_method"`
 	MidtransTransactionID *string                    `json:"midtrans_transaction_id"`
@@ -95,6 +105,10 @@ func (o *Order) ToOrderResponse() *OrderResponse {
 		OrderCode:             o.OrderCode,
 		ScheduleID:            o.ScheduleID,
 		TotalAmount:           o.TotalAmount,
+		UnitPrice:             o.UnitPrice,
+		CategoryNameSnapshot:  o.CategoryNameSnapshot,
+		EventNameSnapshot:     o.EventNameSnapshot,
+		ScheduleNameSnapshot:  o.ScheduleNameSnapshot,
 		PaymentStatus:         o.PaymentStatus,
 		PaymentMethod:         o.PaymentMethod,
 		MidtransTransactionID: o.MidtransTransactionID,

@@ -46,7 +46,6 @@ import (
 	userroutes "github.com/gilabs/webapp-ticket-konser/api/internal/api/routes/user"
 	"github.com/gilabs/webapp-ticket-konser/api/internal/config"
 	"github.com/gilabs/webapp-ticket-konser/api/internal/database"
-	redisint "github.com/gilabs/webapp-ticket-konser/api/internal/integration/redis"
 	paymentexpirationjob "github.com/gilabs/webapp-ticket-konser/api/internal/job"
 	"github.com/gilabs/webapp-ticket-konser/api/internal/repository/interfaces/role"
 	attendeerepo "github.com/gilabs/webapp-ticket-konser/api/internal/repository/postgres/attendee"
@@ -55,7 +54,6 @@ import (
 	dashboardrepo "github.com/gilabs/webapp-ticket-konser/api/internal/repository/postgres/dashboard"
 	eventrepo "github.com/gilabs/webapp-ticket-konser/api/internal/repository/postgres/event"
 	gaterepo "github.com/gilabs/webapp-ticket-konser/api/internal/repository/postgres/gate"
-	gatestaffrepo "github.com/gilabs/webapp-ticket-konser/api/internal/repository/postgres/gate_staff"
 	menurepo "github.com/gilabs/webapp-ticket-konser/api/internal/repository/postgres/menu"
 	merchandiserepo "github.com/gilabs/webapp-ticket-konser/api/internal/repository/postgres/merchandise"
 	orderrepo "github.com/gilabs/webapp-ticket-konser/api/internal/repository/postgres/order"
@@ -100,39 +98,6 @@ func main() {
 		log.Fatal("Failed to load config:", err)
 	}
 
-	// Connect to Redis (optional)
-	{
-		redisCfg := redisint.LoadConfigFromEnv()
-		// Prefer central config values when available
-		if config.AppConfig != nil {
-			if config.AppConfig.Redis.URL != "" {
-				// LoadConfigFromEnv already supports REDIS_URL; keep env as source of truth
-			}
-			redisCfg.Enabled = config.AppConfig.Redis.Enabled
-			redisCfg.Addr = config.AppConfig.Redis.Addr
-			redisCfg.Password = config.AppConfig.Redis.Password
-			redisCfg.DB = config.AppConfig.Redis.DB
-			redisCfg.Prefix = config.AppConfig.Redis.Prefix
-			if d, err := time.ParseDuration(config.AppConfig.Redis.DialTimeout); err == nil {
-				redisCfg.DialTimeout = d
-			}
-			if d, err := time.ParseDuration(config.AppConfig.Redis.ReadTimeout); err == nil {
-				redisCfg.ReadTimeout = d
-			}
-			if d, err := time.ParseDuration(config.AppConfig.Redis.WriteTimeout); err == nil {
-				redisCfg.WriteTimeout = d
-			}
-		}
-
-		ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
-		if err := redisint.Connect(ctx, redisCfg); err != nil {
-			cancel()
-			log.Fatal("Failed to connect to redis:", err)
-		}
-		cancel()
-		defer redisint.Close()
-	}
-
 	// Connect to database
 	if err := database.Connect(); err != nil {
 		log.Fatal("Failed to connect to database:", err)
@@ -170,7 +135,6 @@ func main() {
 	orderItemRepo := orderitemrepo.NewRepository(database.DB)
 	checkInRepo := checkinrepo.NewRepository(database.DB)
 	gateRepo := gaterepo.NewRepository(database.DB)
-	gateStaffRepo := gatestaffrepo.NewRepository(database.DB)
 	userRepo := userrepo.NewRepository(database.DB)
 	merchandiseRepo := merchandiserepo.NewRepository(database.DB)
 	settingsRepo := settingsrepo.NewRepository(database.DB)
@@ -189,7 +153,7 @@ func main() {
 	orderItemService := orderitemservice.NewService(orderItemRepo, orderRepo, ticketCategoryRepo)
 	orderService := orderservice.NewService(orderRepo, ticketCategoryRepo, scheduleRepo, orderItemRepo, orderItemService)
 	checkInService := checkinservice.NewService(checkInRepo, orderItemRepo)
-	gateService := gateservice.NewService(gateRepo, gateStaffRepo, orderItemRepo, checkInRepo, checkInService)
+	gateService := gateservice.NewService(gateRepo, orderItemRepo, checkInRepo, checkInService)
 	userService := userservice.NewService(userRepo, roleRepo)
 	merchandiseService := merchandiseservice.NewService(merchandiseRepo)
 	settingsService := settingsservice.NewService(settingsRepo)
@@ -251,7 +215,6 @@ func main() {
 		ReadTimeout:       15 * time.Second,
 		WriteTimeout:      30 * time.Second,
 		IdleTimeout:       60 * time.Second,
-		MaxHeaderBytes:    maxHeaderBytes(),
 	}
 
 	go func() {
@@ -302,24 +265,13 @@ func setupRouter(
 	}
 
 	router := gin.New()
-	// Multipart memory budget (files beyond this go to temp file).
-	if config.AppConfig != nil && config.AppConfig.Server.MaxMultipartMemoryBytes > 0 {
-		router.MaxMultipartMemory = config.AppConfig.Server.MaxMultipartMemoryBytes
-	}
 	router.Use(gin.Recovery())
 
 	// Global middleware
-	router.Use(middleware.RequestIDMiddleware())
-	if config.AppConfig != nil {
-		router.Use(middleware.RequestTimeoutMiddleware(config.AppConfig.Server.RequestTimeout))
-	}
-	router.Use(middleware.SecurityHeadersMiddleware())
 	router.Use(middleware.LoggerMiddleware())
 	router.Use(middleware.CORSMiddleware())
-	if config.AppConfig != nil {
-		router.Use(middleware.BodySizeLimitMiddleware(config.AppConfig.Server.MaxBodyBytes))
-	}
-	router.Use(middleware.MetricsMiddleware())
+	router.Use(middleware.RequestIDMiddleware())
+	router.Use(middleware.RequestTimeoutMiddleware(30 * time.Second))
 
 	// Health check endpoints
 	router.GET("/health", func(c *gin.Context) {
@@ -334,10 +286,6 @@ func setupRouter(
 			"message": "pong",
 		})
 	})
-
-	// Observability endpoints
-	middleware.RegisterMetricsRoute(router)
-	middleware.RegisterDebugRoutes(router)
 
 	// Static file serving for uploads
 	router.Static("/uploads", "./uploads")
@@ -405,12 +353,4 @@ func setupRouter(
 	}
 
 	return router
-}
-
-func maxHeaderBytes() int {
-	if config.AppConfig != nil && config.AppConfig.Server.MaxHeaderBytes > 0 {
-		return config.AppConfig.Server.MaxHeaderBytes
-	}
-	// Safe default: 1 MiB
-	return 1 * 1024 * 1024
 }
