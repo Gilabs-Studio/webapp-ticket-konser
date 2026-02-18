@@ -15,6 +15,8 @@ export const purchaseOrderSchema = z.object({
   buyer_email: z.string().email("Invalid email format"),
   buyer_phone: z
     .string()
+    .min(10, "Phone number must be at least 10 characters")
+    .max(20, "Phone number must not exceed 20 characters")
     .regex(/^\+?[1-9]\d{1,14}$/, "Invalid phone number format (E.164)"),
 });
 
