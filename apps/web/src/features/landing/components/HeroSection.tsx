@@ -166,7 +166,7 @@ export default function HeroSection({ locale }: Readonly<HeroSectionProps>) {
           />
           <Button 
             className="relative z-10"
-            onClick={() => router.push("/events")}
+            onClick={() => router.push("/explore")}
           >
             {locale === "id" ? "Dapatkan Tiket" : "Get Tickets"}
           </Button>
