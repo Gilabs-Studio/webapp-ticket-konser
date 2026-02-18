@@ -2,12 +2,9 @@ package middleware
 
 import (
 	"fmt"
-	"log"
 	"sync"
 	"time"
 
-	appconfig "github.com/gilabs/webapp-ticket-konser/api/internal/config"
-	redisint "github.com/gilabs/webapp-ticket-konser/api/internal/integration/redis"
 	"github.com/gilabs/webapp-ticket-konser/api/pkg/errors"
 	"github.com/gin-gonic/gin"
 	"golang.org/x/time/rate"
@@ -34,10 +31,10 @@ type RateLimitConfig struct {
 // DefaultRateLimitConfig returns default rate limit configuration
 func DefaultRateLimitConfig() RateLimitConfig {
 	return RateLimitConfig{
-		Rate:              10.0,            // 10 requests per second
-		Burst:             20,              // Allow bursts of up to 20 requests
-		CleanupInterval:   1 * time.Minute, // Cleanup every minute
-		VisitorExpiration: 5 * time.Minute, // Delete visitors not seen for 5 minutes
+		Rate:             10.0,              // 10 requests per second
+		Burst:            20,                 // Allow bursts of up to 20 requests
+		CleanupInterval:  1 * time.Minute,    // Cleanup every minute
+		VisitorExpiration: 5 * time.Minute,    // Delete visitors not seen for 5 minutes
 	}
 }
 
@@ -45,59 +42,15 @@ func DefaultRateLimitConfig() RateLimitConfig {
 // More restrictive to prevent abuse
 func CheckInRateLimitConfig() RateLimitConfig {
 	return RateLimitConfig{
-		Rate:              5.0,             // 5 requests per second
-		Burst:             10,              // Allow bursts of up to 10 requests
-		CleanupInterval:   1 * time.Minute, // Cleanup every minute
-		VisitorExpiration: 5 * time.Minute, // Delete visitors not seen for 5 minutes
+		Rate:             5.0,                // 5 requests per second
+		Burst:            10,                  // Allow bursts of up to 10 requests
+		CleanupInterval:  1 * time.Minute,    // Cleanup every minute
+		VisitorExpiration: 5 * time.Minute,    // Delete visitors not seen for 5 minutes
 	}
 }
 
 // RateLimitMiddleware creates a rate limiting middleware
 func RateLimitMiddleware(config RateLimitConfig) gin.HandlerFunc {
-	// Prefer Redis-based limiter when enabled (consistent across replicas).
-	if redisint.Client != nil && appconfig.AppConfig != nil && appconfig.AppConfig.Redis.Enabled {
-		return func(c *gin.Context) {
-			ip := c.ClientIP()
-			path := c.FullPath()
-			if path == "" {
-				path = c.Request.URL.Path
-			}
-			key := redisint.Key(appconfig.AppConfig.Redis.Prefix, "rl", path, ip)
-
-			res, err := redisint.AllowTokenBucket(c.Request.Context(), key, config.Rate, config.Burst)
-			if err != nil {
-				// Fail-open on Redis issues to avoid global outage.
-				log.Printf("rate limit redis error (fail-open): %v", err)
-				c.Next()
-				return
-			}
-
-			if !res.Allowed {
-				c.Header("X-RateLimit-Limit", fmt.Sprintf("%d", config.Burst))
-				c.Header("X-RateLimit-Remaining", "0")
-				c.Header("X-RateLimit-Reset", fmt.Sprintf("%d", res.ResetUnix))
-
-				errors.ErrorResponse(c, "RATE_LIMIT_EXCEEDED", map[string]interface{}{
-					"limit":     config.Burst,
-					"remaining": 0,
-					"reset_at":  time.Unix(res.ResetUnix, 0).Format(time.RFC3339),
-				}, nil)
-				c.Abort()
-				return
-			}
-
-			remaining := int(res.Remaining)
-			if remaining < 0 {
-				remaining = 0
-			}
-			c.Header("X-RateLimit-Limit", fmt.Sprintf("%d", config.Burst))
-			c.Header("X-RateLimit-Remaining", fmt.Sprintf("%d", remaining))
-			c.Header("X-RateLimit-Reset", fmt.Sprintf("%d", res.ResetUnix))
-
-			c.Next()
-		}
-	}
-
 	visitors := make(map[string]*visitor)
 	var mu sync.Mutex
 
@@ -163,3 +116,36 @@ func RateLimitMiddleware(config RateLimitConfig) gin.HandlerFunc {
 func CheckInRateLimitMiddleware() gin.HandlerFunc {
 	return RateLimitMiddleware(CheckInRateLimitConfig())
 }
+
+// OrderRateLimitConfig returns rate limit configuration for order/payment endpoints
+// Stricter to prevent overselling and abuse during high-traffic purchase windows
+func OrderRateLimitConfig() RateLimitConfig {
+	return RateLimitConfig{
+		Rate:              5.0,              // 5 requests per second per IP
+		Burst:             10,               // Allow bursts of up to 10 requests
+		CleanupInterval:   1 * time.Minute,
+		VisitorExpiration:  5 * time.Minute,
+	}
+}
+
+// OrderRateLimitMiddleware creates a rate limiting middleware for order/payment endpoints
+func OrderRateLimitMiddleware() gin.HandlerFunc {
+	return RateLimitMiddleware(OrderRateLimitConfig())
+}
+
+// WebhookRateLimitConfig returns rate limit configuration for webhook endpoints
+// Prevents abuse while allowing legitimate payment gateway callbacks
+func WebhookRateLimitConfig() RateLimitConfig {
+	return RateLimitConfig{
+		Rate:              20.0,             // 20 requests per second per IP
+		Burst:             50,               // Allow bursts for batch callbacks
+		CleanupInterval:   1 * time.Minute,
+		VisitorExpiration:  5 * time.Minute,
+	}
+}
+
+// WebhookRateLimitMiddleware creates a rate limiting middleware for webhook endpoints
+func WebhookRateLimitMiddleware() gin.HandlerFunc {
+	return RateLimitMiddleware(WebhookRateLimitConfig())
+}
+

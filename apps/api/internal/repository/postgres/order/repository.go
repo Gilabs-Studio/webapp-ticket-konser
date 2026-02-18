@@ -96,6 +96,28 @@ func (r *Repository) FindExpiredUnpaidOrders() ([]*order.Order, error) {
 	return orders, nil
 }
 
+// FindByIdempotencyKey finds an order by idempotency key (for deduplication)
+func (r *Repository) FindByIdempotencyKey(key string) (*order.Order, error) {
+	var o order.Order
+	if err := r.db.Where("idempotency_key = ?", key).
+		Preload("User").Preload("Schedule.Event").
+		First(&o).Error; err != nil {
+		return nil, err
+	}
+	return &o, nil
+}
+
+// FindUnrestoredCanceledOrders finds canceled/failed orders where quota has not been restored
+func (r *Repository) FindUnrestoredCanceledOrders() ([]*order.Order, error) {
+	var orders []*order.Order
+	if err := r.db.Where("payment_status IN (?, ?) AND quota_restored = false",
+		order.PaymentStatusCanceled, order.PaymentStatusFailed).
+		Find(&orders).Error; err != nil {
+		return nil, err
+	}
+	return orders, nil
+}
+
 // List lists orders with filters
 func (r *Repository) List(page, perPage int, filters map[string]interface{}) ([]*order.Order, int64, error) {
 	var orders []*order.Order

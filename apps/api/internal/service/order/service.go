@@ -1,15 +1,14 @@
 package order
 
 import (
-	"context"
 	"errors"
 	"fmt"
 	"log"
-	"strconv"
 	"strings"
 	"time"
 
 	"github.com/gilabs/webapp-ticket-konser/api/internal/database"
+	"github.com/gilabs/webapp-ticket-konser/api/internal/domain/event"
 	"github.com/gilabs/webapp-ticket-konser/api/internal/domain/order"
 	orderitem "github.com/gilabs/webapp-ticket-konser/api/internal/domain/order_item"
 	"github.com/gilabs/webapp-ticket-konser/api/internal/domain/schedule"
@@ -21,7 +20,6 @@ import (
 	ticketcategoryrepo "github.com/gilabs/webapp-ticket-konser/api/internal/repository/interfaces/ticket_category"
 	"github.com/gilabs/webapp-ticket-konser/api/pkg/response"
 	"gorm.io/gorm"
-	"gorm.io/gorm/clause"
 )
 
 var (
@@ -237,8 +235,17 @@ func (s *Service) GetRecentOrders(limit int) ([]*order.OrderResponse, error) {
 	return responses, nil
 }
 
-// CreateOrder creates a new order with quota management and transaction lock
-func (s *Service) CreateOrder(req *order.CreateOrderRequest, userID string) (*order.OrderResponse, error) {
+// CreateOrder creates a new order with quota management, transaction lock, idempotency, and price snapshots
+func (s *Service) CreateOrder(req *order.CreateOrderRequest, userID string, idempotencyKey string) (*order.OrderResponse, error) {
+	// Idempotency check: if client provided a key, check for existing order with same key
+	if idempotencyKey != "" {
+		existingOrder, err := s.repo.FindByIdempotencyKey(idempotencyKey)
+		if err == nil && existingOrder != nil {
+			// Order already exists with this key — return existing order (deduplicated)
+			return existingOrder.ToOrderResponse(), nil
+		}
+	}
+
 	// Validate user exists before starting transaction
 	var userExists bool
 	if err := s.db.Raw("SELECT EXISTS(SELECT 1 FROM users WHERE id = ? AND deleted_at IS NULL)", userID).Scan(&userExists).Error; err != nil {
@@ -248,7 +255,7 @@ func (s *Service) CreateOrder(req *order.CreateOrderRequest, userID string) (*or
 		return nil, ErrUserNotFound
 	}
 
-	// Start transaction
+	// Start transaction with timeout to prevent indefinite lock holding
 	tx := s.db.Begin()
 	defer func() {
 		if r := recover(); r != nil {
@@ -256,9 +263,15 @@ func (s *Service) CreateOrder(req *order.CreateOrderRequest, userID string) (*or
 		}
 	}()
 
-	// Lock ticket category untuk prevent race condition
+	// Set transaction-level statement timeout (30s) to prevent long-held locks under spike
+	if err := tx.Exec("SET LOCAL statement_timeout = '30s'").Error; err != nil {
+		tx.Rollback()
+		return nil, fmt.Errorf("failed to set statement timeout: %w", err)
+	}
+
+	// Lock ticket category to prevent race condition (SELECT FOR UPDATE)
 	var ticketCategory ticketcategory.TicketCategory
-	if err := tx.Clauses(clause.Locking{Strength: "UPDATE"}).Where("id = ?", req.TicketCategoryID).First(&ticketCategory).Error; err != nil {
+	if err := tx.Set("gorm:query_option", "FOR UPDATE").Where("id = ?", req.TicketCategoryID).First(&ticketCategory).Error; err != nil {
 		tx.Rollback()
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, ErrTicketCategoryNotFound
@@ -272,9 +285,9 @@ func (s *Service) CreateOrder(req *order.CreateOrderRequest, userID string) (*or
 		return nil, ErrInsufficientQuota
 	}
 
-	// Lock schedule
-	var schedule schedule.Schedule
-	if err := tx.Clauses(clause.Locking{Strength: "UPDATE"}).Where("id = ?", req.ScheduleID).First(&schedule).Error; err != nil {
+	// Lock schedule (SELECT FOR UPDATE)
+	var sched schedule.Schedule
+	if err := tx.Set("gorm:query_option", "FOR UPDATE").Where("id = ?", req.ScheduleID).First(&sched).Error; err != nil {
 		tx.Rollback()
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, ErrScheduleNotFound
@@ -282,25 +295,35 @@ func (s *Service) CreateOrder(req *order.CreateOrderRequest, userID string) (*or
 		return nil, err
 	}
 
-	// Check remaining seats (note: field name is RemainingSeat, not RemainingSeats)
-	if schedule.RemainingSeat < req.Quantity {
+	// Check remaining seats
+	if sched.RemainingSeat < req.Quantity {
 		tx.Rollback()
 		return nil, ErrInsufficientSeats
 	}
 
-	// Calculate total amount
-	totalAmount := ticketCategory.Price * float64(req.Quantity)
+	// Fetch event name for snapshot (read-only, no lock needed)
+	eventName := ""
+	if sched.EventID != "" {
+		var evt event.Event
+		if err := tx.Where("id = ?", sched.EventID).First(&evt).Error; err == nil {
+			eventName = evt.EventName
+		}
+	}
 
-	// Decrement quota
+	// Snapshot the unit price and names at purchase time (immutable historical record)
+	unitPrice := ticketCategory.Price
+	totalAmount := unitPrice * float64(req.Quantity)
+
+	// Decrement quota atomically
 	ticketCategory.Quota -= req.Quantity
 	if err := tx.Save(&ticketCategory).Error; err != nil {
 		tx.Rollback()
 		return nil, err
 	}
 
-	// Decrement remaining seats
-	schedule.RemainingSeat -= req.Quantity
-	if err := tx.Save(&schedule).Error; err != nil {
+	// Decrement remaining seats atomically
+	sched.RemainingSeat -= req.Quantity
+	if err := tx.Save(&sched).Error; err != nil {
 		tx.Rollback()
 		return nil, err
 	}
@@ -308,18 +331,29 @@ func (s *Service) CreateOrder(req *order.CreateOrderRequest, userID string) (*or
 	// Set payment expiration (15 minutes from now)
 	paymentExpiresAt := time.Now().Add(15 * time.Minute)
 
-	// Create order
+	// Build idempotency key pointer
+	var idempotencyKeyPtr *string
+	if idempotencyKey != "" {
+		idempotencyKeyPtr = &idempotencyKey
+	}
+
+	// Create order with snapshot fields for historical data integrity
 	newOrder := &order.Order{
-		UserID:           userID,
-		ScheduleID:       req.ScheduleID,
-		TicketCategoryID: req.TicketCategoryID,
-		Quantity:         req.Quantity,
-		TotalAmount:      totalAmount,
-		PaymentStatus:    order.PaymentStatusUnpaid,
-		PaymentExpiresAt: &paymentExpiresAt,
-		BuyerName:        req.BuyerName,
-		BuyerEmail:       req.BuyerEmail,
-		BuyerPhone:       req.BuyerPhone,
+		UserID:               userID,
+		ScheduleID:           req.ScheduleID,
+		TicketCategoryID:     req.TicketCategoryID,
+		Quantity:             req.Quantity,
+		UnitPrice:            unitPrice,
+		TotalAmount:          totalAmount,
+		CategoryNameSnapshot: ticketCategory.CategoryName,
+		EventNameSnapshot:    eventName,
+		ScheduleNameSnapshot: sched.SessionName,
+		PaymentStatus:        order.PaymentStatusUnpaid,
+		PaymentExpiresAt:     &paymentExpiresAt,
+		IdempotencyKey:       idempotencyKeyPtr,
+		BuyerName:            req.BuyerName,
+		BuyerEmail:           req.BuyerEmail,
+		BuyerPhone:           req.BuyerPhone,
 	}
 
 	if err := tx.Create(newOrder).Error; err != nil {
@@ -332,7 +366,7 @@ func (s *Service) CreateOrder(req *order.CreateOrderRequest, userID string) (*or
 		return nil, err
 	}
 
-	// Reload order dengan relations
+	// Reload order with relations
 	createdOrder, err := s.repo.FindByID(newOrder.ID)
 	if err != nil {
 		return nil, err
@@ -341,8 +375,8 @@ func (s *Service) CreateOrder(req *order.CreateOrderRequest, userID string) (*or
 	return createdOrder.ToOrderResponse(), nil
 }
 
-// RestoreQuota restores quota and remaining seats for an order
-// Also cancels OrderItems if they exist (for orders that were PAID and OrderItems were generated)
+// RestoreQuota restores quota and remaining seats for an order (idempotent via QuotaRestored flag)
+// Uses SELECT FOR UPDATE on the order to prevent concurrent double-restoration
 func (s *Service) RestoreQuota(orderID string) error {
 	// Start transaction
 	tx := s.db.Begin()
@@ -352,27 +386,40 @@ func (s *Service) RestoreQuota(orderID string) error {
 		}
 	}()
 
-	// Load minimal order fields inside the same transaction
+	// Set transaction-level timeout
+	if err := tx.Exec("SET LOCAL statement_timeout = '30s'").Error; err != nil {
+		tx.Rollback()
+		return fmt.Errorf("failed to set statement timeout: %w", err)
+	}
+
+	// Lock the order row to prevent concurrent restore attempts
 	var o order.Order
-	if err := tx.Clauses(clause.Locking{Strength: "UPDATE"}).
-		Select("id", "ticket_category_id", "schedule_id", "quantity").
-		Where("id = ?", orderID).
-		First(&o).Error; err != nil {
+	if err := tx.Set("gorm:query_option", "FOR UPDATE").Where("id = ?", orderID).First(&o).Error; err != nil {
 		tx.Rollback()
-		return err
+		return fmt.Errorf("order not found: %w", err)
 	}
 
-	// Cancel OrderItems (untuk orders yang sudah PAID dan OrderItems sudah generated)
-	if err := tx.Model(&orderitem.OrderItem{}).
-		Where("order_id = ?", orderID).
-		Update("status", orderitem.TicketStatusCanceled).Error; err != nil {
+	// Idempotency guard: skip if quota was already restored
+	if o.QuotaRestored {
 		tx.Rollback()
-		return fmt.Errorf("failed to cancel order items: %w", err)
+		return nil
 	}
 
-	// Lock dan restore quota
+	// Cancel OrderItems if they exist (for orders that were PAID and OrderItems were generated)
+	orderItems, err := s.orderItemRepo.FindByOrderID(orderID)
+	if err == nil && len(orderItems) > 0 {
+		for _, item := range orderItems {
+			item.Status = orderitem.TicketStatusCanceled
+			if err := tx.Save(item).Error; err != nil {
+				tx.Rollback()
+				return fmt.Errorf("failed to cancel order item: %w", err)
+			}
+		}
+	}
+
+	// Lock and restore ticket category quota
 	var ticketCategory ticketcategory.TicketCategory
-	if err := tx.Clauses(clause.Locking{Strength: "UPDATE"}).Where("id = ?", o.TicketCategoryID).First(&ticketCategory).Error; err != nil {
+	if err := tx.Set("gorm:query_option", "FOR UPDATE").Where("id = ?", o.TicketCategoryID).First(&ticketCategory).Error; err != nil {
 		tx.Rollback()
 		return err
 	}
@@ -382,19 +429,26 @@ func (s *Service) RestoreQuota(orderID string) error {
 		return err
 	}
 
-	// Lock dan restore remaining seats
-	var schedule schedule.Schedule
-	if err := tx.Clauses(clause.Locking{Strength: "UPDATE"}).Where("id = ?", o.ScheduleID).First(&schedule).Error; err != nil {
+	// Lock and restore schedule remaining seats
+	var sched schedule.Schedule
+	if err := tx.Set("gorm:query_option", "FOR UPDATE").Where("id = ?", o.ScheduleID).First(&sched).Error; err != nil {
 		tx.Rollback()
 		return err
 	}
-	schedule.RemainingSeat += o.Quantity
-	if err := tx.Save(&schedule).Error; err != nil {
+	sched.RemainingSeat += o.Quantity
+	if err := tx.Save(&sched).Error; err != nil {
 		tx.Rollback()
 		return err
 	}
 
-	// Commit
+	// Mark quota as restored (prevents double-restoration on concurrent webhook + cron race)
+	o.QuotaRestored = true
+	if err := tx.Save(&o).Error; err != nil {
+		tx.Rollback()
+		return fmt.Errorf("failed to mark quota as restored: %w", err)
+	}
+
+	// Commit atomically
 	if err := tx.Commit().Error; err != nil {
 		return err
 	}
@@ -402,85 +456,9 @@ func (s *Service) RestoreQuota(orderID string) error {
 	return nil
 }
 
-// ExpireAndRestoreQuota atomically cancels an expired UNPAID order and restores quota/seats.
-// Returns (true, nil) if the order was expired and processed; (false, nil) if no action needed.
-func (s *Service) ExpireAndRestoreQuota(orderID string) (bool, error) {
-	now := time.Now()
-
-	tx := s.db.Begin()
-	defer func() {
-		if r := recover(); r != nil {
-			tx.Rollback()
-		}
-	}()
-
-	// Lock order row and read only what we need
-	var o order.Order
-	if err := tx.Clauses(clause.Locking{Strength: "UPDATE"}).
-		Select("id", "payment_status", "payment_expires_at", "ticket_category_id", "schedule_id", "quantity").
-		Where("id = ?", orderID).
-		First(&o).Error; err != nil {
-		tx.Rollback()
-		return false, err
-	}
-
-	if o.PaymentStatus != order.PaymentStatusUnpaid {
-		_ = tx.Commit().Error
-		return false, nil
-	}
-	if o.PaymentExpiresAt == nil || o.PaymentExpiresAt.After(now) {
-		_ = tx.Commit().Error
-		return false, nil
-	}
-
-	// Mark order as canceled + clear temporary QRIS code
-	if err := tx.Model(&order.Order{}).
-		Where("id = ?", o.ID).
-		Updates(map[string]interface{}{
-			"payment_status": order.PaymentStatusCanceled,
-			"qris_code":      nil,
-		}).Error; err != nil {
-		tx.Rollback()
-		return false, err
-	}
-
-	// Cancel order items if any
-	if err := tx.Model(&orderitem.OrderItem{}).
-		Where("order_id = ?", o.ID).
-		Update("status", orderitem.TicketStatusCanceled).Error; err != nil {
-		tx.Rollback()
-		return false, fmt.Errorf("failed to cancel order items: %w", err)
-	}
-
-	// Restore ticket category quota
-	var ticketCategory ticketcategory.TicketCategory
-	if err := tx.Clauses(clause.Locking{Strength: "UPDATE"}).Where("id = ?", o.TicketCategoryID).First(&ticketCategory).Error; err != nil {
-		tx.Rollback()
-		return false, err
-	}
-	ticketCategory.Quota += o.Quantity
-	if err := tx.Save(&ticketCategory).Error; err != nil {
-		tx.Rollback()
-		return false, err
-	}
-
-	// Restore schedule remaining seats
-	var sched schedule.Schedule
-	if err := tx.Clauses(clause.Locking{Strength: "UPDATE"}).Where("id = ?", o.ScheduleID).First(&sched).Error; err != nil {
-		tx.Rollback()
-		return false, err
-	}
-	sched.RemainingSeat += o.Quantity
-	if err := tx.Save(&sched).Error; err != nil {
-		tx.Rollback()
-		return false, err
-	}
-
-	if err := tx.Commit().Error; err != nil {
-		return false, err
-	}
-
-	return true, nil
+// FindUnrestoredCanceledOrders finds canceled/failed orders where quota has not been restored
+func (s *Service) FindUnrestoredCanceledOrders() ([]*order.Order, error) {
+	return s.repo.FindUnrestoredCanceledOrders()
 }
 
 // FindExpiredUnpaidOrders finds expired unpaid orders
@@ -501,11 +479,6 @@ func (s *Service) CancelExpiredOrder(orderID string) error {
 
 // InitiatePayment initiates payment via Midtrans
 func (s *Service) InitiatePayment(orderID string, paymentMethod string) (*PaymentInitiationResponse, error) {
-	return s.InitiatePaymentWithContext(context.Background(), orderID, paymentMethod)
-}
-
-// InitiatePaymentWithContext initiates payment via Midtrans with request context.
-func (s *Service) InitiatePaymentWithContext(ctx context.Context, orderID string, paymentMethod string) (*PaymentInitiationResponse, error) {
 	// Find order
 	o, err := s.repo.FindByID(orderID)
 	if err != nil {
@@ -554,7 +527,7 @@ func (s *Service) InitiatePaymentWithContext(ctx context.Context, orderID string
 		}
 
 		// If no QRIS code in database, check Midtrans status (might have QRIS code)
-		statusResp, err := midtransClient.GetTransactionStatusWithContext(ctx, *o.MidtransTransactionID)
+		statusResp, err := midtransClient.GetTransactionStatus(*o.MidtransTransactionID)
 		if err == nil {
 			// If transaction is still pending and we have QRIS code from Midtrans, save it and return
 			if statusResp.TransactionStatus == "pending" && statusResp.QRISCode != "" {
@@ -657,7 +630,7 @@ func (s *Service) InitiatePaymentWithContext(ctx context.Context, orderID string
 	}
 
 	// Call Midtrans API
-	midtransResp, err := midtransClient.CreateTransactionWithContext(ctx, midtransReq)
+	midtransResp, err := midtransClient.CreateTransaction(midtransReq)
 	if err != nil {
 		log.Printf("[InitiatePayment] Error creating Midtrans transaction for order %s: %v", orderID, err)
 		return nil, fmt.Errorf("failed to create midtrans transaction: %w", err)
@@ -719,11 +692,6 @@ func (s *Service) InitiatePaymentWithContext(ctx context.Context, orderID string
 
 // CheckPaymentStatus checks payment status from Midtrans
 func (s *Service) CheckPaymentStatus(orderID string) (*PaymentStatusResponse, error) {
-	return s.CheckPaymentStatusWithContext(context.Background(), orderID)
-}
-
-// CheckPaymentStatusWithContext checks payment status from Midtrans with request context.
-func (s *Service) CheckPaymentStatusWithContext(ctx context.Context, orderID string) (*PaymentStatusResponse, error) {
 	// Find order
 	o, err := s.repo.FindByID(orderID)
 	if err != nil {
@@ -755,7 +723,7 @@ func (s *Service) CheckPaymentStatusWithContext(ctx context.Context, orderID str
 	midtransClient := midtrans.NewClient()
 
 	// Check status from Midtrans
-	statusResp, err := midtransClient.GetTransactionStatusWithContext(ctx, *o.MidtransTransactionID)
+	statusResp, err := midtransClient.GetTransactionStatus(*o.MidtransTransactionID)
 	if err != nil {
 		// If Midtrans API fails, return current status from DB with QRIS code if available
 		transactionID := ""
@@ -793,19 +761,7 @@ func (s *Service) CheckPaymentStatusWithContext(ctx context.Context, orderID str
 		paymentStatus = o.PaymentStatus // Keep current status
 	}
 
-	// Never downgrade terminal statuses.
-	// Once PAID/REFUNDED/CANCELED/FAILED, keep it stable unless Midtrans says settlement.
-	if o.PaymentStatus == order.PaymentStatusPaid ||
-		o.PaymentStatus == order.PaymentStatusRefunded ||
-		o.PaymentStatus == order.PaymentStatusCanceled ||
-		o.PaymentStatus == order.PaymentStatusFailed {
-		if paymentStatus != order.PaymentStatusPaid {
-			paymentStatus = o.PaymentStatus
-		}
-	}
-
 	// Update order status if changed
-	oldStatus := o.PaymentStatus
 	if paymentStatus != o.PaymentStatus {
 		o.PaymentStatus = paymentStatus
 		// Clear QRIS code if payment is no longer pending
@@ -814,19 +770,6 @@ func (s *Service) CheckPaymentStatusWithContext(ctx context.Context, orderID str
 		}
 		if err := s.repo.Update(o); err != nil {
 			// Log error but continue
-		}
-
-		// If status changed to PAID, trigger OrderItem generation (same behavior as webhook)
-		if paymentStatus == order.PaymentStatusPaid && oldStatus == order.PaymentStatusUnpaid {
-			categories := []string{o.TicketCategoryID}
-			quantities := []int{o.Quantity}
-			if s.orderItemService != nil {
-				_, err := s.orderItemService.GenerateTickets(o.ID, categories, quantities)
-				if err != nil {
-					// Log error but don't fail payment status check
-					log.Printf("[CheckPaymentStatus] Error generating tickets for order %s: %v", o.ID, err)
-				}
-			}
 		}
 	}
 
@@ -912,24 +855,15 @@ func (s *Service) ProcessPaymentWebhook(payload *midtrans.WebhookPayload) error 
 		return fmt.Errorf("invalid webhook signature")
 	}
 
-	// Process atomically with row lock to avoid concurrent webhook/polling/job races
-	tx := s.db.Begin()
-	defer func() {
-		if r := recover(); r != nil {
-			tx.Rollback()
-		}
-	}()
-
-	// Find + lock order by order code
-	var o order.Order
-	if err := tx.Clauses(clause.Locking{Strength: "UPDATE"}).Where("order_code = ?", payload.OrderID).First(&o).Error; err != nil {
-		tx.Rollback()
+	// Find order by order code
+	o, err := s.repo.FindByOrderCode(payload.OrderID)
+	if err != nil {
 		return fmt.Errorf("order not found: %w", err)
 	}
 
 	// Verify payment amount (convert gross_amount string to float64)
-	grossAmount, err := strconv.ParseFloat(strings.TrimSpace(payload.GrossAmount), 64)
-	if err != nil {
+	var grossAmount float64
+	if _, err := fmt.Sscanf(payload.GrossAmount, "%f", &grossAmount); err != nil {
 		return fmt.Errorf("invalid gross amount format: %w", err)
 	}
 
@@ -938,9 +872,9 @@ func (s *Service) ProcessPaymentWebhook(payload *midtrans.WebhookPayload) error 
 		return fmt.Errorf("payment amount mismatch: expected %.2f, got %.2f", o.TotalAmount, grossAmount)
 	}
 
-	// Check idempotency - if order already processed for this transaction and not UNPAID, skip
+	// Check idempotency - if order already processed with same status, skip
 	if o.MidtransTransactionID != nil && *o.MidtransTransactionID == payload.TransactionID && o.PaymentStatus != order.PaymentStatusUnpaid {
-		_ = tx.Commit().Error
+		// Already processed, return success
 		return nil
 	}
 
@@ -960,20 +894,8 @@ func (s *Service) ProcessPaymentWebhook(payload *midtrans.WebhookPayload) error 
 		return nil
 	}
 
+	// Update order
 	oldStatus := o.PaymentStatus
-
-	// Never downgrade terminal statuses.
-	if oldStatus == order.PaymentStatusPaid ||
-		oldStatus == order.PaymentStatusRefunded ||
-		oldStatus == order.PaymentStatusCanceled ||
-		oldStatus == order.PaymentStatusFailed {
-		if newPaymentStatus != order.PaymentStatusPaid {
-			_ = tx.Commit().Error
-			return nil
-		}
-	}
-
-	// Apply status + transaction info
 	o.PaymentStatus = newPaymentStatus
 	transactionID := payload.TransactionID
 	o.MidtransTransactionID = &transactionID
@@ -984,51 +906,20 @@ func (s *Service) ProcessPaymentWebhook(payload *midtrans.WebhookPayload) error 
 		o.QRISCode = nil
 	}
 
-	if err := tx.Save(&o).Error; err != nil {
-		tx.Rollback()
+	if err := s.repo.Update(o); err != nil {
 		return fmt.Errorf("failed to update order: %w", err)
 	}
 
-	// If status changed to CANCELED or FAILED, restore quota atomically within this tx
-	if (newPaymentStatus == order.PaymentStatusCanceled || newPaymentStatus == order.PaymentStatusFailed) && oldStatus == order.PaymentStatusUnpaid {
-		// Cancel order items if any
-		if err := tx.Model(&orderitem.OrderItem{}).
-			Where("order_id = ?", o.ID).
-			Update("status", orderitem.TicketStatusCanceled).Error; err != nil {
-			tx.Rollback()
-			return fmt.Errorf("failed to cancel order items: %w", err)
-		}
-
-		// Restore ticket category quota
-		var ticketCategory ticketcategory.TicketCategory
-		if err := tx.Clauses(clause.Locking{Strength: "UPDATE"}).Where("id = ?", o.TicketCategoryID).First(&ticketCategory).Error; err != nil {
-			tx.Rollback()
-			return err
-		}
-		ticketCategory.Quota += o.Quantity
-		if err := tx.Save(&ticketCategory).Error; err != nil {
-			tx.Rollback()
-			return err
-		}
-
-		// Restore schedule remaining seats
-		var sched schedule.Schedule
-		if err := tx.Clauses(clause.Locking{Strength: "UPDATE"}).Where("id = ?", o.ScheduleID).First(&sched).Error; err != nil {
-			tx.Rollback()
-			return err
-		}
-		sched.RemainingSeat += o.Quantity
-		if err := tx.Save(&sched).Error; err != nil {
-			tx.Rollback()
-			return err
+	// If status changed to CANCELED or FAILED, restore quota
+	if (newPaymentStatus == order.PaymentStatusCanceled || newPaymentStatus == order.PaymentStatusFailed) &&
+		oldStatus == order.PaymentStatusUnpaid {
+		if err := s.RestoreQuota(o.ID); err != nil {
+			// Log error but don't fail webhook processing
+			// Quota restore can be retried manually if needed
 		}
 	}
 
-	if err := tx.Commit().Error; err != nil {
-		return err
-	}
-
-	// If status changed to PAID, trigger OrderItem generation (post-commit)
+	// If status changed to PAID, trigger OrderItem generation
 	if newPaymentStatus == order.PaymentStatusPaid && oldStatus == order.PaymentStatusUnpaid {
 		// Generate OrderItems for this order
 		// Use order's TicketCategoryID and Quantity to generate tickets

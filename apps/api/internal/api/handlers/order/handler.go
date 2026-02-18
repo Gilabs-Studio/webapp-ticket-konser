@@ -176,6 +176,7 @@ func (h *Handler) GetRecentOrders(c *gin.Context) {
 
 // CreateOrder creates a new order (Guest API)
 // POST /api/v1/orders
+// Supports X-Idempotency-Key header for deduplication (prevents double orders on network retries)
 func (h *Handler) CreateOrder(c *gin.Context) {
 	// Get user ID from context (set by AuthMiddleware)
 	userID, exists := c.Get("user_id")
@@ -190,6 +191,9 @@ func (h *Handler) CreateOrder(c *gin.Context) {
 		return
 	}
 
+	// Extract idempotency key from header for deduplication
+	idempotencyKey := c.GetHeader("X-Idempotency-Key")
+
 	var req order.CreateOrderRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		if validationErrors, ok := err.(validator.ValidationErrors); ok {
@@ -200,7 +204,7 @@ func (h *Handler) CreateOrder(c *gin.Context) {
 		return
 	}
 
-	createdOrder, err := h.orderService.CreateOrder(&req, userIDStr)
+	createdOrder, err := h.orderService.CreateOrder(&req, userIDStr, idempotencyKey)
 	if err != nil {
 		if err == orderservice.ErrUserNotFound {
 			errors.ErrorResponse(c, "USER_NOT_FOUND", map[string]interface{}{

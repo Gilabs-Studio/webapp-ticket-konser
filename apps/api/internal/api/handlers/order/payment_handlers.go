@@ -67,7 +67,7 @@ func (h *Handler) InitiatePayment(c *gin.Context) {
 	}
 
 	// Initiate payment
-	paymentResp, err := h.orderService.InitiatePaymentWithContext(c.Request.Context(), id, req.PaymentMethod)
+	paymentResp, err := h.orderService.InitiatePayment(id, req.PaymentMethod)
 	if err != nil {
 		errMsg := err.Error()
 		if errMsg == "order is not unpaid" {
@@ -154,7 +154,7 @@ func (h *Handler) CheckPaymentStatus(c *gin.Context) {
 	}
 
 	// Check payment status
-	statusResp, err := h.orderService.CheckPaymentStatusWithContext(c.Request.Context(), id)
+	statusResp, err := h.orderService.CheckPaymentStatus(id)
 	if err != nil {
 		if err == orderservice.ErrOrderNotFound {
 			errors.NotFoundResponse(c, "order", id)

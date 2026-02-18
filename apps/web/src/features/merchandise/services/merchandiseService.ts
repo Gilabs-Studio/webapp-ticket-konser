@@ -341,6 +341,83 @@ export const merchandiseService = {
   },
 
   /**
+   * Get public list of active merchandise (no auth required)
+   */
+  async getPublicMerchandise(filters?: {
+    page?: number;
+    per_page?: number;
+  }): Promise<ApiResponse<MerchandiseProduct[]>> {
+    const params = new URLSearchParams();
+    if (filters?.page) {
+      params.append("page", filters.page.toString());
+    }
+    if (filters?.per_page) {
+      params.append("per_page", filters.per_page.toString());
+    }
+
+    const response = await apiClient.get<ApiResponse<MerchandiseResponse[]>>(
+      `/public/merchandise?${params.toString()}`,
+    );
+
+    const products: MerchandiseProduct[] = (response.data.data ?? []).map(
+      (m) => ({
+        id: m.id,
+        name: m.name,
+        description: m.description,
+        price: m.price,
+        priceFormatted: m.price_formatted,
+        stock: m.stock,
+        stockStatus: m.stock_status,
+        stockPercentage: m.stock_percentage,
+        variant: m.variant,
+        iconName: m.icon_name ?? "Package",
+        imageUrl: getFullImageUrl(m.image_url),
+        isActive: m.status === "active",
+      }),
+    );
+
+    return {
+      success: response.data.success,
+      data: products,
+      meta: response.data.meta,
+      timestamp: response.data.timestamp,
+      request_id: response.data.request_id,
+    };
+  },
+
+  /**
+   * Get public merchandise by ID (no auth required)
+   */
+  async getPublicMerchandiseById(id: string): Promise<ApiResponse<MerchandiseProduct>> {
+    const response = await apiClient.get<ApiResponse<MerchandiseResponse>>(
+      `/public/merchandise/${id}`,
+    );
+
+    const product: MerchandiseProduct = {
+      id: response.data.data.id,
+      name: response.data.data.name,
+      description: response.data.data.description,
+      price: response.data.data.price,
+      priceFormatted: response.data.data.price_formatted,
+      stock: response.data.data.stock,
+      stockStatus: response.data.data.stock_status,
+      stockPercentage: response.data.data.stock_percentage,
+      variant: response.data.data.variant,
+      iconName: response.data.data.icon_name ?? "Package",
+      imageUrl: getFullImageUrl(response.data.data.image_url),
+      isActive: response.data.data.status === "active",
+    };
+
+    return {
+      success: response.data.success,
+      data: product,
+      meta: response.data.meta,
+      timestamp: response.data.timestamp,
+      request_id: response.data.request_id,
+    };
+  },
+
+  /**
    * Upload merchandise image
    */
   async uploadMerchandiseImage(
