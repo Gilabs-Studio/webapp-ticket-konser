@@ -44,7 +44,7 @@ export function DesktopScanner({
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
         {/* Camera Stage (8/12) */}
         <div className="lg:col-span-8 space-y-6">
-          <div className="relative aspect-video bg-muted/20 rounded-4xl overflow-hidden border border-border/50 group transition-all duration-500">
+          <div className="relative aspect-video bg-muted/20 rounded-md overflow-hidden border border-border/50 group transition-all duration-500">
             <video
               ref={videoRef}
               className="w-full h-full object-cover opacity-90 transition-opacity duration-700 group-hover:opacity-100"
@@ -56,8 +56,8 @@ export function DesktopScanner({
             {/* Minimalist Viewfinder Overlay */}
             {isScanning && (
               <div className="absolute inset-0 z-10 flex items-center justify-center pointer-events-none">
-                <div className="relative w-48 h-48 border border-primary/20 rounded-3xl backdrop-blur-[2px]">
-                   <div className="absolute inset-0 border-2 border-primary/30 rounded-3xl animate-pulse" />
+                <div className="relative w-48 h-48 border border-primary/20 rounded-md backdrop-blur-[2px]">
+                   <div className="absolute inset-0 border-2 border-primary/30 rounded-md animate-pulse" />
                    <div className="absolute top-1/2 left-4 right-4 h-0.5 bg-primary/40 shadow-[0_0_15px_rgba(var(--primary),0.3)] animate-scan-line" />
                 </div>
               </div>
@@ -65,13 +65,13 @@ export function DesktopScanner({
 
             {!isScanning && !isProcessing && (
               <div className="absolute inset-0 z-10 flex flex-col items-center justify-center bg-background/60 backdrop-blur-md">
-                <div className="w-20 h-20 bg-background rounded-3xl flex items-center justify-center mb-8 border border-border shadow-sm group-hover:scale-105 transition-transform duration-500">
+                <div className="w-20 h-20 bg-background rounded-md flex items-center justify-center mb-8 border border-border shadow-sm group-hover:scale-105 transition-transform duration-500">
                   <Camera className="h-8 w-8 text-primary/60" />
                 </div>
                 <Button
                   onClick={startScanning}
                   size="lg"
-                  className="rounded-full px-10 h-12 text-sm shadow-md transition-all cursor-pointer font-bold uppercase tracking-widest"
+                  className="rounded-md px-10 h-12 text-sm shadow-md transition-all cursor-pointer font-bold uppercase tracking-widest"
                 >
                   <Scan className="mr-2 h-4 w-4" />
                   Initialize Camera
@@ -144,7 +144,7 @@ export function DesktopScanner({
                   value={manualQRCode}
                   onChange={(e) => setManualQRCode(e.target.value)}
                   placeholder="Enter ticket code"
-                  className="h-12 rounded-xl bg-muted/30 border border-border/60 px-5 text-sm font-medium focus-visible:ring-primary/10 transition-all"
+                  className="h-12 rounded-md bg-muted/30 border border-border/60 px-5 text-sm font-medium focus-visible:ring-primary/10 transition-all"
                   onKeyDown={(e) => {
                     if (e.key === "Enter" && !isProcessing) {
                       handleManualCheckIn();
@@ -156,7 +156,7 @@ export function DesktopScanner({
                   <Button 
                     onClick={handleManualCheckIn} 
                     disabled={!manualQRCode.trim() || isProcessing || validatePending || checkInPending}
-                    className="h-full px-4 rounded-lg cursor-pointer text-[10px] font-bold uppercase tracking-wider"
+                    className="h-full px-4 rounded-md cursor-pointer text-[10px] font-bold uppercase tracking-wider"
                     variant="ghost"
                   >
                     {validatePending || checkInPending ? (
