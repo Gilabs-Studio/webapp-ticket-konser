@@ -54,6 +54,7 @@ import (
 	dashboardrepo "github.com/gilabs/webapp-ticket-konser/api/internal/repository/postgres/dashboard"
 	eventrepo "github.com/gilabs/webapp-ticket-konser/api/internal/repository/postgres/event"
 	gaterepo "github.com/gilabs/webapp-ticket-konser/api/internal/repository/postgres/gate"
+	gatestaffrepo "github.com/gilabs/webapp-ticket-konser/api/internal/repository/postgres/gate_staff"
 	menurepo "github.com/gilabs/webapp-ticket-konser/api/internal/repository/postgres/menu"
 	merchandiserepo "github.com/gilabs/webapp-ticket-konser/api/internal/repository/postgres/merchandise"
 	orderrepo "github.com/gilabs/webapp-ticket-konser/api/internal/repository/postgres/order"
@@ -135,6 +136,7 @@ func main() {
 	orderItemRepo := orderitemrepo.NewRepository(database.DB)
 	checkInRepo := checkinrepo.NewRepository(database.DB)
 	gateRepo := gaterepo.NewRepository(database.DB)
+	gateStaffRepo := gatestaffrepo.NewRepository(database.DB)
 	userRepo := userrepo.NewRepository(database.DB)
 	merchandiseRepo := merchandiserepo.NewRepository(database.DB)
 	settingsRepo := settingsrepo.NewRepository(database.DB)
@@ -153,7 +155,7 @@ func main() {
 	orderItemService := orderitemservice.NewService(orderItemRepo, orderRepo, ticketCategoryRepo)
 	orderService := orderservice.NewService(orderRepo, ticketCategoryRepo, scheduleRepo, orderItemRepo, orderItemService)
 	checkInService := checkinservice.NewService(checkInRepo, orderItemRepo)
-	gateService := gateservice.NewService(gateRepo, orderItemRepo, checkInRepo, checkInService)
+	gateService := gateservice.NewService(gateRepo, gateStaffRepo, orderItemRepo, checkInRepo, checkInService)
 	userService := userservice.NewService(userRepo, roleRepo)
 	merchandiseService := merchandiseservice.NewService(merchandiseRepo)
 	settingsService := settingsservice.NewService(settingsRepo)

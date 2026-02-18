@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { QRCodeScanner } from "@/features/checkin/components/QRCodeScanner";
 import { useMyGatesEnabled } from "@/features/gate/hooks/useGates";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
@@ -21,19 +21,16 @@ export function ScannerPageClient() {
   const isAdmin = ["admin", "super_admin"].includes(userRole);
 
   const { data, isLoading, isError } = useMyGatesEnabled(!isAdmin);
-  const gates = data?.data ?? [];
+  const gates = useMemo(() => data?.data ?? [], [data]);
 
   const [selectedGateId, setSelectedGateId] = useState<string>("");
 
-  useEffect(() => {
-    if (!selectedGateId && gates.length === 1) {
-      setSelectedGateId(gates[0]?.id ?? "");
-    }
-  }, [gates, selectedGateId]);
+  // Auto-select the only available gate when there is exactly one
+  const effectiveGateId = gates.length === 1 ? (gates[0]?.id ?? "") : selectedGateId;
 
   const selectedGate = useMemo(
-    () => gates.find((g) => g.id === selectedGateId),
-    [gates, selectedGateId],
+    () => gates.find((g) => g.id === effectiveGateId),
+    [gates, effectiveGateId],
   );
 
   return (
@@ -77,7 +74,7 @@ export function ScannerPageClient() {
             )}
 
             {!isLoading && !isError && gates.length > 1 && (
-              <Select value={selectedGateId} onValueChange={setSelectedGateId}>
+              <Select value={effectiveGateId} onValueChange={setSelectedGateId}>
                 <SelectTrigger>
                   <SelectValue placeholder="Pilih gate untuk scan" />
                 </SelectTrigger>
@@ -91,9 +88,9 @@ export function ScannerPageClient() {
               </Select>
             )}
 
-            {!!selectedGateId && (
+            {!!effectiveGateId && (
               <QRCodeScanner
-                gateId={selectedGateId}
+                gateId={effectiveGateId}
                 location={selectedGate?.location ?? undefined}
               />
             )}
