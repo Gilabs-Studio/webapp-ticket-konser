@@ -36,7 +36,7 @@ export default function Header({ locale }: HeaderProps) {
   // Determine user role for menu customization
   const userRole = getNormalizedRoleCode(user?.role);
   const isAdmin = ["admin", "super_admin"].includes(userRole);
-  const isStaff = ["staff_ticket", "gate_staff"].includes(userRole);
+  const isStaff = ["staff_ticket", "gate_staff", "gatekeeper"].includes(userRole);
   const isGuest = Boolean(isAuthenticated && user && !isAdmin && !isStaff);
 
   return (

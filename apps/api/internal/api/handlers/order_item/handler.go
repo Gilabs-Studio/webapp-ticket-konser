@@ -252,6 +252,21 @@ func (h *Handler) GetMyOrderTickets(c *gin.Context) {
 		return
 	}
 
+	// Self-healing: if order is PAID but tickets are missing, generate now.
+	// This covers cases where payment status became PAID via polling (payment-status) or other paths.
+	if len(tickets) == 0 && string(order.PaymentStatus) == "PAID" {
+		categories := []string{order.TicketCategoryID}
+		quantities := []int{order.Quantity}
+		if _, genErr := h.orderItemService.GenerateTickets(orderID, categories, quantities); genErr == nil {
+			// Re-fetch after generation
+			tickets, err = h.orderItemService.GetByOrderID(orderID)
+			if err != nil {
+				apierrors.InternalServerErrorResponse(c, "")
+				return
+			}
+		}
+	}
+
 	meta := &response.Meta{}
 	response.SuccessResponse(c, tickets, meta)
 }

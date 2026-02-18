@@ -3,8 +3,8 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "cross-env DROP_TABLES=true go run ./cmd/server/main.go",
-    "dev:keep": "cross-env go run ./cmd/server/main.go",
+    "dev": "node ./scripts/dev-go.js --drop-tables",
+    "dev:keep": "node ./scripts/dev-go.js",
     "build": "go build -o bin/server ./cmd/server/main.go",
     "start": "./bin/server",
     "test": "go test ./...",

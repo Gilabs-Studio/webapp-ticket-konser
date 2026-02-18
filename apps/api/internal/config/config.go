@@ -5,6 +5,7 @@ import (
 	"log"
 	"os"
 	"strings"
+	"time"
 
 	"github.com/joho/godotenv"
 )
@@ -22,6 +23,19 @@ type Config struct {
 type ServerConfig struct {
 	Port string
 	Env  string
+
+	// Request/transport hardening
+	// MaxBodyBytes limits the size of incoming request bodies.
+	// MaxHeaderBytes limits the size of request headers at the HTTP server level.
+	MaxBodyBytes   int64
+	MaxHeaderBytes int
+
+	// MaxMultipartMemoryBytes controls how much of a multipart form is kept in memory
+	// before being stored in a temporary file.
+	MaxMultipartMemoryBytes int64
+
+	// RequestTimeout is applied as a per-request context deadline.
+	RequestTimeout time.Duration
 }
 
 type DatabaseConfig struct {
@@ -68,6 +82,7 @@ type RedisConfig struct {
 
 type ObservabilityConfig struct {
 	MetricsEnabled bool
+	MetricsToken   string
 	PprofEnabled   bool
 	DebugToken     string
 }
@@ -144,6 +159,10 @@ func Load() error {
 		Server: ServerConfig{
 			Port: getEnv("PORT", "8083"),
 			Env:  env,
+			MaxBodyBytes:           getEnvAsInt64("MAX_BODY_BYTES", 10*1024*1024),
+			MaxHeaderBytes:         getEnvAsInt("MAX_HEADER_BYTES", 1*1024*1024),
+			MaxMultipartMemoryBytes: getEnvAsInt64("MAX_MULTIPART_MEMORY_BYTES", 10*1024*1024),
+			RequestTimeout:         getEnvAsDuration("REQUEST_TIMEOUT", 25*time.Second),
 		},
 		Database: DatabaseConfig{
 			Host:     getEnv("DB_HOST", "localhost"),
@@ -172,6 +191,7 @@ func Load() error {
 		},
 		Obs: ObservabilityConfig{
 			MetricsEnabled: getEnv("METRICS_ENABLED", "true") == "true",
+			MetricsToken:   getEnv("METRICS_TOKEN", ""),
 			PprofEnabled:   getEnv("PPROF_ENABLED", "false") == "true",
 			DebugToken:     getEnv("DEBUG_TOKEN", ""),
 		},
@@ -227,6 +247,31 @@ func getEnvAsInt(key string, defaultValue int) int {
 		return defaultValue
 	}
 	return value
+}
+
+func getEnvAsInt64(key string, defaultValue int64) int64 {
+	valueStr := os.Getenv(key)
+	if valueStr == "" {
+		return defaultValue
+	}
+	var value int64
+	_, err := fmt.Sscanf(valueStr, "%d", &value)
+	if err != nil {
+		return defaultValue
+	}
+	return value
+}
+
+func getEnvAsDuration(key string, defaultValue time.Duration) time.Duration {
+	valueStr := strings.TrimSpace(os.Getenv(key))
+	if valueStr == "" {
+		return defaultValue
+	}
+	d, err := time.ParseDuration(valueStr)
+	if err != nil {
+		return defaultValue
+	}
+	return d
 }
 
 func GetDSN() string {

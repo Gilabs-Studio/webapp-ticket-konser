@@ -113,7 +113,7 @@ func (r *Repository) GetByID(id string) (*ticket.Ticket, error) {
 	var cat ticketcategory.TicketCategory
 	if err := r.db.Preload("Event").Where("id = ?", id).First(&cat).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, ErrTicketNotFound
+			return nil, errors.Join(gorm.ErrRecordNotFound, ErrTicketNotFound)
 		}
 		return nil, err
 	}

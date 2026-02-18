@@ -30,7 +30,7 @@ func (r *Repository) FindByID(id string) (*gate.Gate, error) {
 	var g gate.Gate
 	if err := r.db.Where("id = ?", id).First(&g).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, ErrGateNotFound
+			return nil, errors.Join(gorm.ErrRecordNotFound, ErrGateNotFound)
 		}
 		return nil, err
 	}
@@ -42,7 +42,7 @@ func (r *Repository) FindByCode(code string) (*gate.Gate, error) {
 	var g gate.Gate
 	if err := r.db.Where("code = ?", code).First(&g).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, ErrGateNotFound
+			return nil, errors.Join(gorm.ErrRecordNotFound, ErrGateNotFound)
 		}
 		return nil, err
 	}

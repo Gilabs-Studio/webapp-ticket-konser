@@ -8,6 +8,7 @@ import (
 	"github.com/gilabs/webapp-ticket-konser/api/internal/domain/checkin"
 	"github.com/gilabs/webapp-ticket-konser/api/internal/domain/gate"
 	checkinrepo "github.com/gilabs/webapp-ticket-konser/api/internal/repository/interfaces/checkin"
+	gatestaffrepo "github.com/gilabs/webapp-ticket-konser/api/internal/repository/interfaces/gate_staff"
 	gaterepo "github.com/gilabs/webapp-ticket-konser/api/internal/repository/interfaces/gate"
 	orderitemrepo "github.com/gilabs/webapp-ticket-konser/api/internal/repository/interfaces/order_item"
 	checkinservice "github.com/gilabs/webapp-ticket-konser/api/internal/service/checkin"
@@ -26,6 +27,7 @@ var (
 
 type Service struct {
 	gateRepo      gaterepo.Repository
+	gateStaffRepo gatestaffrepo.Repository
 	orderItemRepo orderitemrepo.Repository
 	checkInRepo   checkinrepo.Repository
 	checkInService *checkinservice.Service
@@ -33,16 +35,59 @@ type Service struct {
 
 func NewService(
 	gateRepo gaterepo.Repository,
+	gateStaffRepo gatestaffrepo.Repository,
 	orderItemRepo orderitemrepo.Repository,
 	checkInRepo checkinrepo.Repository,
 	checkInService *checkinservice.Service,
 ) *Service {
 	return &Service{
 		gateRepo:       gateRepo,
+		gateStaffRepo:  gateStaffRepo,
 		orderItemRepo:  orderItemRepo,
 		checkInRepo:    checkInRepo,
 		checkInService: checkInService,
 	}
+}
+
+// ListMyGates returns gates assigned to a given staff (gatekeeper).
+func (s *Service) ListMyGates(staffID string) ([]*gate.GateResponse, error) {
+	gates, err := s.gateStaffRepo.ListGatesByStaffID(staffID)
+	if err != nil {
+		return nil, err
+	}
+
+	resp := make([]*gate.GateResponse, 0, len(gates))
+	for _, g := range gates {
+		if g == nil {
+			continue
+		}
+		resp = append(resp, g.ToGateResponse())
+	}
+	return resp, nil
+}
+
+// AssignStaffToGate assigns a staff member to a gate (admin only via routing).
+func (s *Service) AssignStaffToGate(gateID, staffID string) error {
+	// Validate gate exists
+	if _, err := s.gateRepo.FindByID(gateID); err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return ErrGateNotFound
+		}
+		return err
+	}
+	return s.gateStaffRepo.Assign(gateID, staffID)
+}
+
+// UnassignStaffFromGate removes a staff member from a gate (admin only via routing).
+func (s *Service) UnassignStaffFromGate(gateID, staffID string) error {
+	// Validate gate exists
+	if _, err := s.gateRepo.FindByID(gateID); err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return ErrGateNotFound
+		}
+		return err
+	}
+	return s.gateStaffRepo.Unassign(gateID, staffID)
 }
 
 // GetByID returns a gate by ID
@@ -250,7 +295,7 @@ func (s *Service) AssignTicketToGate(req *gate.AssignTicketToGateRequest) error 
 }
 
 // GateCheckIn performs check-in at a specific gate
-func (s *Service) GateCheckIn(req *gate.GateCheckInRequest, staffID, ipAddress, userAgent string) (*checkin.CheckInResultResponse, error) {
+func (s *Service) GateCheckIn(req *gate.GateCheckInRequest, staffID, ipAddress, userAgent string, isAdmin bool) (*checkin.CheckInResultResponse, error) {
 	// Validate gate exists and is active
 	g, err := s.gateRepo.FindByID(req.GateID)
 	if err != nil {
@@ -274,6 +319,25 @@ func (s *Service) GateCheckIn(req *gate.GateCheckInRequest, staffID, ipAddress, 
 			Message:   "Gate tidak aktif",
 			ErrorCode: "GATE_INACTIVE",
 		}, ErrGateInactive
+	}
+
+	// Enforce staff-gate assignment for non-admin gatekeepers
+	if !isAdmin {
+		assigned, err := s.gateStaffRepo.IsStaffAssignedToGate(req.GateID, staffID)
+		if err != nil {
+			return &checkin.CheckInResultResponse{
+				Success:   false,
+				Message:   "Terjadi kesalahan saat cek assignment gate",
+				ErrorCode: "GATE_ASSIGNMENT_CHECK_ERROR",
+			}, err
+		}
+		if !assigned {
+			return &checkin.CheckInResultResponse{
+				Success:   false,
+				Message:   "Anda tidak ditugaskan untuk gate ini",
+				ErrorCode: "GATE_STAFF_NOT_ASSIGNED",
+			}, nil
+		}
 	}
 
 	// Check gate capacity if set

@@ -55,6 +55,7 @@ import (
 	dashboardrepo "github.com/gilabs/webapp-ticket-konser/api/internal/repository/postgres/dashboard"
 	eventrepo "github.com/gilabs/webapp-ticket-konser/api/internal/repository/postgres/event"
 	gaterepo "github.com/gilabs/webapp-ticket-konser/api/internal/repository/postgres/gate"
+	gatestaffrepo "github.com/gilabs/webapp-ticket-konser/api/internal/repository/postgres/gate_staff"
 	menurepo "github.com/gilabs/webapp-ticket-konser/api/internal/repository/postgres/menu"
 	merchandiserepo "github.com/gilabs/webapp-ticket-konser/api/internal/repository/postgres/merchandise"
 	orderrepo "github.com/gilabs/webapp-ticket-konser/api/internal/repository/postgres/order"
@@ -169,6 +170,7 @@ func main() {
 	orderItemRepo := orderitemrepo.NewRepository(database.DB)
 	checkInRepo := checkinrepo.NewRepository(database.DB)
 	gateRepo := gaterepo.NewRepository(database.DB)
+	gateStaffRepo := gatestaffrepo.NewRepository(database.DB)
 	userRepo := userrepo.NewRepository(database.DB)
 	merchandiseRepo := merchandiserepo.NewRepository(database.DB)
 	settingsRepo := settingsrepo.NewRepository(database.DB)
@@ -187,7 +189,7 @@ func main() {
 	orderItemService := orderitemservice.NewService(orderItemRepo, orderRepo, ticketCategoryRepo)
 	orderService := orderservice.NewService(orderRepo, ticketCategoryRepo, scheduleRepo, orderItemRepo, orderItemService)
 	checkInService := checkinservice.NewService(checkInRepo, orderItemRepo)
-	gateService := gateservice.NewService(gateRepo, orderItemRepo, checkInRepo, checkInService)
+	gateService := gateservice.NewService(gateRepo, gateStaffRepo, orderItemRepo, checkInRepo, checkInService)
 	userService := userservice.NewService(userRepo, roleRepo)
 	merchandiseService := merchandiseservice.NewService(merchandiseRepo)
 	settingsService := settingsservice.NewService(settingsRepo)
@@ -249,6 +251,7 @@ func main() {
 		ReadTimeout:       15 * time.Second,
 		WriteTimeout:      30 * time.Second,
 		IdleTimeout:       60 * time.Second,
+		MaxHeaderBytes:    maxHeaderBytes(),
 	}
 
 	go func() {
@@ -299,12 +302,23 @@ func setupRouter(
 	}
 
 	router := gin.New()
+	// Multipart memory budget (files beyond this go to temp file).
+	if config.AppConfig != nil && config.AppConfig.Server.MaxMultipartMemoryBytes > 0 {
+		router.MaxMultipartMemory = config.AppConfig.Server.MaxMultipartMemoryBytes
+	}
 	router.Use(gin.Recovery())
 
 	// Global middleware
+	router.Use(middleware.RequestIDMiddleware())
+	if config.AppConfig != nil {
+		router.Use(middleware.RequestTimeoutMiddleware(config.AppConfig.Server.RequestTimeout))
+	}
+	router.Use(middleware.SecurityHeadersMiddleware())
 	router.Use(middleware.LoggerMiddleware())
 	router.Use(middleware.CORSMiddleware())
-	router.Use(middleware.RequestIDMiddleware())
+	if config.AppConfig != nil {
+		router.Use(middleware.BodySizeLimitMiddleware(config.AppConfig.Server.MaxBodyBytes))
+	}
 	router.Use(middleware.MetricsMiddleware())
 
 	// Health check endpoints
@@ -391,4 +405,12 @@ func setupRouter(
 	}
 
 	return router
+}
+
+func maxHeaderBytes() int {
+	if config.AppConfig != nil && config.AppConfig.Server.MaxHeaderBytes > 0 {
+		return config.AppConfig.Server.MaxHeaderBytes
+	}
+	// Safe default: 1 MiB
+	return 1 * 1024 * 1024
 }

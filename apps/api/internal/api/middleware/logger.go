@@ -23,17 +23,25 @@ func LoggerMiddleware() gin.HandlerFunc {
 		method := c.Request.Method
 		statusCode := c.Writer.Status()
 
+		reqID := ""
+		if v, ok := c.Get("request_id"); ok {
+			if s, ok := v.(string); ok {
+				reqID = s
+			}
+		}
+
 		if raw != "" {
 			path = path + "?" + raw
 		}
 
 		logger.Logger.Printf(
-			"[%d] %s %s %s %s",
+			"[%d] %s %s %s %s req_id=%s",
 			statusCode,
 			method,
 			path,
 			clientIP,
 			latency,
+			reqID,
 		)
 	}
 }

@@ -19,6 +19,7 @@ func SetupRoutes(
 	// Check-in routes (authenticated users)
 	checkInRoutes := router.Group("/check-in")
 	checkInRoutes.Use(middleware.AuthMiddleware(jwtManager))
+	checkInRoutes.Use(middleware.RequirePermission("checkin.create", roleRepo))
 	checkInRoutes.Use(middleware.CheckInRateLimitMiddleware()) // Rate limiting for check-in endpoints
 	{
 		checkInRoutes.POST("/validate", checkInHandler.ValidateQRCode)                                                                        // Validate QR code

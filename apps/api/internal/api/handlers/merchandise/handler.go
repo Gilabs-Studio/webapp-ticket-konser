@@ -1,6 +1,7 @@
 package merchandise
 
 import (
+	stderrors "errors"
 	"fmt"
 	"net/http"
 	"os"
@@ -186,6 +187,13 @@ func (h *Handler) UploadImage(c *gin.Context) {
 	// Get file from form data
 	file, err := c.FormFile("image")
 	if err != nil {
+		var mbe *http.MaxBytesError
+		if stderrors.As(err, &mbe) {
+			errors.ErrorResponse(c, "PAYLOAD_TOO_LARGE", map[string]interface{}{
+				"max_body_bytes": mbe.Limit,
+			}, nil)
+			return
+		}
 		errors.ErrorResponse(c, "VALIDATION_ERROR", map[string]interface{}{
 			"reason": "Image file is required",
 			"field":  "image",

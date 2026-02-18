@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useTranslations } from "next-intl";
 import { checkInService } from "../services/checkInService";
+import { gateService } from "@/features/gate/services/gateService";
 import type {
   CheckInFilters,
   CheckInRequest,
@@ -40,7 +41,17 @@ export function useCheckIn() {
   const t = useTranslations("checkin.checkIn");
 
   return useMutation({
-    mutationFn: (request: CheckInRequest) => checkInService.checkIn(request),
+    mutationFn: (request: CheckInRequest) => {
+      if (request.gate_id) {
+        return gateService.gateCheckIn(request.gate_id, {
+          qr_code: request.qr_code,
+          gate_id: request.gate_id,
+          location: request.location,
+        });
+      }
+
+      return checkInService.checkIn(request);
+    },
     onSuccess: (response) => {
       // API response structure: {success: true, data: CheckInResultResponse, ...}
       const checkInData = response.data;

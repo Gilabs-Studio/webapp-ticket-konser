@@ -21,7 +21,7 @@ const (
 // CheckIn represents a check-in entity
 type CheckIn struct {
 	ID           string            `gorm:"type:uuid;primary_key;default:gen_random_uuid()" json:"id"`
-	OrderItemID  string            `gorm:"type:uuid;not null;index" json:"order_item_id"`
+	OrderItemID  string            `gorm:"type:uuid;not null;uniqueIndex" json:"order_item_id"`
 	OrderItem    *orderitem.OrderItem `gorm:"foreignKey:OrderItemID" json:"order_item,omitempty"`
 	QRCode       string            `gorm:"type:varchar(255);not null;index" json:"qr_code"`
 	GateID       *string           `gorm:"type:uuid;index" json:"gate_id,omitempty"`

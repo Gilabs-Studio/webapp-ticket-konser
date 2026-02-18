@@ -29,7 +29,7 @@ func (r *Repository) FindByID(id string) (*role.Role, error) {
 	var roleEntity role.Role
 	if err := r.db.Where("id = ?", id).First(&roleEntity).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, ErrRoleNotFound
+			return nil, errors.Join(gorm.ErrRecordNotFound, ErrRoleNotFound)
 		}
 		return nil, err
 	}
@@ -41,7 +41,7 @@ func (r *Repository) FindByCode(code string) (*role.Role, error) {
 	var roleEntity role.Role
 	if err := r.db.Where("code = ?", code).First(&roleEntity).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, ErrRoleNotFound
+			return nil, errors.Join(gorm.ErrRecordNotFound, ErrRoleNotFound)
 		}
 		return nil, err
 	}

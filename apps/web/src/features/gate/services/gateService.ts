@@ -13,6 +13,14 @@ import type { CheckInResultResponse } from "@/features/checkin/types";
 
 export const gateService = {
   /**
+   * Get gates assigned to current staff (gatekeeper)
+   */
+  async getMyGates(): Promise<ApiResponse<Gate[]>> {
+    const response = await apiClient.get<ApiResponse<Gate[]>>("/gates/my");
+    return response.data;
+  },
+
+  /**
    * Get list of gates with pagination and filters
    */
   async getGates(filters?: GateFilters): Promise<ApiResponse<Gate[]>> {

@@ -11,13 +11,17 @@ import (
 // Seed seeds role-permission relationships
 // Only assigns permissions to admin role (no new roles created)
 func Seed() error {
-	// Get admin role only
+	// Get admin role
 	var adminRole role.Role
 	if err := database.DB.Where("code = ?", "admin").First(&adminRole).Error; err != nil {
 		log.Printf("⚠️  [Role Permission Seeder] Admin role not found: %v", err)
 		log.Println("⚠️  [Role Permission Seeder] Please seed roles first before seeding role permissions")
 		return err
 	}
+
+	// Gatekeeper role is optional (older DB might not have it yet)
+	var gatekeeperRole role.Role
+	gatekeeperRoleFound := database.DB.Where("code = ?", "gatekeeper").First(&gatekeeperRole).Error == nil
 
 	// Get all permissions
 	var allPermissions []permission.Permission
@@ -62,6 +66,40 @@ func Seed() error {
 		}
 	}
 	log.Printf("[Role Permission Seeder] Admin role: Assigned %d new permissions, Skipped %d existing permissions", assignedCount, skippedCount)
+
+	// Gatekeeper gets minimal permissions for scanning + attendees
+	if gatekeeperRoleFound {
+		gatekeeperPerms := map[string]bool{
+			"attendee.read": true,
+			"checkin.create": true,
+		}
+
+		gAssigned := 0
+		gSkipped := 0
+		for _, p := range allPermissions {
+			if !gatekeeperPerms[p.Code] {
+				continue
+			}
+
+			var count int64
+			database.DB.Model(&role.RolePermission{}).
+				Where("role_id = ? AND permission_id = ?", gatekeeperRole.ID, p.ID).
+				Count(&count)
+
+			if count == 0 {
+				rp := role.RolePermission{RoleID: gatekeeperRole.ID, PermissionID: p.ID}
+				if err := database.DB.Create(&rp).Error; err != nil {
+					return err
+				}
+				log.Printf("[Role Permission Seeder] ✅ Assigned permission %s to gatekeeper role", p.Code)
+				gAssigned++
+			} else {
+				gSkipped++
+			}
+		}
+		log.Printf("[Role Permission Seeder] Gatekeeper role: Assigned %d new permissions, Skipped %d existing permissions", gAssigned, gSkipped)
+	}
+
 	log.Println("[Role Permission Seeder] ✅ Role permissions seeded successfully")
 	return nil
 }

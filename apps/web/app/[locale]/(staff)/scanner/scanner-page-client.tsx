@@ -1,8 +1,41 @@
 "use client";
 
+import { useEffect, useMemo, useState } from "react";
 import { QRCodeScanner } from "@/features/checkin/components/QRCodeScanner";
+import { useMyGatesEnabled } from "@/features/gate/hooks/useGates";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Loader2 } from "lucide-react";
+import { useAuthStore } from "@/features/auth/stores/useAuthStore";
+import { getNormalizedRoleCode } from "@/features/auth/utils/role";
 
 export function ScannerPageClient() {
+  const { user } = useAuthStore();
+  const userRole = getNormalizedRoleCode(user?.role);
+  const isAdmin = ["admin", "super_admin"].includes(userRole);
+
+  const { data, isLoading, isError } = useMyGatesEnabled(!isAdmin);
+  const gates = data?.data ?? [];
+
+  const [selectedGateId, setSelectedGateId] = useState<string>("");
+
+  useEffect(() => {
+    if (!selectedGateId && gates.length === 1) {
+      setSelectedGateId(gates[0]?.id ?? "");
+    }
+  }, [gates, selectedGateId]);
+
+  const selectedGate = useMemo(
+    () => gates.find((g) => g.id === selectedGateId),
+    [gates, selectedGateId],
+  );
+
   return (
     <div className="space-y-6">
       <div>
@@ -12,7 +45,61 @@ export function ScannerPageClient() {
         </p>
       </div>
 
-      <QRCodeScanner />
+      {isAdmin && <QRCodeScanner />}
+
+      {!isAdmin && (
+        <>
+          {isLoading && (
+            <div className="flex items-center gap-2 text-muted-foreground">
+              <Loader2 className="h-4 w-4 animate-spin" />
+              <span>Memuat gate...</span>
+            </div>
+          )}
+
+          {isError && (
+            <Alert variant="destructive">
+              <AlertTitle>Gagal memuat gate</AlertTitle>
+              <AlertDescription>
+                Tidak bisa mengambil daftar gate yang di-assign untuk akun ini.
+              </AlertDescription>
+            </Alert>
+          )}
+
+          {!isLoading && !isError && gates.length === 0 && (
+            <Alert variant="destructive">
+              <AlertTitle>Belum ada gate</AlertTitle>
+              <AlertDescription>
+                Akun ini belum di-assign ke gate mana pun. Hubungi admin untuk
+                meng-assign gate.
+              </AlertDescription>
+            </Alert>
+          )}
+
+          {!isLoading && !isError && gates.length > 1 && (
+            <div className="max-w-2xl">
+              <Select value={selectedGateId} onValueChange={setSelectedGateId}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Pilih gate untuk scan" />
+                </SelectTrigger>
+                <SelectContent>
+                  {gates.map((gate) => (
+                    <SelectItem key={gate.id} value={gate.id}>
+                      {gate.name} ({gate.code})
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          )}
+
+          {!!selectedGateId && (
+            <QRCodeScanner
+              gateId={selectedGateId}
+              location={selectedGate?.location ?? undefined}
+            />
+          )}
+        </>
+      )}
     </div>
   );
 }

@@ -29,7 +29,7 @@ func (r *Repository) FindByID(id string) (*event.Event, error) {
 	var e event.Event
 	if err := r.db.Where("id = ?", id).First(&e).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, ErrEventNotFound
+			return nil, errors.Join(gorm.ErrRecordNotFound, ErrEventNotFound)
 		}
 		return nil, err
 	}
@@ -41,7 +41,7 @@ func (r *Repository) FindByName(name string) (*event.Event, error) {
 	var e event.Event
 	if err := r.db.Where("event_name = ?", name).First(&e).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, ErrEventNotFound
+			return nil, errors.Join(gorm.ErrRecordNotFound, ErrEventNotFound)
 		}
 		return nil, err
 	}
