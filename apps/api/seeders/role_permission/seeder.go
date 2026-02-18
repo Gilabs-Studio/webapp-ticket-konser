@@ -1,105 +1,165 @@
 package role_permission
 
 import (
-	"log"
+"log"
 
-	"github.com/gilabs/webapp-ticket-konser/api/internal/database"
-	"github.com/gilabs/webapp-ticket-konser/api/internal/domain/permission"
-	"github.com/gilabs/webapp-ticket-konser/api/internal/domain/role"
+"github.com/gilabs/webapp-ticket-konser/api/internal/database"
+"github.com/gilabs/webapp-ticket-konser/api/internal/domain/permission"
+"github.com/gilabs/webapp-ticket-konser/api/internal/domain/role"
 )
 
 // Seed seeds role-permission relationships
-// Only assigns permissions to admin role (no new roles created)
 func Seed() error {
-	// Get admin role
-	var adminRole role.Role
-	if err := database.DB.Where("code = ?", "admin").First(&adminRole).Error; err != nil {
-		log.Printf("⚠️  [Role Permission Seeder] Admin role not found: %v", err)
-		log.Println("⚠️  [Role Permission Seeder] Please seed roles first before seeding role permissions")
-		return err
-	}
+// 1. Assign all permissions to Admin
+if err := assignAllToAdmin(); err != nil {
+return err
+}
 
-	// Gatekeeper role is optional (older DB might not have it yet)
-	var gatekeeperRole role.Role
-	gatekeeperRoleFound := database.DB.Where("code = ?", "gatekeeper").First(&gatekeeperRole).Error == nil
+// 2. Assign specific permissions to Staff Ticket
+if err := assignToStaffTicket(); err != nil {
+return err
+}
 
-	// Get all permissions
-	var allPermissions []permission.Permission
-	if err := database.DB.Find(&allPermissions).Error; err != nil {
-		return err
-	}
+// 3. Assign gatekeeper permissions (optional role)
+if err := assignToGatekeeper(); err != nil {
+return err
+}
 
-	if len(allPermissions) == 0 {
-		log.Println("⚠️  [Role Permission Seeder] No permissions found, skipping...")
-		log.Println("⚠️  [Role Permission Seeder] Please seed permissions first before seeding role permissions")
-		return nil
-	}
+log.Println("[Role Permission Seeder] Role permissions seeded successfully")
+return nil
+}
 
-	// Admin gets all permissions (including ticket_category, schedule, event, order, ticket, etc.)
-	// This ensures admin has access to all features including:
-	// - Ticket Category Management (create, read, update, delete)
-	// - Schedule Management (create, read, update, delete)
-	// - Event Management
-	// - Order Management
-	// - E-Ticket Management (generate, view, update, delete)
-	// - And all other permissions
-	assignedCount := 0
-	skippedCount := 0
-	for _, p := range allPermissions {
-		var count int64
-		database.DB.Model(&role.RolePermission{}).
-			Where("role_id = ? AND permission_id = ?", adminRole.ID, p.ID).
-			Count(&count)
+func assignAllToAdmin() error {
+var adminRole role.Role
+if err := database.DB.Where("code = ?", "admin").First(&adminRole).Error; err != nil {
+log.Printf("[Role Permission Seeder] Admin role not found: %v", err)
+return err
+}
 
-		if count == 0 {
-			rp := role.RolePermission{
-				RoleID:       adminRole.ID,
-				PermissionID: p.ID,
-			}
-			if err := database.DB.Create(&rp).Error; err != nil {
-				return err
-			}
-			log.Printf("[Role Permission Seeder] ✅ Assigned permission %s to admin role", p.Code)
-			assignedCount++
-		} else {
-			skippedCount++
-		}
-	}
-	log.Printf("[Role Permission Seeder] Admin role: Assigned %d new permissions, Skipped %d existing permissions", assignedCount, skippedCount)
+var allPermissions []permission.Permission
+if err := database.DB.Find(&allPermissions).Error; err != nil {
+return err
+}
 
-	// Gatekeeper gets minimal permissions for scanning + attendees
-	if gatekeeperRoleFound {
-		gatekeeperPerms := map[string]bool{
-			"attendee.read": true,
-			"checkin.create": true,
-		}
+assignedCount := 0
+skippedCount := 0
+for _, p := range allPermissions {
+var count int64
+database.DB.Model(&role.RolePermission{}).
+Where("role_id = ? AND permission_id = ?", adminRole.ID, p.ID).
+Count(&count)
 
-		gAssigned := 0
-		gSkipped := 0
-		for _, p := range allPermissions {
-			if !gatekeeperPerms[p.Code] {
-				continue
-			}
+if count == 0 {
+rp := role.RolePermission{
+RoleID:       adminRole.ID,
+PermissionID: p.ID,
+}
+if err := database.DB.Create(&rp).Error; err != nil {
+return err
+}
+assignedCount++
+} else {
+skippedCount++
+}
+}
+log.Printf("[Role Permission Seeder] Admin role: Assigned %d new permissions, Skipped %d existing permissions", assignedCount, skippedCount)
+return nil
+}
 
-			var count int64
-			database.DB.Model(&role.RolePermission{}).
-				Where("role_id = ? AND permission_id = ?", gatekeeperRole.ID, p.ID).
-				Count(&count)
+func assignToStaffTicket() error {
+var staffRole role.Role
+if err := database.DB.Where("code = ?", "staff_ticket").First(&staffRole).Error; err != nil {
+log.Printf("[Role Permission Seeder] Staff Ticket role not found: %v", err)
+return err
+}
 
-			if count == 0 {
-				rp := role.RolePermission{RoleID: gatekeeperRole.ID, PermissionID: p.ID}
-				if err := database.DB.Create(&rp).Error; err != nil {
-					return err
-				}
-				log.Printf("[Role Permission Seeder] ✅ Assigned permission %s to gatekeeper role", p.Code)
-				gAssigned++
-			} else {
-				gSkipped++
-			}
-		}
-		log.Printf("[Role Permission Seeder] Gatekeeper role: Assigned %d new permissions, Skipped %d existing permissions", gAssigned, gSkipped)
-	}
+staffPermissions := []string{
+"checkin.read",
+"checkin.create",
+"ticket.read",
+"event.read",
+"ticket_category.read",
+"schedule.read",
+"gate.read",
+"dashboard.read",
+}
 
-	log.Println("[Role Permission Seeder] ✅ Role permissions seeded successfully")
-	return nil
+assignedCount := 0
+skippedCount := 0
+
+for _, code := range staffPermissions {
+var p permission.Permission
+if err := database.DB.Where("code = ?", code).First(&p).Error; err != nil {
+log.Printf("[Role Permission Seeder] Permission %s not found, skipping...", code)
+continue
+}
+
+var count int64
+database.DB.Model(&role.RolePermission{}).
+Where("role_id = ? AND permission_id = ?", staffRole.ID, p.ID).
+Count(&count)
+
+if count == 0 {
+rp := role.RolePermission{
+RoleID:       staffRole.ID,
+PermissionID: p.ID,
+}
+if err := database.DB.Create(&rp).Error; err != nil {
+return err
+}
+log.Printf("[Role Permission Seeder] Assigned permission %s to staff_ticket role", code)
+assignedCount++
+} else {
+skippedCount++
+}
+}
+
+log.Printf("[Role Permission Seeder] Staff Ticket role: Assigned %d new permissions, Skipped %d existing permissions", assignedCount, skippedCount)
+return nil
+}
+
+// assignToGatekeeper assigns minimal scanning permissions to the gatekeeper role.
+// This role is optional — older databases may not have it yet.
+func assignToGatekeeper() error {
+var gatekeeperRole role.Role
+if database.DB.Where("code = ?", "gatekeeper").First(&gatekeeperRole).Error != nil {
+log.Println("[Role Permission Seeder] Gatekeeper role not found, skipping...")
+return nil
+}
+
+var allPermissions []permission.Permission
+if err := database.DB.Find(&allPermissions).Error; err != nil {
+return err
+}
+
+gatekeeperPerms := map[string]bool{
+"attendee.read":  true,
+"checkin.create": true,
+}
+
+gAssigned := 0
+gSkipped := 0
+for _, p := range allPermissions {
+if !gatekeeperPerms[p.Code] {
+continue
+}
+
+var count int64
+database.DB.Model(&role.RolePermission{}).
+Where("role_id = ? AND permission_id = ?", gatekeeperRole.ID, p.ID).
+Count(&count)
+
+if count == 0 {
+rp := role.RolePermission{RoleID: gatekeeperRole.ID, PermissionID: p.ID}
+if err := database.DB.Create(&rp).Error; err != nil {
+return err
+}
+log.Printf("[Role Permission Seeder] Assigned permission %s to gatekeeper role", p.Code)
+gAssigned++
+} else {
+gSkipped++
+}
+}
+log.Printf("[Role Permission Seeder] Gatekeeper role: Assigned %d new permissions, Skipped %d existing permissions", gAssigned, gSkipped)
+return nil
 }
