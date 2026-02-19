@@ -1,6 +1,7 @@
 import apiClient from "@/lib/api-client";
 import type {
   ApiResponse,
+  AssignStaffToGateRequest,
   AssignTicketToGateRequest,
   CreateGateRequest,
   Gate,
@@ -8,12 +9,13 @@ import type {
   GateFilters,
   GateStatistics,
   UpdateGateRequest,
+  User,
 } from "../types";
 import type { CheckInResultResponse } from "@/features/checkin/types";
 
 export const gateService = {
   /**
-   * Get gates assigned to current staff (gatekeeper)
+   * Get gates assigned to current staff member
    */
   async getMyGates(): Promise<ApiResponse<Gate[]>> {
     const response = await apiClient.get<ApiResponse<Gate[]>>("/gates/my");
@@ -125,5 +127,39 @@ export const gateService = {
       `/gates/${gateId}/statistics`,
     );
     return response.data;
+  },
+
+  /**
+   * Get staff members assigned to a gate
+   */
+  async getAssignedStaff(gateId: string): Promise<ApiResponse<User[]>> {
+    const response = await apiClient.get<ApiResponse<User[]>>(
+      `/gates/${gateId}/staff`,
+    );
+    return response.data;
+  },
+
+  /**
+   * Assign staff to gate
+   */
+  async assignStaffToGate(
+    gateId: string,
+    request: AssignStaffToGateRequest,
+  ): Promise<ApiResponse<{ message: string }>> {
+    const response = await apiClient.post<ApiResponse<{ message: string }>>(
+      `/gates/${gateId}/assign-staff`,
+      request,
+    );
+    return response.data;
+  },
+
+  /**
+   * Unassign staff from gate
+   */
+  async unassignStaffFromGate(
+    gateId: string,
+    staffId: string,
+  ): Promise<void> {
+    await apiClient.delete(`/gates/${gateId}/assign-staff/${staffId}`);
   },
 };

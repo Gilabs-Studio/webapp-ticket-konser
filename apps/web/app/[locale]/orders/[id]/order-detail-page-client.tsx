@@ -4,10 +4,12 @@ import { useRouter } from "@/i18n/routing";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ArrowLeft, CreditCard, Calendar, User, Package } from "lucide-react";
-import { useMyOrder } from "@/features/orders/hooks/useOrders";
+import { useMyOrder, usePaymentStatus } from "@/features/orders/hooks/useOrders";
 import { OrderStatusBadge } from "@/features/orders/components/OrderStatusBadge";
 import { formatDate, formatCurrency } from "@/lib/utils";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useQueryClient } from "@tanstack/react-query";
+import { useEffect } from "react";
 
 interface OrderDetailPageClientProps {
   readonly orderId: string;
@@ -17,9 +19,23 @@ export function OrderDetailPageClient({
   orderId,
 }: OrderDetailPageClientProps) {
   const router = useRouter();
+  const queryClient = useQueryClient();
   const { data: orderData, isLoading } = useMyOrder(orderId);
 
   const order = orderData?.data;
+
+  // Poll for payment status if order is unpaid
+  const isUnpaid = order?.payment_status === "UNPAID";
+  const { data: statusData } = usePaymentStatus(orderId, isUnpaid);
+  const currentStatus = statusData?.data?.payment_status;
+
+  // If status changes to PAID in polling, refresh the order data
+  useEffect(() => {
+    if (isUnpaid && currentStatus === "PAID") {
+      queryClient.invalidateQueries({ queryKey: ["orders", "my", orderId] });
+      queryClient.invalidateQueries({ queryKey: ["orders", "my"] });
+    }
+  }, [currentStatus, isUnpaid, orderId, queryClient]);
 
   if (isLoading) {
     return (

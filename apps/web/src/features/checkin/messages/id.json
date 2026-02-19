@@ -7,6 +7,8 @@
       "description": "Kami memerlukan akses kamera untuk scan QR code",
       "denied": "Izin Ditolak",
       "deniedMessage": "Silakan berikan izin akses kamera untuk menggunakan scanner.",
+      "insecureContext": "Koneksi Tidak Aman",
+      "insecureContextMessage": "Akses kamera memerlukan koneksi aman (HTTPS). Silakan gunakan HTTPS atau akses melalui localhost.",
       "requestButton": "Minta Izin Kamera"
     },
     "manualInput": {

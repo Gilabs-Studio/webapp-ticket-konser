@@ -18,9 +18,10 @@ func SetupRoutes(
 	roleRepo role.Repository,
 	jwtManager *jwt.JWTManager,
 ) {
-	// Payment webhook (no auth - called by Midtrans, rate limited to prevent abuse)
+	// Payment webhook (no auth - called by Midtrans, rate + IP limited to prevent abuse)
 	webhookGroup := router.Group("/payments")
 	webhookGroup.Use(middleware.RateLimitMiddleware(middleware.WebhookRateLimitConfig()))
+	webhookGroup.Use(middleware.MidtransIPWhitelist())
 	{
 		webhookGroup.POST("/webhook", orderHandler.HandlePaymentWebhook)
 	}

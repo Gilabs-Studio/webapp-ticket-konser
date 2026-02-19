@@ -25,6 +25,7 @@ export function OrderTicketsPageClient({
     queryKey: ["order-tickets", orderId],
     queryFn: () => ticketService.getETicketsByOrderId(orderId, false),
     enabled: !!orderId && orderData?.data?.payment_status === "PAID",
+    refetchInterval: 3000, // Poll every 3 seconds for status updates (CHECKED-IN)
   });
 
   const order = orderData?.data;

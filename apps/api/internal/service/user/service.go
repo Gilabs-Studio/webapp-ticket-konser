@@ -7,25 +7,23 @@ import (
 	"github.com/gilabs/webapp-ticket-konser/api/internal/domain/user"
 	"github.com/gilabs/webapp-ticket-konser/api/internal/repository/interfaces/role"
 	userrepo "github.com/gilabs/webapp-ticket-konser/api/internal/repository/interfaces/user"
+	auditservice "github.com/gilabs/webapp-ticket-konser/api/internal/service/audit"
+	"github.com/gin-gonic/gin"
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
 )
 
-var (
-	ErrUserNotFound      = errors.New("user not found")
-	ErrUserAlreadyExists = errors.New("user already exists")
-	ErrRoleNotFound      = errors.New("role not found")
-)
-
 type Service struct {
-	userRepo userrepo.Repository
-	roleRepo role.Repository
+	userRepo     userrepo.Repository
+	roleRepo     role.Repository
+	auditService *auditservice.Service
 }
 
-func NewService(userRepo userrepo.Repository, roleRepo role.Repository) *Service {
+func NewService(userRepo userrepo.Repository, roleRepo role.Repository, auditService *auditservice.Service) *Service {
 	return &Service{
-		userRepo: userRepo,
-		roleRepo: roleRepo,
+		userRepo:     userRepo,
+		roleRepo:     roleRepo,
+		auditService: auditService,
 	}
 }
 
@@ -120,10 +118,6 @@ func (s *Service) Create(req *user.CreateUserRequest) (*user.UserResponse, error
 		Status:    status,
 	}
 
-	if err := s.userRepo.Create(u); err != nil {
-		return nil, err
-	}
-
 	// Reload with role
 	createdUser, err := s.userRepo.FindByID(u.ID)
 	if err != nil {
@@ -131,6 +125,14 @@ func (s *Service) Create(req *user.CreateUserRequest) (*user.UserResponse, error
 	}
 
 	return createdUser.ToUserResponse(), nil
+}
+
+func (s *Service) CreateWithAudit(c *gin.Context, req *user.CreateUserRequest) (*user.UserResponse, error) {
+	resp, err := s.Create(req)
+	if err == nil && s.auditService != nil {
+		s.auditService.Log(c, "USER_CREATE", "user", resp.ID, nil, resp)
+	}
+	return resp, err
 }
 
 // Update updates a user
@@ -190,6 +192,15 @@ func (s *Service) Update(id string, req *user.UpdateUserRequest) (*user.UserResp
 	return updatedUser.ToUserResponse(), nil
 }
 
+func (s *Service) UpdateWithAudit(c *gin.Context, id string, req *user.UpdateUserRequest) (*user.UserResponse, error) {
+	oldUser, _ := s.GetByID(id)
+	resp, err := s.Update(id, req)
+	if err == nil && s.auditService != nil {
+		s.auditService.Log(c, "USER_UPDATE", "user", id, oldUser, resp)
+	}
+	return resp, err
+}
+
 // Delete deletes a user
 func (s *Service) Delete(id string) error {
 	// Check if user exists
@@ -204,6 +215,15 @@ func (s *Service) Delete(id string) error {
 	return s.userRepo.Delete(id)
 }
 
+func (s *Service) DeleteWithAudit(c *gin.Context, id string) error {
+	oldUser, _ := s.GetByID(id)
+	err := s.Delete(id)
+	if err == nil && s.auditService != nil {
+		s.auditService.Log(c, "USER_DELETE", "user", id, oldUser, nil)
+	}
+	return err
+}
+
 // PaginationResult represents pagination result
 type PaginationResult struct {
 	Page       int `json:"page"`
@@ -211,3 +231,9 @@ type PaginationResult struct {
 	Total      int `json:"total"`
 	TotalPages int `json:"total_pages"`
 }
+
+var (
+	ErrUserNotFound      = errors.New("user not found")
+	ErrUserAlreadyExists = errors.New("user already exists")
+	ErrRoleNotFound      = errors.New("role not found")
+)

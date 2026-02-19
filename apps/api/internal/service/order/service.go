@@ -29,6 +29,8 @@ var (
 	ErrInsufficientQuota      = errors.New("insufficient quota")
 	ErrInsufficientSeats      = errors.New("insufficient remaining seats")
 	ErrUserNotFound           = errors.New("user not found")
+	ErrEventNotAvailable      = errors.New("event is not available for purchase")
+	ErrSchedulePassed         = errors.New("event schedule has already passed")
 )
 
 type Service struct {
@@ -301,13 +303,37 @@ func (s *Service) CreateOrder(req *order.CreateOrderRequest, userID string, idem
 		return nil, ErrInsufficientSeats
 	}
 
-	// Fetch event name for snapshot (read-only, no lock needed)
+	// Fetch event and validate availability (read-only, no lock needed)
 	eventName := ""
 	if sched.EventID != "" {
 		var evt event.Event
 		if err := tx.Where("id = ?", sched.EventID).First(&evt).Error; err == nil {
 			eventName = evt.EventName
+
+			// Validate event is published — prevent purchasing from draft/closed events
+			if evt.Status != event.EventStatusPublished {
+				tx.Rollback()
+				return nil, ErrEventNotAvailable
+			}
+
+			// Validate event end date hasn't passed
+			if !evt.EndDate.IsZero() && evt.EndDate.Before(time.Now().Truncate(24*time.Hour)) {
+				tx.Rollback()
+				return nil, ErrSchedulePassed
+			}
+		} else {
+			tx.Rollback()
+			return nil, ErrEventNotAvailable
 		}
+	} else {
+		tx.Rollback()
+		return nil, ErrScheduleNotFound
+	}
+
+	// Validate schedule date hasn't passed
+	if !sched.Date.IsZero() && sched.Date.Before(time.Now().Truncate(24*time.Hour)) {
+		tx.Rollback()
+		return nil, ErrSchedulePassed
 	}
 
 	// Snapshot the unit price and names at purchase time (immutable historical record)
@@ -746,10 +772,10 @@ func (s *Service) CheckPaymentStatus(orderID string) (*PaymentStatusResponse, er
 		}, nil
 	}
 
-	// Map Midtrans status to our payment status
+	// Map Midtrans status to our internal PaymentStatus enum.
 	var paymentStatus order.PaymentStatus
 	switch statusResp.TransactionStatus {
-	case "settlement":
+	case "settlement", "capture":
 		paymentStatus = order.PaymentStatusPaid
 	case "pending":
 		paymentStatus = order.PaymentStatusUnpaid
@@ -758,20 +784,52 @@ func (s *Service) CheckPaymentStatus(orderID string) (*PaymentStatusResponse, er
 	case "deny":
 		paymentStatus = order.PaymentStatusFailed
 	default:
-		paymentStatus = o.PaymentStatus // Keep current status
+		paymentStatus = o.PaymentStatus // Keep current status if unknown
 	}
 
-	// Update order status if changed
+	// Update order status in DB if it changed (Safe Sync fallback).
+	// We use a transaction to prevent race conditions with the webhook handler.
 	if paymentStatus != o.PaymentStatus {
-		o.PaymentStatus = paymentStatus
-		// Clear QRIS code if payment is no longer pending
-		if paymentStatus != order.PaymentStatusUnpaid {
-			o.QRISCode = nil
-		}
-		if err := s.repo.Update(o); err != nil {
-			// Log error but continue
+		log.Printf("[CheckPaymentStatus] Syncing order %s status: %s -> %s", o.ID, o.PaymentStatus, paymentStatus)
+
+		err = s.db.Transaction(func(tx *gorm.DB) error {
+			var lo order.Order
+			if err := tx.Set("gorm:query_option", "FOR UPDATE").First(&lo, "id = ?", o.ID).Error; err != nil {
+				return err
+			}
+
+			// Re-verify status inside lock to prevent double updates
+			if lo.PaymentStatus != paymentStatus {
+				lo.PaymentStatus = paymentStatus
+
+				// Clear QRIS code if payment is no longer pending
+				if paymentStatus != order.PaymentStatusUnpaid {
+					lo.QRISCode = nil
+				}
+
+				if err := tx.Save(&lo).Error; err != nil {
+					return err
+				}
+
+				// If status changed to PAID, generate tickets (self-healing)
+				if paymentStatus == order.PaymentStatusPaid {
+					go func() {
+						_, _ = s.orderItemService.GenerateTickets(lo.ID, []string{lo.TicketCategoryID}, []int{lo.Quantity})
+					}()
+				}
+			}
+			return nil
+		})
+
+		if err != nil {
+			log.Printf("[CheckPaymentStatus] Failed to sync order %s: %v", o.ID, err)
+		} else {
+			// Update local object for the response
+			o.PaymentStatus = paymentStatus
 		}
 	}
+
+	effectiveStatus := o.PaymentStatus
 
 	var paidAt *time.Time
 	if statusResp.SettlementTime != "" {
@@ -803,8 +861,8 @@ func (s *Service) CheckPaymentStatus(orderID string) (*PaymentStatusResponse, er
 		qrisCode = *o.QRISCode
 	} else if statusResp.QRISCode != "" {
 		qrisCode = statusResp.QRISCode
-		// Save QRIS code to database if we got it from Midtrans
-		if paymentStatus == order.PaymentStatusUnpaid {
+		// Cache QRIS code to database for fast subsequent access (safe write — no status mutation)
+		if o.PaymentStatus == order.PaymentStatusUnpaid {
 			o.QRISCode = &statusResp.QRISCode
 			if err := s.repo.Update(o); err != nil {
 				log.Printf("[CheckPaymentStatus] Error saving QRIS code for order %s: %v", orderID, err)
@@ -814,7 +872,7 @@ func (s *Service) CheckPaymentStatus(orderID string) (*PaymentStatusResponse, er
 
 	return &PaymentStatusResponse{
 		OrderID:       o.ID,
-		PaymentStatus: string(paymentStatus),
+		PaymentStatus: string(effectiveStatus),
 		PaymentMethod: o.PaymentMethod,
 		TransactionID: transactionID,
 		PaidAt:        paidAt,
@@ -900,7 +958,7 @@ func (s *Service) ProcessPaymentWebhook(payload *midtrans.WebhookPayload) error 
 	transactionID := payload.TransactionID
 	o.MidtransTransactionID = &transactionID
 	o.PaymentMethod = payload.PaymentType
-	
+
 	// Clear QRIS code if payment is no longer pending (paid, canceled, or failed)
 	if newPaymentStatus != order.PaymentStatusUnpaid {
 		o.QRISCode = nil

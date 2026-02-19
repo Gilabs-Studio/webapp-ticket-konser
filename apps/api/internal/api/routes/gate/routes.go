@@ -24,6 +24,7 @@ func SetupRoutes(
 		gateRoutes.GET("", gateHandler.List)                         // List all gates
 		gateRoutes.GET("/:id", gateHandler.GetByID)                  // Get gate by ID
 		gateRoutes.GET("/:id/statistics", gateHandler.GetStatistics) // Get gate statistics
+		gateRoutes.GET("/:id/staff", gateHandler.GetAssignedStaff)   // Get staff assigned to gate
 	}
 
 	// Gate management routes (admin only for create/update/delete)
@@ -53,12 +54,12 @@ func SetupRoutes(
 	assignmentRoutes.Use(middleware.AuthMiddleware(jwtManager))
 	assignmentRoutes.Use(middleware.RequirePermission("gate.update", roleRepo))
 	{
-		assignmentRoutes.POST("/:id/assign-ticket", gateHandler.AssignTicketToGate) // Assign ticket to gate
-		assignmentRoutes.POST("/:id/assign-staff", gateHandler.AssignStaffToGate)  // Assign staff to gate
+		assignmentRoutes.POST("/:id/assign-ticket", gateHandler.AssignTicketToGate)               // Assign ticket to gate
+		assignmentRoutes.POST("/:id/assign-staff", gateHandler.AssignStaffToGate)                 // Assign staff to gate
 		assignmentRoutes.DELETE("/:id/assign-staff/:staff_id", gateHandler.UnassignStaffFromGate) // Unassign staff from gate
 	}
 
-	// My gates (gatekeeper/staff)
+	// My gates (staff)
 	myGateRoutes := router.Group("/gates")
 	myGateRoutes.Use(middleware.AuthMiddleware(jwtManager))
 	myGateRoutes.Use(middleware.RequirePermission("checkin.create", roleRepo))

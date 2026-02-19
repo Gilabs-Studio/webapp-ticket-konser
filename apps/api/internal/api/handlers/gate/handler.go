@@ -326,7 +326,7 @@ func (h *Handler) GateCheckIn(c *gin.Context) {
 			}, nil)
 		case "DUPLICATE_CHECK_IN":
 			errors.ErrorResponse(c, "DUPLICATE_CHECK_IN", map[string]interface{}{
-				"message": result.Message,
+				"message":  result.Message,
 				"check_in": result.CheckIn,
 			}, nil)
 		case "GATE_STAFF_NOT_ASSIGNED":
@@ -345,7 +345,7 @@ func (h *Handler) GateCheckIn(c *gin.Context) {
 	response.SuccessResponse(c, result, meta)
 }
 
-// ListMyGates lists gates assigned to the authenticated user (gatekeeper).
+// ListMyGates lists gates assigned to the authenticated staff user.
 // GET /api/v1/gates/my
 func (h *Handler) ListMyGates(c *gin.Context) {
 	userID, exists := c.Get("user_id")
@@ -464,4 +464,29 @@ func (h *Handler) GetStatistics(c *gin.Context) {
 
 	meta := &response.Meta{}
 	response.SuccessResponse(c, statistics, meta)
+}
+
+// GetAssignedStaff gets staff members assigned to a gate
+// GET /api/v1/gates/:id/staff
+func (h *Handler) GetAssignedStaff(c *gin.Context) {
+	gateID := c.Param("id")
+	if gateID == "" {
+		errors.ErrorResponse(c, "INVALID_PATH_PARAM", map[string]interface{}{
+			"param": "id",
+		}, nil)
+		return
+	}
+
+	staff, err := h.gateService.ListStaffByGate(gateID)
+	if err != nil {
+		if err == gateservice.ErrGateNotFound {
+			errors.NotFoundResponse(c, "gate", gateID)
+			return
+		}
+		errors.InternalServerErrorResponse(c, "")
+		return
+	}
+
+	meta := &response.Meta{}
+	response.SuccessResponse(c, staff, meta)
 }

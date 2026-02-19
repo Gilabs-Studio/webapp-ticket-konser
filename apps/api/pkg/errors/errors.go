@@ -113,6 +113,14 @@ var ErrorCodeMap = map[string]ErrorInfo{
 		HTTPStatus: http.StatusNotFound,
 		Message:    "Ticket category not found",
 	},
+	"EVENT_NOT_AVAILABLE": {
+		HTTPStatus: http.StatusUnprocessableEntity,
+		Message:    "This event is not currently available for purchase",
+	},
+	"SCHEDULE_PASSED": {
+		HTTPStatus: http.StatusUnprocessableEntity,
+		Message:    "This event schedule has already passed",
+	},
 	"INSUFFICIENT_QUOTA": {
 		HTTPStatus: http.StatusUnprocessableEntity,
 		Message:    "Insufficient quota available",
@@ -354,9 +362,9 @@ func InvalidRequestBodyResponse(c *gin.Context) {
 		maxBody := cfg.Server.MaxBodyBytes
 		if maxBody > 0 && c.Request != nil && c.Request.ContentLength > maxBody {
 			ErrorResponse(c, "PAYLOAD_TOO_LARGE", map[string]interface{}{
-				"max_body_bytes":   maxBody,
-				"content_length":   c.Request.ContentLength,
-				"recommendation":   "Reduce request size",
+				"max_body_bytes": maxBody,
+				"content_length": c.Request.ContentLength,
+				"recommendation": "Reduce request size",
 			}, nil)
 			return
 		}

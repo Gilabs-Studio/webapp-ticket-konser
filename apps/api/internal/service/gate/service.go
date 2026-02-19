@@ -7,9 +7,10 @@ import (
 
 	"github.com/gilabs/webapp-ticket-konser/api/internal/domain/checkin"
 	"github.com/gilabs/webapp-ticket-konser/api/internal/domain/gate"
+	"github.com/gilabs/webapp-ticket-konser/api/internal/domain/user"
 	checkinrepo "github.com/gilabs/webapp-ticket-konser/api/internal/repository/interfaces/checkin"
-	gatestaffrepo "github.com/gilabs/webapp-ticket-konser/api/internal/repository/interfaces/gate_staff"
 	gaterepo "github.com/gilabs/webapp-ticket-konser/api/internal/repository/interfaces/gate"
+	gatestaffrepo "github.com/gilabs/webapp-ticket-konser/api/internal/repository/interfaces/gate_staff"
 	orderitemrepo "github.com/gilabs/webapp-ticket-konser/api/internal/repository/interfaces/order_item"
 	checkinservice "github.com/gilabs/webapp-ticket-konser/api/internal/service/checkin"
 	"github.com/gilabs/webapp-ticket-konser/api/pkg/response"
@@ -17,19 +18,19 @@ import (
 )
 
 var (
-	ErrGateNotFound      = errors.New("gate not found")
-	ErrGateCodeExists    = errors.New("gate code already exists")
-	ErrGateInactive      = errors.New("gate is inactive")
-	ErrInvalidGate       = errors.New("invalid gate")
+	ErrGateNotFound         = errors.New("gate not found")
+	ErrGateCodeExists       = errors.New("gate code already exists")
+	ErrGateInactive         = errors.New("gate is inactive")
+	ErrInvalidGate          = errors.New("invalid gate")
 	ErrGateCapacityExceeded = errors.New("gate capacity exceeded")
-	ErrVIPGateRequired    = errors.New("VIP gate required for this ticket")
+	ErrVIPGateRequired      = errors.New("VIP gate required for this ticket")
 )
 
 type Service struct {
-	gateRepo      gaterepo.Repository
-	gateStaffRepo gatestaffrepo.Repository
-	orderItemRepo orderitemrepo.Repository
-	checkInRepo   checkinrepo.Repository
+	gateRepo       gaterepo.Repository
+	gateStaffRepo  gatestaffrepo.Repository
+	orderItemRepo  orderitemrepo.Repository
+	checkInRepo    checkinrepo.Repository
 	checkInService *checkinservice.Service
 }
 
@@ -49,7 +50,7 @@ func NewService(
 	}
 }
 
-// ListMyGates returns gates assigned to a given staff (gatekeeper).
+// ListMyGates returns gates assigned to a given staff member.
 func (s *Service) ListMyGates(staffID string) ([]*gate.GateResponse, error) {
 	gates, err := s.gateStaffRepo.ListGatesByStaffID(staffID)
 	if err != nil {
@@ -62,6 +63,22 @@ func (s *Service) ListMyGates(staffID string) ([]*gate.GateResponse, error) {
 			continue
 		}
 		resp = append(resp, g.ToGateResponse())
+	}
+	return resp, nil
+}
+
+// ListStaffByGate lists all staff members assigned to a specific gate.
+func (s *Service) ListStaffByGate(gateID string) ([]*user.UserResponse, error) {
+	assignments, err := s.gateStaffRepo.ListStaffByGateID(gateID)
+	if err != nil {
+		return nil, err
+	}
+
+	resp := make([]*user.UserResponse, 0, len(assignments))
+	for _, a := range assignments {
+		if a != nil && a.Staff != nil {
+			resp = append(resp, a.Staff.ToUserResponse())
+		}
 	}
 	return resp, nil
 }
@@ -281,7 +298,7 @@ func (s *Service) AssignTicketToGate(req *gate.AssignTicketToGateRequest) error 
 		// Check if category name contains "VIP" (simple check)
 		categoryName := orderItem.Category.CategoryName
 		isVIPCategory := containsVIP(categoryName)
-		
+
 		if isVIPCategory && !g.IsVIP {
 			return ErrVIPGateRequired
 		}
@@ -321,7 +338,7 @@ func (s *Service) GateCheckIn(req *gate.GateCheckInRequest, staffID, ipAddress, 
 		}, ErrGateInactive
 	}
 
-	// Enforce staff-gate assignment for non-admin gatekeepers
+	// Enforce staff-gate assignment for non-admin staff members
 	if !isAdmin {
 		assigned, err := s.gateStaffRepo.IsStaffAssignedToGate(req.GateID, staffID)
 		if err != nil {
@@ -345,7 +362,7 @@ func (s *Service) GateCheckIn(req *gate.GateCheckInRequest, staffID, ipAddress, 
 		// Count check-ins for this gate today
 		today := time.Now().Truncate(24 * time.Hour)
 		todayEnd := today.Add(24 * time.Hour)
-		
+
 		checkIns, err := s.checkInRepo.FindByGateID(req.GateID)
 		if err != nil {
 			return &checkin.CheckInResultResponse{
@@ -386,7 +403,7 @@ func (s *Service) GateCheckIn(req *gate.GateCheckInRequest, staffID, ipAddress, 
 	if orderItem.Category != nil {
 		categoryName := orderItem.Category.CategoryName
 		isVIPCategory := containsVIP(categoryName)
-		
+
 		if isVIPCategory && !g.IsVIP {
 			return &checkin.CheckInResultResponse{
 				Success:   false,
@@ -452,12 +469,12 @@ func (s *Service) GetStatistics(gateID string) (*gate.GateStatisticsResponse, er
 	}
 
 	return &gate.GateStatisticsResponse{
-		GateID:         g.ID,
-		GateCode:       g.Code,
-		GateName:       g.Name,
-		TotalCheckIns:  totalCheckIns,
-		TodayCheckIns:  todayCheckIns,
-		VIPCheckIns:    vipCheckIns,
+		GateID:          g.ID,
+		GateCode:        g.Code,
+		GateName:        g.Name,
+		TotalCheckIns:   totalCheckIns,
+		TodayCheckIns:   todayCheckIns,
+		VIPCheckIns:     vipCheckIns,
 		RegularCheckIns: regularCheckIns,
 	}, nil
 }

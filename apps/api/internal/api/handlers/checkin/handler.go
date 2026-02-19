@@ -46,7 +46,7 @@ func (h *Handler) ValidateQRCode(c *gin.Context) {
 // POST /api/v1/check-in
 func (h *Handler) CheckIn(c *gin.Context) {
 	// Only admin should use generic check-in endpoint.
-	// Gatekeepers/staff must use the gate-specific endpoint: POST /api/v1/gates/:id/check-in
+	// Staff members must use the gate-specific endpoint: POST /api/v1/gates/:id/check-in
 	userRole, _ := c.Get("user_role")
 	userRoleStr, _ := userRole.(string)
 	isAdmin := userRoleStr == "admin" || userRoleStr == "super_admin"
@@ -112,7 +112,7 @@ func (h *Handler) CheckIn(c *gin.Context) {
 			}, nil)
 		case "DUPLICATE_CHECK_IN":
 			errors.ErrorResponse(c, "DUPLICATE_CHECK_IN", map[string]interface{}{
-				"message": result.Message,
+				"message":  result.Message,
 				"check_in": result.CheckIn,
 			}, nil)
 		default:
@@ -177,7 +177,7 @@ func (h *Handler) List(c *gin.Context) {
 	// Get user role from context
 	userRole, _ := c.Get("user_role")
 	userRoleStr, _ := userRole.(string)
-	
+
 	// Check if user is admin (admin or super_admin)
 	isAdmin := userRoleStr == "admin" || userRoleStr == "super_admin"
 
@@ -377,4 +377,3 @@ func (h *Handler) GetByGateID(c *gin.Context) {
 	meta := &response.Meta{}
 	response.SuccessResponse(c, checkIns, meta)
 }
-

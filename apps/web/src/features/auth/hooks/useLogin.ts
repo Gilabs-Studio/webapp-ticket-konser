@@ -54,12 +54,8 @@ export function useLogin(redirectPath?: string) {
         const userRole = getNormalizedRoleCode(user.role);
         if (userRole === "admin" || userRole === "super_admin") {
           router.push("/dashboard");
-        } else if (userRole === "gatekeeper") {
-          router.push("/attendees-management");
-        } else if (userRole === "staff_ticket" || userRole === "gate_staff") {
-          router.push("/");
         } else {
-          // Guest or other roles - redirect to landing page
+          // Staff (staff_ticket) or other roles - redirect to landing page
           router.push("/");
         }
       }
