@@ -110,7 +110,7 @@ export default function HeroSection({ locale }: Readonly<HeroSectionProps>) {
       <div className="relative z-10 flex flex-col items-center justify-center h-full px-4">
         {/* Title */}
         <h1 className="text-6xl md:text-8xl lg:text-9xl font-light tracking-tight text-foreground mb-8 text-center">
-          UMN FESTIVAL
+          EUFORIA
         </h1>
 
         {/* Countdown */}
