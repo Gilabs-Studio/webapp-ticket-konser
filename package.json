@@ -23,6 +23,7 @@
     "node": ">=18"
   },
   "dependencies": {
+    "next": "16.0.10",
     "qrcode.react": "^4.2.0"
   }
 }
