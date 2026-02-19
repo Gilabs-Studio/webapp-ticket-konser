@@ -1,5 +1,5 @@
 {
   "installCommand": "pnpm install",
-  "buildCommand": "pnpm -w --filter @repo/web build",
+  "buildCommand": "cd apps/web && pnpm build",
   "framework": "nextjs"
 }
