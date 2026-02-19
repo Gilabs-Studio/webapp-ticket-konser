@@ -1,10 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { useRouter } from "@/i18n/routing";
-import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
 import { ArrowLeft, Loader2, CheckCircle2, XCircle, Clock, Copy, Check } from "lucide-react";
 import { useMyOrder, useInitiatePayment, usePaymentStatus } from "@/features/orders/hooks/useOrders";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -16,83 +15,202 @@ interface PaymentPageClientProps {
   readonly orderId: string;
 }
 
+interface QrisContentProps {
+  readonly isInitiating: boolean;
+  readonly qrisCode: string;
+  readonly paymentInitiated: boolean;
+  readonly midtransTransactionId?: string;
+  readonly isExpired?: boolean;
+  readonly timeLeft: string;
+  readonly expiresAt: Date | null;
+  readonly copied: boolean;
+  readonly onCopy: () => void;
+  readonly onInitiateNew: () => void;
+  readonly onRetry: () => void;
+}
+
+function QrisContent({
+  isInitiating,
+  qrisCode,
+  paymentInitiated,
+  midtransTransactionId,
+  isExpired,
+  timeLeft,
+  expiresAt,
+  copied,
+  onCopy,
+  onInitiateNew,
+  onRetry,
+}: QrisContentProps) {
+  if (isInitiating) {
+    return (
+      <div className="flex flex-col items-center justify-center py-16 gap-4">
+        <Loader2 className="h-10 w-10 animate-spin text-primary" />
+        <p className="text-muted-foreground">Initializing payment...</p>
+      </div>
+    );
+  }
+
+  if (qrisCode) {
+    return (
+      <div className="space-y-6">
+        <div className="flex justify-center">
+          <div className="p-6 bg-white rounded-2xl shadow-sm border">
+            <QRCodeSVG value={qrisCode} size={256} level="M" />
+          </div>
+        </div>
+
+        {expiresAt && (
+          <div className="text-center">
+            <p className="text-sm text-muted-foreground">
+              Payment expires in:{" "}
+              <span className="font-semibold text-destructive">{timeLeft}</span>
+            </p>
+          </div>
+        )}
+
+        <p className="text-sm text-center text-muted-foreground">
+          Scan this QR code with GoPay, OVO, DANA, or any QRIS-compatible app
+        </p>
+
+        <div className="flex justify-center pt-2">
+          <Button variant="outline" size="sm" onClick={onCopy} className="gap-2">
+            {copied ? (
+              <>
+                <Check className="h-4 w-4" />
+                Copied!
+              </>
+            ) : (
+              <>
+                <Copy className="h-4 w-4" />
+                Copy QRIS Image URL
+              </>
+            )}
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
+  if (paymentInitiated && midtransTransactionId) {
+    return (
+      <div className="flex flex-col items-center justify-center py-16 gap-4">
+        <Clock className="h-10 w-10 text-yellow-500" />
+        <p className="text-muted-foreground text-center">
+          Payment has already been initiated for this order.
+        </p>
+        {isExpired ? (
+          <>
+            <p className="text-sm text-muted-foreground">
+              Payment has expired. Please initiate a new payment.
+            </p>
+            <Button onClick={onInitiateNew}>Initiate New Payment</Button>
+          </>
+        ) : (
+          <>
+            <p className="text-sm text-muted-foreground">Loading QR code...</p>
+            <Button variant="outline" onClick={() => window.location.reload()}>
+              Refresh
+            </Button>
+          </>
+        )}
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex flex-col items-center justify-center py-16 gap-4">
+      <XCircle className="h-10 w-10 text-destructive" />
+      <p className="text-muted-foreground">Failed to initialize payment.</p>
+      <Button onClick={onRetry}>Retry</Button>
+    </div>
+  );
+}
+
+
+
 export function PaymentPageClient({ orderId }: PaymentPageClientProps) {
   const router = useRouter();
   const { mutate: initiatePayment, isPending: isInitiating } = useInitiatePayment();
   const { data: orderData, isLoading: isLoadingOrder } = useMyOrder(orderId);
   const { data: paymentStatusData } = usePaymentStatus(orderId, true);
-  const [paymentInitiated, setPaymentInitiated] = useState(false);
-  const [qrisCode, setQrisCode] = useState<string>("");
-  const [expiresAt, setExpiresAt] = useState<Date | null>(null);
   const [copied, setCopied] = useState(false);
+
+  // Fresh QRIS code and expiry received directly from the initiatePayment mutation response,
+  // before order/paymentStatus queries have re-fetched. Set only in mutation callbacks.
+  const [mutationQrisCode, setMutationQrisCode] = useState<string>("");
+  const [mutationExpiresAt, setMutationExpiresAt] = useState<Date | null>(null);
+  // Tracks whether an initiation request has been submitted this session.
+  const [initiationSubmitted, setInitiationSubmitted] = useState(false);
 
   const order = orderData?.data;
   const paymentStatus = paymentStatusData?.data;
 
-  // Get QRIS code from order or payment status if available
-  useEffect(() => {
-    // Prefer QRIS code from order (stored in DB), fallback to payment status
-    const qrisCodeFromOrder = order?.qris_code;
-    const qrisCodeFromStatus = paymentStatus?.qris_code;
-    const availableQrisCode = qrisCodeFromOrder || qrisCodeFromStatus;
-    
-    if (availableQrisCode && !qrisCode && !paymentStatus?.is_expired) {
-      setQrisCode(availableQrisCode);
-      setPaymentInitiated(true);
-      if (paymentStatus?.expires_at) {
-        setExpiresAt(new Date(paymentStatus.expires_at));
-      } else if (order?.payment_expires_at) {
-        setExpiresAt(new Date(order.payment_expires_at));
-      }
-    }
-  }, [order?.qris_code, order?.payment_expires_at, paymentStatus?.qris_code, paymentStatus?.expires_at, paymentStatus?.is_expired, qrisCode]);
+  // Derive QRIS code from all sources — avoids setState-in-effect by computing here.
+  // Priority: fresh mutation result → stored on order → stored in payment status.
+  const qrisCode = useMemo(() => {
+    if (mutationQrisCode) return mutationQrisCode;
+    if (paymentStatus?.is_expired) return "";
+    return order?.qris_code || paymentStatus?.qris_code || "";
+  }, [mutationQrisCode, order?.qris_code, paymentStatus?.qris_code, paymentStatus?.is_expired]);
 
-  // Initiate payment on mount if not already initiated
+  // Derive expiry date from all sources without setState-in-effect.
+  const expiresAt = useMemo<Date | null>(() => {
+    if (mutationExpiresAt) return mutationExpiresAt;
+    if (paymentStatus?.expires_at) return new Date(paymentStatus.expires_at);
+    if (order?.payment_expires_at) return new Date(order.payment_expires_at);
+    return null;
+  }, [mutationExpiresAt, paymentStatus?.expires_at, order?.payment_expires_at]);
+
+  // Derive paymentInitiated from server data — no state sync needed.
+  const paymentInitiated =
+    initiationSubmitted ||
+    !!mutationQrisCode ||
+    !!order?.midtrans_transaction_id ||
+    !!order?.qris_code ||
+    !!paymentStatus?.qris_code;
+
+  // Initiate payment when the order is loaded and no prior initiation exists.
   useEffect(() => {
-    // Don't initiate if:
-    // 1. Order is not loaded yet
-    // 2. Payment status is not UNPAID
-    // 3. Payment already initiated (has QRIS code or transaction ID)
-    // 4. Currently initiating payment
-    // 5. Order already has transaction ID (payment already initiated - wait for payment status)
     if (
       !order ||
       order.payment_status !== "UNPAID" ||
       paymentInitiated ||
       isInitiating ||
-      qrisCode ||
-      order.midtrans_transaction_id // Payment already initiated, wait for payment status to load QRIS code
+      order.midtrans_transaction_id // Payment already exists — wait for status to load QRIS.
     ) {
       return;
     }
 
-      initiatePayment(
-        {
-          orderId: order.id,
-          data: { payment_method: "qris" },
+    setInitiationSubmitted(true);
+    initiatePayment(
+      { orderId: order.id, data: { payment_method: "qris" } },
+      {
+        onSuccess: (response) => {
+          setMutationQrisCode(response.data.qris_code);
+          if (response.data.expires_at) {
+            setMutationExpiresAt(new Date(response.data.expires_at));
+          }
         },
-        {
-          onSuccess: (response) => {
-            setPaymentInitiated(true);
-            setQrisCode(response.data.qris_code);
-            if (response.data.expires_at) {
-              setExpiresAt(new Date(response.data.expires_at));
-            }
-          },
-          onError: (error: unknown) => {
-            const err = error as { response?: { data?: { error?: { message?: string; code?: string } } } };
-            const errorCode = err.response?.data?.error?.code;
-            const errorMessage = err.response?.data?.error?.message;
-            
-            // If payment already initiated, set paymentInitiated to true
-            if (errorMessage?.toLowerCase().includes("payment already initiated") || 
-                errorCode === "PAYMENT_ALREADY_PROCESSED") {
-              setPaymentInitiated(true);
-            }
-          },
+        onError: (error: unknown) => {
+          const err = error as { response?: { data?: { error?: { message?: string; code?: string } } } };
+          const errorCode = err.response?.data?.error?.code;
+          const errorMessage = err.response?.data?.error?.message;
+
+          // Already initiated server-side — paymentInitiated will become true via
+          // order.midtrans_transaction_id once the order query re-fetches.
+          if (
+            errorMessage?.toLowerCase().includes("payment already initiated") ||
+            errorCode === "PAYMENT_ALREADY_PROCESSED"
+          ) {
+            return;
+          }
+          // Reset so the user can retry.
+          setInitiationSubmitted(false);
         },
-      );
-  }, [order, paymentInitiated, isInitiating, initiatePayment, qrisCode]);
+      },
+    );
+  }, [order, paymentInitiated, isInitiating, initiatePayment]);
 
   // Redirect on payment success
   useEffect(() => {
@@ -155,6 +273,42 @@ export function PaymentPageClient({ orderId }: PaymentPageClientProps) {
     }
   };
 
+  // Reset mutation state and re-initiate a fresh QRIS payment (used after expiry or on retry).
+  const handleInitiateNew = () => {
+    if (!order) return;
+    setMutationQrisCode("");
+    setMutationExpiresAt(null);
+    setInitiationSubmitted(false);
+    initiatePayment(
+      { orderId: order.id, data: { payment_method: "qris" } },
+      {
+        onSuccess: (response) => {
+          setMutationQrisCode(response.data.qris_code);
+          if (response.data.expires_at) {
+            setMutationExpiresAt(new Date(response.data.expires_at));
+          }
+        },
+      },
+    );
+  };
+
+  // Re-initiate after a failed attempt.
+  const handleRetry = () => {
+    if (!order) return;
+    setInitiationSubmitted(false);
+    initiatePayment(
+      { orderId: order.id, data: { payment_method: "qris" } },
+      {
+        onSuccess: (response) => {
+          setMutationQrisCode(response.data.qris_code);
+          if (response.data.expires_at) {
+            setMutationExpiresAt(new Date(response.data.expires_at));
+          }
+        },
+      },
+    );
+  };
+
   if (isLoadingOrder) {
     return (
       <div className="space-y-6">
@@ -191,188 +345,131 @@ export function PaymentPageClient({ orderId }: PaymentPageClientProps) {
   }
 
   return (
-    <div className="space-y-6 max-w-2xl mx-auto">
-      <div className="flex items-center justify-between">
-        <Button
-          variant="ghost"
-          onClick={() => router.push(`/orders/${orderId}`)}
-        >
+    <div className="max-w-7xl mx-auto">
+      <div className="mb-6">
+        <Button variant="ghost" onClick={() => router.push(`/orders/${orderId}`)}>
           <ArrowLeft className="h-4 w-4 mr-2" />
-          Back
+          Back to Order
         </Button>
       </div>
 
-      <div>
-        <h1 className="text-2xl font-bold">Payment</h1>
-        <p className="text-sm text-muted-foreground mt-1">
-          Order Code: {order.order_code}
-        </p>
-      </div>
-
-      <Card>
-        <CardHeader>
-          <CardTitle>Order Summary</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-2">
-          <div className="flex justify-between">
-            <span className="text-muted-foreground">Total Amount:</span>
-            <span className="font-semibold">
-              {formatCurrency(order.total_amount)}
-            </span>
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        {/* Left: QRIS Payment Section */}
+        <div className="lg:col-span-2 space-y-8">
+          <div>
+            <h1 className="text-3xl font-bold">Payment</h1>
+            <p className="text-muted-foreground mt-2">Order Code: {order.order_code}</p>
           </div>
-        </CardContent>
-      </Card>
 
-      {isInitiating ? (
-        <Card>
-          <CardContent className="py-12 text-center">
-            <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4" />
-            <p className="text-muted-foreground">Initializing payment...</p>
-          </CardContent>
-        </Card>
-      ) : qrisCode ? (
-        <Card>
-          <CardHeader>
-            <CardTitle>Scan QR Code</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="flex justify-center p-4 bg-white rounded-md">
-              <QRCodeSVG value={qrisCode} size={256} level="M" />
-            </div>
-            {expiresAt && (
-              <div className="text-center">
-                <p className="text-sm text-muted-foreground">
-                  Payment expires in:{" "}
-                  <span className="font-semibold text-destructive">
-                    {timeLeft}
-                  </span>
-                </p>
-              </div>
-            )}
-            <p className="text-sm text-center text-muted-foreground">
-              Scan this QR code with your mobile payment app (GoPay, OVO, DANA,
-              etc.)
-            </p>
-            <div className="flex items-center justify-center gap-2 pt-2 border-t">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={handleCopyImageUrl}
-                className="gap-2"
-              >
-                {copied ? (
+          <Separator />
+
+          {/* QRIS Section */}
+          <div className="space-y-6">
+            <h2 className="text-xl font-semibold">Scan QR Code to Pay</h2>
+
+            <QrisContent
+              isInitiating={isInitiating}
+              qrisCode={qrisCode}
+              paymentInitiated={paymentInitiated}
+              midtransTransactionId={order.midtrans_transaction_id}
+              isExpired={paymentStatus?.is_expired}
+              timeLeft={timeLeft}
+              expiresAt={expiresAt}
+              copied={copied}
+              onCopy={handleCopyImageUrl}
+              onInitiateNew={handleInitiateNew}
+              onRetry={handleRetry}
+            />
+          </div>
+
+          <Separator />
+
+          {/* Payment Status */}
+          {paymentStatus && (
+            <div className="space-y-3">
+              <h2 className="text-xl font-semibold">Payment Status</h2>
+              <div className="flex items-center gap-2">
+                {paymentStatus.payment_status === "UNPAID" && (
                   <>
-                    <Check className="h-4 w-4" />
-                    Copied!
-                  </>
-                ) : (
-                  <>
-                    <Copy className="h-4 w-4" />
-                    Copy QRIS Image URL
+                    <Clock className="h-5 w-5 text-yellow-500" />
+                    <span className="text-muted-foreground">Waiting for payment...</span>
                   </>
                 )}
-              </Button>
+                {paymentStatus.payment_status === "PAID" && (
+                  <>
+                    <CheckCircle2 className="h-5 w-5 text-green-500" />
+                    <span className="font-medium text-green-600">Payment successful</span>
+                  </>
+                )}
+                {(paymentStatus.payment_status === "CANCELED" ||
+                  paymentStatus.payment_status === "FAILED") && (
+                  <>
+                    <XCircle className="h-5 w-5 text-destructive" />
+                    <span className="font-medium text-destructive">
+                      Payment {paymentStatus.payment_status.toLowerCase()}
+                    </span>
+                  </>
+                )}
+              </div>
             </div>
-          </CardContent>
-        </Card>
-      ) : paymentInitiated && order?.midtrans_transaction_id && !qrisCode ? (
-        <Card>
-          <CardContent className="py-12 text-center">
-            <Clock className="h-8 w-8 mx-auto mb-4 text-yellow-500" />
-            <p className="text-muted-foreground mb-2">
-              Payment has already been initiated for this order.
-            </p>
-            {paymentStatus?.is_expired ? (
+          )}
+        </div>
+
+        {/* Right: Sticky Order Summary */}
+        <div className="lg:col-span-1">
+          <div className="sticky top-6 space-y-6">
+            <h3 className="font-semibold text-lg">Order Summary</h3>
+
+            <Separator />
+
+            <div className="space-y-3 text-sm">
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">Order Code</span>
+                <span className="font-medium font-mono">{order.order_code}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">Buyer</span>
+                <span className="font-medium">{order.buyer_name}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">Email</span>
+                <span className="font-medium">{order.buyer_email}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">Quantity</span>
+                <span className="font-medium">
+                  {order.quantity} ticket{order.quantity > 1 ? "s" : ""}
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">Payment Method</span>
+                <span className="font-medium">QRIS</span>
+              </div>
+            </div>
+
+            <Separator />
+
+            <div className="flex justify-between items-center">
+              <span className="font-semibold">Total</span>
+              <span className="font-bold text-2xl text-primary">
+                {formatCurrency(order.total_amount)}
+              </span>
+            </div>
+
+            {expiresAt && (
               <>
-                <p className="text-sm text-muted-foreground mb-4">
-                  Payment has expired. Please initiate a new payment.
-                </p>
-                <Button
-                  onClick={() => {
-                    setPaymentInitiated(false);
-                    setQrisCode("");
-                    setExpiresAt(null);
-                    initiatePayment({
-                      orderId: order.id,
-                      data: { payment_method: "qris" },
-                    });
-                  }}
-                >
-                  Initiate New Payment
-                </Button>
-              </>
-            ) : (
-              <>
-                <p className="text-sm text-muted-foreground mb-4">
-                  Loading QR code...
-                </p>
-                <Button
-                  variant="outline"
-                  onClick={() => {
-                    // Refresh payment status to get QRIS code
-                    window.location.reload();
-                  }}
-                >
-                  Refresh Payment Status
-                </Button>
+                <Separator />
+                <div className="text-sm text-muted-foreground">
+                  <p>Payment deadline:</p>
+                  <p className="font-medium text-foreground mt-1">
+                    {expiresAt.toLocaleString("id-ID")}
+                  </p>
+                </div>
               </>
             )}
-          </CardContent>
-        </Card>
-      ) : (
-        <Card>
-          <CardContent className="py-12 text-center">
-            <XCircle className="h-8 w-8 mx-auto mb-4 text-destructive" />
-            <p className="text-muted-foreground">
-              Failed to initialize payment. Please try again.
-            </p>
-            <Button
-              className="mt-4"
-              onClick={() => {
-                setPaymentInitiated(false);
-                initiatePayment({
-                  orderId: order.id,
-                  data: { payment_method: "qris" },
-                });
-              }}
-            >
-              Retry
-            </Button>
-          </CardContent>
-        </Card>
-      )}
-
-      {paymentStatus && (
-        <Card>
-          <CardHeader>
-            <CardTitle>Payment Status</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="flex items-center gap-2">
-              {paymentStatus.payment_status === "UNPAID" && (
-                <>
-                  <Clock className="h-4 w-4 text-yellow-500" />
-                  <span>Waiting for payment</span>
-                </>
-              )}
-              {paymentStatus.payment_status === "PAID" && (
-                <>
-                  <CheckCircle2 className="h-4 w-4 text-green-500" />
-                  <span>Payment successful</span>
-                </>
-              )}
-              {(paymentStatus.payment_status === "CANCELED" ||
-                paymentStatus.payment_status === "FAILED") && (
-                <>
-                  <XCircle className="h-4 w-4 text-destructive" />
-                  <span>Payment {paymentStatus.payment_status.toLowerCase()}</span>
-                </>
-              )}
-            </div>
-          </CardContent>
-        </Card>
-      )}
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
-

@@ -15,6 +15,7 @@ import {
   LogOut,
   User,
   ShoppingBag,
+  Ticket,
   LayoutDashboard,
   ScanLine,
   CheckCircle2,
@@ -101,6 +102,12 @@ export function UserMenu({
         )}
         {showHistory && (
           <>
+            <DropdownMenuItem asChild>
+              <Link href="/orders" className="flex items-center">
+                <Ticket className="mr-2 h-4 w-4" />
+                <span>{t("myTickets") ?? "My Tickets"}</span>
+              </Link>
+            </DropdownMenuItem>
             <DropdownMenuItem asChild>
               <Link href="/orders" className="flex items-center">
                 <ShoppingBag className="mr-2 h-4 w-4" />

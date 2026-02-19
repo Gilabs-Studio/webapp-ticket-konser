@@ -18,7 +18,25 @@
       "rememberMe": "Remember me",
       "submit": "Sign In",
       "submitting": "Signing in...",
-      "rateLimitMessage": "Too many login attempts. Please try again in {countdown}."
+      "rateLimitMessage": "Too many login attempts. Please try again in {countdown}.",
+      "registerText": "Don't have an account?",
+      "registerLink": "Sign up"
+    },
+    "register": {
+      "title": "Create Account",
+      "description": "Sign up to start booking concert tickets",
+      "nameLabel": "Full Name",
+      "namePlaceholder": "Enter your full name",
+      "emailLabel": "Email",
+      "emailPlaceholder": "Enter your email",
+      "passwordLabel": "Password",
+      "passwordPlaceholder": "Minimum 6 characters",
+      "confirmPasswordLabel": "Confirm Password",
+      "confirmPasswordPlaceholder": "Repeat your password",
+      "submit": "Sign Up",
+      "submitting": "Signing up...",
+      "loginText": "Already have an account?",
+      "loginLink": "Sign in"
     }
   },
   "admin": {
@@ -37,6 +55,7 @@
     "logout": "Logout"
   },
   "common": {
+    "myTickets": "My Tickets",
     "orderHistory": "Order History",
     "profile": "Profile",
     "logout": "Logout",
