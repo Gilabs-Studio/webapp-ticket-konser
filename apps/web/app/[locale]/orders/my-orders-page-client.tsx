@@ -65,13 +65,15 @@ export function MyOrdersPageClient() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold">My Orders</h1>
-        <p className="text-sm text-muted-foreground mt-1">
+        <h1 className="text-4xl font-light tracking-tight text-foreground mb-2">
+          My Orders
+        </h1>
+        <p className="text-sm font-light text-muted-foreground">
           View and manage your ticket orders
         </p>
       </div>
 
-      <Card>
+      <Card className="border border-foreground/10 bg-background/80 backdrop-blur-md shadow-lg">
         <CardContent className="p-6">
           <div className="flex gap-4 mb-4">
             <div className="flex-1">
@@ -79,14 +81,14 @@ export function MyOrdersPageClient() {
                 placeholder="Search by order code..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="max-w-sm"
+                className="max-w-sm bg-background/50 border-foreground/10"
               />
             </div>
             <Select
               value={statusFilter}
               onValueChange={handleStatusFilterChange}
             >
-              <SelectTrigger className="w-48">
+              <SelectTrigger className="w-48 bg-background/50 border-foreground/10">
                 <SelectValue placeholder="Filter by status" />
               </SelectTrigger>
               <SelectContent>
@@ -101,11 +103,11 @@ export function MyOrdersPageClient() {
 
           {orders.length === 0 ? (
             <div className="text-center py-12">
-              <p className="text-muted-foreground">No orders found</p>
+              <p className="text-muted-foreground font-light">No orders found</p>
             </div>
           ) : (
             <>
-              <div className="border rounded-md">
+              <div className="border border-foreground/10 rounded-md overflow-hidden bg-background/50">
                 <Table>
                   <TableHeader>
                     <TableRow>

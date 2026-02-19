@@ -6,6 +6,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { motion } from "framer-motion";
 import { Eye, EyeOff } from "lucide-react";
+import { Link } from "@/i18n/routing";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -30,10 +31,14 @@ import type { AuthError } from "../types/errors";
 import { useRateLimitCountdown } from "@/lib/hooks/useRateLimitCountdown";
 import { useRateLimitStore } from "@/lib/stores/useRateLimitStore";
 
-export function LoginForm() {
+interface LoginFormProps {
+  readonly redirectPath?: string | null;
+}
+
+export function LoginForm({ redirectPath }: LoginFormProps) {
   const t = useTranslations("auth.login");
   const { isAuthenticated } = useAuthStore();
-  const { handleLogin, isLoading, error, clearError } = useLogin();
+  const { handleLogin, isLoading, error, clearError } = useLogin(redirectPath ?? undefined);
   const [showPassword, setShowPassword] = useState(false);
 
   // Rate limit countdown hook - shows toast notification with countdown
@@ -256,6 +261,18 @@ export function LoginForm() {
                   >
                     {isFormLoading ? t("submitting") : t("submit")}
                   </Button>
+                </Field>
+
+                <Field>
+                  <p className="text-center text-sm font-light text-muted-foreground">
+                    {t("registerText")}{" "}
+                    <Link
+                      href="/register"
+                      className="text-primary hover:underline transition-colors"
+                    >
+                      {t("registerLink")}
+                    </Link>
+                  </p>
                 </Field>
               </FieldGroup>
             </form>

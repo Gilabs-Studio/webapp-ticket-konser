@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Link } from "@/i18n/routing";
+import { Link, usePathname } from "@/i18n/routing";
 import { Button } from "@/components/ui/button";
 import { useAuthStore } from "@/features/auth/stores/useAuthStore";
 import { UserMenu } from "@/components/user-menu";
@@ -15,6 +15,7 @@ interface HeaderProps {
 
 export default function Header({ locale }: HeaderProps) {
   const [scrolled, setScrolled] = useState(false);
+  const pathname = usePathname();
   const { isAuthenticated, user } = useAuthStore();
 
   useEffect(() => {
@@ -27,7 +28,7 @@ export default function Header({ locale }: HeaderProps) {
   }, []);
 
   const menuItems = [
-    { label: "Event", href: "/explore" },
+    { label: "Home", href: "/" },
     { label: "Merchandise", href: "/explore?tab=merchandise" },
     { label: "Ticket", href: "/explore" },
     { label: "About Us", href: "#about" },
@@ -38,6 +39,11 @@ export default function Header({ locale }: HeaderProps) {
   const isAdmin = ["admin", "super_admin"].includes(userRole);
   const isStaff = ["staff_ticket", "gate_staff", "gatekeeper"].includes(userRole);
   const isGuest = Boolean(isAuthenticated && user && !isAdmin && !isStaff);
+
+  // Build login URL with optional redirect param
+  const loginHref = pathname && pathname !== "/"
+    ? "/login?redirect=" + encodeURIComponent(pathname)
+    : "/login";
 
   return (
     <header
@@ -87,7 +93,7 @@ export default function Header({ locale }: HeaderProps) {
                 variant="outline"
                 className="text-sm font-light tracking-wide uppercase border-foreground/30 text-foreground hover:border-foreground/50 hover:bg-foreground/10 bg-background/50"
               >
-                <Link href={`/login`}>Login</Link>
+                <Link href={loginHref}>Login</Link>
               </Button>
             )}
           </div>

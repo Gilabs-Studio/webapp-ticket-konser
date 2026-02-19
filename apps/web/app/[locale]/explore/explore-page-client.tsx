@@ -40,6 +40,7 @@ function EventCard({
   readonly event: Event;
   readonly onSelect: (id: string) => void;
 }) {
+  const router = useRouter();
   return (
     <Card
       className="overflow-hidden cursor-pointer group transition-all hover:shadow-lg"
@@ -86,7 +87,16 @@ function EventCard({
             {event.description}
           </p>
         )}
-        <Button className="w-full gap-2" size="sm">
+        <Button
+          className="w-full gap-2"
+          size="sm"
+          type="button"
+          onClick={(e) => {
+            e.stopPropagation();
+            router.push(`/events/${event.id}/purchase`);
+          }}
+          aria-label={`Buy tickets for ${event.eventName}`}
+        >
           <Ticket className="h-4 w-4" />
           Buy Tickets
           <ArrowRight className="h-3 w-3" />
@@ -224,7 +234,7 @@ export function ExplorePageClient() {
   const products = merchData?.data ?? [];
 
   return (
-    <div className="space-y-8 max-w-7xl mx-auto">
+    <div>
       {/* Header */}
       <div className="flex items-center gap-4">
         <Button variant="ghost" size="icon" onClick={() => router.push("/")} aria-label="Back to home">
