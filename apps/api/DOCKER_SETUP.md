@@ -378,20 +378,20 @@ make clean  # (jika ada command clean di Makefile)
 5. **Backup database** secara berkala dari volume Docker
 6. **Update base images** secara berkala untuk security patches
 
-## Perbedaan dengan CRM Healthcare
+## Perbedaan dengan Euforia Healthcare
 
-| Item               | CRM Healthcare       | WebApp Ticketing                                               |
+| Item               | Euforia Healthcare       | WebApp Ticketing                                               |
 | ------------------ | -------------------- | -------------------------------------------------------------- |
 | Stack Name         | `api` (default)      | `ticketing_api` / `ticketing_api_prod`                         |
-| Database Container | `crm-healthcare-db`  | `ticketing-db` / `ticketing-db-prod`                           |
+| Database Container | `euforia-db`  | `ticketing-db` / `ticketing-db-prod`                           |
 | Redis Container    | -                    | `ticketing-redis`                                               |
-| API Container      | `crm-healthcare-api` | `ticketing-api` / `ticketing-api-prod`                         |
-| Network            | `crm-network`        | `ticketing-network` / `ticketing-network-prod`                 |
+| API Container      | `euforia-api` | `ticketing-api` / `ticketing-api-prod`                         |
+| Network            | `euforia-network`        | `ticketing-network` / `ticketing-network-prod`                 |
 | Volume             | `postgres_data`      | `ticketing_postgres_data` / `ticketing_postgres_data_prod`     |
 | PostgreSQL Port    | `5434:5432`          | `5438:5432`                                                    |
 | Redis Port         | -                    | `6379:6379`                                                    |
 | API Port           | `8080:8080`          | `8083:8083`                                                    |
-| Database Name      | `crm_healthcare`     | `ticketing_app`                                                |
+| Database Name      | `euforia`     | `ticketing_app`                                                |
 | Secrets            | Environment vars     | Docker secrets (production)                                    |
 
 Kedua project dapat berjalan bersamaan tanpa konflik.

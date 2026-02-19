@@ -22,8 +22,8 @@ const headingFont = Sora({
 });
 
 export const metadata: Metadata = {
-  title: "CRM Healthcare Platform",
-  description: "CRM Healthcare/Pharmaceutical Platform",
+  title: "Euforia",
+  description: "Euforia",
 };
 
 export const viewport: Viewport = {

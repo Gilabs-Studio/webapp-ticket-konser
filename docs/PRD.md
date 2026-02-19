@@ -119,7 +119,7 @@ Menyediakan solusi ticketing yang komprehensif, mudah digunakan, dan mobile-firs
 
 1. **Market Expansion**: Ekspansi ke berbagai jenis event (festival, seminar, dll)
 2. **Advanced Features**: Seat numbering, section mapping, advanced fraud detection
-3. **Integration**: Integrasi dengan sistem eksternal (marketing, CRM)
+3. **Integration**: Integrasi dengan sistem eksternal (marketing, Euforia)
 4. **AI/ML Integration**: Implementasi AI untuk fraud detection dan recommendation
 
 ---

@@ -110,7 +110,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
         <SidebarHeader>
           <div className="flex items-center gap-2 px-2 py-2 group-data-[collapsible=icon]:justify-center">
             <span className="text-sm font-semibold group-data-[collapsible=icon]:hidden">
-              UMN FESTIVAL
+              EUFORIA
             </span>
           </div>
         </SidebarHeader>
