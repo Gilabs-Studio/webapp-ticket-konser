@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Search, Filter, Plus, MoreVertical, Eye, Trash2, Edit, User } from "lucide-react";
+import { Search, Filter, Plus, MoreVertical, Eye, Trash2, Edit, User as UserIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -91,10 +91,9 @@ export function UserList() {
     setDeletingUserId,
     users,
     pagination,
-    roles,
     editingUserData,
     isLoading,
-    handleCreate,
+    handleCreate: _handleCreate,
     handleUpdate,
     handleDeleteClick,
     handleDeleteConfirm,
@@ -104,8 +103,11 @@ export function UserList() {
     updateUser,
   } = useUserList();
 
+  // Widen handleCreate to match UserForm.onSubmit contract (CreateUserFormData | UpdateUserFormData)
+  const handleCreate = _handleCreate as (data: import("../types").CreateUserFormData | import("../types").UpdateUserFormData) => Promise<void>;
+
   const { data: rolesData } = useRoles();
-  const allRoles = rolesData?.data ?? roles ?? [];
+  const allRoles = rolesData?.data ?? [];
 
   const [searchQuery, setSearchQuery] = useState(search);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
@@ -238,7 +240,7 @@ export function UserList() {
               <TableRow>
                 <TableCell colSpan={5} className="text-center py-8">
                   <div className="flex flex-col items-center gap-2">
-                    <User className="h-8 w-8 text-muted-foreground" />
+                    <UserIcon className="h-8 w-8 text-muted-foreground" />
                     <p className="text-sm text-muted-foreground">No users found</p>
                   </div>
                 </TableCell>

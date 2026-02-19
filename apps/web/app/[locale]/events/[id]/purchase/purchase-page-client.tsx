@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useQuery } from "@tanstack/react-query";
-import { useRouter } from "@/i18n/routing";
+import { useRouter, usePathname } from "@/i18n/routing";
 import { Button } from "@/components/ui/button";
 import {
   FieldError,
@@ -29,6 +29,7 @@ import { useCreateOrder } from "@/features/orders/hooks/useOrders";
 import { purchaseOrderSchema, type PurchaseOrderFormData } from "@/features/orders/schemas/purchase.schema";
 import { Skeleton } from "@/components/ui/skeleton";
 import { formatCurrency, formatDate } from "@/lib/utils";
+import { useAuthStore } from "@/features/auth/stores/useAuthStore";
 
 interface PurchasePageClientProps {
   readonly eventId: string;
@@ -36,8 +37,18 @@ interface PurchasePageClientProps {
 
 export function PurchasePageClient({ eventId }: PurchasePageClientProps) {
   const router = useRouter();
+  const pathname = usePathname();
+  const { isAuthenticated, user } = useAuthStore();
   const { mutate: createOrder, isPending } = useCreateOrder();
   const [selectedCategoryId, setSelectedCategoryId] = useState<string>("");
+
+  // Redirect to register if not authenticated (best practice: register at checkout step for new buyers)
+  useEffect(() => {
+    if (!isAuthenticated || !user) {
+      const redirectPath = encodeURIComponent(pathname);
+      router.replace(`/register?redirect=${redirectPath}`);
+    }
+  }, [isAuthenticated, user, router, pathname]);
 
   // Fetch event
   const { data: eventData, isLoading: isLoadingEvent } = usePublicEvent(eventId);
@@ -83,6 +94,14 @@ export function PurchasePageClient({ eventId }: PurchasePageClientProps) {
     }
   }, [selectedScheduleId, setValue]);
 
+  // Auto-fill buyer info from authenticated user
+  useEffect(() => {
+    if (user) {
+      if (user.name) setValue("buyer_name", user.name);
+      if (user.email) setValue("buyer_email", user.email);
+    }
+  }, [user, setValue]);
+
   // Get selected category
   const selectedCategory = categories.find((c) => c.id === selectedCategoryId);
 
@@ -99,6 +118,16 @@ export function PurchasePageClient({ eventId }: PurchasePageClientProps) {
   };
 
   if (isLoadingEvent || isLoadingCategories) {
+    return (
+      <div className="space-y-6">
+        <Skeleton className="h-8 w-64" />
+        <Skeleton className="h-96 w-full" />
+      </div>
+    );
+  }
+
+  // Show loading while redirecting to login
+  if (!isAuthenticated || !user) {
     return (
       <div className="space-y-6">
         <Skeleton className="h-8 w-64" />

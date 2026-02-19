@@ -12,6 +12,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useUser } from "../hooks/useUsers";
 import { useRole } from "../hooks/useRoles";
 import { useUserPermissions } from "../hooks/useUserPermissions";
+import type { RoleWithPermissions } from "../types";
 import { getInitials } from "./UserList";
 
 interface UserDetailPageClientProps {
@@ -27,11 +28,13 @@ export function UserDetailPageClient({ userId }: UserDetailPageClientProps) {
     user?.role_id || "",
     true, // include permissions
   );
-  const role = roleData?.data;
+  // useRole(id, true) returns RoleWithPermissions at runtime; cast for type safety
+  const role = roleData?.data as RoleWithPermissions | undefined;
 
   const { data: permissionsData, isLoading: isLoadingPermissions } =
     useUserPermissions();
-  const userPermissions = permissionsData?.data?.permissions ?? [];
+  // useUserPermissions returns UserPermissionsResponse directly (not wrapped in { data })
+  const userPermissions = permissionsData?.permissions ?? [];
 
   const isLoading = isLoadingUser || isLoadingRole || isLoadingPermissions;
 

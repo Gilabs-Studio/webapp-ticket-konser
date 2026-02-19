@@ -6,7 +6,6 @@ import { useLocale } from "next-intl";
 import { Link, usePathname } from "@/i18n/routing";
 import { Search, Settings, Menu as MenuIcon, ChevronRight } from "lucide-react";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { NotificationBadge } from "@/features/notifications/components/notification-badge";
 
 import { useAuthStore } from "@/features/auth/stores/use-auth-store";
 import { useUserPermissions } from "@/features/master-data/user-management/hooks/use-user-permissions";
@@ -35,8 +34,6 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from "
 import { getMenuIcon } from "@/lib/menu-icons";
 import { useLogout } from "@/features/auth/hooks/use-logout";
 import { useDashboardCommandPalette } from "@/hooks/use-dashboard-command-palette";
-import { NotificationDrawer } from "@/features/notifications/components/notification-drawer";
-import { useNotificationStore } from "@/features/notifications/stores/use-notification-store";
 
 import { IconSidebar, type IconSidebarItem } from "./icon-sidebar";
 import { DetailSidebar, type DetailSidebarItem } from "./detail-sidebar";
@@ -99,6 +96,21 @@ function findParentMenuByPath(menus: MenuWithActions[], pathname: string): strin
     if (hasMatch) return menu.id;
   }
   return null;
+}
+
+// Safe accessors to avoid `any` casts (keeps runtime checks)
+function getStringProp(obj: unknown, ...keys: string[]): string | undefined {
+  const record = obj as Record<string, unknown> | undefined;
+  if (!record) return undefined;
+  for (const k of keys) {
+    const v = record[k];
+    if (typeof v === "string" && v.trim() !== "") return v;
+  }
+  return undefined;
+}
+
+function getHref(obj: unknown): string | undefined {
+  return getStringProp(obj, "url", "path", "href");
 }
 
 interface DashboardLayoutProps {
@@ -189,7 +201,6 @@ const Header = memo(function Header({
       </div>
 
       <div className="ml-auto flex items-center gap-1 overflow-visible">
-        <NotificationBadge />
         <ThemeToggle />
 
         <Link
@@ -470,9 +481,8 @@ export const DashboardLayout = memo(function DashboardLayout({
   useValidateRole();
   
   const commandPalette = useDashboardCommandPalette({
-    menus: permissionsData?.data?.menus,
+    menus: permissionsData?.menus,
   });
-  const { isDrawerOpen, closeDrawer } = useNotificationStore();
   const pathname = usePathname();
   const isMobile = useIsMobile();
 
@@ -521,7 +531,7 @@ export const DashboardLayout = memo(function DashboardLayout({
 
   // Build parent items for icon sidebar
   const parentItems: IconSidebarItem[] = useMemo(() => {
-    const menus = permissionsData?.data?.menus;
+    const menus = permissionsData?.menus;
 
     const fallback: IconSidebarItem[] = [
       {
@@ -547,9 +557,9 @@ export const DashboardLayout = memo(function DashboardLayout({
 
       items.push({
         id: menu.id,
-        name: menu.name,
-        icon: getMenuIcon(menu.icon),
-        href: menu.url || undefined,
+        name: getStringProp(menu, "name", "label", "title") ?? menu.id,
+        icon: getMenuIcon(getStringProp(menu, "icon") ?? ""),
+        href: getHref(menu),
         hasChildren,
       });
     });
@@ -562,7 +572,7 @@ export const DashboardLayout = memo(function DashboardLayout({
   const detailItems: DetailSidebarItem[] = useMemo(() => {
     if (!activeParentId) return [];
 
-    const menus = permissionsData?.data?.menus;
+    const menus = permissionsData?.menus;
     if (!menus) return [];
 
     const parentMenu = menus.find((m) => m.id === activeParentId);
@@ -573,9 +583,9 @@ export const DashboardLayout = memo(function DashboardLayout({
         .filter((item) => checkViewPermission(item))
         .map((item) => ({
           id: item.id,
-          name: item.name,
-          href: item.url || undefined,
-          icon: getMenuIcon(item.icon),
+          name: getStringProp(item, "name", "label", "title") ?? item.id,
+          href: getHref(item),
+          icon: getMenuIcon(getStringProp(item, "icon") ?? ""),
           children: item.children ? buildDetailItems(item.children) : undefined,
         }));
     };
@@ -604,9 +614,9 @@ export const DashboardLayout = memo(function DashboardLayout({
 
   // Auto-detect active parent based on current path
   useEffect(() => {
-    if (!permissionsData?.data?.menus) return;
+    if (!permissionsData?.menus) return;
 
-    const menus = permissionsData.data.menus;
+    const menus = permissionsData.menus;
     const detectedParent = findParentMenuByPath(menus, pathname);
     
     if (detectedParent && detectedParent !== activeParentId) {
@@ -724,9 +734,6 @@ export const DashboardLayout = memo(function DashboardLayout({
           </div>
         </main>
 
-        {/* Notification Drawer */}
-        <NotificationDrawer open={isDrawerOpen} onOpenChange={closeDrawer} />
-
         {/* Command Palette */}
         <Dialog open={commandPalette.isOpen} onOpenChange={commandPalette.toggle}>
           <DialogContent
@@ -758,7 +765,7 @@ export const DashboardLayout = memo(function DashboardLayout({
                         value={item.name}
                         onSelect={() => commandPalette.onSelectItem(item.href)}
                       >
-                        {getMenuIcon(item.icon)}
+                        {getMenuIcon(getStringProp(item, "icon") ?? "")}
                         <span className="flex-1 truncate">{item.name}</span>
                         <span className="text-muted-foreground text-xs">
                           {item.href}

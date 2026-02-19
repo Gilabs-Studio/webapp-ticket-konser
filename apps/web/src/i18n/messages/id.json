@@ -18,7 +18,25 @@
       "rememberMe": "Ingat saya",
       "submit": "Masuk",
       "submitting": "Masuk...",
-      "rateLimitMessage": "Terlalu banyak percobaan login. Silakan coba lagi dalam {countdown}."
+      "rateLimitMessage": "Terlalu banyak percobaan login. Silakan coba lagi dalam {countdown}.",
+      "registerText": "Belum punya akun?",
+      "registerLink": "Daftar sekarang"
+    },
+    "register": {
+      "title": "Buat Akun",
+      "description": "Daftar untuk mulai memesan tiket konser",
+      "nameLabel": "Nama Lengkap",
+      "namePlaceholder": "Masukkan nama lengkap Anda",
+      "emailLabel": "Email",
+      "emailPlaceholder": "Masukkan email Anda",
+      "passwordLabel": "Kata Sandi",
+      "passwordPlaceholder": "Minimal 6 karakter",
+      "confirmPasswordLabel": "Konfirmasi Kata Sandi",
+      "confirmPasswordPlaceholder": "Ulangi kata sandi Anda",
+      "submit": "Daftar",
+      "submitting": "Mendaftar...",
+      "loginText": "Sudah punya akun?",
+      "loginLink": "Masuk"
     }
   },
   "admin": {
@@ -37,6 +55,7 @@
     "logout": "Keluar"
   },
   "common": {
+    "myTickets": "Tiket Saya",
     "orderHistory": "Riwayat Pesanan",
     "profile": "Profil",
     "logout": "Keluar",
@@ -246,11 +265,10 @@
     },
     "eventDetails": {
       "title": "Detail Acara",
-      "description": "Informasi dasar tentang acara Anda.",
+      "description": "Deskripsi",
       "eventName": "Nama Acara",
       "date": "Tanggal Acara",
       "location": "Lokasi",
-      "description": "Deskripsi",
       "bannerImage": "URL Gambar Banner",
       "contactEmail": "Email Kontak",
       "contactPhone": "Nomor Telepon Kontak"

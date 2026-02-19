@@ -54,3 +54,6 @@ secrets/
 *.secret
 *.key
 **/secrets/
+ 
+# Go cache
+**/.gocache

@@ -7,7 +7,7 @@ import { useState } from "react";
 import { setSecureCookie } from "@/lib/cookie";
 import { getNormalizedRoleCode } from "../utils/role";
 
-export function useLogin() {
+export function useLogin(redirectPath?: string) {
   const router = useRouter();
   const {
     setUser,
@@ -43,10 +43,16 @@ export function useLogin() {
           isAuthenticated: true,
           error: null,
         });
-        // Redirect berdasarkan role code
+
+        // If a redirect path was provided (e.g. from purchase flow), navigate there
+        if (redirectPath) {
+          router.push(decodeURIComponent(redirectPath));
+          return;
+        }
+
+        // Otherwise redirect based on role
         const userRole = getNormalizedRoleCode(user.role);
         if (userRole === "admin" || userRole === "super_admin") {
-          // Dashboard route moved from /admin/dashboard to /dashboard
           router.push("/dashboard");
         } else {
           // Staff (staff_ticket) or other roles - redirect to landing page

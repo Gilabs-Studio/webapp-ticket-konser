@@ -49,7 +49,7 @@ const iconMap: Record<string, React.ReactNode> = {
   users: <Users className="h-4 w-4" />,
   heart: <Heart className="h-4 w-4" />,
 
-  // Sales CRM icons
+  // Sales Euforia icons
   "trending-up": <TrendingUp className="h-4 w-4" />,
   contact: <Contact className="h-4 w-4" />,
 

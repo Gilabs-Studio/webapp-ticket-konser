@@ -205,3 +205,18 @@ export interface PermissionResponse {
   request_id: string;
 }
 
+// Menu types used by the dashboard layout and navigation
+export interface MenuAction {
+  id: string;
+  name?: string;
+  access?: boolean;
+}
+
+export interface MenuWithActions {
+  id: string;
+  title?: string;
+  url?: string;
+  actions?: MenuAction[];
+  children?: MenuWithActions[];
+}
+
