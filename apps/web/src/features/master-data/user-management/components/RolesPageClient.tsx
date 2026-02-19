@@ -33,7 +33,7 @@ import { PermissionAssignment } from "./PermissionAssignment";
 import { RoleForm } from "./RoleForm";
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
-import type { CreateRoleFormData, UpdateRoleFormData } from "../types";
+import type { CreateRoleFormData, UpdateRoleFormData, RoleWithPermissions } from "../types";
 
 export function RolesPageClient() {
   const router = useRouter();
@@ -51,7 +51,9 @@ export function RolesPageClient() {
   const { mutate: createRole, isPending: isCreating } = useCreateRole();
   
   // Get role with permissions for assignment dialog
-  const { data: roleForAssignment } = useRole(assigningRoleId || "", true);
+  // useRole(id, true) returns RoleWithPermissions at runtime; cast for type safety
+  const { data: _roleForAssignment } = useRole(assigningRoleId || "", true);
+  const roleForAssignment = _roleForAssignment as { data: RoleWithPermissions } | undefined;
   const { mutate: assignPermissions, isPending: isAssigning } = useAssignPermissions();
   
   // Get role for editing
@@ -105,8 +107,8 @@ export function RolesPageClient() {
     setEditingRoleId(roleId);
   };
 
-  const handleCreate = async (formData: CreateRoleFormData) => {
-    createRole(formData, {
+  const handleCreate = async (formData: CreateRoleFormData | UpdateRoleFormData) => {
+    createRole(formData as CreateRoleFormData, {
       onSuccess: () => {
         toast.success("Role created successfully");
         setIsCreateDialogOpen(false);

@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 export const eventStatusSchema = z.enum(["draft", "published", "closed"], {
-  errorMap: () => ({ message: "Status must be draft, published, or closed" }),
+  error: "Status must be draft, published, or closed",
 });
 
 export const createEventSchema = z

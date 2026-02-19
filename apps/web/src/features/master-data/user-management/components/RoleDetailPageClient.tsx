@@ -16,6 +16,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { useRole, useAssignPermissions } from "../hooks/useRoles";
+import type { RoleWithPermissions } from "../types";
 import { PermissionAssignment } from "./PermissionAssignment";
 import { toast } from "sonner";
 
@@ -31,7 +32,8 @@ export function RoleDetailPageClient({ roleId }: RoleDetailPageClientProps) {
   const { mutate: assignPermissions, isPending: isAssigning } =
     useAssignPermissions();
 
-  const role = roleData?.data;
+  // useRole(id, true) fetches with permissions included; cast to the correct type
+  const role = roleData?.data as RoleWithPermissions | undefined;
   const rolePermissions = role?.permissions ?? [];
 
   const handleAssignPermissions = async (permissionIds: string[]) => {
