@@ -3,6 +3,7 @@ import type {
   LoginRequest,
   LoginResponse,
   MenusPermissionsResponse,
+  RegisterRequest,
 } from "../types";
 
 export const authService = {
@@ -11,6 +12,11 @@ export const authService = {
       "/auth/login",
       credentials,
     );
+    return response.data;
+  },
+
+  async register(data: RegisterRequest): Promise<LoginResponse> {
+    const response = await apiClient.post<LoginResponse>("/auth/register", data);
     return response.data;
   },
 

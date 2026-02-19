@@ -7,7 +7,7 @@ export default function GatesLoading() {
         <Skeleton className="h-6 w-32" />
         <Skeleton className="h-8 w-24" />
       </div>
-      <div className="border border-border bg-card rounded-xl overflow-hidden">
+      <div className="border border-border bg-card rounded-md overflow-hidden">
         <div className="p-4 border-b border-border bg-muted/50">
           <Skeleton className="h-10 w-full" />
         </div>

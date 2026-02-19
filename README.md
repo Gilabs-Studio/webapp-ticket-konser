@@ -133,7 +133,7 @@ Server akan berjalan di `http://localhost:8080`
 Di root project (bukan di folder lain), tersedia script helper:
 
 ```bash
-cd D:\Files\Documents\Pekerjaan\Gilabs\crm-healthcare
+cd D:\Files\Documents\Pekerjaan\Gilabs\euforia-healthcare
 pnpm run dev:web-api-docker
 ```
 

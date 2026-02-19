@@ -1,12 +1,12 @@
 package auth
 
 import (
-	"github.com/gin-gonic/gin"
-	"github.com/go-playground/validator/v10"
 	"github.com/gilabs/webapp-ticket-konser/api/internal/domain/auth"
 	authservice "github.com/gilabs/webapp-ticket-konser/api/internal/service/auth"
 	"github.com/gilabs/webapp-ticket-konser/api/pkg/errors"
 	"github.com/gilabs/webapp-ticket-konser/api/pkg/response"
+	"github.com/gin-gonic/gin"
+	"github.com/go-playground/validator/v10"
 )
 
 type Handler struct {
@@ -54,12 +54,6 @@ func (h *Handler) Login(c *gin.Context) {
 			}, nil)
 			return
 		}
-		if err.Error() == "this role cannot login to admin dashboard" {
-			errors.ErrorResponse(c, "FORBIDDEN", map[string]interface{}{
-				"reason": "This role cannot login to admin dashboard",
-			}, nil)
-			return
-		}
 		errors.InternalServerErrorResponse(c, "")
 		return
 	}
@@ -72,6 +66,51 @@ func (h *Handler) Login(c *gin.Context) {
 	}
 
 	response.SuccessResponse(c, loginResponse, meta)
+}
+
+// Register handles buyer self-registration
+// @Summary Register new buyer account
+// @Description Create a new buyer (guest) account and return JWT tokens for immediate login
+// @Tags auth
+// @Accept json
+// @Produce json
+// @Param request body auth.RegisterRequest true "Registration details"
+// @Success 201 {object} response.APIResponse
+// @Failure 400 {object} response.APIResponse
+// @Failure 409 {object} response.APIResponse
+// @Router /api/v1/auth/register [post]
+func (h *Handler) Register(c *gin.Context) {
+	var req auth.RegisterRequest
+
+	if err := c.ShouldBindJSON(&req); err != nil {
+		if validationErrors, ok := err.(validator.ValidationErrors); ok {
+			errors.HandleValidationError(c, validationErrors)
+			return
+		}
+		errors.InvalidRequestBodyResponse(c)
+		return
+	}
+
+	registerResponse, err := h.authService.Register(&req)
+	if err != nil {
+		switch err {
+		case authservice.ErrPasswordMismatch:
+			errors.ErrorResponse(c, "VALIDATION_ERROR", map[string]interface{}{
+				"confirm_password": "Passwords do not match",
+			}, nil)
+		case authservice.ErrUserAlreadyExists:
+			errors.ErrorResponse(c, "EMAIL_ALREADY_EXISTS", map[string]interface{}{
+				"email": "Email is already registered",
+			}, nil)
+		case authservice.ErrGuestRoleNotFound:
+			errors.InternalServerErrorResponse(c, "Registration configuration error")
+		default:
+			errors.InternalServerErrorResponse(c, "")
+		}
+		return
+	}
+
+	response.SuccessResponseCreated(c, registerResponse, nil)
 }
 
 // RefreshToken handles refresh token request

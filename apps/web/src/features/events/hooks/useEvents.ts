@@ -56,11 +56,11 @@ export function usePublicEvents(filters?: {
   });
 }
 
-export function usePublicEvent(id: string) {
+export function usePublicEvent(id: string, options?: { enabled?: boolean }) {
   return useQuery({
     queryKey: ["events", "public", id],
     queryFn: () => eventService.getPublicEventById(id),
-    enabled: !!id && id !== "",
+    enabled: options?.enabled !== undefined ? options.enabled : (!!id && id !== ""),
     staleTime: 0,
     retry: (failureCount, error) => {
       if (error && typeof error === "object" && "response" in error) {
@@ -191,7 +191,7 @@ export function useUpdateEvent() {
                 return false;
               }
               const data = query.state.data as { data?: Event[] };
-              return data?.data && Array.isArray(data.data);
+              return !!(data?.data && Array.isArray(data.data));
             },
           },
           (oldData: { data?: Event[] }) => {
@@ -312,7 +312,7 @@ export function useUpdateEventStatus() {
             exact: false,
             predicate: (query) => {
               const data = query.state.data as { data?: Event[] };
-              return data?.data && Array.isArray(data.data);
+              return !!(data?.data && Array.isArray(data.data));
             },
           },
           (oldData: { data?: Event[] }) => {
@@ -412,4 +412,6 @@ export function useUploadBanner() {
     },
   });
 }
+
+
 

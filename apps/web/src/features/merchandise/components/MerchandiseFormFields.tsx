@@ -19,7 +19,7 @@ interface MerchandiseFormFieldsProps {
   readonly errors: FieldErrors<MerchandiseFormData | UpdateMerchandiseFormData>;
   readonly register: UseFormRegister<MerchandiseFormData | UpdateMerchandiseFormData>;
   readonly eventId?: string;
-  readonly events: Array<{ id: string; event_name: string }>;
+  readonly events: Array<{ id: string; eventName: string }>;
   readonly onEventChange: (value: string) => void;
 }
 
@@ -52,7 +52,7 @@ export function MerchandiseFormFields({
             <SelectContent>
               {events.map((event) => (
                 <SelectItem key={event.id} value={event.id}>
-                  {event.event_name}
+                  {event.eventName}
                 </SelectItem>
               ))}
             </SelectContent>

@@ -7,7 +7,7 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
 
 const badgeVariants = cva(
-  "inline-flex items-center justify-center border px-2 py-0.5 text-xs font-light tracking-wide uppercase w-fit whitespace-nowrap shrink-0 [&>svg]:size-3 gap-1 [&>svg]:pointer-events-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive overflow-hidden relative rounded-md",
+  "inline-flex items-center justify-center rounded-full border px-2 py-0.5 text-xs font-medium w-fit whitespace-nowrap shrink-0 [&>svg]:size-3 gap-1 [&>svg]:pointer-events-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive transition-all duration-300 overflow-hidden relative",
   {
     variants: {
       variant: {
@@ -20,9 +20,9 @@ const badgeVariants = cva(
         outline:
           "text-foreground [a&]:hover:bg-accent [a&]:hover:text-accent-foreground [a&]:hover:scale-105 [a&]:hover:shadow-sm",
         success:
-          "border-transparent bg-green-500/10 text-green-700 dark:text-green-400 border-green-500/20 [a&]:hover:scale-105 [a&]:hover:shadow-sm",
+          "border-transparent bg-green-600 text-white dark:bg-green-500/80 dark:text-white [a&]:hover:bg-green-600/90 [a&]:hover:scale-105 [a&]:hover:shadow-md [a&]:hover:shadow-green-300",
         warning:
-          "border-transparent bg-yellow-500/10 text-yellow-700 dark:text-yellow-400 border-yellow-500/20 [a&]:hover:scale-105 [a&]:hover:shadow-sm",
+          "border-transparent bg-yellow-400 text-yellow-900 dark:bg-yellow-500/80 dark:text-yellow-100 [a&]:hover:bg-yellow-400/90 [a&]:hover:scale-105 [a&]:hover:shadow-md [a&]:hover:shadow-yellow-300",
         active:
           "border-transparent bg-primary/10 text-primary border-primary/20 [a&]:hover:scale-105 [a&]:hover:shadow-sm [a&]:hover:bg-primary/20",
         inactive: "border-transparent bg-muted text-muted-foreground",

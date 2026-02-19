@@ -628,7 +628,7 @@ Backend Standards (Go + Gin)
 - Follow API response standards from `/docs/api-standart/`.
 - All errors must use error codes from `/docs/api-standart/api-error-codes.md`.
 - **CRITICAL**: When adding/modifying backend endpoints:
-  1. Update Postman collection: `/docs/postman/CRM-Healthcare-API.postman_collection.json`
+  1. Update Postman collection: `/docs/postman/Euforia-Healthcare-API.postman_collection.json`
   2. Update Postman documentation if needed: `/docs/postman/README.md` or `/docs/postman/SETUP.md`
   3. Test with Postman before marking as complete.
 

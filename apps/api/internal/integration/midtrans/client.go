@@ -2,6 +2,7 @@ package midtrans
 
 import (
 	"bytes"
+	"context"
 	"crypto/sha512"
 	"encoding/base64"
 	"encoding/hex"
@@ -9,6 +10,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/gilabs/webapp-ticket-konser/api/internal/config"
@@ -137,6 +139,10 @@ type WebhookPayload struct {
 
 // CreateTransaction creates a new Midtrans transaction
 func (c *Client) CreateTransaction(req *CreateTransactionRequest) (*CreateTransactionResponse, error) {
+	return c.CreateTransactionWithContext(context.Background(), req)
+}
+
+func (c *Client) CreateTransactionWithContext(ctx context.Context, req *CreateTransactionRequest) (*CreateTransactionResponse, error) {
 	url := fmt.Sprintf("%s/v2/charge", c.APIBaseURL)
 
 	jsonData, err := json.Marshal(req)
@@ -144,7 +150,7 @@ func (c *Client) CreateTransaction(req *CreateTransactionRequest) (*CreateTransa
 		return nil, fmt.Errorf("failed to marshal request: %w", err)
 	}
 
-	httpReq, err := http.NewRequest("POST", url, bytes.NewBuffer(jsonData))
+	httpReq, err := http.NewRequestWithContext(ctx, "POST", url, bytes.NewBuffer(jsonData))
 	if err != nil {
 		return nil, fmt.Errorf("failed to create request: %w", err)
 	}
@@ -186,9 +192,13 @@ func (c *Client) CreateTransaction(req *CreateTransactionRequest) (*CreateTransa
 
 // GetTransactionStatus gets transaction status from Midtrans
 func (c *Client) GetTransactionStatus(transactionID string) (*TransactionStatusResponse, error) {
+	return c.GetTransactionStatusWithContext(context.Background(), transactionID)
+}
+
+func (c *Client) GetTransactionStatusWithContext(ctx context.Context, transactionID string) (*TransactionStatusResponse, error) {
 	url := fmt.Sprintf("%s/v2/%s/status", c.APIBaseURL, transactionID)
 
-	httpReq, err := http.NewRequest("GET", url, nil)
+	httpReq, err := http.NewRequestWithContext(ctx, "GET", url, nil)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create request: %w", err)
 	}
@@ -238,7 +248,7 @@ func (c *Client) VerifyWebhookSignature(payload *WebhookPayload) bool {
 	expectedSignature := hex.EncodeToString(hash[:])
 
 	// Compare with signature_key from payload (case-insensitive)
-	return expectedSignature == payload.SignatureKey
+	return strings.EqualFold(expectedSignature, payload.SignatureKey)
 }
 
 // getBasicAuth returns Basic Auth header value

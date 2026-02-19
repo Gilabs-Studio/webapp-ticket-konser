@@ -26,6 +26,24 @@ export function useMerchandise(filters?: {
   });
 }
 
+export function usePublicMerchandise(filters?: { page?: number; per_page?: number }) {
+  return useQuery({
+    queryKey: ["merchandise", "public", filters],
+    queryFn: () => merchandiseService.getPublicMerchandise(filters),
+    staleTime: 0,
+    refetchOnMount: true,
+  });
+}
+
+export function usePublicMerchandiseById(id: string) {
+  return useQuery({
+    queryKey: ["merchandise", "public", id],
+    queryFn: () => merchandiseService.getPublicMerchandiseById(id),
+    enabled: !!id && id !== "",
+    staleTime: 0,
+  });
+}
+
 export function useMerchandiseById(id: string) {
   return useQuery({
     queryKey: ["merchandise", id],
@@ -132,6 +150,7 @@ export function useUpdateMerchandise() {
         stock: data.stock,
         variant: data.variant,
         iconName: data.icon_name,
+        isActive: data.status === "active",
       });
 
       // If image file exists, upload it and return the upload response (which has the new image URL)

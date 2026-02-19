@@ -1,6 +1,8 @@
 package gate
 
 import (
+	"time"
+
 	"github.com/gilabs/webapp-ticket-konser/api/internal/api/handlers/gate"
 	"github.com/gilabs/webapp-ticket-konser/api/internal/api/middleware"
 	"github.com/gilabs/webapp-ticket-konser/api/internal/repository/interfaces/role"
@@ -19,8 +21,8 @@ func SetupRoutes(
 	gateRoutes.Use(middleware.AuthMiddleware(jwtManager))
 	gateRoutes.Use(middleware.RequirePermission("gate.read", roleRepo))
 	{
-		gateRoutes.GET("", gateHandler.List)                    // List all gates
-		gateRoutes.GET("/:id", gateHandler.GetByID)             // Get gate by ID
+		gateRoutes.GET("", gateHandler.List)                         // List all gates
+		gateRoutes.GET("/:id", gateHandler.GetByID)                  // Get gate by ID
 		gateRoutes.GET("/:id/statistics", gateHandler.GetStatistics) // Get gate statistics
 	}
 
@@ -52,13 +54,24 @@ func SetupRoutes(
 	assignmentRoutes.Use(middleware.RequirePermission("gate.update", roleRepo))
 	{
 		assignmentRoutes.POST("/:id/assign-ticket", gateHandler.AssignTicketToGate) // Assign ticket to gate
+		assignmentRoutes.POST("/:id/assign-staff", gateHandler.AssignStaffToGate)  // Assign staff to gate
+		assignmentRoutes.DELETE("/:id/assign-staff/:staff_id", gateHandler.UnassignStaffFromGate) // Unassign staff from gate
+	}
+
+	// My gates (gatekeeper/staff)
+	myGateRoutes := router.Group("/gates")
+	myGateRoutes.Use(middleware.AuthMiddleware(jwtManager))
+	myGateRoutes.Use(middleware.RequirePermission("checkin.create", roleRepo))
+	{
+		myGateRoutes.GET("/my", gateHandler.ListMyGates)
 	}
 
 	// Gate check-in routes (authenticated users - staff can check-in at their assigned gate)
 	checkInRoutes := router.Group("/gates")
 	checkInRoutes.Use(middleware.AuthMiddleware(jwtManager))
+	checkInRoutes.Use(middleware.RequirePermission("checkin.create", roleRepo))
 	checkInRoutes.Use(middleware.CheckInRateLimitMiddleware()) // Rate limiting for check-in endpoints
 	{
-		checkInRoutes.POST("/:id/check-in", gateHandler.GateCheckIn) // Perform check-in at gate
+		checkInRoutes.POST("/:id/check-in", middleware.IdempotencyMiddleware(middleware.IdempotencyConfig{TTL: 10 * time.Minute}), gateHandler.GateCheckIn) // Perform check-in at gate
 	}
 }

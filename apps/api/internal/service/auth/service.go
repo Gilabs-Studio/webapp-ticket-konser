@@ -2,10 +2,12 @@ package auth
 
 import (
 	"errors"
+	"net/url"
 
 	"github.com/gilabs/webapp-ticket-konser/api/internal/domain/auth"
 	"github.com/gilabs/webapp-ticket-konser/api/internal/domain/menu"
 	"github.com/gilabs/webapp-ticket-konser/api/internal/domain/permission"
+	"github.com/gilabs/webapp-ticket-konser/api/internal/domain/user"
 	authrepo "github.com/gilabs/webapp-ticket-konser/api/internal/repository/interfaces/auth"
 	"github.com/gilabs/webapp-ticket-konser/api/internal/repository/interfaces/role"
 	menuservice "github.com/gilabs/webapp-ticket-konser/api/internal/service/menu"
@@ -18,6 +20,9 @@ var (
 	ErrInvalidCredentials = errors.New("invalid credentials")
 	ErrUserNotFound       = errors.New("user not found")
 	ErrUserInactive       = errors.New("user is inactive")
+	ErrUserAlreadyExists  = errors.New("email already registered")
+	ErrPasswordMismatch   = errors.New("passwords do not match")
+	ErrGuestRoleNotFound  = errors.New("guest role configuration not found")
 )
 
 type Service struct {
@@ -57,13 +62,8 @@ func (s *Service) Login(req *auth.LoginRequest) (*auth.LoginResponse, error) {
 		return nil, ErrInvalidCredentials
 	}
 
-	// Check if user role can login admin
-	if user.RoleID != "" {
-		role, err := s.roleRepo.FindByID(user.RoleID)
-		if err == nil && !role.CanLoginAdmin {
-			return nil, errors.New("this role cannot login to admin dashboard")
-		}
-	}
+	// Note: CanLoginAdmin is enforced at the admin dashboard routes level,
+	// not at login. All active users (including guests) can authenticate.
 
 	// Get role code and role ID
 	roleCode := "user"
@@ -111,6 +111,102 @@ func (s *Service) Login(req *auth.LoginRequest) (*auth.LoginResponse, error) {
 		Permissions: permissions,
 		CreatedAt:  userResp.CreatedAt,
 		UpdatedAt:  userResp.UpdatedAt,
+	}
+
+	return &auth.LoginResponse{
+		User:         authUserResp,
+		Token:        accessToken,
+		RefreshToken: refreshToken,
+		ExpiresIn:    expiresIn,
+	}, nil
+}
+
+// Register creates a new buyer (guest) account and returns tokens for immediate login
+func (s *Service) Register(req *auth.RegisterRequest) (*auth.LoginResponse, error) {
+	// Validate passwords match
+	if req.Password != req.ConfirmPassword {
+		return nil, ErrPasswordMismatch
+	}
+
+	// Ensure email is not already registered
+	_, err := s.repo.FindByEmail(req.Email)
+	if err == nil {
+		return nil, ErrUserAlreadyExists
+	}
+	if !errors.Is(err, gorm.ErrRecordNotFound) {
+		return nil, err
+	}
+
+	// Resolve the guest (buyer) role
+	guestRole, err := s.roleRepo.FindByCode("guest")
+	if err != nil {
+		return nil, ErrGuestRoleNotFound
+	}
+
+	// Hash the password
+	hashed, err := bcrypt.GenerateFromPassword([]byte(req.Password), bcrypt.DefaultCost)
+	if err != nil {
+		return nil, err
+	}
+
+	// Generate a deterministic avatar from the email via DiceBear
+	avatarURL := "https://api.dicebear.com/7.x/lorelei/svg?seed=" + url.QueryEscape(req.Email)
+
+	// Persist the new user
+	newUser := &user.User{
+		Email:     req.Email,
+		Password:  string(hashed),
+		Name:      req.Name,
+		AvatarURL: avatarURL,
+		RoleID:    guestRole.ID,
+		Status:    "active",
+	}
+	if err := s.repo.Create(newUser); err != nil {
+		return nil, err
+	}
+
+	// Reload to hydrate the Role association
+	created, err := s.repo.FindByID(newUser.ID)
+	if err != nil {
+		return nil, err
+	}
+
+	// Build token response (same shape as Login)
+	roleCode := guestRole.Code
+	roleID := guestRole.ID
+
+	var permissions []string
+	perms, err := s.roleRepo.GetPermissions(roleID)
+	if err == nil {
+		permissions = make([]string, len(perms))
+		for i, p := range perms {
+			permissions[i] = p.Code
+		}
+	}
+
+	accessToken, err := s.jwtManager.GenerateAccessToken(created.ID, created.Email, roleCode, roleID)
+	if err != nil {
+		return nil, err
+	}
+
+	refreshToken, err := s.jwtManager.GenerateRefreshToken(created.ID)
+	if err != nil {
+		return nil, err
+	}
+
+	expiresIn := int(s.jwtManager.AccessTokenTTL().Seconds())
+
+	userResp := created.ToUserResponse()
+	authUserResp := &auth.UserResponse{
+		ID:          userResp.ID,
+		Email:       userResp.Email,
+		Name:        userResp.Name,
+		AvatarURL:   userResp.AvatarURL,
+		Role:        roleCode,
+		Status:      userResp.Status,
+		Permissions: permissions,
+		CreatedAt:   userResp.CreatedAt,
+		UpdatedAt:   userResp.UpdatedAt,
 	}
 
 	return &auth.LoginResponse{

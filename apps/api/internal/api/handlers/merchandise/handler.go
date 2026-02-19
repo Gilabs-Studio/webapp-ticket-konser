@@ -1,16 +1,17 @@
 package merchandise
 
 import (
+	stderrors "errors"
 	"fmt"
 	"net/http"
 	"os"
 	"path/filepath"
-	"time"
 
 	"github.com/gilabs/webapp-ticket-konser/api/internal/domain/merchandise"
 	merchandiseservice "github.com/gilabs/webapp-ticket-konser/api/internal/service/merchandise"
 	"github.com/gilabs/webapp-ticket-konser/api/pkg/errors"
 	"github.com/gilabs/webapp-ticket-konser/api/pkg/response"
+	"github.com/gilabs/webapp-ticket-konser/api/pkg/upload"
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
 )
@@ -186,6 +187,13 @@ func (h *Handler) UploadImage(c *gin.Context) {
 	// Get file from form data
 	file, err := c.FormFile("image")
 	if err != nil {
+		var mbe *http.MaxBytesError
+		if stderrors.As(err, &mbe) {
+			errors.ErrorResponse(c, "PAYLOAD_TOO_LARGE", map[string]interface{}{
+				"max_body_bytes": mbe.Limit,
+			}, nil)
+			return
+		}
 		errors.ErrorResponse(c, "VALIDATION_ERROR", map[string]interface{}{
 			"reason": "Image file is required",
 			"field":  "image",
@@ -240,12 +248,16 @@ func (h *Handler) UploadImage(c *gin.Context) {
 		return
 	}
 
-	// Generate unique filename
-	filename := fmt.Sprintf("%s_%d_%s", id, time.Now().Unix(), file.Filename)
-	filepath := filepath.Join(uploadDir, filename)
+	// Generate server-controlled filename (do not use client-provided file.Filename)
+	filename, err := upload.GenerateImageFilename(contentType)
+	if err != nil {
+		errors.InternalServerErrorResponse(c, "")
+		return
+	}
+	dstPath := filepath.Join(uploadDir, filename)
 
 	// Save file
-	if err := c.SaveUploadedFile(file, filepath); err != nil {
+	if err := c.SaveUploadedFile(file, dstPath); err != nil {
 		errors.InternalServerErrorResponse(c, "")
 		return
 	}
@@ -257,7 +269,7 @@ func (h *Handler) UploadImage(c *gin.Context) {
 	merchandise, err := h.merchandiseService.UpdateImageURL(id, imageURL)
 	if err != nil {
 		// Clean up uploaded file if update fails
-		os.Remove(filepath)
+		os.Remove(dstPath)
 		if err == merchandiseservice.ErrMerchandiseNotFound {
 			errors.NotFoundResponse(c, "merchandise", id)
 			return
@@ -268,4 +280,71 @@ func (h *Handler) UploadImage(c *gin.Context) {
 
 	meta := &response.Meta{}
 	response.SuccessResponse(c, merchandise, meta)
+}
+
+// ListPublic lists active merchandises for public/guest browsing
+// GET /api/v1/public/merchandise
+func (h *Handler) ListPublic(c *gin.Context) {
+	var req merchandise.ListMerchandiseRequest
+	if err := c.ShouldBindQuery(&req); err != nil {
+		if validationErrors, ok := err.(validator.ValidationErrors); ok {
+			errors.HandleValidationError(c, validationErrors)
+		} else {
+			errors.InvalidQueryParamResponse(c)
+		}
+		return
+	}
+
+	// Force active status for public routes
+	req.Status = "active"
+
+	merchandises, pagination, err := h.merchandiseService.List(&req)
+	if err != nil {
+		errors.InternalServerErrorResponse(c, "")
+		return
+	}
+
+	meta := &response.Meta{
+		Pagination: pagination,
+		Filters: map[string]interface{}{
+			"event_id": req.EventID,
+			"status":   "active",
+		},
+	}
+	response.SuccessResponse(c, merchandises, meta)
+}
+
+// GetByIDPublic gets an active merchandise by ID for public/guest browsing
+// GET /api/v1/public/merchandise/:id
+func (h *Handler) GetByIDPublic(c *gin.Context) {
+	id := c.Param("id")
+	if id == "" {
+		errors.ErrorResponse(c, "INVALID_PATH_PARAM", map[string]interface{}{
+			"param": "id",
+		}, nil)
+		return
+	}
+
+	merch, err := h.merchandiseService.GetByID(id)
+	if err != nil {
+		if err == merchandiseservice.ErrMerchandiseNotFound {
+			errors.NotFoundResponse(c, "merchandise", id)
+			return
+		}
+		errors.InternalServerErrorResponse(c, "")
+		return
+	}
+
+	// Only show active merchandise to public
+	if merch.Status != "active" {
+		errors.NotFoundResponse(c, "merchandise", id)
+		return
+	}
+
+	// Strip admin-only data from public response
+	merch.PurchaseHistory = nil
+	merch.ItemHistory = nil
+
+	meta := &response.Meta{}
+	response.SuccessResponse(c, merch, meta)
 }

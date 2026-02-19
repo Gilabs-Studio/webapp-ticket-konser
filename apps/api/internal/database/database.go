@@ -4,7 +4,9 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"strconv"
 	"strings"
+	"time"
 
 	"github.com/gilabs/webapp-ticket-konser/api/internal/config"
 	"github.com/gilabs/webapp-ticket-konser/api/internal/domain/checkin"
@@ -30,18 +32,79 @@ var DB *gorm.DB
 // Connect initializes database connection
 func Connect() error {
 	dsn := config.GetDSN()
+	logMode := resolveGormLogMode()
 
 	var err error
 	DB, err = gorm.Open(postgres.Open(dsn), &gorm.Config{
-		Logger: logger.Default.LogMode(logger.Info),
+		Logger: logger.Default.LogMode(logMode),
 	})
 
 	if err != nil {
 		return fmt.Errorf("failed to connect to database: %w", err)
 	}
 
+	sqlDB, err := DB.DB()
+	if err != nil {
+		return fmt.Errorf("failed to get sql DB from gorm: %w", err)
+	}
+
+	// Connection pool tuning — optimized for high-traffic event scenarios (1K-3K concurrent users)
+	// Override via env vars for production fine-tuning
+	maxOpenConns := getEnvInt("DB_MAX_OPEN_CONNS", 50)
+	maxIdleConns := getEnvInt("DB_MAX_IDLE_CONNS", 20)
+	connMaxLifetimeMin := getEnvInt("DB_CONN_MAX_LIFETIME_MINUTES", 30)
+	connMaxIdleTimeMin := getEnvInt("DB_CONN_MAX_IDLE_TIME_MINUTES", 5)
+
+	sqlDB.SetMaxOpenConns(maxOpenConns)
+	sqlDB.SetMaxIdleConns(maxIdleConns)
+	sqlDB.SetConnMaxLifetime(time.Duration(connMaxLifetimeMin) * time.Minute)
+	sqlDB.SetConnMaxIdleTime(time.Duration(connMaxIdleTimeMin) * time.Minute)
+
+	// Set global statement timeout to prevent runaway queries from holding connections
+	statementTimeout := getEnvInt("DB_STATEMENT_TIMEOUT_SECONDS", 30)
+	DB.Exec(fmt.Sprintf("SET statement_timeout = '%ds'", statementTimeout))
+
 	log.Println("Database connected successfully")
 	return nil
+}
+
+func resolveGormLogMode() logger.LogLevel {
+	// Allow explicit override.
+	switch strings.ToLower(strings.TrimSpace(os.Getenv("GORM_LOG_LEVEL"))) {
+	case "silent":
+		return logger.Silent
+	case "error":
+		return logger.Error
+	case "warn", "warning":
+		return logger.Warn
+	case "info":
+		return logger.Info
+	}
+
+	// Default based on environment.
+	env := ""
+	if config.AppConfig != nil {
+		env = config.AppConfig.Server.Env
+	}
+	if env == "" {
+		env = os.Getenv("ENV")
+	}
+	if env == "production" || env == "prod" {
+		return logger.Warn
+	}
+	return logger.Info
+}
+
+func getEnvInt(key string, defaultValue int) int {
+	value := strings.TrimSpace(os.Getenv(key))
+	if value == "" {
+		return defaultValue
+	}
+	parsed, err := strconv.Atoi(value)
+	if err != nil {
+		return defaultValue
+	}
+	return parsed
 }
 
 // AutoMigrate runs database migrations
@@ -83,7 +146,9 @@ func AutoMigrate() error {
 		&orderitem.OrderItem{},
 		&checkin.CheckIn{},
 		&gate.Gate{},
+		&gate.GateStaffAssignment{},
 		&merchandise.Merchandise{},
+		&merchandise.StockLog{},
 		&settings.Settings{},
 	)
 	if err != nil {

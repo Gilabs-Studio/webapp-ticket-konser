@@ -57,3 +57,5 @@ export type CreateEventFormData = z.infer<typeof createEventSchema>;
 export type UpdateEventFormData = z.infer<typeof updateEventSchema>;
 export type UpdateEventStatusFormData = z.infer<typeof updateEventStatusSchema>;
 
+
+

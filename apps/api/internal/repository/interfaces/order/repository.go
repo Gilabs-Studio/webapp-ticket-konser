@@ -34,4 +34,10 @@ type Repository interface {
 
 	// FindExpiredUnpaidOrders finds expired unpaid orders
 	FindExpiredUnpaidOrders() ([]*order.Order, error)
+
+	// FindByIdempotencyKey finds an order by idempotency key (for deduplication)
+	FindByIdempotencyKey(key string) (*order.Order, error)
+
+	// FindUnrestoredCanceledOrders finds canceled/failed orders where quota has not been restored
+	FindUnrestoredCanceledOrders() ([]*order.Order, error)
 }

@@ -32,7 +32,7 @@ func (r *Repository) FindByID(id string) (*order.Order, error) {
 		Preload("Schedule.Event").
 		First(&o).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, ErrOrderNotFound
+			return nil, errors.Join(gorm.ErrRecordNotFound, ErrOrderNotFound)
 		}
 		return nil, err
 	}
@@ -44,7 +44,7 @@ func (r *Repository) FindByOrderCode(orderCode string) (*order.Order, error) {
 	var o order.Order
 	if err := r.db.Where("order_code = ?", orderCode).Preload("User").Preload("Schedule.Event").First(&o).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, ErrOrderNotFound
+			return nil, errors.Join(gorm.ErrRecordNotFound, ErrOrderNotFound)
 		}
 		return nil, err
 	}
@@ -88,7 +88,30 @@ func (r *Repository) Delete(id string) error {
 func (r *Repository) FindExpiredUnpaidOrders() ([]*order.Order, error) {
 	var orders []*order.Order
 	now := time.Now()
-	if err := r.db.Where("payment_status = ? AND payment_expires_at IS NOT NULL AND payment_expires_at < ?", order.PaymentStatusUnpaid, now).
+	if err := r.db.Select("id").
+		Where("payment_status = ? AND payment_expires_at IS NOT NULL AND payment_expires_at < ?", order.PaymentStatusUnpaid, now).
+		Find(&orders).Error; err != nil {
+		return nil, err
+	}
+	return orders, nil
+}
+
+// FindByIdempotencyKey finds an order by idempotency key (for deduplication)
+func (r *Repository) FindByIdempotencyKey(key string) (*order.Order, error) {
+	var o order.Order
+	if err := r.db.Where("idempotency_key = ?", key).
+		Preload("User").Preload("Schedule.Event").
+		First(&o).Error; err != nil {
+		return nil, err
+	}
+	return &o, nil
+}
+
+// FindUnrestoredCanceledOrders finds canceled/failed orders where quota has not been restored
+func (r *Repository) FindUnrestoredCanceledOrders() ([]*order.Order, error) {
+	var orders []*order.Order
+	if err := r.db.Where("payment_status IN (?, ?) AND quota_restored = false",
+		order.PaymentStatusCanceled, order.PaymentStatusFailed).
 		Find(&orders).Error; err != nil {
 		return nil, err
 	}

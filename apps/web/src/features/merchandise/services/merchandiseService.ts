@@ -39,6 +39,21 @@ interface MerchandiseResponse {
   status: "active" | "inactive";
   created_at: string;
   updated_at: string;
+  purchase_history?: {
+    date: string;
+    quantity: number;
+    total_amount: number;
+  }[];
+  item_history?: {
+    id: string;
+    date: string; // created_at mapped to date? No, response has created_at
+    created_at: string;
+    type: "restock" | "sold" | "adjustment" | "return";
+    change_amount: number;
+    new_stock: number;
+    notes: string;
+    performed_by: string;
+  }[];
 }
 
 interface InventoryResponse {
@@ -112,6 +127,21 @@ export const merchandiseService = {
         variant: m.variant,
         iconName: m.icon_name ?? "Package",
         imageUrl: getFullImageUrl(m.image_url),
+        isActive: m.status === "active",
+        purchaseHistory: m.purchase_history?.map(p => ({
+            date: p.date,
+            quantity: p.quantity,
+            totalAmount: p.total_amount,
+        })),
+        itemHistory: m.item_history?.map(h => ({
+          id: h.id,
+          date: h.created_at,
+          type: h.type,
+          change_amount: h.change_amount,
+          new_stock: h.new_stock,
+          notes: h.notes,
+          performed_by: h.performed_by,
+        })),
       }),
     );
 
@@ -144,6 +174,21 @@ export const merchandiseService = {
       variant: response.data.data.variant,
       iconName: response.data.data.icon_name ?? "Package",
       imageUrl: getFullImageUrl(response.data.data.image_url),
+      isActive: response.data.data.status === "active",
+      purchaseHistory: response.data.data.purchase_history?.map(p => ({
+        date: p.date,
+        quantity: p.quantity,
+        totalAmount: p.total_amount,
+      })),
+      itemHistory: response.data.data.item_history?.map(h => ({
+        id: h.id,
+        date: h.created_at,
+        type: h.type,
+        change_amount: h.change_amount,
+        new_stock: h.new_stock,
+        notes: h.notes,
+        performed_by: h.performed_by,
+      })),
     };
 
     return {
@@ -159,8 +204,9 @@ export const merchandiseService = {
    * Create merchandise
    */
   async createMerchandise(
-    data: Omit<MerchandiseProduct, "id" | "stockStatus" | "stockPercentage"> & {
+    data: Omit<MerchandiseProduct, "id" | "stockStatus" | "stockPercentage" | "isActive"> & {
       event_id: string;
+      isActive?: boolean;
     },
   ): Promise<ApiResponse<MerchandiseProduct>> {
     const response = await apiClient.post<
@@ -174,6 +220,7 @@ export const merchandiseService = {
       variant: data.variant,
       image_url: "",
       icon_name: data.iconName,
+      status: data.isActive ? "active" : "inactive",
     });
 
     const product: MerchandiseProduct = {
@@ -188,6 +235,7 @@ export const merchandiseService = {
       variant: response.data.data.variant,
       iconName: response.data.data.icon_name ?? "Package",
       imageUrl: getFullImageUrl(response.data.data.image_url),
+      isActive: response.data.data.status === "active",
     };
 
     return {
@@ -215,7 +263,7 @@ export const merchandiseService = {
         stock: data.stock,
         variant: data.variant,
         icon_name: data.iconName,
-        status: data.stockStatus === "out" ? "inactive" : "active",
+        status: data.isActive !== undefined ? (data.isActive ? "active" : "inactive") : undefined,
       },
     );
 
@@ -231,6 +279,7 @@ export const merchandiseService = {
       variant: response.data.data.variant,
       iconName: response.data.data.icon_name ?? "Package",
       imageUrl: getFullImageUrl(response.data.data.image_url),
+      isActive: response.data.data.status === "active",
     };
 
     return {
@@ -278,12 +327,90 @@ export const merchandiseService = {
         variant: p.variant,
         iconName: p.icon_name ?? "Package",
         imageUrl: getFullImageUrl(p.image_url),
+        isActive: p.status === "active",
       })),
     };
 
     return {
       success: response.data.success,
       data: inventory,
+      meta: response.data.meta,
+      timestamp: response.data.timestamp,
+      request_id: response.data.request_id,
+    };
+  },
+
+  /**
+   * Get public list of active merchandise (no auth required)
+   */
+  async getPublicMerchandise(filters?: {
+    page?: number;
+    per_page?: number;
+  }): Promise<ApiResponse<MerchandiseProduct[]>> {
+    const params = new URLSearchParams();
+    if (filters?.page) {
+      params.append("page", filters.page.toString());
+    }
+    if (filters?.per_page) {
+      params.append("per_page", filters.per_page.toString());
+    }
+
+    const response = await apiClient.get<ApiResponse<MerchandiseResponse[]>>(
+      `/public/merchandise?${params.toString()}`,
+    );
+
+    const products: MerchandiseProduct[] = (response.data.data ?? []).map(
+      (m) => ({
+        id: m.id,
+        name: m.name,
+        description: m.description,
+        price: m.price,
+        priceFormatted: m.price_formatted,
+        stock: m.stock,
+        stockStatus: m.stock_status,
+        stockPercentage: m.stock_percentage,
+        variant: m.variant,
+        iconName: m.icon_name ?? "Package",
+        imageUrl: getFullImageUrl(m.image_url),
+        isActive: m.status === "active",
+      }),
+    );
+
+    return {
+      success: response.data.success,
+      data: products,
+      meta: response.data.meta,
+      timestamp: response.data.timestamp,
+      request_id: response.data.request_id,
+    };
+  },
+
+  /**
+   * Get public merchandise by ID (no auth required)
+   */
+  async getPublicMerchandiseById(id: string): Promise<ApiResponse<MerchandiseProduct>> {
+    const response = await apiClient.get<ApiResponse<MerchandiseResponse>>(
+      `/public/merchandise/${id}`,
+    );
+
+    const product: MerchandiseProduct = {
+      id: response.data.data.id,
+      name: response.data.data.name,
+      description: response.data.data.description,
+      price: response.data.data.price,
+      priceFormatted: response.data.data.price_formatted,
+      stock: response.data.data.stock,
+      stockStatus: response.data.data.stock_status,
+      stockPercentage: response.data.data.stock_percentage,
+      variant: response.data.data.variant,
+      iconName: response.data.data.icon_name ?? "Package",
+      imageUrl: getFullImageUrl(response.data.data.image_url),
+      isActive: response.data.data.status === "active",
+    };
+
+    return {
+      success: response.data.success,
+      data: product,
       meta: response.data.meta,
       timestamp: response.data.timestamp,
       request_id: response.data.request_id,
@@ -318,6 +445,7 @@ export const merchandiseService = {
       variant: response.data.data.variant,
       iconName: response.data.data.icon_name ?? "Package",
       imageUrl: getFullImageUrl(response.data.data.image_url),
+      isActive: response.data.data.status === "active",
     };
 
     return {

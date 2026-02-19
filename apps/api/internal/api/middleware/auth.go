@@ -3,9 +3,9 @@ package middleware
 import (
 	"strings"
 
-	"github.com/gin-gonic/gin"
 	"github.com/gilabs/webapp-ticket-konser/api/pkg/errors"
 	"github.com/gilabs/webapp-ticket-konser/api/pkg/jwt"
+	"github.com/gin-gonic/gin"
 )
 
 // AuthMiddleware validates JWT token and sets user info in context
@@ -49,4 +49,3 @@ func AuthMiddleware(jwtManager *jwt.JWTManager) gin.HandlerFunc {
 		c.Next()
 	}
 }
-

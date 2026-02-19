@@ -4,6 +4,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useQuery } from "@tanstack/react-query";
 import { useState, useEffect } from "react";
+import { toast } from "sonner";
 import { eventService } from "@/features/events/services/eventService";
 import {
   merchandiseSchema,
@@ -100,13 +101,13 @@ export function MerchandiseForm({
     if (file) {
       // Validate file type
       if (!file.type.startsWith("image/")) {
-        console.error("Invalid file type. Please select an image file.");
+        toast.error("Invalid file type. Please select an image file.");
         return;
       }
 
       // Validate file size (max 5MB)
       if (file.size > 5 * 1024 * 1024) {
-        console.error("File size exceeds 5MB limit.");
+        toast.error("File size exceeds 5MB limit.");
         return;
       }
 
@@ -270,7 +271,7 @@ export function MerchandiseForm({
 
   return (
     <form onSubmit={handleSubmit(onFormSubmit)}>
-      <div className="border border-border bg-card/20 rounded-xl p-6 space-y-6">
+      <div className="border border-border bg-card/20 rounded-md p-6 space-y-6">
         <div>
           <h3 className="text-lg font-semibold mb-2">
             {isEditMode ? "Edit Merchandise" : "Create New Merchandise"}

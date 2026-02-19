@@ -1,6 +1,8 @@
 package order
 
 import (
+	"time"
+
 	"github.com/gilabs/webapp-ticket-konser/api/internal/api/handlers/order"
 	orderitemhandler "github.com/gilabs/webapp-ticket-konser/api/internal/api/handlers/order_item"
 	"github.com/gilabs/webapp-ticket-konser/api/internal/api/middleware"
@@ -16,20 +18,25 @@ func SetupRoutes(
 	roleRepo role.Repository,
 	jwtManager *jwt.JWTManager,
 ) {
-	// Payment webhook (no auth - called by Midtrans)
-	router.POST("/payments/webhook", orderHandler.HandlePaymentWebhook)
+	// Payment webhook (no auth - called by Midtrans, rate limited to prevent abuse)
+	webhookGroup := router.Group("/payments")
+	webhookGroup.Use(middleware.RateLimitMiddleware(middleware.WebhookRateLimitConfig()))
+	{
+		webhookGroup.POST("/webhook", orderHandler.HandlePaymentWebhook)
+	}
 
-	// Guest/User routes (authenticated users)
+	// Guest/User routes (authenticated users, rate limited for anti-overselling)
 	guestRoutes := router.Group("/orders")
 	guestRoutes.Use(middleware.AuthMiddleware(jwtManager))
+	guestRoutes.Use(middleware.OrderRateLimitMiddleware())
 	{
-		guestRoutes.POST("", orderHandler.CreateOrder)                          // Create order
-		guestRoutes.GET("", orderHandler.GetMyOrders)                           // List my orders
+		guestRoutes.POST("", middleware.IdempotencyMiddleware(middleware.IdempotencyConfig{TTL: 10 * time.Minute}), orderHandler.CreateOrder) // Create order
+		guestRoutes.GET("", orderHandler.GetMyOrders)                                                                                         // List my orders
 		// More specific routes must be defined before less specific ones
-		guestRoutes.GET("/:id/tickets", orderItemHandler.GetMyOrderTickets)     // Get my order tickets
-		guestRoutes.POST("/:id/payment", orderHandler.InitiatePayment)          // Initiate payment
-		guestRoutes.GET("/:id/payment-status", orderHandler.CheckPaymentStatus) // Check payment status
-		guestRoutes.GET("/:id", orderHandler.GetMyOrder)                        // Get my order by ID (must be last)
+		guestRoutes.GET("/:id/tickets", orderItemHandler.GetMyOrderTickets)                                                                                   // Get my order tickets
+		guestRoutes.POST("/:id/payment", middleware.IdempotencyMiddleware(middleware.IdempotencyConfig{TTL: 10 * time.Minute}), orderHandler.InitiatePayment) // Initiate payment
+		guestRoutes.GET("/:id/payment-status", orderHandler.CheckPaymentStatus)                                                                               // Check payment status
+		guestRoutes.GET("/:id", orderHandler.GetMyOrder)                                                                                                      // Get my order by ID (must be last)
 	}
 
 	// Admin only routes

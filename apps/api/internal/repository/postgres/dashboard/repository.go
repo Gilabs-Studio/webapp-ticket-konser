@@ -43,48 +43,37 @@ func (r *Repository) GetSalesOverview(startDate, endDate *time.Time, eventID str
 			Where("schedules.event_id = ?", eventID)
 	}
 
-	// Count orders by status
-	var totalOrders int64
-	var paidOrders int64
-	var unpaidOrders int64
-	var failedOrders int64
-	var canceledOrders int64
-	var refundedOrders int64
-
-	if err := query.Count(&totalOrders).Error; err != nil {
-		return nil, err
+	type salesAgg struct {
+		TotalOrders    int64   `gorm:"column:total_orders"`
+		PaidOrders     int64   `gorm:"column:paid_orders"`
+		UnpaidOrders   int64   `gorm:"column:unpaid_orders"`
+		FailedOrders   int64   `gorm:"column:failed_orders"`
+		CanceledOrders int64   `gorm:"column:canceled_orders"`
+		RefundedOrders int64   `gorm:"column:refunded_orders"`
+		TotalRevenue   float64 `gorm:"column:total_revenue"`
 	}
 
-	if err := query.Where("payment_status = ?", order.PaymentStatusPaid).Count(&paidOrders).Error; err != nil {
-		return nil, err
-	}
-
-	if err := query.Where("payment_status = ?", order.PaymentStatusUnpaid).Count(&unpaidOrders).Error; err != nil {
-		return nil, err
-	}
-
-	if err := query.Where("payment_status = ?", order.PaymentStatusFailed).Count(&failedOrders).Error; err != nil {
-		return nil, err
-	}
-
-	if err := query.Where("payment_status = ?", order.PaymentStatusCanceled).Count(&canceledOrders).Error; err != nil {
-		return nil, err
-	}
-
-	if err := query.Where("payment_status = ?", order.PaymentStatusRefunded).Count(&refundedOrders).Error; err != nil {
-		return nil, err
-	}
-
-	// Calculate total revenue from paid orders
-	var totalRevenue float64
-	if err := query.Where("payment_status = ?", order.PaymentStatusPaid).
-		Select("COALESCE(SUM(total_amount), 0)").
-		Scan(&totalRevenue).Error; err != nil {
+	agg := salesAgg{}
+	if err := query.Select(
+		"COUNT(*) AS total_orders, "+
+			"SUM(CASE WHEN payment_status = ? THEN 1 ELSE 0 END) AS paid_orders, "+
+			"SUM(CASE WHEN payment_status = ? THEN 1 ELSE 0 END) AS unpaid_orders, "+
+			"SUM(CASE WHEN payment_status = ? THEN 1 ELSE 0 END) AS failed_orders, "+
+			"SUM(CASE WHEN payment_status = ? THEN 1 ELSE 0 END) AS canceled_orders, "+
+			"SUM(CASE WHEN payment_status = ? THEN 1 ELSE 0 END) AS refunded_orders, "+
+			"COALESCE(SUM(CASE WHEN payment_status = ? THEN total_amount ELSE 0 END), 0) AS total_revenue",
+		order.PaymentStatusPaid,
+		order.PaymentStatusUnpaid,
+		order.PaymentStatusFailed,
+		order.PaymentStatusCanceled,
+		order.PaymentStatusRefunded,
+		order.PaymentStatusPaid,
+	).Scan(&agg).Error; err != nil {
 		return nil, err
 	}
 
 	// Format revenue
-	revenueFormatted := fmt.Sprintf("Rp %.0f", totalRevenue)
+	revenueFormatted := fmt.Sprintf("Rp %.0f", agg.TotalRevenue)
 
 	// Calculate period
 	period := dashboard.Period{}
@@ -100,16 +89,16 @@ func (r *Repository) GetSalesOverview(startDate, endDate *time.Time, eventID str
 	}
 
 	return &dashboard.SalesOverview{
-		TotalRevenue:        totalRevenue,
+		TotalRevenue:          agg.TotalRevenue,
 		TotalRevenueFormatted: revenueFormatted,
-		TotalOrders:         int(totalOrders),
-		PaidOrders:          int(paidOrders),
-		UnpaidOrders:        int(unpaidOrders),
-		FailedOrders:        int(failedOrders),
-		CanceledOrders:      int(canceledOrders),
-		RefundedOrders:      int(refundedOrders),
-		ChangePercent:       0, // TODO: Calculate when we have historical data
-		Period:              period,
+		TotalOrders:           int(agg.TotalOrders),
+		PaidOrders:            int(agg.PaidOrders),
+		UnpaidOrders:          int(agg.UnpaidOrders),
+		FailedOrders:          int(agg.FailedOrders),
+		CanceledOrders:        int(agg.CanceledOrders),
+		RefundedOrders:        int(agg.RefundedOrders),
+		ChangePercent:         0, // TODO: Calculate when we have historical data
+		Period:                period,
 	}, nil
 }
 
@@ -118,7 +107,7 @@ func (r *Repository) GetCheckInOverview(startDate, endDate *time.Time, eventID s
 	// Get total order items (tickets issued)
 	var totalTickets int64
 	orderItemQuery := r.db.Model(&orderitem.OrderItem{}).Where("deleted_at IS NULL")
-	
+
 	if startDate != nil {
 		orderItemQuery = orderItemQuery.Where("created_at >= ?", startDate)
 	}
@@ -141,7 +130,7 @@ func (r *Repository) GetCheckInOverview(startDate, endDate *time.Time, eventID s
 	// Get checked in count
 	var checkedInCount int64
 	checkInQuery := r.db.Model(&checkin.CheckIn{}).Where("status = ?", checkin.CheckInStatusSuccess)
-	
+
 	if startDate != nil {
 		checkInQuery = checkInQuery.Where("checked_in_at >= ?", startDate)
 	}
@@ -184,7 +173,7 @@ func (r *Repository) GetCheckInOverview(startDate, endDate *time.Time, eventID s
 	return &dashboard.CheckInOverview{
 		TotalCheckIns: int(totalTickets),
 		CheckedIn:     int(checkedInCount),
-		NotCheckedIn: notCheckedIn,
+		NotCheckedIn:  notCheckedIn,
 		CheckInRate:   checkInRate,
 		ChangePercent: 0, // TODO: Calculate when we have historical data
 		Period:        period,
@@ -194,7 +183,7 @@ func (r *Repository) GetCheckInOverview(startDate, endDate *time.Time, eventID s
 // GetQuotaOverview gets quota overview statistics
 func (r *Repository) GetQuotaOverview(eventID string) (*dashboard.QuotaOverview, error) {
 	query := r.db.Model(&ticketcategory.TicketCategory{}).Where("deleted_at IS NULL")
-	
+
 	if eventID != "" {
 		query = query.Where("event_id = ?", eventID)
 	}
@@ -204,24 +193,48 @@ func (r *Repository) GetQuotaOverview(eventID string) (*dashboard.QuotaOverview,
 		return nil, err
 	}
 
+	if len(categories) == 0 {
+		return &dashboard.QuotaOverview{
+			TotalQuota:      0,
+			Sold:            0,
+			Remaining:       0,
+			UtilizationRate: 0,
+			ByTier:          []dashboard.QuotaByTier{},
+		}, nil
+	}
+
+	categoryIDs := make([]string, 0, len(categories))
+	for _, cat := range categories {
+		categoryIDs = append(categoryIDs, cat.ID)
+	}
+
+	type soldAgg struct {
+		CategoryID string `gorm:"column:category_id"`
+		SoldCount  int64  `gorm:"column:sold_count"`
+	}
+
+	soldRows := make([]soldAgg, 0, len(categories))
+	if err := r.db.Model(&orderitem.OrderItem{}).
+		Select("category_id, COUNT(*) AS sold_count").
+		Where("deleted_at IS NULL").
+		Where("category_id IN ?", categoryIDs).
+		Where("status IN ?", []orderitem.TicketStatus{orderitem.TicketStatusPaid, orderitem.TicketStatusCheckedIn}).
+		Group("category_id").
+		Scan(&soldRows).Error; err != nil {
+		return nil, err
+	}
+
+	soldByCategory := make(map[string]int, len(soldRows))
+	for _, row := range soldRows {
+		soldByCategory[row.CategoryID] = int(row.SoldCount)
+	}
+
 	totalQuota := 0
 	totalSold := 0
 	byTier := make([]dashboard.QuotaByTier, 0, len(categories))
 
 	for _, cat := range categories {
-		// Get sold count
-		var soldCount int64
-		if err := r.db.Model(&orderitem.OrderItem{}).
-			Where("category_id = ?", cat.ID).
-			Where("status IN ?", []orderitem.TicketStatus{
-				orderitem.TicketStatusPaid,
-				orderitem.TicketStatusCheckedIn,
-			}).
-			Count(&soldCount).Error; err != nil {
-			return nil, err
-		}
-
-		sold := int(soldCount)
+		sold := soldByCategory[cat.ID]
 		remaining := cat.Quota - sold
 		utilizationRate := 0.0
 		if cat.Quota > 0 {
@@ -259,7 +272,7 @@ func (r *Repository) GetQuotaOverview(eventID string) (*dashboard.QuotaOverview,
 // GetGateActivity gets gate activity statistics
 func (r *Repository) GetGateActivity(gateID string) ([]*dashboard.GateActivity, error) {
 	query := r.db.Model(&gate.Gate{}).Where("deleted_at IS NULL")
-	
+
 	if gateID != "" {
 		query = query.Where("id = ?", gateID)
 	}

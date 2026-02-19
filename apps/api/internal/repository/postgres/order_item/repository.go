@@ -28,7 +28,7 @@ func (r *Repository) FindByID(id string) (*orderitem.OrderItem, error) {
 	var oi orderitem.OrderItem
 	if err := r.db.Where("id = ?", id).Preload("Order").Preload("Category").First(&oi).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, ErrOrderItemNotFound
+			return nil, errors.Join(gorm.ErrRecordNotFound, ErrOrderItemNotFound)
 		}
 		return nil, err
 	}
@@ -40,7 +40,7 @@ func (r *Repository) FindByQRCode(qrCode string) (*orderitem.OrderItem, error) {
 	var oi orderitem.OrderItem
 	if err := r.db.Where("qr_code = ?", qrCode).Preload("Order.Schedule.Event").Preload("Order.User").Preload("Category").First(&oi).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, ErrOrderItemNotFound
+			return nil, errors.Join(gorm.ErrRecordNotFound, ErrOrderItemNotFound)
 		}
 		return nil, err
 	}
@@ -70,6 +70,8 @@ func (r *Repository) Update(oi *orderitem.OrderItem) error {
 func (r *Repository) Delete(id string) error {
 	return r.db.Where("id = ?", id).Delete(&orderitem.OrderItem{}).Error
 }
+
+
 
 
 

@@ -19,11 +19,12 @@ import { useEffect, useRef, useState, useCallback } from "react";
 import { useTranslations } from "next-intl";
 import type { CheckInRequest } from "../types";
 import { useCheckIn, useValidateQRCode } from "../hooks/useCheckIn";
-import { CheckInResult } from "./CheckInResult";
-import { Camera, Loader2, AlertCircle, Scan } from "lucide-react";
+import { useIsMobile } from "@/hooks/use-mobile";
+import { cn } from "@/lib/utils";
+import { MobileScanner } from "./MobileScanner";
+import { DesktopScanner } from "./DesktopScanner";
+import { AlertCircle, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Input } from "@/components/ui/input";
 
 interface QRCodeScannerProps {
@@ -44,7 +45,6 @@ export function QRCodeScanner({
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
   const scanIntervalRef = useRef<NodeJS.Timeout | null>(null);
-  const containerRef = useRef<HTMLDivElement>(null);
   const resumeTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const [isScanning, setIsScanning] = useState(false);
   const [hasPermission, setHasPermission] = useState<boolean | null>(null);
@@ -55,6 +55,7 @@ export function QRCodeScanner({
   } | null>(null);
   const [manualQRCode, setManualQRCode] = useState("");
   const [isProcessing, setIsProcessing] = useState(false);
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
   const validateQRCode = useValidateQRCode();
   const checkIn = useCheckIn();
@@ -327,46 +328,38 @@ export function QRCodeScanner({
   // Handle manual check-in
   const handleManualCheckIn = useCallback(async () => {
     if (!manualQRCode.trim() || isProcessing) return;
+    setIsDrawerOpen(false); // Close drawer before processing
     await handleQRCodeProcess(manualQRCode.trim());
     setManualQRCode("");
   }, [manualQRCode, isProcessing, handleQRCodeProcess]);
 
+  const isMobile = useIsMobile();
+
   if (hasPermission === false) {
     return (
-      <Card className="w-full max-w-2xl mx-auto">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Camera className="h-5 w-5" />
-            {t("cameraPermission.title")}
-          </CardTitle>
-          <CardDescription>
-            {t("cameraPermission.description")}
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <Alert>
-            <AlertCircle className="h-4 w-4" />
-            <AlertTitle>{t("cameraPermission.denied")}</AlertTitle>
-            <AlertDescription>
+      <div className={cn("w-full max-w-2xl mx-auto p-4", !isMobile && "card-shadow rounded-xl bg-card border")}>
+        <div className="space-y-6 text-center py-8">
+          <div className="mx-auto w-16 h-16 bg-destructive/10 rounded-full flex items-center justify-center">
+            <AlertCircle className="h-8 w-8 text-destructive" />
+          </div>
+          <div className="space-y-2">
+            <h2 className="text-xl font-semibold">{t("cameraPermission.denied")}</h2>
+            <p className="text-muted-foreground max-w-sm mx-auto">
               {t("cameraPermission.deniedMessage")}
-            </AlertDescription>
-          </Alert>
-          <Button onClick={requestPermission} className="w-full">
+            </p>
+          </div>
+          <Button onClick={requestPermission} size="lg" className="w-full sm:w-auto px-8 cursor-pointer">
             {t("cameraPermission.requestButton")}
           </Button>
           
-          {/* Manual QR Code Input as Fallback */}
-          <div className="pt-4 border-t">
-            <p className="text-sm text-muted-foreground mb-2">
-              {t("manualInput.label")}
-            </p>
-            <div className="flex gap-2">
+          <div className="pt-8 border-t max-w-md mx-auto">
+            <div className="flex flex-col gap-4">
               <Input
                 type="text"
                 value={manualQRCode}
                 onChange={(e) => setManualQRCode(e.target.value)}
                 placeholder={t("manualInput.placeholder")}
-                className="flex-1"
+                className="text-center h-12"
                 onKeyDown={(e) => {
                   if (e.key === "Enter" && !isProcessing) {
                     handleManualCheckIn();
@@ -376,150 +369,60 @@ export function QRCodeScanner({
               />
               <Button 
                 onClick={handleManualCheckIn} 
-                disabled={!manualQRCode.trim() || isProcessing || validateQRCode.isPending || checkIn.isPending}
+                disabled={!manualQRCode.trim() || isProcessing}
+                className="h-12 cursor-pointer"
               >
-                {validateQRCode.isPending || checkIn.isPending ? (
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                ) : (
-                  t("manualInput.button")
-                )}
+                {t("manualInput.button")}
               </Button>
             </div>
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
     );
   }
 
   if (hasPermission === null) {
     return (
-      <Card className="w-full max-w-2xl mx-auto">
-        <CardContent className="flex items-center justify-center py-12">
-          <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-        </CardContent>
-      </Card>
+      <div className="flex items-center justify-center py-20">
+        <Loader2 className="h-10 w-10 animate-spin text-primary/50" />
+      </div>
+    );
+  }
+
+  // Delegate to specialized components
+  if (isMobile) {
+    return (
+      <MobileScanner
+        videoRef={videoRef}
+        canvasRef={canvasRef}
+        isScanning={isScanning}
+        isProcessing={isProcessing}
+        checkInResult={checkInResult}
+        manualQRCode={manualQRCode}
+        setManualQRCode={setManualQRCode}
+        startScanning={startScanning}
+        stopScanning={stopScanning}
+        handleManualCheckIn={handleManualCheckIn}
+        isDrawerOpen={isDrawerOpen}
+        setIsDrawerOpen={setIsDrawerOpen}
+      />
     );
   }
 
   return (
-    <div className="w-full max-w-2xl mx-auto space-y-4">
-      {checkInResult && (
-        <CheckInResult
-          success={checkInResult.success}
-          message={checkInResult.message}
-          checkIn={checkInResult.checkIn}
-        />
-      )}
-
-      <Card className="w-full">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Camera className="h-5 w-5" />
-            {t("title")}
-          </CardTitle>
-          <CardDescription>
-            {t("description")}
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          {/* Camera Preview */}
-          <div
-            ref={containerRef}
-            className="w-full min-h-[400px] bg-black rounded-lg overflow-hidden relative"
-          >
-            <video
-              ref={videoRef}
-              className="w-full h-full object-cover"
-              playsInline
-              muted
-            />
-            <canvas ref={canvasRef} className="hidden" />
-            
-            {/* Scanning overlay */}
-            {isScanning && (
-              <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                <div className="border-2 border-green-500 rounded-lg w-64 h-64 flex items-center justify-center">
-                  <Scan className="h-8 w-8 text-green-500 animate-pulse" />
-                </div>
-              </div>
-            )}
-
-            {/* Placeholder when not scanning */}
-            {!isScanning && (
-              <div className="absolute inset-0 flex items-center justify-center">
-                <div className="text-white text-center space-y-4">
-                  <Camera className="h-16 w-16 mx-auto opacity-50" />
-                  <p className="text-sm opacity-75">
-                    {hasPermission ? t("camera.ready") : t("camera.activate")}
-                  </p>
-                  {hasPermission && (
-                    <Button
-                      onClick={startScanning}
-                      variant="outline"
-                      className="mt-4"
-                      disabled={isProcessing}
-                    >
-                      <Camera className="mr-2 h-4 w-4" />
-                      {t("camera.startButton")}
-                    </Button>
-                  )}
-                </div>
-              </div>
-            )}
-
-            {/* Stop button when scanning */}
-            {isScanning && (
-              <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2">
-                <Button
-                  onClick={stopScanning}
-                  variant="destructive"
-                  size="sm"
-                >
-                  {t("camera.stopButton")}
-                </Button>
-              </div>
-            )}
-          </div>
-
-          {/* Manual QR Code Input */}
-          <div className="mt-4 pt-4 border-t">
-            <p className="text-sm text-muted-foreground mb-2 font-medium">
-              {t("manualInput.label")}
-            </p>
-            <div className="flex gap-2">
-              <Input
-                type="text"
-                value={manualQRCode}
-                onChange={(e) => setManualQRCode(e.target.value)}
-                placeholder={t("manualInput.placeholder")}
-                className="flex-1"
-                onKeyDown={(e) => {
-                  if (e.key === "Enter" && !isProcessing) {
-                    handleManualCheckIn();
-                  }
-                }}
-                disabled={isProcessing}
-              />
-              <Button 
-                onClick={handleManualCheckIn} 
-                disabled={!manualQRCode.trim() || isProcessing || validateQRCode.isPending || checkIn.isPending}
-              >
-                {validateQRCode.isPending || checkIn.isPending ? (
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                ) : (
-                  t("manualInput.button")
-                )}
-              </Button>
-            </div>
-            {isProcessing && (
-              <p className="text-xs text-muted-foreground mt-2 flex items-center gap-1">
-                <Loader2 className="h-3 w-3 animate-spin" />
-                {t("manualInput.processing")}
-              </p>
-            )}
-          </div>
-        </CardContent>
-      </Card>
-    </div>
+    <DesktopScanner
+      videoRef={videoRef}
+      canvasRef={canvasRef}
+      isScanning={isScanning}
+      isProcessing={isProcessing}
+      checkInResult={checkInResult}
+      manualQRCode={manualQRCode}
+      setManualQRCode={setManualQRCode}
+      startScanning={startScanning}
+      stopScanning={stopScanning}
+      handleManualCheckIn={handleManualCheckIn}
+      validatePending={validateQRCode.isPending}
+      checkInPending={checkIn.isPending}
+    />
   );
 }

@@ -17,7 +17,7 @@ export function GateStatusWidget({ gate }: GateStatusWidgetProps) {
   const statistics = statsData?.data;
 
   return (
-    <Card className="border border-border bg-card/20 rounded-xl">
+    <Card className="border border-border bg-card/20 rounded-md">
       <CardContent className="p-4">
         <div className="flex items-start justify-between mb-4">
           <div>

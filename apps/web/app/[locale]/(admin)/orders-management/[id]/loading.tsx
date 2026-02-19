@@ -12,7 +12,7 @@ export default function OrderDetailLoading() {
       </div>
       <div className="grid gap-6 md:grid-cols-2">
         {Array.from({ length: 4 }, (_, i) => (
-          <div key={i} className="border rounded-lg p-6 space-y-4">
+          <div key={i} className="border rounded-md p-6 space-y-4">
             <Skeleton className="h-6 w-32" />
             <Skeleton className="h-4 w-full" />
             <Skeleton className="h-4 w-3/4" />
@@ -23,5 +23,7 @@ export default function OrderDetailLoading() {
     </div>
   );
 }
+
+
 
 

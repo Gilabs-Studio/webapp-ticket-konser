@@ -19,29 +19,21 @@ func Seed() error {
 			Code:           "dashboard",
 			Label:          "Dashboard",
 			Icon:           "layout-dashboard",
-			Path:           "/",
+			Path:           "/dashboard",
 			OrderIndex:     1,
-			PermissionCode: "", // No permission needed - all admin users can access
+			PermissionCode: "dashboard.read",
 			IsActive:       true,
 		},
 		{
 			Code:           "event-management",
-			Label:          "Event",
+			Label:          "Event & Ticket",
 			Icon:           "calendar",
 			Path:           "/events-management",
 			OrderIndex:     2,
 			PermissionCode: "event.read",
 			IsActive:       true,
 		},
-		{
-			Code:           "ticket-management",
-			Label:          "Ticket",
-			Icon:           "ticket",
-			Path:           "/tickets-management",
-			OrderIndex:     3,
-			PermissionCode: "ticket.read",
-			IsActive:       true,
-		},
+
 		{
 			Code:           "order-management",
 			Label:          "Order",
@@ -146,9 +138,15 @@ func Seed() error {
 				return result.Error
 			}
 		} else {
-			// Menu exists, skip
-			log.Printf("[Menu Seeder] Menu %s already exists, skipping...", m.Code)
-			skippedCount++
+			// Menu exists, update it to ensure path/details are correct
+			m.ID = existingMenu.ID // Preserve ID
+			if err := database.DB.Save(&m).Error; err != nil {
+				return err
+			}
+			log.Printf("[Menu Seeder] Updated menu: %s (code: %s)", m.Label, m.Code)
+			// effectively we treat this as "created/updated" or we can track updates separately
+			// for now let's just count it as doing "something"
+			createdCount++ 
 		}
 	}
 

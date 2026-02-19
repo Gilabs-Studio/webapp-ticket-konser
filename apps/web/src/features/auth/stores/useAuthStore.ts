@@ -4,6 +4,7 @@ import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import type { User, AuthState } from "../types";
 import { setSecureCookie } from "@/lib/cookie";
+import { getNormalizedRoleCode } from "../utils/role";
 
 interface AuthStore extends AuthState {
   setUser: (user: User | null) => void;
@@ -22,7 +23,18 @@ export const useAuthStore = create<AuthStore>()(
       error: null,
 
       setUser: (user: User | null) => {
-        set({ user, isAuthenticated: !!user });
+        if (!user) {
+          set({ user: null, isAuthenticated: false });
+          return;
+        }
+
+        const normalizedRole = getNormalizedRoleCode((user as unknown as { role?: unknown }).role);
+        const normalizedUser = {
+          ...user,
+          role: normalizedRole,
+        } as User;
+
+        set({ user: normalizedUser, isAuthenticated: true });
       },
 
       setToken: (token: string | null) => {
@@ -50,6 +62,13 @@ export const useAuthStore = create<AuthStore>()(
         if (typeof window !== "undefined" && state) {
           const token = localStorage.getItem("token");
           const refreshToken = localStorage.getItem("refreshToken");
+
+          // Normalize potentially non-string role values from persisted state
+          if (state.user) {
+            (state.user as unknown as { role?: unknown }).role = getNormalizedRoleCode(
+              (state.user as unknown as { role?: unknown }).role,
+            );
+          }
 
           // Priority: Zustand persisted state > localStorage
           // If Zustand has token, use it and sync to localStorage

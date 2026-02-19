@@ -117,3 +117,35 @@ func CheckInRateLimitMiddleware() gin.HandlerFunc {
 	return RateLimitMiddleware(CheckInRateLimitConfig())
 }
 
+// OrderRateLimitConfig returns rate limit configuration for order/payment endpoints
+// Stricter to prevent overselling and abuse during high-traffic purchase windows
+func OrderRateLimitConfig() RateLimitConfig {
+	return RateLimitConfig{
+		Rate:              5.0,              // 5 requests per second per IP
+		Burst:             10,               // Allow bursts of up to 10 requests
+		CleanupInterval:   1 * time.Minute,
+		VisitorExpiration:  5 * time.Minute,
+	}
+}
+
+// OrderRateLimitMiddleware creates a rate limiting middleware for order/payment endpoints
+func OrderRateLimitMiddleware() gin.HandlerFunc {
+	return RateLimitMiddleware(OrderRateLimitConfig())
+}
+
+// WebhookRateLimitConfig returns rate limit configuration for webhook endpoints
+// Prevents abuse while allowing legitimate payment gateway callbacks
+func WebhookRateLimitConfig() RateLimitConfig {
+	return RateLimitConfig{
+		Rate:              20.0,             // 20 requests per second per IP
+		Burst:             50,               // Allow bursts for batch callbacks
+		CleanupInterval:   1 * time.Minute,
+		VisitorExpiration:  5 * time.Minute,
+	}
+}
+
+// WebhookRateLimitMiddleware creates a rate limiting middleware for webhook endpoints
+func WebhookRateLimitMiddleware() gin.HandlerFunc {
+	return RateLimitMiddleware(WebhookRateLimitConfig())
+}
+

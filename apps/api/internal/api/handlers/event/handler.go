@@ -1,18 +1,19 @@
 package event
 
 import (
+	stderrors "errors"
 	"fmt"
 	"net/http"
 	"os"
 	"path/filepath"
-	"time"
 
-	"github.com/gin-gonic/gin"
-	"github.com/go-playground/validator/v10"
 	"github.com/gilabs/webapp-ticket-konser/api/internal/domain/event"
 	eventservice "github.com/gilabs/webapp-ticket-konser/api/internal/service/event"
 	"github.com/gilabs/webapp-ticket-konser/api/pkg/errors"
 	"github.com/gilabs/webapp-ticket-konser/api/pkg/response"
+	"github.com/gilabs/webapp-ticket-konser/api/pkg/upload"
+	"github.com/gin-gonic/gin"
+	"github.com/go-playground/validator/v10"
 )
 
 type Handler struct {
@@ -67,7 +68,7 @@ func (h *Handler) Create(c *gin.Context) {
 	if err != nil {
 		if err == eventservice.ErrEventAlreadyExists {
 			errors.ErrorResponse(c, "CONFLICT", map[string]interface{}{
-				"reason": "Event name already exists",
+				"reason":     "Event name already exists",
 				"event_name": req.EventName,
 			}, nil)
 			return
@@ -238,6 +239,13 @@ func (h *Handler) UploadBanner(c *gin.Context) {
 	// Get file from form data
 	file, err := c.FormFile("banner")
 	if err != nil {
+		var mbe *http.MaxBytesError
+		if stderrors.As(err, &mbe) {
+			errors.ErrorResponse(c, "PAYLOAD_TOO_LARGE", map[string]interface{}{
+				"max_body_bytes": mbe.Limit,
+			}, nil)
+			return
+		}
 		errors.ErrorResponse(c, "VALIDATION_ERROR", map[string]interface{}{
 			"reason": "Banner image file is required",
 			"field":  "banner",
@@ -294,12 +302,16 @@ func (h *Handler) UploadBanner(c *gin.Context) {
 		return
 	}
 
-	// Generate unique filename
-	filename := fmt.Sprintf("%s_%d_%s", id, time.Now().Unix(), file.Filename)
-	filepath := filepath.Join(uploadDir, filename)
+	// Generate server-controlled filename (do not use client-provided file.Filename)
+	filename, err := upload.GenerateImageFilename(contentType)
+	if err != nil {
+		errors.InternalServerErrorResponse(c, "")
+		return
+	}
+	dstPath := filepath.Join(uploadDir, filename)
 
 	// Save file
-	if err := c.SaveUploadedFile(file, filepath); err != nil {
+	if err := c.SaveUploadedFile(file, dstPath); err != nil {
 		errors.InternalServerErrorResponse(c, "")
 		return
 	}
@@ -311,7 +323,7 @@ func (h *Handler) UploadBanner(c *gin.Context) {
 	event, err := h.eventService.UpdateBannerImage(id, bannerURL)
 	if err != nil {
 		// Clean up uploaded file if update fails
-		os.Remove(filepath)
+		os.Remove(dstPath)
 		if err == eventservice.ErrEventNotFound {
 			errors.NotFoundResponse(c, "event", id)
 			return

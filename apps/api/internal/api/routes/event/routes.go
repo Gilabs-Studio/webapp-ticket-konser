@@ -1,11 +1,11 @@
 package event
 
 import (
-	"github.com/gin-gonic/gin"
 	"github.com/gilabs/webapp-ticket-konser/api/internal/api/handlers/event"
 	"github.com/gilabs/webapp-ticket-konser/api/internal/api/middleware"
 	"github.com/gilabs/webapp-ticket-konser/api/internal/repository/interfaces/role"
 	"github.com/gilabs/webapp-ticket-konser/api/pkg/jwt"
+	"github.com/gin-gonic/gin"
 )
 
 func SetupRoutes(
@@ -28,11 +28,10 @@ func SetupRoutes(
 		adminRoutes.POST("/:id/banner", eventHandler.UploadBanner)  // Upload banner image
 	}
 
-	// Public routes (for authenticated users to view events)
+	// Public routes (truly public - no auth required for guest browsing)
 	// Only show published events
 	// Note: Using /events/detail/:id to avoid conflict with nested routes under /events/:event_id
 	publicRoutes := router.Group("/events")
-	publicRoutes.Use(middleware.AuthMiddleware(jwtManager))
 	{
 		publicRoutes.GET("", eventHandler.ListPublic)                      // List published events only
 		publicRoutes.GET("/detail/:id", eventHandler.GetByIDPublic)       // Get published event by ID

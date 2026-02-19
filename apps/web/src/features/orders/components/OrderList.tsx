@@ -82,7 +82,7 @@ export function OrderList({
           <Skeleton className="h-10 flex-1" />
           <Skeleton className="h-10 w-32" />
         </div>
-        <div className="border rounded-lg">
+        <div className="border rounded-md">
           <Table>
             <TableHeader>
               <TableRow>
@@ -164,7 +164,7 @@ export function OrderList({
             </SelectContent>
           </Select>
         </div>
-        <div className="border border-border bg-card/30 rounded-xl p-8 text-center">
+        <div className="border border-border bg-card/30 rounded-md p-8 text-center">
           <p className="text-sm text-muted-foreground">
             {t("noOrders") ?? "No orders found"}
           </p>
@@ -205,7 +205,7 @@ export function OrderList({
         </Select>
       </div>
 
-      <div className="border rounded-lg">
+      <div className="border rounded-md">
         <Table>
           <TableHeader>
             <TableRow>
@@ -314,5 +314,7 @@ export function OrderList({
     </div>
   );
 }
+
+
 
 

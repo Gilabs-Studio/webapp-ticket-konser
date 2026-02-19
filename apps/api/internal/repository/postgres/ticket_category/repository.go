@@ -28,7 +28,7 @@ func (r *Repository) FindByID(id string) (*ticketcategory.TicketCategory, error)
 	var tc ticketcategory.TicketCategory
 	if err := r.db.Where("id = ?", id).Preload("Event").First(&tc).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, ErrTicketCategoryNotFound
+			return nil, errors.Join(gorm.ErrRecordNotFound, ErrTicketCategoryNotFound)
 		}
 		return nil, err
 	}
@@ -67,6 +67,8 @@ func (r *Repository) List() ([]*ticketcategory.TicketCategory, error) {
 	}
 	return categories, nil
 }
+
+
 
 
 

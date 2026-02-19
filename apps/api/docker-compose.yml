@@ -9,7 +9,7 @@ services:
       POSTGRES_PASSWORD: postgres
       POSTGRES_DB: ticketing_app
     ports:
-      - "5435:5432"  # Changed from 5434 to avoid conflict with CRM Healthcare
+      - "5438:5432"
     volumes:
       - ticketing_postgres_data:/var/lib/postgresql/data
       - ./seeders:/docker-entrypoint-initdb.d
@@ -22,6 +22,20 @@ services:
       retries: 5
       start_period: 10s
     restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+    container_name: ticketing-redis
+    ports:
+      - "6379:6379"
+    networks:
+      - ticketing-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
 
   api:
     build:
@@ -52,12 +66,25 @@ services:
       - JWT_SECRET=dev-secret-key-min-32-chars-for-development-only
       - JWT_ACCESS_TTL=24
       - JWT_REFRESH_TTL=7
+
+      # Redis (cache + idempotency + distributed rate limit)
+      - REDIS_ENABLED=true
+      - REDIS_ADDR=redis:6379
+      - REDIS_DB=0
+      - REDIS_PREFIX=ticketing_api
+
+      # Observability
+      - METRICS_ENABLED=true
+      - PPROF_ENABLED=false
+      - DEBUG_TOKEN=
       - CGO_ENABLED=0
     volumes:
       - .:/app
       - go-mod-cache:/go/pkg/mod
     depends_on:
       postgres:
+        condition: service_healthy
+      redis:
         condition: service_healthy
     networks:
       - ticketing-network

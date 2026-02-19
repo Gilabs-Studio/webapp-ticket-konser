@@ -9,6 +9,7 @@ import (
 	checkinrepo "github.com/gilabs/webapp-ticket-konser/api/internal/repository/interfaces/checkin"
 	orderitemrepo "github.com/gilabs/webapp-ticket-konser/api/internal/repository/interfaces/order_item"
 	"github.com/gilabs/webapp-ticket-konser/api/pkg/response"
+	"github.com/jackc/pgx/v5/pgconn"
 	"gorm.io/gorm"
 )
 
@@ -162,6 +163,25 @@ func (s *Service) CheckIn(req *checkin.CheckInRequest, staffID, ipAddress, userA
 	}
 
 	if err := s.checkInRepo.Create(checkIn); err != nil {
+		if isPostgresUniqueViolation(err) {
+			// Another concurrent request inserted the check-in first.
+			existingCheckIns, fetchErr := s.checkInRepo.FindByOrderItemID(orderItem.ID)
+			if fetchErr == nil && len(existingCheckIns) > 0 {
+				return &checkin.CheckInResultResponse{
+					Success:   false,
+					CheckIn:   existingCheckIns[0].ToCheckInResponse(),
+					Message:   "QR code sudah pernah digunakan (duplicate detected)",
+					ErrorCode: "DUPLICATE_CHECK_IN",
+				}, nil
+			}
+
+			return &checkin.CheckInResultResponse{
+				Success:   false,
+				Message:   "QR code sudah pernah digunakan",
+				ErrorCode: "DUPLICATE_CHECK_IN",
+			}, nil
+		}
+
 		return &checkin.CheckInResultResponse{
 			Success:   false,
 			Message:   "Gagal menyimpan check-in",
@@ -193,6 +213,14 @@ func (s *Service) CheckIn(req *checkin.CheckInRequest, staffID, ipAddress, userA
 		CheckIn:  createdCheckIn.ToCheckInResponse(),
 		Message: "Check-in berhasil",
 	}, nil
+}
+
+func isPostgresUniqueViolation(err error) bool {
+	var pgErr *pgconn.PgError
+	if errors.As(err, &pgErr) {
+		return pgErr.Code == "23505"
+	}
+	return false
 }
 
 // GetByID returns a check-in by ID

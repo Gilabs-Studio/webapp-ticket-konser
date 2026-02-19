@@ -156,7 +156,7 @@ export function PermissionAssignment({
       </div>
 
       {/* Permissions List */}
-      <ScrollArea className="h-[400px] border rounded-lg p-4">
+      <ScrollArea className="h-[400px] border rounded-md p-4">
         {searchQuery ? (
           // Flat list when searching
           <div className="space-y-2">
@@ -168,7 +168,7 @@ export function PermissionAssignment({
               filteredPermissions.map((permission) => (
                 <div
                   key={permission.id}
-                  className="flex items-center space-x-3 p-2 rounded-lg hover:bg-accent"
+                  className="flex items-center space-x-3 p-2 rounded-md hover:bg-accent"
                 >
                   <Checkbox
                     checked={selectedPermissionIds.includes(permission.id)}
@@ -202,7 +202,7 @@ export function PermissionAssignment({
                     {perms.map((permission) => (
                       <div
                         key={permission.id}
-                        className="flex items-center space-x-3 p-2 rounded-lg hover:bg-accent"
+                        className="flex items-center space-x-3 p-2 rounded-md hover:bg-accent"
                       >
                         <Checkbox
                           checked={selectedPermissionIds.includes(permission.id)}
@@ -246,5 +246,7 @@ export function PermissionAssignment({
     </div>
   );
 }
+
+
 
 

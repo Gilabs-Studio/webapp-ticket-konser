@@ -178,7 +178,7 @@ export function AttendeeList({ filters }: AttendeeListProps) {
             <Skeleton className="h-8 w-24" />
           </div>
         </div>
-        <div className="border border-border bg-card rounded-xl overflow-hidden">
+        <div className="border border-border bg-card rounded-md overflow-hidden">
           <div className="p-4 border-b border-border bg-muted/50">
             <Skeleton className="h-10 w-full" />
           </div>
@@ -198,7 +198,7 @@ export function AttendeeList({ filters }: AttendeeListProps) {
         <div className="flex justify-between items-center">
           <h2 className="text-lg font-medium">Attendee List</h2>
         </div>
-        <div className="border border-border bg-card rounded-xl p-8 text-center">
+        <div className="border border-border bg-card rounded-md p-8 text-center">
           <p className="text-sm text-muted-foreground">
             Failed to load attendees. Please try again.
           </p>
@@ -318,7 +318,7 @@ export function AttendeeList({ filters }: AttendeeListProps) {
       </motion.div>
 
       {/* Table Container */}
-      <div className="border border-border bg-card/20 dark:bg-card/10 rounded-xl overflow-hidden">
+      <div className="border border-border bg-card/20 dark:bg-card/10 rounded-md overflow-hidden">
         {/* Search Bar */}
         <div className="p-4 border-b border-border bg-muted/50 dark:bg-muted/30 flex gap-4">
           <div className="relative flex-1">

@@ -32,12 +32,8 @@ export function MerchandiseInventory({
           {Array.from({ length: 3 }, (_, i) => (
             <div
               key={`skeleton-${i}`}
-              className="border border-border bg-card/30 rounded-xl p-4 animate-pulse"
-            >
-              <div className="aspect-square bg-muted rounded-xl mb-4" />
-              <div className="h-4 bg-muted rounded mb-2" />
-              <div className="h-2 bg-muted rounded" />
-            </div>
+              className="h-[400px] rounded-3xl bg-muted animate-pulse border-0"
+            />
           ))}
         </div>
       </div>
@@ -73,7 +69,7 @@ export function MerchandiseInventory({
         </div>
       </div>
       {products.length === 0 ? (
-        <div className="border border-border bg-card/30 rounded-xl p-8 text-center">
+        <div className="border border-border bg-card/30 rounded-md p-8 text-center">
           <p className="text-sm text-muted-foreground mb-4">
             No products found. Create one to get started.
           </p>

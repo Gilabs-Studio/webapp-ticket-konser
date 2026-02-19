@@ -110,7 +110,7 @@ export default function HeroSection({ locale }: Readonly<HeroSectionProps>) {
       <div className="relative z-10 flex flex-col items-center justify-center h-full px-4">
         {/* Title */}
         <h1 className="text-6xl md:text-8xl lg:text-9xl font-light tracking-tight text-foreground mb-8 text-center">
-          UMN FESTIVAL
+          EUFORIA
         </h1>
 
         {/* Countdown */}
@@ -153,7 +153,7 @@ export default function HeroSection({ locale }: Readonly<HeroSectionProps>) {
         </div>
 
         {/* CTA Button */}
-        <div className="relative inline-block rounded-xl">
+        <div className="relative inline-block rounded-md">
           <ShineBorder
             borderWidth={2}
             duration={14}
@@ -162,11 +162,11 @@ export default function HeroSection({ locale }: Readonly<HeroSectionProps>) {
               "oklch(0.55 0.13 337)",
               "oklch(0.65 0.15 11)",
             ]}
-            className="rounded-xl"
+            className="rounded-md"
           />
           <Button 
             className="relative z-10"
-            onClick={() => router.push("/events")}
+            onClick={() => router.push("/explore")}
           >
             {locale === "id" ? "Dapatkan Tiket" : "Get Tickets"}
           </Button>

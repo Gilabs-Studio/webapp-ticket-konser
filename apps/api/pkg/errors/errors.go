@@ -1,9 +1,11 @@
 package errors
 
 import (
+	"errors"
 	"net/http"
 	"time"
 
+	configpkg "github.com/gilabs/webapp-ticket-konser/api/internal/config"
 	"github.com/gilabs/webapp-ticket-konser/api/pkg/response"
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
@@ -132,6 +134,48 @@ var ErrorCodeMap = map[string]ErrorInfo{
 		Message:    "Conflict with current state",
 	},
 
+	// Check-in & Gate errors
+	"INVALID_QR_CODE": {
+		HTTPStatus: http.StatusBadRequest,
+		Message:    "Invalid QR code",
+	},
+	"QR_CODE_ALREADY_USED": {
+		HTTPStatus: http.StatusConflict,
+		Message:    "QR code already used",
+	},
+	"TICKET_NOT_PAID": {
+		HTTPStatus: http.StatusUnprocessableEntity,
+		Message:    "Ticket is not paid",
+	},
+	"DUPLICATE_CHECK_IN": {
+		HTTPStatus: http.StatusConflict,
+		Message:    "Duplicate check-in",
+	},
+	"CHECK_IN_ERROR": {
+		HTTPStatus: http.StatusUnprocessableEntity,
+		Message:    "Check-in failed",
+	},
+	"GATE_NOT_FOUND": {
+		HTTPStatus: http.StatusNotFound,
+		Message:    "Gate not found",
+	},
+	"GATE_INACTIVE": {
+		HTTPStatus: http.StatusUnprocessableEntity,
+		Message:    "Gate is inactive",
+	},
+	"GATE_CAPACITY_EXCEEDED": {
+		HTTPStatus: http.StatusUnprocessableEntity,
+		Message:    "Gate capacity exceeded",
+	},
+	"VIP_GATE_REQUIRED": {
+		HTTPStatus: http.StatusUnprocessableEntity,
+		Message:    "VIP gate required",
+	},
+	"GATE_STAFF_NOT_ASSIGNED": {
+		HTTPStatus: http.StatusForbidden,
+		Message:    "Staff is not assigned to this gate",
+	},
+
 	// System Errors
 	"INTERNAL_SERVER_ERROR": {
 		HTTPStatus: http.StatusInternalServerError,
@@ -140,6 +184,18 @@ var ErrorCodeMap = map[string]ErrorInfo{
 	"RATE_LIMIT_EXCEEDED": {
 		HTTPStatus: http.StatusTooManyRequests,
 		Message:    "Too many requests. Please try again later",
+	},
+	"PAYLOAD_TOO_LARGE": {
+		HTTPStatus: http.StatusRequestEntityTooLarge,
+		Message:    "Payload too large",
+	},
+	"IDEMPOTENCY_KEY_REUSED": {
+		HTTPStatus: http.StatusConflict,
+		Message:    "Idempotency-Key already used with a different request",
+	},
+	"IDEMPOTENCY_IN_PROGRESS": {
+		HTTPStatus: http.StatusConflict,
+		Message:    "A request with the same Idempotency-Key is still in progress",
 	},
 	"SERVICE_UNAVAILABLE": {
 		HTTPStatus: http.StatusServiceUnavailable,
@@ -259,7 +315,7 @@ func HandleValidationError(c *gin.Context, err error) {
 
 // HandleDatabaseError converts database errors to appropriate API errors
 func HandleDatabaseError(c *gin.Context, err error) {
-	if err == gorm.ErrRecordNotFound {
+	if errors.Is(err, gorm.ErrRecordNotFound) {
 		NotFoundResponse(c, "resource", "")
 		return
 	}
@@ -294,6 +350,17 @@ func getRequestID(c *gin.Context) string {
 
 // InvalidRequestBodyResponse creates an invalid request body error response
 func InvalidRequestBodyResponse(c *gin.Context) {
+	if cfg := configpkg.AppConfig; cfg != nil {
+		maxBody := cfg.Server.MaxBodyBytes
+		if maxBody > 0 && c.Request != nil && c.Request.ContentLength > maxBody {
+			ErrorResponse(c, "PAYLOAD_TOO_LARGE", map[string]interface{}{
+				"max_body_bytes":   maxBody,
+				"content_length":   c.Request.ContentLength,
+				"recommendation":   "Reduce request size",
+			}, nil)
+			return
+		}
+	}
 	ErrorResponse(c, "INVALID_REQUEST_BODY", nil, nil)
 }
 

@@ -12,11 +12,13 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { Drawer } from "@/components/ui/drawer";
 import { MerchandiseForm } from "./MerchandiseForm";
 import { MerchandiseProductCard } from "./MerchandiseProductCard";
-import { useMerchandiseById, useDeleteMerchandise } from "../hooks/useMerchandise";
+import { useMerchandiseById, useDeleteMerchandise, useUpdateMerchandise } from "../hooks/useMerchandise";
 import { MerchandiseEditDialogContent } from "./MerchandiseEditDialogContent";
 import { MerchandiseViewDialogContent } from "./MerchandiseViewDialogContent";
+import { cn } from "@/lib/utils";
 
 interface MerchandiseManagementProps {
   readonly products?: readonly MerchandiseProduct[];
@@ -41,6 +43,7 @@ export function MerchandiseManagement({
     shouldFetchProduct ? selectedProductId : ""
   );
   const { mutate: deleteMerchandise, isPending: isDeleting } = useDeleteMerchandise();
+  const { mutate: updateMerchandise } = useUpdateMerchandise();
 
   const handleCreate = () => {
     setCreateDialogOpen(true);
@@ -63,6 +66,13 @@ export function MerchandiseManagement({
   const handleView = (productId: string) => {
     setSelectedProductId(productId);
     setViewDialogOpen(true);
+  };
+  
+  const handleToggleStatus = (productId: string, isActive: boolean) => {
+    updateMerchandise({
+      id: productId,
+      data: { status: isActive ? "active" : "inactive" },
+    });
   };
 
   const handleCreateSuccess = () => {
@@ -125,9 +135,9 @@ export function MerchandiseManagement({
           {Array.from({ length: 4 }, (_, i) => (
             <div
               key={`skeleton-${i}`}
-              className="border border-border bg-card/30 rounded-xl p-4 animate-pulse"
+              className="border border-border bg-card/30 rounded-md p-4 animate-pulse"
             >
-              <div className="aspect-square bg-muted rounded-xl mb-4" />
+              <div className="aspect-square bg-muted rounded-md mb-4" />
               <div className="h-4 bg-muted rounded mb-2" />
               <div className="h-2 bg-muted rounded" />
             </div>
@@ -137,7 +147,7 @@ export function MerchandiseManagement({
 
       {/* Empty State */}
       {!isLoading && products.length === 0 && (
-        <div className="border border-border bg-card/30 rounded-xl p-8 text-center">
+        <div className="border border-border bg-card/30 rounded-md p-8 text-center">
           <p className="text-sm text-muted-foreground mb-4">
             No products found. Create one to get started.
           </p>
@@ -159,6 +169,7 @@ export function MerchandiseManagement({
               onDelete={handleDelete}
               onView={handleView}
               onClick={(productId: string) => handleView(productId)}
+              onToggleActive={handleToggleStatus}
             />
           ))}
         </div>
@@ -242,24 +253,21 @@ export function MerchandiseManagement({
         </DialogContent>
       </Dialog>
 
-      {/* View Merchandise Dialog */}
-      <Dialog 
+      {/* View Merchandise Drawer */}
+      <Drawer 
         open={viewDialogOpen} 
         onOpenChange={(open) => {
           setViewDialogOpen(open);
           if (!open) {
-            // Clear selected product when dialog closes
             setSelectedProductId(null);
           }
         }}
+        side="bottom"
+        title="Merchandise Overview"
+        description="Detailed view of product performance and inventory status."
+        className="h-[85vh]" // Make it tall enough for the bento layout
       >
-        <DialogContent className="max-w-2xl">
-          <DialogHeader>
-            <DialogTitle>Merchandise Details</DialogTitle>
-            <DialogDescription>
-              View merchandise product information.
-            </DialogDescription>
-          </DialogHeader>
+        <div className="h-full overflow-y-auto px-6 py-4">
           <MerchandiseViewDialogContent
             isLoading={isLoadingProduct}
             hasError={!!productError}
@@ -271,8 +279,8 @@ export function MerchandiseManagement({
             onEdit={handleEdit}
             onDelete={handleDelete}
           />
-        </DialogContent>
-      </Dialog>
+        </div>
+      </Drawer>
     </div>
   );
 }

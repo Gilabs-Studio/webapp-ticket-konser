@@ -14,7 +14,7 @@ func SetupRoutes(
 	roleRepo role.Repository,
 	jwtManager *jwt.JWTManager,
 ) {
-	// Merchandise routes (admin only)
+	// Admin routes (authenticated with permission)
 	merchandiseRoutes := router.Group("/merchandise")
 	merchandiseRoutes.Use(middleware.AuthMiddleware(jwtManager))
 	merchandiseRoutes.Use(middleware.RequirePermission("merchandise.read", roleRepo))
@@ -26,5 +26,12 @@ func SetupRoutes(
 		merchandiseRoutes.PUT("/:id", middleware.RequirePermission("merchandise.update", roleRepo), merchandiseHandler.Update) // Update merchandise
 		merchandiseRoutes.DELETE("/:id", middleware.RequirePermission("merchandise.delete", roleRepo), merchandiseHandler.Delete) // Delete merchandise
 		merchandiseRoutes.POST("/:id/image", middleware.RequirePermission("merchandise.update", roleRepo), merchandiseHandler.UploadImage) // Upload merchandise image
+	}
+
+	// Public routes for guest browsing (no auth required)
+	publicRoutes := router.Group("/public/merchandise")
+	{
+		publicRoutes.GET("", merchandiseHandler.ListPublic)     // List active merchandise only
+		publicRoutes.GET("/:id", merchandiseHandler.GetByIDPublic) // Get active merchandise by ID
 	}
 }

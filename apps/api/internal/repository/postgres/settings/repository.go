@@ -28,7 +28,7 @@ func (r *Repository) FindByKey(key string) (*settings.Settings, error) {
 	var s settings.Settings
 	if err := r.db.Where("key = ?", key).First(&s).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, ErrSettingsNotFound
+			return nil, errors.Join(gorm.ErrRecordNotFound, ErrSettingsNotFound)
 		}
 		return nil, err
 	}

@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/gilabs/webapp-ticket-konser/api/internal/database"
+	"github.com/gilabs/webapp-ticket-konser/api/internal/domain/event"
 	"github.com/gilabs/webapp-ticket-konser/api/internal/domain/order"
 	orderitem "github.com/gilabs/webapp-ticket-konser/api/internal/domain/order_item"
 	"github.com/gilabs/webapp-ticket-konser/api/internal/domain/schedule"
@@ -234,8 +235,17 @@ func (s *Service) GetRecentOrders(limit int) ([]*order.OrderResponse, error) {
 	return responses, nil
 }
 
-// CreateOrder creates a new order with quota management and transaction lock
-func (s *Service) CreateOrder(req *order.CreateOrderRequest, userID string) (*order.OrderResponse, error) {
+// CreateOrder creates a new order with quota management, transaction lock, idempotency, and price snapshots
+func (s *Service) CreateOrder(req *order.CreateOrderRequest, userID string, idempotencyKey string) (*order.OrderResponse, error) {
+	// Idempotency check: if client provided a key, check for existing order with same key
+	if idempotencyKey != "" {
+		existingOrder, err := s.repo.FindByIdempotencyKey(idempotencyKey)
+		if err == nil && existingOrder != nil {
+			// Order already exists with this key — return existing order (deduplicated)
+			return existingOrder.ToOrderResponse(), nil
+		}
+	}
+
 	// Validate user exists before starting transaction
 	var userExists bool
 	if err := s.db.Raw("SELECT EXISTS(SELECT 1 FROM users WHERE id = ? AND deleted_at IS NULL)", userID).Scan(&userExists).Error; err != nil {
@@ -245,7 +255,7 @@ func (s *Service) CreateOrder(req *order.CreateOrderRequest, userID string) (*or
 		return nil, ErrUserNotFound
 	}
 
-	// Start transaction
+	// Start transaction with timeout to prevent indefinite lock holding
 	tx := s.db.Begin()
 	defer func() {
 		if r := recover(); r != nil {
@@ -253,7 +263,13 @@ func (s *Service) CreateOrder(req *order.CreateOrderRequest, userID string) (*or
 		}
 	}()
 
-	// Lock ticket category untuk prevent race condition
+	// Set transaction-level statement timeout (30s) to prevent long-held locks under spike
+	if err := tx.Exec("SET LOCAL statement_timeout = '30s'").Error; err != nil {
+		tx.Rollback()
+		return nil, fmt.Errorf("failed to set statement timeout: %w", err)
+	}
+
+	// Lock ticket category to prevent race condition (SELECT FOR UPDATE)
 	var ticketCategory ticketcategory.TicketCategory
 	if err := tx.Set("gorm:query_option", "FOR UPDATE").Where("id = ?", req.TicketCategoryID).First(&ticketCategory).Error; err != nil {
 		tx.Rollback()
@@ -269,9 +285,9 @@ func (s *Service) CreateOrder(req *order.CreateOrderRequest, userID string) (*or
 		return nil, ErrInsufficientQuota
 	}
 
-	// Lock schedule
-	var schedule schedule.Schedule
-	if err := tx.Set("gorm:query_option", "FOR UPDATE").Where("id = ?", req.ScheduleID).First(&schedule).Error; err != nil {
+	// Lock schedule (SELECT FOR UPDATE)
+	var sched schedule.Schedule
+	if err := tx.Set("gorm:query_option", "FOR UPDATE").Where("id = ?", req.ScheduleID).First(&sched).Error; err != nil {
 		tx.Rollback()
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, ErrScheduleNotFound
@@ -279,25 +295,35 @@ func (s *Service) CreateOrder(req *order.CreateOrderRequest, userID string) (*or
 		return nil, err
 	}
 
-	// Check remaining seats (note: field name is RemainingSeat, not RemainingSeats)
-	if schedule.RemainingSeat < req.Quantity {
+	// Check remaining seats
+	if sched.RemainingSeat < req.Quantity {
 		tx.Rollback()
 		return nil, ErrInsufficientSeats
 	}
 
-	// Calculate total amount
-	totalAmount := ticketCategory.Price * float64(req.Quantity)
+	// Fetch event name for snapshot (read-only, no lock needed)
+	eventName := ""
+	if sched.EventID != "" {
+		var evt event.Event
+		if err := tx.Where("id = ?", sched.EventID).First(&evt).Error; err == nil {
+			eventName = evt.EventName
+		}
+	}
 
-	// Decrement quota
+	// Snapshot the unit price and names at purchase time (immutable historical record)
+	unitPrice := ticketCategory.Price
+	totalAmount := unitPrice * float64(req.Quantity)
+
+	// Decrement quota atomically
 	ticketCategory.Quota -= req.Quantity
 	if err := tx.Save(&ticketCategory).Error; err != nil {
 		tx.Rollback()
 		return nil, err
 	}
 
-	// Decrement remaining seats
-	schedule.RemainingSeat -= req.Quantity
-	if err := tx.Save(&schedule).Error; err != nil {
+	// Decrement remaining seats atomically
+	sched.RemainingSeat -= req.Quantity
+	if err := tx.Save(&sched).Error; err != nil {
 		tx.Rollback()
 		return nil, err
 	}
@@ -305,18 +331,29 @@ func (s *Service) CreateOrder(req *order.CreateOrderRequest, userID string) (*or
 	// Set payment expiration (15 minutes from now)
 	paymentExpiresAt := time.Now().Add(15 * time.Minute)
 
-	// Create order
+	// Build idempotency key pointer
+	var idempotencyKeyPtr *string
+	if idempotencyKey != "" {
+		idempotencyKeyPtr = &idempotencyKey
+	}
+
+	// Create order with snapshot fields for historical data integrity
 	newOrder := &order.Order{
-		UserID:           userID,
-		ScheduleID:       req.ScheduleID,
-		TicketCategoryID: req.TicketCategoryID,
-		Quantity:         req.Quantity,
-		TotalAmount:      totalAmount,
-		PaymentStatus:    order.PaymentStatusUnpaid,
-		PaymentExpiresAt: &paymentExpiresAt,
-		BuyerName:        req.BuyerName,
-		BuyerEmail:       req.BuyerEmail,
-		BuyerPhone:       req.BuyerPhone,
+		UserID:               userID,
+		ScheduleID:           req.ScheduleID,
+		TicketCategoryID:     req.TicketCategoryID,
+		Quantity:             req.Quantity,
+		UnitPrice:            unitPrice,
+		TotalAmount:          totalAmount,
+		CategoryNameSnapshot: ticketCategory.CategoryName,
+		EventNameSnapshot:    eventName,
+		ScheduleNameSnapshot: sched.SessionName,
+		PaymentStatus:        order.PaymentStatusUnpaid,
+		PaymentExpiresAt:     &paymentExpiresAt,
+		IdempotencyKey:       idempotencyKeyPtr,
+		BuyerName:            req.BuyerName,
+		BuyerEmail:           req.BuyerEmail,
+		BuyerPhone:           req.BuyerPhone,
 	}
 
 	if err := tx.Create(newOrder).Error; err != nil {
@@ -329,7 +366,7 @@ func (s *Service) CreateOrder(req *order.CreateOrderRequest, userID string) (*or
 		return nil, err
 	}
 
-	// Reload order dengan relations
+	// Reload order with relations
 	createdOrder, err := s.repo.FindByID(newOrder.ID)
 	if err != nil {
 		return nil, err
@@ -338,14 +375,9 @@ func (s *Service) CreateOrder(req *order.CreateOrderRequest, userID string) (*or
 	return createdOrder.ToOrderResponse(), nil
 }
 
-// RestoreQuota restores quota and remaining seats for an order
-// Also cancels OrderItems if they exist (for orders that were PAID and OrderItems were generated)
+// RestoreQuota restores quota and remaining seats for an order (idempotent via QuotaRestored flag)
+// Uses SELECT FOR UPDATE on the order to prevent concurrent double-restoration
 func (s *Service) RestoreQuota(orderID string) error {
-	order, err := s.repo.FindByID(orderID)
-	if err != nil {
-		return err
-	}
-
 	// Start transaction
 	tx := s.db.Begin()
 	defer func() {
@@ -354,11 +386,29 @@ func (s *Service) RestoreQuota(orderID string) error {
 		}
 	}()
 
-	// Cancel OrderItems jika ada (untuk orders yang sudah PAID dan OrderItems sudah generated)
+	// Set transaction-level timeout
+	if err := tx.Exec("SET LOCAL statement_timeout = '30s'").Error; err != nil {
+		tx.Rollback()
+		return fmt.Errorf("failed to set statement timeout: %w", err)
+	}
+
+	// Lock the order row to prevent concurrent restore attempts
+	var o order.Order
+	if err := tx.Set("gorm:query_option", "FOR UPDATE").Where("id = ?", orderID).First(&o).Error; err != nil {
+		tx.Rollback()
+		return fmt.Errorf("order not found: %w", err)
+	}
+
+	// Idempotency guard: skip if quota was already restored
+	if o.QuotaRestored {
+		tx.Rollback()
+		return nil
+	}
+
+	// Cancel OrderItems if they exist (for orders that were PAID and OrderItems were generated)
 	orderItems, err := s.orderItemRepo.FindByOrderID(orderID)
 	if err == nil && len(orderItems) > 0 {
 		for _, item := range orderItems {
-			// Update OrderItem status ke CANCELED
 			item.Status = orderitem.TicketStatusCanceled
 			if err := tx.Save(item).Error; err != nil {
 				tx.Rollback()
@@ -367,36 +417,48 @@ func (s *Service) RestoreQuota(orderID string) error {
 		}
 	}
 
-	// Lock dan restore quota
+	// Lock and restore ticket category quota
 	var ticketCategory ticketcategory.TicketCategory
-	if err := tx.Set("gorm:query_option", "FOR UPDATE").Where("id = ?", order.TicketCategoryID).First(&ticketCategory).Error; err != nil {
+	if err := tx.Set("gorm:query_option", "FOR UPDATE").Where("id = ?", o.TicketCategoryID).First(&ticketCategory).Error; err != nil {
 		tx.Rollback()
 		return err
 	}
-	ticketCategory.Quota += order.Quantity
+	ticketCategory.Quota += o.Quantity
 	if err := tx.Save(&ticketCategory).Error; err != nil {
 		tx.Rollback()
 		return err
 	}
 
-	// Lock dan restore remaining seats
-	var schedule schedule.Schedule
-	if err := tx.Set("gorm:query_option", "FOR UPDATE").Where("id = ?", order.ScheduleID).First(&schedule).Error; err != nil {
+	// Lock and restore schedule remaining seats
+	var sched schedule.Schedule
+	if err := tx.Set("gorm:query_option", "FOR UPDATE").Where("id = ?", o.ScheduleID).First(&sched).Error; err != nil {
 		tx.Rollback()
 		return err
 	}
-	schedule.RemainingSeat += order.Quantity
-	if err := tx.Save(&schedule).Error; err != nil {
+	sched.RemainingSeat += o.Quantity
+	if err := tx.Save(&sched).Error; err != nil {
 		tx.Rollback()
 		return err
 	}
 
-	// Commit
+	// Mark quota as restored (prevents double-restoration on concurrent webhook + cron race)
+	o.QuotaRestored = true
+	if err := tx.Save(&o).Error; err != nil {
+		tx.Rollback()
+		return fmt.Errorf("failed to mark quota as restored: %w", err)
+	}
+
+	// Commit atomically
 	if err := tx.Commit().Error; err != nil {
 		return err
 	}
 
 	return nil
+}
+
+// FindUnrestoredCanceledOrders finds canceled/failed orders where quota has not been restored
+func (s *Service) FindUnrestoredCanceledOrders() ([]*order.Order, error) {
+	return s.repo.FindUnrestoredCanceledOrders()
 }
 
 // FindExpiredUnpaidOrders finds expired unpaid orders

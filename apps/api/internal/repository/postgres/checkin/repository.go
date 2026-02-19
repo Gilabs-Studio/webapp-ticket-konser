@@ -33,7 +33,7 @@ func (r *Repository) FindByID(id string) (*checkin.CheckIn, error) {
 		Preload("Staff").
 		First(&c).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, ErrCheckInNotFound
+			return nil, errors.Join(gorm.ErrRecordNotFound, ErrCheckInNotFound)
 		}
 		return nil, err
 	}

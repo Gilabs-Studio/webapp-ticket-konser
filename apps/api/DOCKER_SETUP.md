@@ -27,6 +27,7 @@ Project ini memiliki dua environment Docker Compose:
 
 - **Development**:
   - Database: `ticketing-db`
+  - Redis: `ticketing-redis`
   - API: `ticketing-api`
 - **Production**:
   - Database: `ticketing-db-prod`
@@ -44,7 +45,8 @@ Project ini memiliki dua environment Docker Compose:
 
 ### Ports
 
-- **PostgreSQL**: `5435:5432` (host:container)
+- **PostgreSQL**: `5438:5432` (host:container)
+- **Redis**: `6379:6379` (host:container)
 - **API**: `8083:8083` (host:container)
 
 ## Setup Development Environment
@@ -168,13 +170,20 @@ docker compose -f docker-compose.prod.yml down
 
 ### Development
 
-Environment variables di-set langsung di `docker-compose.dev.yml`:
+Environment variables di-set langsung di `docker-compose.yml`:
 
 ```yaml
 environment:
   - JWT_SECRET=dev-secret-key-min-32-chars-for-development-only
   - DB_USER=postgres
   - DB_PASSWORD=postgres
+
+  # Redis (cache + distributed rate limit + idempotency)
+  - REDIS_ENABLED=true
+  - REDIS_ADDR=redis:6379
+
+  # Observability
+  - METRICS_ENABLED=true
 ```
 
 ### Production
@@ -205,7 +214,7 @@ ENV=development
 
 # Database Configuration (untuk connect dari host)
 DB_HOST=localhost
-DB_PORT=5435
+DB_PORT=5438
 DB_USER=postgres
 DB_PASSWORD=postgres
 DB_NAME=ticketing_app
@@ -215,11 +224,23 @@ DB_SSLMODE=disable
 JWT_SECRET=your-secret-key-change-in-production-min-32-chars
 JWT_ACCESS_TTL=24
 JWT_REFRESH_TTL=7
+
+# Redis (optional)
+# Set REDIS_ENABLED=false jika tidak menjalankan Redis
+REDIS_ENABLED=false
+REDIS_ADDR=localhost:6379
+REDIS_DB=0
+REDIS_PREFIX=ticketing_api
+
+# Observability
+METRICS_ENABLED=true
+PPROF_ENABLED=false
+DEBUG_TOKEN=
 ```
 
 **Catatan**:
 
-- `DB_PORT=5435` untuk connect dari host (di luar Docker)
+- `DB_PORT=5438` untuk connect dari host (di luar Docker)
 - `DB_PORT=5432` untuk connect dari dalam Docker network (container ke container)
 
 ## Makefile Commands
@@ -296,7 +317,7 @@ CREATE DATABASE ticketing_app;
 
 ### Port sudah digunakan
 
-Jika port 5435 atau 8083 sudah digunakan:
+Jika port 5438, 6379, atau 8083 sudah digunakan:
 
 1. Cek aplikasi lain yang menggunakan port tersebut:
 
@@ -357,18 +378,20 @@ make clean  # (jika ada command clean di Makefile)
 5. **Backup database** secara berkala dari volume Docker
 6. **Update base images** secara berkala untuk security patches
 
-## Perbedaan dengan CRM Healthcare
+## Perbedaan dengan Euforia Healthcare
 
-| Item               | CRM Healthcare       | WebApp Ticketing                                               |
+| Item               | Euforia Healthcare       | WebApp Ticketing                                               |
 | ------------------ | -------------------- | -------------------------------------------------------------- |
-| Stack Name         | `api` (default)      | `ticketing_api_dev` / `ticketing_api_prod`                     |
-| Database Container | `crm-healthcare-db`  | `ticketing-db-dev` / `ticketing-db-prod`                       |
-| API Container      | `crm-healthcare-api` | `ticketing-api-dev` / `ticketing-api-prod`                     |
-| Network            | `crm-network`        | `ticketing-network-dev` / `ticketing-network-prod`             |
-| Volume             | `postgres_data`      | `ticketing_postgres_data_dev` / `ticketing_postgres_data_prod` |
-| PostgreSQL Port    | `5434:5432`          | `5435:5432`                                                    |
+| Stack Name         | `api` (default)      | `ticketing_api` / `ticketing_api_prod`                         |
+| Database Container | `euforia-db`  | `ticketing-db` / `ticketing-db-prod`                           |
+| Redis Container    | -                    | `ticketing-redis`                                               |
+| API Container      | `euforia-api` | `ticketing-api` / `ticketing-api-prod`                         |
+| Network            | `euforia-network`        | `ticketing-network` / `ticketing-network-prod`                 |
+| Volume             | `postgres_data`      | `ticketing_postgres_data` / `ticketing_postgres_data_prod`     |
+| PostgreSQL Port    | `5434:5432`          | `5438:5432`                                                    |
+| Redis Port         | -                    | `6379:6379`                                                    |
 | API Port           | `8080:8080`          | `8083:8083`                                                    |
-| Database Name      | `crm_healthcare`     | `ticketing_app`                                                |
+| Database Name      | `euforia`     | `ticketing_app`                                                |
 | Secrets            | Environment vars     | Docker secrets (production)                                    |
 
 Kedua project dapat berjalan bersamaan tanpa konflik.
