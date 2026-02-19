@@ -28,7 +28,7 @@ export default function Header({ locale }: HeaderProps) {
   }, []);
 
   const menuItems = [
-    { label: "Event", href: "/explore" },
+    { label: "Home", href: "/" },
     { label: "Merchandise", href: "/explore?tab=merchandise" },
     { label: "Ticket", href: "/explore" },
     { label: "About Us", href: "#about" },

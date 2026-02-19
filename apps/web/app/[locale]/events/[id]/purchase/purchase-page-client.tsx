@@ -42,11 +42,11 @@ export function PurchasePageClient({ eventId }: PurchasePageClientProps) {
   const { mutate: createOrder, isPending } = useCreateOrder();
   const [selectedCategoryId, setSelectedCategoryId] = useState<string>("");
 
-  // Redirect to login if not authenticated (best practice: login at checkout step)
+  // Redirect to register if not authenticated (best practice: register at checkout step for new buyers)
   useEffect(() => {
     if (!isAuthenticated || !user) {
       const redirectPath = encodeURIComponent(pathname);
-      router.replace(`/login?redirect=${redirectPath}`);
+      router.replace(`/register?redirect=${redirectPath}`);
     }
   }, [isAuthenticated, user, router, pathname]);
 

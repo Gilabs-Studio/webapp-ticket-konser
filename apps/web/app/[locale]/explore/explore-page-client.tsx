@@ -234,7 +234,7 @@ export function ExplorePageClient() {
   const products = merchData?.data ?? [];
 
   return (
-    <div className="space-y-8 max-w-7xl mx-auto">
+    <div>
       {/* Header */}
       <div className="flex items-center gap-4">
         <Button variant="ghost" size="icon" onClick={() => router.push("/")} aria-label="Back to home">

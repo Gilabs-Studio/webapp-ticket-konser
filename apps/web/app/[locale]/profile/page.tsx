@@ -1,9 +1,9 @@
 import { Suspense } from "react";
-import { ExplorePageClient } from "./explore-page-client";
+import { ProfilePageClient } from "./profile-page-client";
 import { Skeleton } from "@/components/ui/skeleton";
 import { PageWithHeaderLayout } from "@/components/layouts/PageWithHeaderLayout";
 
-export default function ExplorePage() {
+export default function ProfilePage() {
   return (
     <PageWithHeaderLayout>
       <div className="container mx-auto px-6 py-6">
@@ -15,7 +15,7 @@ export default function ExplorePage() {
             </div>
           }
         >
-          <ExplorePageClient />
+          <ProfilePageClient />
         </Suspense>
       </div>
     </PageWithHeaderLayout>
