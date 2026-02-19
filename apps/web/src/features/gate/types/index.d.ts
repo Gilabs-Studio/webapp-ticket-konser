@@ -13,6 +13,18 @@ export interface Gate {
   readonly updated_at: string;
 }
 
+export interface User {
+  readonly id: string;
+  readonly email: string;
+  readonly name: string;
+  readonly avatar_url?: string;
+  readonly role: string;
+}
+
+export interface AssignStaffToGateRequest {
+  readonly staff_id: string;
+}
+
 export interface CreateGateRequest {
   readonly code: string;
   readonly name: string;

@@ -36,25 +36,26 @@ export default function DashboardPage() {
           sales={sales}
           checkIn={checkIn}
           quota={quota}
+          buyers={buyers}
           isLoading={isLoading}
         />
 
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
           <div className="col-span-4">
-             <QuotaChart quota={quota} isLoading={isLoading} />
+            <QuotaChart quota={quota} isLoading={isLoading} />
           </div>
           <div className="col-span-3">
-             <CheckInChart checkIn={checkIn} isLoading={isLoading} />
+            <CheckInChart checkIn={checkIn} isLoading={isLoading} />
           </div>
         </div>
 
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
-           <div className="col-span-3">
-              <GateTrafficChart gates={gates} isLoading={isLoading} />
-           </div>
-           <div className="col-span-4">
-              <RecentActivity buyers={buyers} isLoading={isLoading} />
-           </div>
+          <div className="col-span-3">
+            <GateTrafficChart gates={gates} isLoading={isLoading} />
+          </div>
+          <div className="col-span-4">
+            <RecentActivity buyers={buyers} isLoading={isLoading} />
+          </div>
         </div>
       </div>
     </PageMotion>

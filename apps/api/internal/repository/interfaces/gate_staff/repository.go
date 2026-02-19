@@ -8,4 +8,5 @@ type Repository interface {
 	Unassign(gateID, staffID string) error
 	IsStaffAssignedToGate(gateID, staffID string) (bool, error)
 	ListGatesByStaffID(staffID string) ([]*gate.Gate, error)
+	ListStaffByGateID(gateID string) ([]*gate.GateStaffAssignment, error)
 }

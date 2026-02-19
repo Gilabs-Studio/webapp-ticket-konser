@@ -2,67 +2,112 @@ package job
 
 import (
 	"log"
+	"sync"
 
 	orderservice "github.com/gilabs/webapp-ticket-konser/api/internal/service/order"
 	"github.com/robfig/cron/v3"
 )
 
-// StartPaymentExpirationJob starts the payment expiration cron job
-func StartPaymentExpirationJob(orderService *orderservice.Service) {
+// StartPaymentExpirationJob starts the payment expiration cron job.
+// Returns the *cron.Cron handle so the caller can defer c.Stop() for graceful shutdown.
+func StartPaymentExpirationJob(orderService *orderservice.Service) *cron.Cron {
 	c := cron.New()
 
-	// Run every minute
+	// Maximum orders processed per cycle to avoid overwhelming the DB
+	const maxPerCycle = 200
+	// Worker pool size for RestoreQuota (each opens its own transaction)
+	const workers = 10
+
 	_, err := c.AddFunc("* * * * *", func() {
-		// Phase 1: Cancel expired unpaid orders and restore quota
+		// ── Phase 1: Cancel expired unpaid orders and restore quota ──────────
+
 		expiredOrders, err := orderService.FindExpiredUnpaidOrders()
 		if err != nil {
-			log.Printf("Error finding expired orders: %v", err)
+			log.Printf("[PaymentExpiration] Error finding expired orders: %v", err)
 			return
+		}
+
+		// Cap per cycle to avoid spike-induced overload
+		if len(expiredOrders) > maxPerCycle {
+			log.Printf("[PaymentExpiration] Found %d expired orders, processing first %d", len(expiredOrders), maxPerCycle)
+			expiredOrders = expiredOrders[:maxPerCycle]
 		}
 
 		if len(expiredOrders) > 0 {
-			log.Printf("Found %d expired unpaid orders, processing...", len(expiredOrders))
+			log.Printf("[PaymentExpiration] Processing %d expired unpaid orders...", len(expiredOrders))
+
+			// Worker pool for concurrent processing
+			var wg sync.WaitGroup
+			sem := make(chan struct{}, workers)
 
 			for _, order := range expiredOrders {
-				// Update status to CANCELED
-				if err := orderService.CancelExpiredOrder(order.ID); err != nil {
-					log.Printf("Error canceling expired order %s: %v", order.ID, err)
-					continue
-				}
+				orderID := order.ID // capture loop variable
+				wg.Add(1)
+				sem <- struct{}{} // acquire semaphore slot
 
-				// Restore quota (idempotent via QuotaRestored flag)
-				if err := orderService.RestoreQuota(order.ID); err != nil {
-					log.Printf("Error restoring quota for order %s: %v", order.ID, err)
-				} else {
-					log.Printf("Successfully expired and restored quota for order %s", order.ID)
-				}
+				go func() {
+					defer wg.Done()
+					defer func() { <-sem }() // release semaphore slot
+
+					if err := orderService.CancelExpiredOrder(orderID); err != nil {
+						log.Printf("[PaymentExpiration] Error canceling order %s: %v", orderID, err)
+						return // skip restore if cancel failed
+					}
+
+					if err := orderService.RestoreQuota(orderID); err != nil {
+						log.Printf("[PaymentExpiration] Error restoring quota for order %s: %v", orderID, err)
+					} else {
+						log.Printf("[PaymentExpiration] Successfully processed order %s", orderID)
+					}
+				}()
 			}
+			wg.Wait()
 		}
 
-		// Phase 2: Retry quota restoration for canceled/failed orders where restore previously failed
-		// This catches edge cases where CancelExpiredOrder succeeded but RestoreQuota failed
+		// ── Phase 2: Retry quota restoration for previously-failed restores ──
+
 		unrestoredOrders, err := orderService.FindUnrestoredCanceledOrders()
 		if err != nil {
-			log.Printf("Error finding unrestored canceled orders: %v", err)
+			log.Printf("[PaymentExpiration] Error finding unrestored canceled orders: %v", err)
 			return
 		}
 
-		for _, order := range unrestoredOrders {
-			if err := orderService.RestoreQuota(order.ID); err != nil {
-				log.Printf("Error retrying quota restore for order %s: %v", order.ID, err)
-			} else {
-				log.Printf("Successfully retried quota restore for order %s", order.ID)
+		if len(unrestoredOrders) > maxPerCycle {
+			unrestoredOrders = unrestoredOrders[:maxPerCycle]
+		}
+
+		if len(unrestoredOrders) > 0 {
+			log.Printf("[PaymentExpiration] Retrying %d unrestored quota orders...", len(unrestoredOrders))
+
+			var wg sync.WaitGroup
+			sem := make(chan struct{}, workers)
+
+			for _, order := range unrestoredOrders {
+				orderID := order.ID
+				wg.Add(1)
+				sem <- struct{}{}
+
+				go func() {
+					defer wg.Done()
+					defer func() { <-sem }()
+
+					if err := orderService.RestoreQuota(orderID); err != nil {
+						log.Printf("[PaymentExpiration] Error retrying quota restore for order %s: %v", orderID, err)
+					} else {
+						log.Printf("[PaymentExpiration] Successfully retried quota restore for order %s", orderID)
+					}
+				}()
 			}
+			wg.Wait()
 		}
 	})
 
 	if err != nil {
-		log.Printf("Error adding payment expiration cron job: %v", err)
-		return
+		log.Printf("[PaymentExpiration] Error adding cron job: %v", err)
+		return c
 	}
 
 	c.Start()
-	log.Println("Payment expiration job started (runs every minute)")
+	log.Println("[PaymentExpiration] Job started (runs every minute, max 200/cycle, 10 workers)")
+	return c
 }
-
-

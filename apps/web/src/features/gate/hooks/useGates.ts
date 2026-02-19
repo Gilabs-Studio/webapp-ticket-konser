@@ -109,3 +109,57 @@ export function useGateStatistics(gateId: string) {
     staleTime: 10000, // 10 seconds - statistics should be more frequently updated
   });
 }
+
+export function useAssignedStaff(gateId: string) {
+  return useQuery({
+    queryKey: ["gate-staff", gateId],
+    queryFn: () => gateService.getAssignedStaff(gateId),
+    enabled: !!gateId,
+  });
+}
+
+export function useAssignStaffToGate() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({
+      gateId,
+      staffId,
+    }: {
+      gateId: string;
+      staffId: string;
+    }) => gateService.assignStaffToGate(gateId, { staff_id: staffId }),
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: ["gate-staff", variables.gateId] });
+      toast.success("Staff assigned successfully");
+    },
+    onError: (error: unknown) => {
+      const message =
+        error instanceof Error ? error.message : "Failed to assign staff";
+      toast.error(message);
+    },
+  });
+}
+
+export function useUnassignStaffFromGate() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({
+      gateId,
+      staffId,
+    }: {
+      gateId: string;
+      staffId: string;
+    }) => gateService.unassignStaffFromGate(gateId, staffId),
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: ["gate-staff", variables.gateId] });
+      toast.success("Staff unassigned successfully");
+    },
+    onError: (error: unknown) => {
+      const message =
+        error instanceof Error ? error.message : "Failed to unassign staff";
+      toast.error(message);
+    },
+  });
+}

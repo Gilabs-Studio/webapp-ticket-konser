@@ -59,6 +59,13 @@ export interface ETicket {
     readonly schedule_id: string;
     readonly total_amount: number;
     readonly payment_status: string;
+    readonly buyer_name: string;
+    readonly buyer_email: string;
+    readonly buyer_phone: string;
+    readonly event_name_snapshot: string;
+    readonly schedule_name_snapshot: string;
+    readonly category_name_snapshot: string;
+    readonly created_at: string;
     readonly user?: {
       readonly id: string;
       readonly name: string;

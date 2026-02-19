@@ -48,14 +48,8 @@ export function useLogin() {
         if (userRole === "admin" || userRole === "super_admin") {
           // Dashboard route moved from /admin/dashboard to /dashboard
           router.push("/dashboard");
-        } else if (userRole === "gatekeeper") {
-          // Gatekeeper should only operate attendees + scanner
-          router.push("/attendees-management");
-        } else if (userRole === "staff_ticket" || userRole === "gate_staff") {
-          // Staff redirect ke landing page, menu scanner dan check-ins ada di profile dropdown
-          router.push("/");
         } else {
-          // Guest atau role lain - redirect ke landing page (tidak ada dashboard untuk guest)
+          // Staff (staff_ticket) or other roles - redirect to landing page
           router.push("/");
         }
       }

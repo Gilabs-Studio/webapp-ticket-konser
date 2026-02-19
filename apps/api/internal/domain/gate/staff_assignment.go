@@ -8,17 +8,17 @@ import (
 	"gorm.io/gorm"
 )
 
-// GateStaffAssignment represents which staff (gatekeepers) can operate a gate.
+// GateStaffAssignment represents which staff members can operate a gate.
 // This enables multi-gate deployments where different staff are assigned to different gates.
 // Rows are hard-deleted on unassign.
 type GateStaffAssignment struct {
-	ID        string    `gorm:"type:uuid;primary_key;default:gen_random_uuid()" json:"id"`
-	GateID    string    `gorm:"type:uuid;not null;index;uniqueIndex:ux_gate_staff" json:"gate_id"`
-	Gate      *Gate     `gorm:"foreignKey:GateID" json:"gate,omitempty"`
-	StaffID   string    `gorm:"type:uuid;not null;index;uniqueIndex:ux_gate_staff" json:"staff_id"`
+	ID        string     `gorm:"type:uuid;primary_key;default:gen_random_uuid()" json:"id"`
+	GateID    string     `gorm:"type:uuid;not null;index;uniqueIndex:ux_gate_staff" json:"gate_id"`
+	Gate      *Gate      `gorm:"foreignKey:GateID" json:"gate,omitempty"`
+	StaffID   string     `gorm:"type:uuid;not null;index;uniqueIndex:ux_gate_staff" json:"staff_id"`
 	Staff     *user.User `gorm:"foreignKey:StaffID" json:"staff,omitempty"`
-	CreatedAt time.Time `json:"created_at"`
-	UpdatedAt time.Time `json:"updated_at"`
+	CreatedAt time.Time  `json:"created_at"`
+	UpdatedAt time.Time  `json:"updated_at"`
 }
 
 func (GateStaffAssignment) TableName() string {

@@ -36,16 +36,15 @@ export default function Header({ locale }: HeaderProps) {
   // Determine user role for menu customization
   const userRole = getNormalizedRoleCode(user?.role);
   const isAdmin = ["admin", "super_admin"].includes(userRole);
-  const isStaff = ["staff_ticket", "gate_staff", "gatekeeper"].includes(userRole);
+  const isStaff = ["staff_ticket", "gate_staff"].includes(userRole);
   const isGuest = Boolean(isAuthenticated && user && !isAdmin && !isStaff);
 
   return (
     <header
-      className={`dark fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-        scrolled
+      className={`dark fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${scrolled
           ? "bg-background/80 backdrop-blur-md border-b border-foreground/10"
           : "bg-transparent"
-      }`}
+        }`}
     >
       <nav className="container mx-auto px-6 py-6">
         <div className="flex items-center justify-between">
