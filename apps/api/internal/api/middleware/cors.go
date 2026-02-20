@@ -32,8 +32,10 @@ func CORSMiddleware() gin.HandlerFunc {
 			}
 			corsCfg.AllowOrigins = origins
 		} else {
-			// Safe default: do not allow cross-origin in production unless explicitly configured.
-			corsCfg.AllowOrigins = []string{}
+			// CORS_ALLOW_ORIGINS is not set — fall back to allowing all origins.
+			// To lock down CORS, set CORS_ALLOW_ORIGINS to a comma-separated list
+			// of allowed origins (e.g. "https://app.example.com,https://admin.example.com").
+			corsCfg.AllowAllOrigins = true
 		}
 	} else {
 		// In development, allow all origins to facilitate testing from mobile devices
