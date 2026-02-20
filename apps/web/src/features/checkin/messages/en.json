@@ -7,6 +7,8 @@
       "description": "We need camera access to scan QR code",
       "denied": "Permission Denied",
       "deniedMessage": "Please grant camera access to use the scanner.",
+      "insecureContext": "Insecure Connection",
+      "insecureContextMessage": "Camera access requires a secure connection (HTTPS). Please use HTTPS or access from localhost.",
       "requestButton": "Request Camera Permission"
     },
     "manualInput": {

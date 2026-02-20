@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/gilabs/webapp-ticket-konser/api/internal/config"
+	"github.com/gilabs/webapp-ticket-konser/api/internal/domain/audit"
 	"github.com/gilabs/webapp-ticket-konser/api/internal/domain/checkin"
 	"github.com/gilabs/webapp-ticket-konser/api/internal/domain/event"
 	"github.com/gilabs/webapp-ticket-konser/api/internal/domain/gate"
@@ -150,9 +151,20 @@ func AutoMigrate() error {
 		&merchandise.Merchandise{},
 		&merchandise.StockLog{},
 		&settings.Settings{},
+		&audit.AuditLog{},
 	)
 	if err != nil {
 		return fmt.Errorf("failed to run migrations: %w", err)
+	}
+
+	// Step 6: Create pg_trgm extension and index for search optimization
+	if err := DB.Exec("CREATE EXTENSION IF NOT EXISTS pg_trgm").Error; err != nil {
+		log.Printf("Warning: failed to create pg_trgm extension: %v", err)
+	} else {
+		// Create index on events(event_name) for ILIKE optimization
+		if err := DB.Exec("CREATE INDEX IF NOT EXISTS idx_events_name_trgm ON events USING GIN (event_name gin_trgm_ops)").Error; err != nil {
+			log.Printf("Warning: failed to create GIN index on events(event_name): %v", err)
+		}
 	}
 
 	log.Println("Database migrations completed")

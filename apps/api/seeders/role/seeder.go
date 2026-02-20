@@ -21,16 +21,9 @@ func Seed() error {
 			CanLoginAdmin: true,
 		},
 		{
-			Code:          "gatekeeper",
-			Name:          "Penjaga Gerbang",
-			Description:   "Gatekeeper role with access to Attendees menu and QR check-in",
-			IsAdmin:       false,
-			CanLoginAdmin: true,
-		},
-		{
 			Code:          "staff_ticket",
 			Name:          "Staff Ticket",
-			Description:   "Staff role with access only to Ticket Management menu",
+			Description:   "Staff role with access and QR check-in",
 			IsAdmin:       false,
 			CanLoginAdmin: true,
 		},

@@ -23,59 +23,62 @@ func Seed() error {
 		return nil
 	}
 
-	// Use upsert logic: create if not exists, skip if exists
-	// Check if schedules already exist for this event
-	var existingCount int64
-	database.DB.Model(&schedule.Schedule{}).Where("event_id = ?", harryPotterEvent.ID).Count(&existingCount)
-	if existingCount > 0 {
-		log.Printf("[Schedule Seeder] Schedules already exist for event %s (%d schedules), skipping...", harryPotterEvent.EventName, existingCount)
-		return nil
+	// Delete old schedules for this event to ensure clean state and fresh dates
+	if err := database.DB.Where("event_id = ?", harryPotterEvent.ID).Delete(&schedule.Schedule{}).Error; err != nil {
+		log.Printf("[Schedule Seeder] Error clearing old schedules: %v", err)
+	} else {
+		log.Println("[Schedule Seeder] Cleared old schedules for Harry Potter event")
 	}
 
-	// Create schedules for the first week of June 2025
-	startDate := time.Date(2025, 6, 1, 0, 0, 0, 0, time.UTC)
+	// Create schedules starting from today
+	startDate := time.Now().Truncate(24 * time.Hour)
 	schedules := []*schedule.Schedule{}
+
+	// Update event dates as well to match the new schedules (redundant but safe)
+	harryPotterEvent.StartDate = startDate
+	harryPotterEvent.EndDate = startDate.AddDate(0, 3, 0) // 3 months from now
+	database.DB.Save(&harryPotterEvent)
 
 	// Create 3 sessions per day for 7 days
 	for day := 0; day < 7; day++ {
 		currentDate := startDate.AddDate(0, 0, day)
-		
+
 		// Morning session: 09:00 - 12:00
 		schedules = append(schedules, &schedule.Schedule{
-			EventID:      harryPotterEvent.ID,
-			Date:         currentDate,
-			SessionName:  "Morning Session",
-			StartTime:    time.Date(2025, 6, 1+day, 9, 0, 0, 0, time.UTC),
-			EndTime:      time.Date(2025, 6, 1+day, 12, 0, 0, 0, time.UTC),
-			ArtistName:   "Harry Potter Orchestra",
-			Rundown:      "09:00 - Opening Ceremony\n09:30 - Main Performance\n11:00 - Interactive Session\n11:30 - Q&A Session\n12:00 - Closing",
-			Capacity:     200,
+			EventID:       harryPotterEvent.ID,
+			Date:          currentDate,
+			SessionName:   "Morning Session",
+			StartTime:     time.Date(currentDate.Year(), currentDate.Month(), currentDate.Day(), 9, 0, 0, 0, time.UTC),
+			EndTime:       time.Date(currentDate.Year(), currentDate.Month(), currentDate.Day(), 12, 0, 0, 0, time.UTC),
+			ArtistName:    "Harry Potter Orchestra",
+			Rundown:       "09:00 - Opening Ceremony\n09:30 - Main Performance\n11:00 - Interactive Session\n11:30 - Q&A Session\n12:00 - Closing",
+			Capacity:      200,
 			RemainingSeat: 200,
 		})
 
 		// Afternoon session: 13:00 - 16:00
 		schedules = append(schedules, &schedule.Schedule{
-			EventID:      harryPotterEvent.ID,
-			Date:         currentDate,
-			SessionName:  "Afternoon Session",
-			StartTime:    time.Date(2025, 6, 1+day, 13, 0, 0, 0, time.UTC),
-			EndTime:      time.Date(2025, 6, 1+day, 16, 0, 0, 0, time.UTC),
-			ArtistName:   "Harry Potter Orchestra & Special Guest",
-			Rundown:      "13:00 - Opening Ceremony\n13:30 - Main Performance\n14:30 - Special Guest Performance\n15:00 - Interactive Session\n15:30 - Q&A Session\n16:00 - Closing",
-			Capacity:     200,
+			EventID:       harryPotterEvent.ID,
+			Date:          currentDate,
+			SessionName:   "Afternoon Session",
+			StartTime:     time.Date(currentDate.Year(), currentDate.Month(), currentDate.Day(), 13, 0, 0, 0, time.UTC),
+			EndTime:       time.Date(currentDate.Year(), currentDate.Month(), currentDate.Day(), 16, 0, 0, 0, time.UTC),
+			ArtistName:    "Harry Potter Orchestra & Special Guest",
+			Rundown:       "13:00 - Opening Ceremony\n13:30 - Main Performance\n14:30 - Special Guest Performance\n15:00 - Interactive Session\n15:30 - Q&A Session\n16:00 - Closing",
+			Capacity:      200,
 			RemainingSeat: 200,
 		})
 
 		// Evening session: 17:00 - 20:00
 		schedules = append(schedules, &schedule.Schedule{
-			EventID:      harryPotterEvent.ID,
-			Date:         currentDate,
-			SessionName:  "Evening Session",
-			StartTime:    time.Date(2025, 6, 1+day, 17, 0, 0, 0, time.UTC),
-			EndTime:      time.Date(2025, 6, 1+day, 20, 0, 0, 0, time.UTC),
-			ArtistName:   "Harry Potter Orchestra & Full Cast",
-			Rundown:      "17:00 - Opening Ceremony\n17:30 - Main Performance\n18:30 - Full Cast Performance\n19:00 - Interactive Session\n19:30 - Q&A Session\n20:00 - Closing",
-			Capacity:     200,
+			EventID:       harryPotterEvent.ID,
+			Date:          currentDate,
+			SessionName:   "Evening Session",
+			StartTime:     time.Date(currentDate.Year(), currentDate.Month(), currentDate.Day(), 17, 0, 0, 0, time.UTC),
+			EndTime:       time.Date(currentDate.Year(), currentDate.Month(), currentDate.Day(), 20, 0, 0, 0, time.UTC),
+			ArtistName:    "Harry Potter Orchestra & Full Cast",
+			Rundown:       "17:00 - Opening Ceremony\n17:30 - Main Performance\n18:30 - Full Cast Performance\n19:00 - Interactive Session\n19:30 - Q&A Session\n20:00 - Closing",
+			Capacity:      200,
 			RemainingSeat: 200,
 		})
 	}
@@ -92,5 +95,3 @@ func Seed() error {
 	log.Printf("[Schedule Seeder] Schedules seeded successfully. Created: %d", createdCount)
 	return nil
 }
-
-

@@ -35,13 +35,13 @@ type Order struct {
 	PaymentMethod         string             `gorm:"type:varchar(50)" json:"payment_method"`
 	MidtransTransactionID *string            `gorm:"type:varchar(255);uniqueIndex" json:"midtrans_transaction_id"`
 	PaymentExpiresAt      *time.Time         `gorm:"type:timestamp;index" json:"payment_expires_at"`
-	QRISCode              *string            `gorm:"type:text" json:"qris_code,omitempty"` // Temporary QRIS code (cleared after expired/paid)
-	IdempotencyKey        *string            `gorm:"type:varchar(255);uniqueIndex" json:"-"`                   // Deduplication key for order creation
-	UnitPrice             float64            `gorm:"type:decimal(15,2);not null;default:0" json:"unit_price"`  // Snapshot: ticket unit price at purchase time
-	CategoryNameSnapshot  string             `gorm:"type:varchar(255)" json:"category_name_snapshot"`          // Snapshot: category name at purchase time
-	EventNameSnapshot     string             `gorm:"type:varchar(255)" json:"event_name_snapshot"`             // Snapshot: event name at purchase time
-	ScheduleNameSnapshot  string             `gorm:"type:varchar(255)" json:"schedule_name_snapshot"`          // Snapshot: schedule session name at purchase time
-	QuotaRestored         bool               `gorm:"not null;default:false" json:"-"`                          // Prevents double quota restoration
+	QRISCode              *string            `gorm:"type:text" json:"qris_code,omitempty"`                    // Temporary QRIS code (cleared after expired/paid)
+	IdempotencyKey        *string            `gorm:"type:varchar(255);uniqueIndex" json:"-"`                  // Deduplication key for order creation
+	UnitPrice             float64            `gorm:"type:decimal(15,2);not null;default:0" json:"unit_price"` // Snapshot: ticket unit price at purchase time
+	CategoryNameSnapshot  string             `gorm:"type:varchar(255)" json:"category_name_snapshot"`         // Snapshot: category name at purchase time
+	EventNameSnapshot     string             `gorm:"type:varchar(255)" json:"event_name_snapshot"`            // Snapshot: event name at purchase time
+	ScheduleNameSnapshot  string             `gorm:"type:varchar(255)" json:"schedule_name_snapshot"`         // Snapshot: schedule session name at purchase time
+	QuotaRestored         bool               `gorm:"not null;default:false" json:"-"`                         // Prevents double quota restoration
 	BuyerName             string             `gorm:"type:varchar(100);not null" json:"buyer_name"`
 	BuyerEmail            string             `gorm:"type:varchar(255);not null" json:"buyer_email"`
 	BuyerPhone            string             `gorm:"type:varchar(20);not null" json:"buyer_phone"`
@@ -73,52 +73,48 @@ func generateOrderCode() string {
 
 // OrderResponse represents order response DTO
 type OrderResponse struct {
-	ID                    string                     `json:"id"`
-	UserID                string                     `json:"user_id"`
-	User                  *user.UserResponse         `json:"user,omitempty"`
-	OrderCode             string                     `json:"order_code"`
-	ScheduleID            string                     `json:"schedule_id"`
-	Schedule              *schedule.ScheduleResponse `json:"schedule,omitempty"`
-	TotalAmount           float64                    `json:"total_amount"`
-	UnitPrice             float64                    `json:"unit_price"`
-	CategoryNameSnapshot  string                     `json:"category_name_snapshot"`
-	EventNameSnapshot     string                     `json:"event_name_snapshot"`
-	ScheduleNameSnapshot  string                     `json:"schedule_name_snapshot"`
-	PaymentStatus         PaymentStatus              `json:"payment_status"`
-	PaymentMethod         string                     `json:"payment_method"`
-	MidtransTransactionID *string                    `json:"midtrans_transaction_id"`
-	PaymentExpiresAt      *time.Time                 `json:"payment_expires_at"`
-	QRISCode              *string                    `json:"qris_code,omitempty"` // Temporary QRIS code
-	BuyerName             string                     `json:"buyer_name"`
-	BuyerEmail            string                     `json:"buyer_email"`
-	BuyerPhone            string                     `json:"buyer_phone"`
-	OrderItems            []map[string]interface{}   `json:"order_items,omitempty"` // OrderItems akan di-set di service layer
-	CreatedAt             time.Time                  `json:"created_at"`
-	UpdatedAt             time.Time                  `json:"updated_at"`
+	ID                   string                     `json:"id"`
+	UserID               string                     `json:"user_id"`
+	User                 *user.UserResponse         `json:"user,omitempty"`
+	OrderCode            string                     `json:"order_code"`
+	ScheduleID           string                     `json:"schedule_id"`
+	Schedule             *schedule.ScheduleResponse `json:"schedule,omitempty"`
+	TotalAmount          float64                    `json:"total_amount"`
+	UnitPrice            float64                    `json:"unit_price"`
+	CategoryNameSnapshot string                     `json:"category_name_snapshot"`
+	EventNameSnapshot    string                     `json:"event_name_snapshot"`
+	ScheduleNameSnapshot string                     `json:"schedule_name_snapshot"`
+	PaymentStatus        PaymentStatus              `json:"payment_status"`
+	PaymentMethod        string                     `json:"payment_method"`
+	PaymentExpiresAt     *time.Time                 `json:"payment_expires_at"`
+	BuyerName            string                     `json:"buyer_name"`
+	BuyerEmail           string                     `json:"buyer_email"`
+	BuyerPhone           string                     `json:"buyer_phone"`
+	OrderItems           []map[string]interface{}   `json:"order_items,omitempty"` // OrderItems akan di-set di service layer
+	CreatedAt            time.Time                  `json:"created_at"`
+	UpdatedAt            time.Time                  `json:"updated_at"`
 }
 
 // ToOrderResponse converts Order to OrderResponse
 func (o *Order) ToOrderResponse() *OrderResponse {
 	resp := &OrderResponse{
-		ID:                    o.ID,
-		UserID:                o.UserID,
-		OrderCode:             o.OrderCode,
-		ScheduleID:            o.ScheduleID,
-		TotalAmount:           o.TotalAmount,
-		UnitPrice:             o.UnitPrice,
-		CategoryNameSnapshot:  o.CategoryNameSnapshot,
-		EventNameSnapshot:     o.EventNameSnapshot,
-		ScheduleNameSnapshot:  o.ScheduleNameSnapshot,
-		PaymentStatus:         o.PaymentStatus,
-		PaymentMethod:         o.PaymentMethod,
-		MidtransTransactionID: o.MidtransTransactionID,
-		PaymentExpiresAt:      o.PaymentExpiresAt,
-		QRISCode:              o.QRISCode,
-		BuyerName:             o.BuyerName,
-		BuyerEmail:            o.BuyerEmail,
-		BuyerPhone:            o.BuyerPhone,
-		CreatedAt:             o.CreatedAt,
-		UpdatedAt:             o.UpdatedAt,
+		ID:                   o.ID,
+		UserID:               o.UserID,
+		OrderCode:            o.OrderCode,
+		ScheduleID:           o.ScheduleID,
+		TotalAmount:          o.TotalAmount,
+		UnitPrice:            o.UnitPrice,
+		CategoryNameSnapshot: o.CategoryNameSnapshot,
+		EventNameSnapshot:    o.EventNameSnapshot,
+		ScheduleNameSnapshot: o.ScheduleNameSnapshot,
+		PaymentStatus:        o.PaymentStatus,
+		PaymentMethod:        o.PaymentMethod,
+		PaymentExpiresAt:     o.PaymentExpiresAt,
+		BuyerName:            o.BuyerName,
+		BuyerEmail:           o.BuyerEmail,
+		BuyerPhone:           o.BuyerPhone,
+		CreatedAt:            o.CreatedAt,
+		UpdatedAt:            o.UpdatedAt,
 	}
 	if o.User != nil {
 		resp.User = o.User.ToUserResponse()

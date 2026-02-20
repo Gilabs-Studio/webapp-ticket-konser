@@ -10,6 +10,7 @@ import (
 	"time"
 
 	attendeehandler "github.com/gilabs/webapp-ticket-konser/api/internal/api/handlers/attendee"
+	audithandler "github.com/gilabs/webapp-ticket-konser/api/internal/api/handlers/audit"
 	authhandler "github.com/gilabs/webapp-ticket-konser/api/internal/api/handlers/auth"
 	checkinhandler "github.com/gilabs/webapp-ticket-konser/api/internal/api/handlers/checkin"
 	dashboardhandler "github.com/gilabs/webapp-ticket-konser/api/internal/api/handlers/dashboard"
@@ -28,6 +29,7 @@ import (
 	userhandler "github.com/gilabs/webapp-ticket-konser/api/internal/api/handlers/user"
 	"github.com/gilabs/webapp-ticket-konser/api/internal/api/middleware"
 	attendeeroutes "github.com/gilabs/webapp-ticket-konser/api/internal/api/routes/attendee"
+	auditroutes "github.com/gilabs/webapp-ticket-konser/api/internal/api/routes/audit"
 	authroutes "github.com/gilabs/webapp-ticket-konser/api/internal/api/routes/auth"
 	checkinroutes "github.com/gilabs/webapp-ticket-konser/api/internal/api/routes/checkin"
 	dashboardroutes "github.com/gilabs/webapp-ticket-konser/api/internal/api/routes/dashboard"
@@ -49,6 +51,7 @@ import (
 	paymentexpirationjob "github.com/gilabs/webapp-ticket-konser/api/internal/job"
 	"github.com/gilabs/webapp-ticket-konser/api/internal/repository/interfaces/role"
 	attendeerepo "github.com/gilabs/webapp-ticket-konser/api/internal/repository/postgres/attendee"
+	auditrepo "github.com/gilabs/webapp-ticket-konser/api/internal/repository/postgres/audit"
 	authrepo "github.com/gilabs/webapp-ticket-konser/api/internal/repository/postgres/auth"
 	checkinrepo "github.com/gilabs/webapp-ticket-konser/api/internal/repository/postgres/checkin"
 	dashboardrepo "github.com/gilabs/webapp-ticket-konser/api/internal/repository/postgres/dashboard"
@@ -67,6 +70,7 @@ import (
 	ticketcategoryrepo "github.com/gilabs/webapp-ticket-konser/api/internal/repository/postgres/ticket_category"
 	userrepo "github.com/gilabs/webapp-ticket-konser/api/internal/repository/postgres/user"
 	attendeeservice "github.com/gilabs/webapp-ticket-konser/api/internal/service/attendee"
+	auditservice "github.com/gilabs/webapp-ticket-konser/api/internal/service/audit"
 	authservice "github.com/gilabs/webapp-ticket-konser/api/internal/service/auth"
 	checkinservice "github.com/gilabs/webapp-ticket-konser/api/internal/service/checkin"
 	dashboardservice "github.com/gilabs/webapp-ticket-konser/api/internal/service/dashboard"
@@ -141,6 +145,7 @@ func main() {
 	merchandiseRepo := merchandiserepo.NewRepository(database.DB)
 	settingsRepo := settingsrepo.NewRepository(database.DB)
 	dashboardRepo := dashboardrepo.NewRepository(database.DB)
+	auditRepo := auditrepo.NewRepository(database.DB)
 
 	// Setup services
 	menuService := menuservice.NewService(menuRepo, roleRepo)
@@ -156,10 +161,11 @@ func main() {
 	orderService := orderservice.NewService(orderRepo, ticketCategoryRepo, scheduleRepo, orderItemRepo, orderItemService)
 	checkInService := checkinservice.NewService(checkInRepo, orderItemRepo)
 	gateService := gateservice.NewService(gateRepo, gateStaffRepo, orderItemRepo, checkInRepo, checkInService)
-	userService := userservice.NewService(userRepo, roleRepo)
+	dashboardService := dashboardservice.NewService(dashboardRepo)
+	auditService := auditservice.NewService(auditRepo)
+	userService := userservice.NewService(userRepo, roleRepo, auditService)
 	merchandiseService := merchandiseservice.NewService(merchandiseRepo)
 	settingsService := settingsservice.NewService(settingsRepo)
-	dashboardService := dashboardservice.NewService(dashboardRepo)
 
 	// Setup handlers
 	authHandler := authhandler.NewHandler(authService)
@@ -179,6 +185,7 @@ func main() {
 	merchandiseHandler := merchandisehandler.NewHandler(merchandiseService)
 	settingsHandler := settingshandler.NewHandler(settingsService)
 	dashboardHandler := dashboardhandler.NewHandler(dashboardService)
+	auditHandler := audithandler.NewHandler(auditService)
 
 	// Setup router
 	router := setupRouter(
@@ -200,11 +207,12 @@ func main() {
 		merchandiseHandler,
 		settingsHandler,
 		dashboardHandler,
+		auditHandler,
 		roleRepo,
 	)
 
 	// Start background jobs
-	paymentexpirationjob.StartPaymentExpirationJob(orderService)
+	cronJob := paymentexpirationjob.StartPaymentExpirationJob(orderService)
 
 	// Run server with explicit timeouts + graceful shutdown
 	port := config.AppConfig.Server.Port
@@ -234,6 +242,12 @@ func main() {
 	defer cancel()
 
 	log.Println("Shutting down server...")
+
+	// Stop cron job first to prevent new processing during shutdown
+	cronCtx := cronJob.Stop()
+	<-cronCtx.Done()
+	log.Println("Cron jobs stopped")
+
 	if err := srv.Shutdown(ctx); err != nil {
 		log.Fatal("Server shutdown failed:", err)
 	}
@@ -259,6 +273,7 @@ func setupRouter(
 	merchandiseHandler *merchandisehandler.Handler,
 	settingsHandler *settingshandler.Handler,
 	dashboardHandler *dashboardhandler.Handler,
+	auditHandler *audithandler.Handler,
 	roleRepo role.Repository,
 ) *gin.Engine {
 	// Set Gin mode
@@ -352,6 +367,9 @@ func setupRouter(
 
 		// Dashboard routes
 		dashboardroutes.SetupRoutes(v1, dashboardHandler, roleRepo, jwtManager)
+
+		// Audit Log routes
+		auditroutes.SetupRoutes(v1, auditHandler, roleRepo, jwtManager)
 	}
 
 	return router

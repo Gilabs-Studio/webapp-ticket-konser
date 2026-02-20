@@ -1,6 +1,8 @@
 package order
 
 import (
+	stderrors "errors"
+	"log"
 	"strconv"
 
 	"github.com/gilabs/webapp-ticket-konser/api/internal/domain/order"
@@ -206,36 +208,49 @@ func (h *Handler) CreateOrder(c *gin.Context) {
 
 	createdOrder, err := h.orderService.CreateOrder(&req, userIDStr, idempotencyKey)
 	if err != nil {
-		if err == orderservice.ErrUserNotFound {
+		if stderrors.Is(err, orderservice.ErrUserNotFound) {
 			errors.ErrorResponse(c, "USER_NOT_FOUND", map[string]interface{}{
 				"message": "User account not found. Please login again.",
 			}, nil)
 			return
 		}
-		if err == orderservice.ErrScheduleNotFound {
+		if stderrors.Is(err, orderservice.ErrScheduleNotFound) {
 			errors.ErrorResponse(c, "SCHEDULE_NOT_FOUND", map[string]interface{}{
 				"schedule_id": req.ScheduleID,
 			}, nil)
 			return
 		}
-		if err == orderservice.ErrTicketCategoryNotFound {
+		if stderrors.Is(err, orderservice.ErrTicketCategoryNotFound) {
 			errors.ErrorResponse(c, "TICKET_CATEGORY_NOT_FOUND", map[string]interface{}{
 				"ticket_category_id": req.TicketCategoryID,
 			}, nil)
 			return
 		}
-		if err == orderservice.ErrInsufficientQuota {
+		if stderrors.Is(err, orderservice.ErrInsufficientQuota) {
 			errors.ErrorResponse(c, "INSUFFICIENT_QUOTA", map[string]interface{}{
 				"requested": req.Quantity,
 			}, nil)
 			return
 		}
-		if err == orderservice.ErrInsufficientSeats {
+		if stderrors.Is(err, orderservice.ErrInsufficientSeats) {
 			errors.ErrorResponse(c, "INSUFFICIENT_SEATS", map[string]interface{}{
 				"requested": req.Quantity,
 			}, nil)
 			return
 		}
+		if stderrors.Is(err, orderservice.ErrEventNotAvailable) {
+			errors.ErrorResponse(c, "EVENT_NOT_AVAILABLE", map[string]interface{}{
+				"message": "This event is not currently available for purchase.",
+			}, nil)
+			return
+		}
+		if stderrors.Is(err, orderservice.ErrSchedulePassed) {
+			errors.ErrorResponse(c, "SCHEDULE_PASSED", map[string]interface{}{
+				"message": "This event schedule has already passed.",
+			}, nil)
+			return
+		}
+		log.Printf("[CreateOrder] Internal Server Error: %v", err)
 		errors.InternalServerErrorResponse(c, "")
 		return
 	}

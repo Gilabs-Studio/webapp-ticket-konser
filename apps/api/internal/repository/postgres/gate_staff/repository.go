@@ -55,6 +55,16 @@ func (r *Repository) ListGatesByStaffID(staffID string) ([]*gate.Gate, error) {
 	return gates, nil
 }
 
+func (r *Repository) ListStaffByGateID(gateID string) ([]*gate.GateStaffAssignment, error) {
+	var assignments []*gate.GateStaffAssignment
+	if err := r.db.Where("gate_id = ?", gateID).
+		Preload("Staff").
+		Find(&assignments).Error; err != nil {
+		return nil, err
+	}
+	return assignments, nil
+}
+
 var _ gatestaffrepo.Repository = (*Repository)(nil)
 
 var ErrNotFound = errors.New("gate staff assignment not found")

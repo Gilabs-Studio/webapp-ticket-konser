@@ -18,11 +18,6 @@ func CORSMiddleware() gin.HandlerFunc {
 		env = appCfg.Server.Env
 	}
 
-	defaultDevOrigins := []string{
-		"http://localhost:3000",
-		"http://localhost:3001",
-	}
-
 	if env == "production" {
 		// Comma-separated list, e.g. "https://app.example.com,https://admin.example.com"
 		originsRaw := strings.TrimSpace(os.Getenv("CORS_ALLOW_ORIGINS"))
@@ -41,7 +36,9 @@ func CORSMiddleware() gin.HandlerFunc {
 			corsCfg.AllowOrigins = []string{}
 		}
 	} else {
-		corsCfg.AllowOrigins = defaultDevOrigins
+		// In development, allow all origins to facilitate testing from mobile devices
+		// and local network IPs without triggering CORS issues.
+		corsCfg.AllowAllOrigins = true
 	}
 	corsCfg.AllowMethods = []string{"GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"}
 	corsCfg.AllowHeaders = []string{

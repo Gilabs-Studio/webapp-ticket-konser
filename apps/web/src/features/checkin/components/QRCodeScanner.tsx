@@ -5,15 +5,12 @@
  * 
  * Features:
  * - Manual QR code input (✅ Fully functional)
- * - Camera preview (✅ Ready, QR detection needs jsqr library)
+ * - Camera preview (✅ Fully operational with auto-detection)
  * 
- * To enable camera-based QR scanning:
- * 1. Install: npm install jsqr
- * 2. Uncomment: import jsQR from "jsqr";
- * 3. Uncomment QR detection code (line ~239)
- * 
- * Manual input works 100% without any additional setup.
+ * Powered by jsqr for real-time edge processing.
  */
+
+import jsQR from "jsqr";
 
 import { useEffect, useRef, useState, useCallback } from "react";
 import { useTranslations } from "next-intl";
@@ -97,13 +94,36 @@ export function QRCodeScanner({
   }, []); // Empty deps - stable function
 
   // Check camera permission
+  const [isInsecureContext, setIsInsecureContext] = useState(false);
+
   useEffect(() => {
     const checkPermission = async () => {
+      // Check for secure context (HTTPS or localhost)
+      const isLocalhost = Boolean(
+        window.location.hostname === "localhost" ||
+        window.location.hostname === "[::1]" ||
+        window.location.hostname.match(/^127(?:\.(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)){3}$/)
+      );
+
+      const isSecure = window.isSecureContext || isLocalhost;
+
+      if (!isSecure && !navigator.mediaDevices) {
+        setIsInsecureContext(true);
+        setHasPermission(false);
+        return;
+      }
+
+      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        setHasPermission(false);
+        return;
+      }
+
       try {
         const stream = await navigator.mediaDevices.getUserMedia({ video: true });
         stream.getTracks().forEach((track) => track.stop());
         setHasPermission(true);
-      } catch {
+      } catch (err) {
+        console.error("Camera permission error:", err);
         setHasPermission(false);
       }
     };
@@ -127,11 +147,11 @@ export function QRCodeScanner({
       });
 
       streamRef.current = stream;
-      
+
       if (videoRef.current) {
         videoRef.current.srcObject = stream;
         videoRef.current.setAttribute("playsinline", "true");
-        
+
         try {
           await videoRef.current.play();
         } catch (playError) {
@@ -163,14 +183,15 @@ export function QRCodeScanner({
         // Draw video frame to canvas
         context.drawImage(video, 0, 0, canvas.width, canvas.height);
 
-        // QR code detection will be enabled after installing jsqr library
-        // For now, manual input is the primary method
-        // To enable: install jsqr and uncomment below
-        // const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
-        // const code = jsQR(imageData.data, imageData.width, imageData.height);
-        // if (code) {
-        //   handleQRCodeProcess(code.data);
-        // }
+        // QR code detection using jsqr
+        const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
+        const code = jsQR(imageData.data, imageData.width, imageData.height, {
+          inversionAttempts: "dontInvert",
+        });
+
+        if (code) {
+          handleQRCodeProcess(code.data);
+        }
       };
 
       // Scan every 100ms
@@ -198,7 +219,7 @@ export function QRCodeScanner({
   const handleQRCodeProcess = useCallback(
     async (qrCode: string) => {
       if (isProcessing) return; // Prevent multiple simultaneous processing
-      
+
       setIsProcessing(true);
       setIsScanning(false);
 
@@ -316,6 +337,7 @@ export function QRCodeScanner({
 
   // Request camera permission
   const requestPermission = useCallback(async () => {
+    if (isInsecureContext || !navigator.mediaDevices) return;
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ video: true });
       stream.getTracks().forEach((track) => track.stop());
@@ -323,7 +345,7 @@ export function QRCodeScanner({
     } catch {
       setHasPermission(false);
     }
-  }, []);
+  }, [isInsecureContext]);
 
   // Handle manual check-in
   const handleManualCheckIn = useCallback(async () => {
@@ -343,15 +365,17 @@ export function QRCodeScanner({
             <AlertCircle className="h-8 w-8 text-destructive" />
           </div>
           <div className="space-y-2">
-            <h2 className="text-xl font-semibold">{t("cameraPermission.denied")}</h2>
+            <h2 className="text-xl font-semibold">
+              {isInsecureContext ? t("cameraPermission.insecureContext") : t("cameraPermission.denied")}
+            </h2>
             <p className="text-muted-foreground max-w-sm mx-auto">
-              {t("cameraPermission.deniedMessage")}
+              {isInsecureContext ? t("cameraPermission.insecureContextMessage") : t("cameraPermission.deniedMessage")}
             </p>
           </div>
           <Button onClick={requestPermission} size="lg" className="w-full sm:w-auto px-8 cursor-pointer">
             {t("cameraPermission.requestButton")}
           </Button>
-          
+
           <div className="pt-8 border-t max-w-md mx-auto">
             <div className="flex flex-col gap-4">
               <Input
@@ -367,8 +391,8 @@ export function QRCodeScanner({
                 }}
                 disabled={isProcessing}
               />
-              <Button 
-                onClick={handleManualCheckIn} 
+              <Button
+                onClick={handleManualCheckIn}
                 disabled={!manualQRCode.trim() || isProcessing}
                 className="h-12 cursor-pointer"
               >
